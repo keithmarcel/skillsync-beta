@@ -1,189 +1,326 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { routes } from '@/lib/routes'
-
-// Mock data for dashboard - will be replaced with real data
-const mockStats = {
-  rolesReady: 3,
-  overallReadiness: 72,
-  skillsIdentified: 24,
-  gapsHighlighted: 8
-}
-
-const mockRecentAssessments = [
-  {
-    id: '1',
-    jobTitle: 'Software Developer',
-    readiness: 85,
-    status: 'role_ready',
-    analyzedAt: '2024-01-15'
-  },
-  {
-    id: '2', 
-    jobTitle: 'Data Analyst',
-    readiness: 68,
-    status: 'close_gaps',
-    analyzedAt: '2024-01-12'
-  }
-]
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { PageHeader } from "@/components/ui/page-header"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { SkillSyncSnapshot } from "@/components/ui/skillsync-snapshot"
+import { getUserAssessments, listJobs } from '@/lib/api'
 
 export default function Dashboard() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">SkillSync</h1>
-            </div>
-            <nav className="flex space-x-8">
-              <Link href={routes.home} className="text-gray-900 font-medium">
-                Dashboard
-              </Link>
-              <Link href={routes.jobs} className="text-gray-500 hover:text-gray-900">
-                Jobs
-              </Link>
-              <Link href={routes.programs} className="text-gray-500 hover:text-gray-900">
-                Programs
-              </Link>
-              <Link href={routes.myAssessments} className="text-gray-500 hover:text-gray-900">
-                My Assessments
-              </Link>
-            </nav>
+  const [recentAssessments, setRecentAssessments] = useState<any[]>([])
+  const [featuredJobs, setFeaturedJobs] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadDashboardData() {
+      try {
+        const [assessments, jobs] = await Promise.all([
+          getUserAssessments().catch(() => []),
+          listJobs('featured_role').catch(() => [])
+        ])
+        
+        setRecentAssessments(assessments.slice(0, 3))
+        setFeaturedJobs(jobs.slice(0, 4))
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDashboardData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+            ))}
           </div>
         </div>
-      </header>
+      </div>
+    )
+  }
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back!</h2>
-          <p className="text-gray-600">Track your skills progress and discover new opportunities.</p>
-        </div>
+  return (
+    <div className="space-y-0">
+      <PageHeader 
+        variant="split"
+        isDynamic={true}
+        userName="Keith" // TODO: Get from user context/auth
+        isReturningUser={false} // TODO: Get from user session data
+        primaryAction={{
+          label: "Get Started",
+          href: "/jobs"
+        }}
+        secondaryAction={{
+          label: "Upload Resume",
+          onClick: () => {
+            // TODO: Implement resume upload modal
+            console.log("Upload resume clicked")
+          }
+        }}
+      />
 
-        {/* Snapshot Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold text-green-600">
-                {mockStats.rolesReady}
-              </CardTitle>
-              <CardDescription>Roles Ready</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                You're qualified for these positions
-              </p>
-            </CardContent>
-          </Card>
+      <div className="max-w-[1280px] mx-auto px-6 py-8 mt-10">
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold text-blue-600">
-                {mockStats.overallReadiness}%
-              </CardTitle>
-              <CardDescription>Overall Readiness</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Average across all assessments
-              </p>
-            </CardContent>
-          </Card>
+      {/* Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="bg-teal-600 text-white">
+          <CardContent className="p-6">
+            <h3 className="font-semibold text-lg mb-2">Explore Top Occupations</h3>
+            <p className="text-teal-50 text-sm mb-4">
+              Discover high-demand roles in your region, view job descriptions, and learn more.
+            </p>
+            <Button variant="secondary" size="sm" className="hover:bg-teal-100 hover:text-gray-900 transition-colors text-sm" asChild>
+              <Link href="/jobs" className="flex items-center gap-2">
+                Explore Jobs
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold text-purple-600">
-                {mockStats.skillsIdentified}
-              </CardTitle>
-              <CardDescription>Skills Identified</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Total skills in your profile
-              </p>
-            </CardContent>
-          </Card>
+        <Card className="bg-teal-600 text-white">
+          <CardContent className="p-6">
+            <h3 className="font-semibold text-lg mb-2">Browse Education Programs</h3>
+            <p className="text-teal-50 text-sm mb-4">
+              Find trusted education programs aligned to the skills employers want most.
+            </p>
+            <Button variant="secondary" size="sm" className="hover:bg-teal-100 hover:text-gray-900 transition-colors text-sm" asChild>
+              <Link href="/programs" className="flex items-center gap-2">
+                Browse Programs
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold text-orange-600">
-                {mockStats.gapsHighlighted}
-              </CardTitle>
-              <CardDescription>Gaps Highlighted</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Skills to develop further
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="bg-teal-600 text-white">
+          <CardContent className="p-6">
+            <h3 className="font-semibold text-lg mb-2">Review Your Proficiency</h3>
+            <p className="text-teal-50 text-sm mb-4">
+              Review your readiness scores and see your assessment summary.
+            </p>
+            <Button variant="secondary" size="sm" className="hover:bg-teal-100 hover:text-gray-900 transition-colors text-sm" asChild>
+              <Link href="/assessments" className="flex items-center gap-2">
+                Review Assessments
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Recent Assessments */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Assessments</CardTitle>
-              <CardDescription>Your latest skills evaluations</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {mockRecentAssessments.map((assessment) => (
-                <div key={assessment.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h4 className="font-medium">{assessment.jobTitle}</h4>
-                    <p className="text-sm text-gray-600">
-                      Assessed on {new Date(assessment.analyzedAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-semibold">{assessment.readiness}%</span>
-                    <Badge variant={assessment.status === 'role_ready' ? 'default' : 'secondary'}>
-                      {assessment.status === 'role_ready' ? 'Ready' : 'Close Gaps'}
-                    </Badge>
-                  </div>
+      <div className="py-10">
+        <Separator />
+      </div>
+
+      {/* Empty State Snapshot */}
+      <SkillSyncSnapshot hasAssessments={false} />
+
+      <div className="py-10">
+        <Separator />
+      </div>
+
+      {/* Filled State Snapshot with Sample Data */}
+      <SkillSyncSnapshot 
+        hasAssessments={true}
+        metrics={{
+          rolesReadyFor: 3,
+          overallRoleReadiness: 60,
+          skillsIdentified: 89,
+          gapsHighlighted: 56
+        }}
+        skillData={{
+          proficient: 34,
+          building: 45,
+          needsDevelopment: 66
+        }}
+      />
+
+      <div className="py-10">
+        <Separator />
+      </div>
+
+      {/* Saved Jobs and Programs */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Saved Jobs */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Saved Jobs</CardTitle>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/jobs" className="text-teal-600 hover:text-teal-700">
+                  View All →
+                </Link>
+              </Button>
+            </div>
+            <CardDescription>
+              Jobs you like that match your skills and career goals.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">Electronics</h4>
+                  <p className="text-xs text-gray-600">Oversees daily business functions and cross-functional...</p>
                 </div>
-              ))}
-              <Button asChild className="w-full">
-                <Link href={routes.myAssessments}>View All Assessments</Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Get started with your next assessment</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button asChild className="w-full" size="lg">
-                <Link href={routes.jobs}>Explore Jobs</Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full" size="lg">
-                <Link href={routes.programs}>Browse Programs</Link>
-              </Button>
-              <div className="pt-4 border-t">
-                <h4 className="font-medium mb-2">Popular Assessments</h4>
-                <div className="space-y-2">
-                  <Button variant="ghost" className="w-full justify-start" size="sm">
-                    Software Developer Assessment
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start" size="sm">
-                    Data Analyst Assessment
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start" size="sm">
-                    Project Manager Assessment
-                  </Button>
-                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/jobs/1" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Job Details →
+                  </Link>
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+              
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">Bookkeeping, Accounting & Auditing Clerks</h4>
+                  <p className="text-xs text-gray-600">Maintains financial records and transactional acc...</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/jobs/2" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Job Details →
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">Computer User Support Specialists</h4>
+                  <p className="text-xs text-gray-600">Assists users with technical problems and IT su...</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/jobs/3" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Job Details →
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">Accountants & Auditors</h4>
+                  <p className="text-xs text-gray-600">Prepares, audits, and analyzes financial reports...</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/jobs/4" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Job Details →
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">General & Operations Managers</h4>
+                  <p className="text-xs text-gray-600">Oversees daily business functions and oper...</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/jobs/5" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Job Details →
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Saved Programs */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Saved Programs</CardTitle>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/programs" className="text-teal-600 hover:text-teal-700">
+                  View All →
+                </Link>
+              </Button>
+            </div>
+            <CardDescription>
+              Programs you've bookmarked to help close skill gaps.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">Project Management Certificate</h4>
+                  <p className="text-xs text-gray-600">St. Petersburg College</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/programs/1" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Program Details →
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">Electricity Program</h4>
+                  <p className="text-xs text-gray-600">Pinellas Technical College</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/programs/2" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Program Details →
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">IT Support Tech (CompTIA A+)</h4>
+                  <p className="text-xs text-gray-600">Pinellas Technical College</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/programs/3" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Program Details →
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">Business Intelligence Certificate</h4>
+                  <p className="text-xs text-gray-600">Pinellas Technical College</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/programs/4" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Program Details →
+                  </Link>
+                </Button>
+              </div>
+              
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h4 className="font-medium text-sm">A.S. Business Admin</h4>
+                  <p className="text-xs text-gray-600">St. Petersburg College</p>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/programs/5" className="text-teal-600 hover:text-teal-700 text-xs">
+                    Program Details →
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      </div>
     </div>
   )
 }

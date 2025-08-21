@@ -7,8 +7,8 @@ CREATE TABLE public.assessment_skill_results (
   score_pct numeric NOT NULL,
   band USER-DEFINED NOT NULL,
   CONSTRAINT assessment_skill_results_pkey PRIMARY KEY (assessment_id, skill_id),
-  CONSTRAINT assessment_skill_results_assessment_id_fkey FOREIGN KEY (assessment_id) REFERENCES public.assessments(id),
-  CONSTRAINT assessment_skill_results_skill_id_fkey FOREIGN KEY (skill_id) REFERENCES public.skills(id)
+  CONSTRAINT assessment_skill_results_skill_id_fkey FOREIGN KEY (skill_id) REFERENCES public.skills(id),
+  CONSTRAINT assessment_skill_results_assessment_id_fkey FOREIGN KEY (assessment_id) REFERENCES public.assessments(id)
 );
 CREATE TABLE public.assessments (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -19,8 +19,8 @@ CREATE TABLE public.assessments (
   readiness_pct numeric,
   status_tag text CHECK (status_tag = ANY (ARRAY['role_ready'::text, 'close_gaps'::text, 'needs_development'::text])),
   CONSTRAINT assessments_pkey PRIMARY KEY (id),
-  CONSTRAINT assessments_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id),
-  CONSTRAINT assessments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+  CONSTRAINT assessments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT assessments_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.jobs(id)
 );
 CREATE TABLE public.cip_codes (
   cip_code text NOT NULL,
@@ -115,8 +115,8 @@ CREATE TABLE public.program_skills (
   skill_id uuid NOT NULL,
   weight numeric DEFAULT 1.0,
   CONSTRAINT program_skills_pkey PRIMARY KEY (program_id, skill_id),
-  CONSTRAINT program_skills_skill_id_fkey FOREIGN KEY (skill_id) REFERENCES public.skills(id),
-  CONSTRAINT program_skills_program_id_fkey FOREIGN KEY (program_id) REFERENCES public.programs(id)
+  CONSTRAINT program_skills_program_id_fkey FOREIGN KEY (program_id) REFERENCES public.programs(id),
+  CONSTRAINT program_skills_skill_id_fkey FOREIGN KEY (skill_id) REFERENCES public.skills(id)
 );
 CREATE TABLE public.programs (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -129,8 +129,8 @@ CREATE TABLE public.programs (
   program_url text,
   cip_code text,
   CONSTRAINT programs_pkey PRIMARY KEY (id),
-  CONSTRAINT programs_school_id_fkey FOREIGN KEY (school_id) REFERENCES public.schools(id),
-  CONSTRAINT programs_cip_code_fkey FOREIGN KEY (cip_code) REFERENCES public.cip_codes(cip_code)
+  CONSTRAINT programs_cip_code_fkey FOREIGN KEY (cip_code) REFERENCES public.cip_codes(cip_code),
+  CONSTRAINT programs_school_id_fkey FOREIGN KEY (school_id) REFERENCES public.schools(id)
 );
 CREATE TABLE public.quiz_questions (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -184,11 +184,20 @@ CREATE TABLE public.schools (
   state text,
   CONSTRAINT schools_pkey PRIMARY KEY (id)
 );
+CREATE TABLE public.skill_aliases (
+  skill_id uuid NOT NULL,
+  alias text NOT NULL,
+  CONSTRAINT skill_aliases_pkey PRIMARY KEY (skill_id, alias),
+  CONSTRAINT skill_aliases_skill_id_fkey FOREIGN KEY (skill_id) REFERENCES public.skills(id)
+);
 CREATE TABLE public.skills (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   name text NOT NULL,
   onet_id text,
   category text,
   description text,
+  lightcast_id text UNIQUE,
+  source text DEFAULT 'ONET/LIGHTCAST'::text,
+  source_version text,
   CONSTRAINT skills_pkey PRIMARY KEY (id)
 );

@@ -1,8 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/ui/page-header'
 import Link from 'next/link'
-import { routes } from '@/lib/routes'
+import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock } from 'lucide-react'
 
 // Mock data - will be replaced with real API calls
 const mockJob = {
@@ -39,39 +40,27 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href={routes.home} className="text-2xl font-bold text-gray-900">
-                SkillSync
-              </Link>
-            </div>
-            <nav className="flex space-x-8">
-              <Link href={routes.home} className="text-gray-500 hover:text-gray-900">
-                Dashboard
-              </Link>
-              <Link href={routes.jobs} className="text-gray-900 font-medium">
-                Jobs
-              </Link>
-              <Link href={routes.programs} className="text-gray-500 hover:text-gray-900">
-                Programs
-              </Link>
-              <Link href={routes.myAssessments} className="text-gray-500 hover:text-gray-900">
-                My Assessments
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        title={job.title}
+        subtitle={`${job.location_city}, ${job.location_state} • ${job.job_type}`}
+        variant="split"
+        primaryAction={{
+          label: "Start Assessment",
+          href: `/assessments/job/${job.id}`
+        }}
+        secondaryAction={{
+          label: "Save Job",
+          onClick: () => console.log("Save job")
+        }}
+      />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-[1280px] mx-auto px-6 py-8">
         {/* Breadcrumb */}
         <nav className="mb-6">
-          <Link href={routes.jobs} className="text-blue-600 hover:text-blue-800">
-            ← Back to Jobs
+          <Link href="/jobs" className="flex items-center gap-2 text-teal-600 hover:text-teal-700 font-medium">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Jobs
           </Link>
         </nav>
 
