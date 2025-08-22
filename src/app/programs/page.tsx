@@ -1,10 +1,16 @@
+'use client'
+
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import Link from 'next/link'
-import { routes } from '@/lib/routes'
+import PageHeader from '@/components/ui/page-header'
+import StickyTabs from '@/components/ui/sticky-tabs'
+import { Search, MapPin, Clock, Users, DollarSign } from 'lucide-react'
+import { useState } from 'react'
 
 // Mock data - will be replaced with real API calls
 const featuredPrograms = [
@@ -104,119 +110,102 @@ function ProgramCard({ program }: { program: any }) {
 }
 
 export default function ProgramsPage() {
+  const [activeTab, setActiveTab] = useState('featured')
+
+  const tabs = [
+    { id: 'featured', label: 'Featured', isActive: activeTab === 'featured' },
+    { id: 'all', label: 'All Programs', isActive: activeTab === 'all' },
+    { id: 'favorites', label: 'Favorites', isActive: activeTab === 'favorites' }
+  ]
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href={routes.home} className="text-2xl font-bold text-gray-900">
-                SkillSync
-              </Link>
-            </div>
-            <nav className="flex space-x-8">
-              <Link href={routes.home} className="text-gray-500 hover:text-gray-900">
-                Dashboard
-              </Link>
-              <Link href={routes.jobs} className="text-gray-500 hover:text-gray-900">
-                Jobs
-              </Link>
-              <Link href={routes.programs} className="text-gray-900 font-medium">
-                Programs
-              </Link>
-              <Link href={routes.myAssessments} className="text-gray-500 hover:text-gray-900">
-                My Assessments
-              </Link>
-            </nav>
-          </div>
-        </div>
-      </header>
-
+      <PageHeader 
+        title="Educational Programs"
+        subtitle="Discover programs to develop your skills and advance your career."
+        variant="split"
+      />
+      
+      <StickyTabs 
+        tabs={tabs}
+        onTabChange={setActiveTab}
+      />
+      
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Educational Programs</h1>
-          <p className="text-gray-600">Discover programs to develop your skills and advance your career.</p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <Tabs defaultValue="featured" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="featured">Featured</TabsTrigger>
-            <TabsTrigger value="all">All Programs</TabsTrigger>
-            <TabsTrigger value="favorites">Favorites</TabsTrigger>
-          </TabsList>
+          {/* Tab Content */}
+          <div className="mt-6">
+            {activeTab === 'featured' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredPrograms.map((program) => (
+                  <ProgramCard key={program.id} program={program} />
+                ))}
+              </div>
+            )}
 
-          <TabsContent value="featured" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredPrograms.map((program) => (
-                <ProgramCard key={program.id} program={program} />
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="all" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>All Programs</CardTitle>
-                <CardDescription>
-                  Browse all available educational programs in Pinellas County
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Format</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>School</TableHead>
-                      <TableHead>Skills</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {allPrograms.map((program) => (
-                      <TableRow key={program.id}>
-                        <TableCell className="font-medium">{program.name}</TableCell>
-                        <TableCell>{program.program_type}</TableCell>
-                        <TableCell>{program.format}</TableCell>
-                        <TableCell>{program.duration_text}</TableCell>
-                        <TableCell>{program.school}</TableCell>
-                        <TableCell>{program.skills_provided}</TableCell>
-                        <TableCell>
-                          <Button asChild variant="outline" size="sm">
-                            <Link href={`/programs/${program.id}`}>Details</Link>
-                          </Button>
-                        </TableCell>
+            {activeTab === 'all' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Programs</CardTitle>
+                  <CardDescription>
+                    Browse all available educational programs in Pinellas County
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Format</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>School</TableHead>
+                        <TableHead>Skills</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    </TableHeader>
+                    <TableBody>
+                      {allPrograms.map((program) => (
+                        <TableRow key={program.id}>
+                          <TableCell className="font-medium">{program.name}</TableCell>
+                          <TableCell>{program.program_type}</TableCell>
+                          <TableCell>{program.format}</TableCell>
+                          <TableCell>{program.duration_text}</TableCell>
+                          <TableCell>{program.school}</TableCell>
+                          <TableCell>{program.skills_provided}</TableCell>
+                          <TableCell>
+                            <Button asChild variant="outline" size="sm">
+                              <Link href={`/programs/${program.id}`}>Details</Link>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
 
-          <TabsContent value="favorites" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Favorite Programs</CardTitle>
-                <CardDescription>
-                  Programs you've saved for later review
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <p className="text-gray-500 mb-4">No favorite programs yet</p>
-                  <Button asChild variant="outline">
-                    <Link href="#featured">Browse Featured Programs</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+            {activeTab === 'favorites' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Favorite Programs</CardTitle>
+                  <CardDescription>
+                    Programs you've saved for later review
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 mb-4">No favorite programs yet</p>
+                    <Button asChild variant="outline">
+                      <button onClick={() => setActiveTab('featured')}>Browse Featured Programs</button>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
       </main>
     </div>
   )

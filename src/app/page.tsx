@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { PageHeader } from "@/components/ui/page-header"
+import PageHeader from "@/components/ui/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { SkillSyncSnapshot } from "@/components/ui/skillsync-snapshot"
