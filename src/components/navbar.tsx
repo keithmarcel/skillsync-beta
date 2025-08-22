@@ -7,7 +7,7 @@ import { UserMenu } from '@/components/ui/user-menu'
 import { GiveFeedbackDialog } from '@/components/ui/give-feedback-dialog'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, Heart, BookOpen, User, Home, Briefcase, GraduationCap, FileText } from 'lucide-react'
+import { Menu, Heart, BookOpen, User, Home, Briefcase, GraduationCap, FileText, MessageSquare } from 'lucide-react'
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -19,6 +19,7 @@ const navigation = [
 const quickActions = [
   { name: 'Saved Jobs', href: '/jobs?tab=favorites', icon: Heart, count: 3 },
   { name: 'Saved Programs', href: '/programs?tab=favorites', icon: BookOpen, count: 2 },
+  { name: 'Give Feedback', href: null, icon: MessageSquare, count: 0, isButton: true },
 ]
 
 export function Navbar() {
@@ -120,10 +121,24 @@ export function Navbar() {
                         <div className="space-y-1">
                           {quickActions.map((item) => {
                             const Icon = item.icon
+                            
+                            if (item.isButton) {
+                              return (
+                                <GiveFeedbackDialog key={item.name}>
+                                  <button className="flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-50 transition-colors w-full text-left">
+                                    <div className="flex items-center gap-3">
+                                      <Icon className="h-5 w-5" />
+                                      {item.name}
+                                    </div>
+                                  </button>
+                                </GiveFeedbackDialog>
+                              )
+                            }
+                            
                             return (
                               <Link
                                 key={item.name}
-                                href={item.href}
+                                href={item.href!}
                                 onClick={() => setIsOpen(false)}
                                 className="flex items-center justify-between px-3 py-3 rounded-lg text-base font-medium text-gray-900 hover:bg-gray-50 transition-colors"
                               >
@@ -142,12 +157,6 @@ export function Navbar() {
                         </div>
                       </div>
 
-                      {/* Mobile feedback button */}
-                      <div className="mt-6 px-4">
-                        <div className="pt-4 border-t border-gray-200">
-                          <GiveFeedbackDialog />
-                        </div>
-                      </div>
                     </div>
 
                     {/* Account actions at bottom */}

@@ -74,7 +74,7 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
         )}
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-[425px] bg-white">
+      <DialogContent className="sm:max-w-[425px] max-w-[95vw] bg-white">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-gray-900">
             Give Feedback
@@ -95,40 +95,40 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Emoji Sentiment Selection */}
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-2 sm:gap-4">
               <button
                 type="button"
                 onClick={() => setSelectedSentiment('positive')}
-                className={`w-20 h-20 rounded-full flex items-center justify-center p-3 transition-all ${
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2 sm:p-3 transition-all ${
                   selectedSentiment === 'positive' 
                     ? 'bg-teal-300' 
                     : 'bg-gray-100 hover:bg-gray-100 hover:ring-2 hover:ring-teal-300'
                 }`}
-                style={{ fontSize: '60px', lineHeight: '60px' }}
+                style={{ fontSize: '48px', lineHeight: '48px' }}
               >
                 😍
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedSentiment('neutral')}
-                className={`w-20 h-20 rounded-full flex items-center justify-center p-3 transition-all ${
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2 sm:p-3 transition-all ${
                   selectedSentiment === 'neutral' 
                     ? 'bg-teal-300' 
                     : 'bg-gray-100 hover:bg-gray-100 hover:ring-2 hover:ring-teal-300'
                 }`}
-                style={{ fontSize: '60px', lineHeight: '60px' }}
+                style={{ fontSize: '48px', lineHeight: '48px' }}
               >
                 😐
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedSentiment('negative')}
-                className={`w-20 h-20 rounded-full flex items-center justify-center p-3 transition-all ${
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2 sm:p-3 transition-all ${
                   selectedSentiment === 'negative' 
                     ? 'bg-teal-300' 
                     : 'bg-gray-100 hover:bg-gray-100 hover:ring-2 hover:ring-teal-300'
                 }`}
-                style={{ fontSize: '60px', lineHeight: '60px' }}
+                style={{ fontSize: '48px', lineHeight: '48px' }}
               >
                 😟
               </button>
