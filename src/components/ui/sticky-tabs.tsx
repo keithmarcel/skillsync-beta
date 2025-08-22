@@ -23,7 +23,7 @@ interface StickyTabsProps {
  */
 export default function StickyTabs({ tabs, onTabChange, className = '' }: StickyTabsProps) {
   return (
-    <div className="bg-gray-50 sticky top-24 z-40">
+    <div className="bg-gray-50 sticky top-16 sm:top-24 z-40">
       <div className={`max-w-[1280px] mx-auto px-6 border-b border-gray-200 mb-7 ${className}`}>
         {/* 24px padding above tabs */}
         <div className="h-6"></div>

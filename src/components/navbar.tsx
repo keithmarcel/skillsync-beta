@@ -35,7 +35,7 @@ export function Navbar() {
               <img 
                 src="/logo_skillsync_hirestpeteway_lockup.svg" 
                 alt="SkillSync - Powered by Bisk Amplified" 
-                className="h-8 sm:h-12 w-auto"
+                className="h-10 sm:h-12 w-auto"
               />
             </Link>
           </div>
@@ -69,7 +69,7 @@ export function Navbar() {
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="sm" className="p-2">
-                    <Menu className="h-5 w-5" />
+                    <Menu className="h-6 w-6" />
                     <span className="sr-only">Open menu</span>
                   </Button>
                 </SheetTrigger>

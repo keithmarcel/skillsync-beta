@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${GeistSans.className} antialiased bg-gray-50`}>
         <Navbar />
-        <main className="pt-20 min-h-screen">
+        <main className="pt-12 sm:pt-20 min-h-screen">
           {children}
         </main>
         <Toaster />
