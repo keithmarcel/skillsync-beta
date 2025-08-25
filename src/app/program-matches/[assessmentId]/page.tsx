@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import PageHeader from '@/components/ui/page-header'
 import Breadcrumb from '@/components/ui/breadcrumb'
 import AssessmentStepper from '@/components/ui/assessment-stepper'
+import { ProgramCard } from '@/components/ui/program-card'
 import Link from 'next/link'
 import { routes } from '@/lib/routes'
 
@@ -218,11 +219,33 @@ export default function ProgramMatchesPage({ params }: { params: { assessmentId:
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {programMatches.map((program) => (
-              <ProgramMatchCard 
-                key={program.id} 
-                program={program} 
-                gapSkills={assessment.gap_skills}
-              />
+              <div key={program.id} className="relative">
+                <div className="absolute top-4 right-4 z-10">
+                  <Badge className="bg-green-100 text-green-800">
+                    {Math.round(program.coverage_score * 100)}% match
+                  </Badge>
+                </div>
+                <ProgramCard
+                  id={program.id}
+                  name={program.name}
+                  school={{
+                    name: program.school.name,
+                    logo: program.school.logo_url || undefined
+                  }}
+                  programType={program.program_type}
+                  format={program.format}
+                  duration={program.duration_text}
+                  description={program.short_desc}
+                  skillsCallout={{
+                    type: 'skills',
+                    count: program.covered_skills.length,
+                    label: `Covers ${program.covered_skills.length} of your skill gaps`,
+                    href: `/programs/${program.id}/skills`
+                  }}
+                  aboutSchoolHref={`https://${program.school.name.toLowerCase().replace(/\s+/g, '')}.edu`}
+                  programDetailsHref={`/programs/${program.id}`}
+                />
+              </div>
             ))}
           </div>
 

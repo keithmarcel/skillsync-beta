@@ -1,122 +1,84 @@
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import PageHeader from '@/components/ui/page-header'
+import { AssessmentCard } from '@/components/ui/assessment-card'
+import { TitleHero } from '@/components/ui/title-hero'
+import { EmptyState } from '@/components/ui/empty-state'
 import Link from 'next/link'
 import { routes } from '@/lib/routes'
 import { getStatusTagLabel, getStatusTagColor } from '@/lib/readiness'
-
-// Mock data - will be replaced with real API calls
-const mockAssessments = [
-  {
-    id: '1',
-    job: { title: 'Senior Software Developer', job_kind: 'featured_role', category: 'Technology' },
-    readiness_pct: 85,
-    status_tag: 'role_ready',
-    method: 'resume',
-    analyzed_at: '2024-01-15T10:30:00Z',
-    gaps_count: 2
-  },
-  {
-    id: '2',
-    job: { title: 'Data Analyst', job_kind: 'occupation', category: 'Analytics' },
-    readiness_pct: 68,
-    status_tag: 'close_gaps',
-    method: 'quiz',
-    analyzed_at: '2024-01-12T14:20:00Z',
-    gaps_count: 5
-  },
-  {
-    id: '3',
-    job: { title: 'Project Manager', job_kind: 'occupation', category: 'Management' },
-    readiness_pct: 42,
-    status_tag: 'needs_development',
-    method: 'resume',
-    analyzed_at: '2024-01-08T09:15:00Z',
-    gaps_count: 8
-  }
-]
-
-function AssessmentCard({ assessment }: { assessment: any }) {
-  const getNextStepCTA = () => {
-    switch (assessment.status_tag) {
-      case 'role_ready':
-        return { text: 'Share Score', variant: 'default' as const }
-      case 'close_gaps':
-        return { text: 'View Programs', variant: 'default' as const }
-      case 'needs_development':
-        return { text: 'Retake Assessment', variant: 'outline' as const }
-      default:
-        return { text: 'View Details', variant: 'outline' as const }
-    }
-  }
-
-  const nextStep = getNextStepCTA()
-
-  return (
-    <Card className="rounded-2xl shadow-sm">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-lg">{assessment.job.title}</CardTitle>
-            <CardDescription className="flex items-center gap-2 mt-1">
-              <span>{assessment.job.category}</span>
-              <Badge variant="outline" className="text-xs">
-                {assessment.job.job_kind === 'featured_role' ? 'Featured Role' : 'Occupation'}
-              </Badge>
-            </CardDescription>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600">{assessment.readiness_pct}%</div>
-            <Badge className={getStatusTagColor(assessment.status_tag)}>
-              {getStatusTagLabel(assessment.status_tag)}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
-              {assessment.method === 'resume' ? '📄 Resume' : '📝 Quiz'}
-            </Badge>
-            <span>Analyzed {new Date(assessment.analyzed_at).toLocaleDateString()}</span>
-          </div>
-          <span>{assessment.gaps_count} skill gaps</span>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button asChild className="flex-1">
-            <Link href={routes.assessment(assessment.id)}>View Report</Link>
-          </Button>
-          <Button variant={nextStep.variant} className="flex-1">
-            {nextStep.text}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
+import { useState, useEffect } from 'react'
+import { getUserAssessments, type Assessment } from '@/lib/database/queries'
 
 export default function MyAssessmentsPage() {
+  const [assessments, setAssessments] = useState<Assessment[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadAssessments() {
+      try {
+        setLoading(true)
+        // For demo purposes, using a mock user ID since we don't have auth yet
+        const mockUserId = 'demo-user-id'
+        const data = await getUserAssessments(mockUserId)
+        setAssessments(data)
+      } catch (error) {
+        console.error('Error loading assessments:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadAssessments()
+  }, [])
+
+  const hasAssessments = assessments.length > 0
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-12">
       <PageHeader 
         title="My Assessments"
         subtitle="Track your skills progress and career readiness over time."
         variant="split"
       />
       
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1280px] mx-auto px-6 mt-10">
+        <TitleHero 
+          heroImage="/assets/hero_my-assessments.jpg"
+          title="My Assessments"
+          showHeroOnly={true}
+        />
+      </div>
+      
+      {loading ? (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center py-8">Loading your assessments...</div>
+        </main>
+      ) : !hasAssessments ? (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <EmptyState
+            title="Your Assessment Journey"
+            description="No assessments completed yet. Start exploring jobs and take your first skills assessment to begin your career journey!"
+            primaryButtonText="Browse Featured Roles"
+            secondaryButtonText="Browse All Jobs"
+            onPrimaryClick={() => window.location.href = '/jobs'}
+            onSecondaryClick={() => window.location.href = '/jobs'}
+          />
+        </main>
+      ) : (
+        /* Main Content */
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-2xl font-bold text-green-600">
-                {mockAssessments.filter(a => a.status_tag === 'role_ready').length}
+                {assessments.filter((a: Assessment) => a.status_tag === 'role_ready').length}
               </CardTitle>
               <CardDescription>Roles Ready</CardDescription>
             </CardHeader>
@@ -128,7 +90,7 @@ export default function MyAssessmentsPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-2xl font-bold text-blue-600">
-                {Math.round(mockAssessments.reduce((sum, a) => sum + a.readiness_pct, 0) / mockAssessments.length)}%
+                {assessments.length > 0 ? Math.round(assessments.reduce((sum: number, a: Assessment) => sum + (a.readiness_pct || 0), 0) / assessments.length) : 0}%
               </CardTitle>
               <CardDescription>Average Readiness</CardDescription>
             </CardHeader>
@@ -140,7 +102,7 @@ export default function MyAssessmentsPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-2xl font-bold text-purple-600">
-                {mockAssessments.length}
+                {assessments.length}
               </CardTitle>
               <CardDescription>Total Assessments</CardDescription>
             </CardHeader>
@@ -160,31 +122,27 @@ export default function MyAssessmentsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockAssessments.map((assessment) => (
-              <AssessmentCard key={assessment.id} assessment={assessment} />
+            {assessments.map((assessment: Assessment) => (
+              <AssessmentCard
+                key={assessment.id}
+                id={assessment.id}
+                jobTitle={assessment.job?.title || 'Unknown Job'}
+                jobType={assessment.job?.job_kind === 'featured_role' ? 'Featured Role' : 'High Demand Occupation'}
+                readinessScore={assessment.readiness_pct || 0}
+                status={assessment.status_tag as 'role_ready' | 'close_gaps' | 'needs_development'}
+                assessmentMethod={assessment.method === 'resume' ? 'Resume Upload' : 'Skills Assessment'}
+                analyzedDate={assessment.analyzed_at || new Date().toISOString()}
+                skillsGapsIdentified={assessment.skill_results?.filter(sr => sr.band === 'developing').length || 0}
+                totalSkills={assessment.skill_results?.length || 8}
+                specificGaps={assessment.status_tag === 'close_gaps' ? ['Process Improvement', 'Strategic Planning'] : undefined}
+                reportHref={routes.assessment(assessment.id)}
+              />
             ))}
           </div>
 
-          {mockAssessments.length === 0 && (
-            <Card>
-              <CardContent className="text-center py-12">
-                <div className="mb-4">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl">📊</span>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">No assessments yet</h3>
-                  <p className="text-gray-600 mb-6">
-                    Take your first skills assessment to get started on your career journey.
-                  </p>
-                  <Button asChild size="lg">
-                    <Link href={routes.jobs}>Explore Jobs & Take Assessment</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
-      </main>
+        </main>
+      )}
     </div>
   )
 }

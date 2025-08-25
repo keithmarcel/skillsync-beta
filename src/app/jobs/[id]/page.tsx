@@ -9,8 +9,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { getJobById } from '@/lib/database/queries'
 
-// Mock data based on Figma designs
+// Mock data for fallback - keeping minimal examples
 const mockJobData = {
   // Featured Role Example
   '1': {
@@ -106,7 +108,9 @@ function CompanyModal({ company }: { company: any }) {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <div className="flex items-center gap-4 mb-4">
-            <Image src={company.logo_url} alt={`${company.name} logo`} width={60} height={60} className="rounded" />
+            {company.logo_url && (
+              <Image src={company.logo_url} alt={`${company.name} logo`} width={60} height={60} className="rounded" />
+            )}
             <div>
               <DialogTitle className="text-xl">{company.name}</DialogTitle>
               <DialogDescription>Learn more about this trusted partner</DialogDescription>
@@ -119,10 +123,10 @@ function CompanyModal({ company }: { company: any }) {
           )}
           <p className="text-gray-700">{company.bio}</p>
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <div><strong>Revenue:</strong> {company.revenue}</div>
-            <div><strong>Employees:</strong> {company.employees}</div>
-            <div><strong>Industry:</strong> {company.industry}</div>
-            <div><strong>Headquarters:</strong> {company.headquarters}</div>
+            <div><strong>Revenue:</strong> {company.revenue_range || 'Not specified'}</div>
+            <div><strong>Employees:</strong> {company.employee_range || 'Not specified'}</div>
+            <div><strong>Industry:</strong> {company.industry || 'Not specified'}</div>
+            <div><strong>Headquarters:</strong> {company.hq_city && company.hq_state ? `${company.hq_city}, ${company.hq_state}` : 'Not specified'}</div>
           </div>
         </div>
       </DialogContent>
@@ -131,10 +135,53 @@ function CompanyModal({ company }: { company: any }) {
 }
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
-  const job = mockJobData[params.id as keyof typeof mockJobData]
-  
-  if (!job) {
-    return <div>Job not found</div>
+  const [job, setJob] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function loadJob() {
+      try {
+        setLoading(true)
+        const jobData = await getJobById(params.id)
+        if (jobData) {
+          setJob(jobData)
+        } else {
+          setError('Job not found')
+        }
+      } catch (err) {
+        console.error('Error loading job:', err)
+        setError('Failed to load job details')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadJob()
+  }, [params.id])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading job details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !job) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">{error || 'Job not found'}</p>
+          <Button asChild>
+            <Link href="/jobs">← Back to Jobs</Link>
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -167,7 +214,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         { label: job.title, isActive: true }
       ]}>
         {/* Company Info for Featured Roles */}
-        {job.job_kind === 'featured_role' && 'company' in job && (
+        {job.job_kind === 'featured_role' && job.company && (
           <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg border">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -185,12 +232,14 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900">{job.company.name}</h3>
-                <p className="text-sm text-gray-600">{job.company.headquarters}</p>
+                <p className="text-sm text-gray-600">
+                  {job.company.hq_city && job.company.hq_state 
+                    ? `${job.company.hq_city}, ${job.company.hq_state}` 
+                    : 'Location TBD'}
+                </p>
               </div>
             </div>
-            <Button variant="outline" size="sm">
-              About Company
-            </Button>
+            <CompanyModal company={job.company} />
           </div>
         )}
 
@@ -201,8 +250,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <CardHeader>
                 <CardTitle>{job.title}</CardTitle>
                 <CardDescription>
-                  {job.job_kind === 'featured_role' && 'company' in job 
-                    ? `${job.company.name} • ${job.company.headquarters}`
+                  {job.job_kind === 'featured_role' && job.company 
+                    ? `${job.company.name} • ${job.company.hq_city && job.company.hq_state ? `${job.company.hq_city}, ${job.company.hq_state}` : 'Location TBD'}`
                     : `SOC: ${job.soc_code}`
                   }
                 </CardDescription>
@@ -212,7 +261,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <div className="flex flex-wrap gap-2">
                   <Badge className="bg-blue-100 text-blue-800">{job.category}</Badge>
                   {'job_type' in job && job.job_type && <Badge className="bg-green-100 text-green-800">{job.job_type}</Badge>}
-                  <Badge className="bg-purple-100 text-purple-800">{job.skills_count} Skills</Badge>
+                  <Badge className="bg-purple-100 text-purple-800">{job.skills?.length || 0} Skills</Badge>
                 </div>
 
                 {/* Key Stats */}
@@ -225,9 +274,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <div className="bg-[#114B5F] text-white p-4 rounded-lg">
                       <div className="text-sm opacity-80">Role Location</div>
                       <div className="text-sm text-white">
-                        {'location_city' in job && 'location_state' in job && (
-                          <span>{job.location_city}, {job.location_state}</span>
-                        )}
+                        {job.location_city && job.location_state 
+                          ? `${job.location_city}, ${job.location_state}`
+                          : 'Location TBD'}
                       </div>
                     </div>
                   ) : (
@@ -296,16 +345,16 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="font-semibold mb-4">Core Skills</h3>
                 <div className="flex flex-wrap gap-2 mb-6">
-                  {job.job_skills.map((jobSkill, index) => (
+                  {job.skills?.map((jobSkill: any, index: number) => (
                     <Badge key={index} className="bg-teal-100 text-teal-800 hover:bg-teal-100">
-                      {jobSkill.skill.name}
+                      {jobSkill.skill?.name || 'Unknown Skill'}
                     </Badge>
                   ))}
                 </div>
 
                 <h3 className="font-semibold mb-4">Common Responsibilities</h3>
                 <ul className="space-y-2 text-gray-700">
-                  {job.core_responsibilities?.map((responsibility, index) => (
+                  {job.core_responsibilities?.map((responsibility: string, index: number) => (
                     <li key={index} className="flex items-start gap-2">
                       <span className="text-teal-600 mt-1">•</span>
                       <span>{responsibility}</span>
@@ -319,7 +368,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <div>
                   <h3 className="font-semibold mb-4">Related Job Titles</h3>
                   <ul className="space-y-2 text-gray-700">
-                    {job.related_job_titles.map((title, index) => (
+                    {job.related_job_titles.map((title: string, index: number) => (
                       <li key={index} className="flex items-start gap-2">
                         <span className="text-teal-600 mt-1">•</span>
                         <span>{title}</span>
