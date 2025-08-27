@@ -78,9 +78,22 @@ export const jobsTableColumns = [
     key: 'category',
     label: 'Category',
     sortable: true,
+    width: 'medium',
     filterable: true,
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
     render: (value: string) => renderCategoryBadge(value),
+  },
+  {
+    key: 'median_salary',
+    label: 'AVG Salary',
+    sortable: true,
+    width: 'small',
+  },
+  {
+    key: 'role_readiness',
+    label: 'Role Readiness',
+    sortable: true,
+    width: 'medium',
   },
   {
     key: 'location_city',
@@ -106,44 +119,50 @@ export const jobsTableColumns = [
   {
     key: 'actions',
     label: '',
+    width: 'small',
   },
 ]
 
 export const occupationsTableColumns = [
   {
     key: 'title',
-    label: 'Occupation Name',
+    label: 'Occupation',
     sortable: true,
+    width: 'large', // Large column
   },
   {
     key: 'description',
-    label: 'Occupation Summary (Short)',
+    label: 'Summary',
     sortable: true,
+    width: 'large', // Large column
   },
   {
     key: 'category',
-    label: 'Occupation Category',
+    label: 'Category',
     sortable: true,
     filterable: true,
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
     render: (value: string) => renderCategoryBadge(value),
+    width: 'small', // Small column for badges
   },
   {
     key: 'median_wage_usd',
-    label: 'Median Annual Salary',
+    label: 'AVG Salary',
     sortable: true,
     render: (value: number) => formatSalary(value),
+    width: 'medium',
   },
   {
     key: 'readiness',
-    label: 'Role Readiness Status',
+    label: 'Role Readiness',
     filterable: true,
     filterOptions: ['Assess Skills', 'Close Gaps', 'Ready'],
     render: (value: string) => renderReadinessBadge(value || 'assess skills'),
+    width: 'medium', // Medium column
   },
   {
     key: 'actions',
-    label: '',
+    label: 'Actions',
   },
 ]
 
@@ -185,7 +204,7 @@ export const programsTableColumns = [
   },
   {
     key: 'actions',
-    label: '',
+    label: 'Actions',
   },
 ]
 

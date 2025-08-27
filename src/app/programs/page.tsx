@@ -210,7 +210,6 @@ export default function ProgramsPage() {
               <div>
                 <TitleHero 
                   title="Favorites"
-                  heroImage="/assets/hero_featured-programs.jpg"
                 />
                 
                 <div className="mt-8">
@@ -224,7 +223,7 @@ export default function ProgramsPage() {
                     },
                     {
                       key: 'description',
-                      label: 'Summary (Short)',
+                      label: 'Summary',
                       sortable: true,
                     },
                     {

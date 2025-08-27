@@ -229,7 +229,6 @@ export default function JobsPage() {
             <div>
               <TitleHero 
                 title="Favorites"
-                heroImage="/assets/hero_featured-roles.jpg"
               />
               
               <div className="mt-8">
@@ -238,23 +237,23 @@ export default function JobsPage() {
                 columns={[
                   {
                     key: 'title',
-                    label: 'Occupation Name',
+                    label: 'Occupation',
                     sortable: true,
                   },
                   {
                     key: 'description',
-                    label: 'Occupation Summary (Short)',
+                    label: 'Summary',
                     sortable: true,
                   },
                   {
                     key: 'median_wage_usd',
-                    label: 'Median Annual Salary',
+                    label: 'Median Salary',
                     sortable: true,
                     render: (value: number) => `$${value?.toLocaleString() || 0}`,
                   },
                   {
                     key: 'readiness',
-                    label: 'Role Readiness Status',
+                    label: 'Role Readiness',
                     filterable: true,
                     filterOptions: ['Assess Skills', 'Close Gaps', 'Ready'],
                     render: (value: string) => value || 'Assess Skills',

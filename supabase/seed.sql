@@ -65,38 +65,69 @@ INSERT INTO schools (id, name, logo_url, about_url, city, state) VALUES
 ('770e8400-e29b-41d4-a716-446655440002', 'Pinellas Technical College', '/schools/ptec.png', 'https://www.myptec.edu/about/', 'St. Petersburg', 'FL'),
 ('770e8400-e29b-41d4-a716-446655440003', 'St. Petersburg College', '/schools/spc.svg', 'https://www.spcollege.edu/about/', 'St. Petersburg', 'FL');
 
--- Insert Jobs with real occupation data from CSV
-INSERT INTO jobs (id, job_kind, title, long_desc, category, median_wage_usd, job_type, location_city, location_state, company_id) VALUES
-('880e8400-e29b-41d4-a716-446655440001', 'high_demand', 'Electricians', 'Installs and maintains wiring systems in residential, commercial, and industrial settings.', 'Skilled Trades', 48640, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440002', 'high_demand', 'Carpenters', 'Constructs, installs, and repairs building frameworks and structures.', 'Skilled Trades', 45040, 'Full-time', 'St. Petersburg', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440003', 'featured_role', 'Project Management Specialists', 'Oversees projects, resources, and teams to meet deadlines and goals across industries.', 'Business', 86040, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440004'),
-('880e8400-e29b-41d4-a716-446655440004', 'featured_role', 'Software Developers', 'Designs and builds computer software and applications for user and business needs.', 'Tech & Services', 99180, 'Full-time', 'Clearwater', 'FL', '660e8400-e29b-41d4-a716-446655440002'),
-('880e8400-e29b-41d4-a716-446655440005', 'high_demand', 'HR Specialists', 'Manages hiring, onboarding, employee relations, and compliance with labor laws.', 'Business', 64020, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440004'),
-('880e8400-e29b-41d4-a716-446655440006', 'high_demand', 'Sales Reps (Services)', 'Sells business services such as software, consulting, or logistics to organizations.', 'Business', 60210, 'Full-time', 'St. Petersburg', 'FL', '660e8400-e29b-41d4-a716-446655440005'),
-('880e8400-e29b-41d4-a716-446655440007', 'high_demand', 'Bookkeeping & Auditing Clerks', 'Maintains financial records, processes invoices, and assists with audits.', 'Finance & Legal', 45590, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440005'),
-('880e8400-e29b-41d4-a716-446655440008', 'high_demand', 'Computer User Support Specialists', 'Provides technical assistance and support to users on software and hardware.', 'Tech & Services', 50690, 'Full-time', 'Clearwater', 'FL', '660e8400-e29b-41d4-a716-446655440002'),
-('880e8400-e29b-41d4-a716-446655440009', 'featured_role', 'General & Operations Managers', 'Directs daily business operations, manages budgets, and oversees staff.', 'Business', 104930, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440004'),
-('880e8400-e29b-41d4-a716-446655440010', 'high_demand', 'Accountants & Auditors', 'Analyzes financial records, prepares reports, and ensures regulatory compliance.', 'Finance & Legal', 69490, 'Full-time', 'St. Petersburg', 'FL', '660e8400-e29b-41d4-a716-446655440005'),
-('880e8400-e29b-41d4-a716-446655440011', 'high_demand', 'Sales Reps, Wholesale/Manufacturing', 'Sells products to businesses and government agencies, often involving technical goods.', 'Business', 65120, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440005'),
-('880e8400-e29b-41d4-a716-446655440012', 'featured_role', 'First-Line Supervisors, Construction Trades', 'Oversees construction crews, schedules tasks, and ensures safety and code compliance.', 'Skilled Trades', 71460, 'Full-time', 'St. Petersburg', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440013', 'high_demand', 'Maintenance & Repair Workers, General', 'Performs routine and preventive maintenance on equipment, buildings, and machinery.', 'Skilled Trades', 39790, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440014', 'featured_role', 'Registered Nurses (RNs)', 'Provides patient care, educates about health conditions, and supports recovery.', 'Health & Education', 79910, 'Full-time', 'Clearwater', 'FL', '660e8400-e29b-41d4-a716-446655440003'),
-('880e8400-e29b-41d4-a716-446655440015', 'high_demand', 'Construction Laborers', 'Assists in physical construction tasks including site prep, digging, loading, and cleanup.', 'Skilled Trades', 37140, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440016', 'high_demand', 'HVAC Mechanics & Installers', 'Installs, maintains, and repairs heating, ventilation, and air conditioning systems.', 'Skilled Trades', 48630, 'Full-time', 'St. Petersburg', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440017', 'high_demand', 'Medical Assistants', 'Supports doctors by taking vitals, updating records, and assisting in procedures.', 'Health & Education', 37420, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440003'),
-('880e8400-e29b-41d4-a716-446655440018', 'high_demand', 'Nursing Assistants', 'Helps patients with daily tasks such as bathing and mobility under nurse supervision.', 'Health & Education', 36710, 'Full-time', 'Clearwater', 'FL', '660e8400-e29b-41d4-a716-446655440003'),
-('880e8400-e29b-41d4-a716-446655440019', 'high_demand', 'Cooks, Restaurant', 'Prepares meals according to recipes and customer orders in commercial kitchens.', 'Hospitality', 31310, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440020', 'high_demand', 'Customer Service Representatives', 'Assists customers via phone, email, or chat, resolving issues and providing support.', 'Business', 37850, 'Full-time', 'St. Petersburg', 'FL', '660e8400-e29b-41d4-a716-446655440005'),
-('880e8400-e29b-41d4-a716-446655440021', 'high_demand', 'Light Truck Drivers', 'Transports goods using vans or smaller delivery trucks on short-distance routes.', 'Logistics', 38910, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440022', 'high_demand', 'Heavy & Tractor-Trailer Truck Drivers', 'Drives long-haul commercial trucks for cargo delivery between regions or states.', 'Logistics', 46350, 'Full-time', 'Clearwater', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440023', 'high_demand', 'Childcare Workers', 'Cares for young children in homes, schools, or daycare centers, supporting development.', 'Health & Education', 27390, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440003'),
-('880e8400-e29b-41d4-a716-446655440024', 'high_demand', 'Preschool Teachers (except Special Ed)', 'Teaches foundational skills and early learning for children aged 3–5.', 'Health & Education', 35040, 'Full-time', 'St. Petersburg', 'FL', '660e8400-e29b-41d4-a716-446655440003'),
-('880e8400-e29b-41d4-a716-446655440025', 'high_demand', 'Security Guards', 'Patrols properties, monitors surveillance, and enforces rules to maintain safety.', 'Public Services', 32520, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440026', 'featured_role', 'Police & Sheriff''s Patrol Officers', 'Enforces laws, responds to emergencies, and conducts investigations in communities.', 'Public Services', 67660, 'Full-time', 'Clearwater', 'FL', '660e8400-e29b-41d4-a716-446655440001'),
-('880e8400-e29b-41d4-a716-446655440027', 'high_demand', 'Medical Secretaries & Admin Assistants', 'Schedules appointments, manages records, and handles office tasks in medical settings.', 'Health & Education', 37470, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440003'),
-('880e8400-e29b-41d4-a716-446655440028', 'high_demand', 'Phlebotomists', 'Draws blood for tests, transfusions, or donations in clinical settings.', 'Health & Education', 37440, 'Full-time', 'St. Petersburg', 'FL', '660e8400-e29b-41d4-a716-446655440003'),
-('880e8400-e29b-41d4-a716-446655440029', 'high_demand', 'Medical Records Specialists', 'Manages, codes, and secures patient records in compliance with regulations.', 'Health & Education', 47290, 'Full-time', 'Tampa', 'FL', '660e8400-e29b-41d4-a716-446655440003'),
-('880e8400-e29b-41d4-a716-446655440030', 'high_demand', 'Dental Assistants', 'Prepares exam rooms, assists dentists, and educates patients on oral care.', 'Health & Education', 41020, 'Full-time', 'Clearwater', 'FL', '660e8400-e29b-41d4-a716-446655440003');
+-- Insert Jobs with Pinellas Top 30 High-Demand Occupations from CSV
+-- 🚨 API INTEGRATION NEEDED: median_wage_usd, long_desc, projected_openings, growth_outlook
+INSERT INTO jobs (id, job_kind, title, soc_code, category, long_desc, median_wage_usd, job_type, location_city, location_state) VALUES
+-- Rank 1: General & Operations Managers
+('880e8400-e29b-41d4-a716-446655440001', 'high_demand', 'General & Operations Managers', '11-1021', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 2: Bookkeeping, Accounting & Auditing Clerks  
+('880e8400-e29b-41d4-a716-446655440002', 'high_demand', 'Bookkeeping, Accounting & Auditing Clerks', '43-3031', 'Finance & Legal', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 3: Registered Nurses
+('880e8400-e29b-41d4-a716-446655440003', 'high_demand', 'Registered Nurses', '29-1141', 'Health & Education', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 4: Sales Representatives of Services (except advertising, insurance, financial, travel)
+('880e8400-e29b-41d4-a716-446655440004', 'high_demand', 'Sales Representatives of Services (except advertising, insurance, financial, travel)', '41-3091', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 5: Heavy & Tractor-Trailer Truck Drivers
+('880e8400-e29b-41d4-a716-446655440005', 'high_demand', 'Heavy & Tractor-Trailer Truck Drivers', '53-3032', 'Logistics', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 6: Accountants & Auditors
+('880e8400-e29b-41d4-a716-446655440006', 'high_demand', 'Accountants & Auditors', '13-2011', 'Finance & Legal', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 7: Management Analysts
+('880e8400-e29b-41d4-a716-446655440007', 'high_demand', 'Management Analysts', '13-1111', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 8: First-Line Supervisors of Office & Administrative Support Workers
+('880e8400-e29b-41d4-a716-446655440008', 'high_demand', 'First-Line Supervisors of Office & Administrative Support Workers', '43-1011', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 9: Software Developers
+('880e8400-e29b-41d4-a716-446655440009', 'high_demand', 'Software Developers', '15-1252', 'Tech & Services', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 10: Sales Representatives, Wholesale & Manufacturing (except technical & scientific products)
+('880e8400-e29b-41d4-a716-446655440010', 'high_demand', 'Sales Representatives, Wholesale & Manufacturing (except technical & scientific products)', '41-4012', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 11: Insurance Sales Agents
+('880e8400-e29b-41d4-a716-446655440011', 'high_demand', 'Insurance Sales Agents', '41-3021', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 12: Market Research Analysts & Marketing Specialists
+('880e8400-e29b-41d4-a716-446655440012', 'high_demand', 'Market Research Analysts & Marketing Specialists', '13-1161', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 13: First-Line Supervisors of Retail Sales Workers
+('880e8400-e29b-41d4-a716-446655440013', 'high_demand', 'First-Line Supervisors of Retail Sales Workers', '41-1011', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 14: Business Operations Specialists, All Other
+('880e8400-e29b-41d4-a716-446655440014', 'high_demand', 'Business Operations Specialists, All Other', '13-1199', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 15: Human Resources Specialists
+('880e8400-e29b-41d4-a716-446655440015', 'high_demand', 'Human Resources Specialists', '13-1071', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 16: Project Management Specialists
+('880e8400-e29b-41d4-a716-446655440016', 'high_demand', 'Project Management Specialists', '13-1082', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 17: Real Estate Sales Agents
+('880e8400-e29b-41d4-a716-446655440017', 'high_demand', 'Real Estate Sales Agents', '41-9022', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 18: First-Line Supervisors of Construction Trades & Extraction Workers
+('880e8400-e29b-41d4-a716-446655440018', 'high_demand', 'First-Line Supervisors of Construction Trades & Extraction Workers', '47-1011', 'Skilled Trades', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 19: Carpenters
+('880e8400-e29b-41d4-a716-446655440019', 'high_demand', 'Carpenters', '47-2031', 'Skilled Trades', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 20: Computer User Support Specialists
+('880e8400-e29b-41d4-a716-446655440020', 'high_demand', 'Computer User Support Specialists', '15-1232', 'Tech & Services', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 21: Claims Adjusters, Examiners, & Investigators
+('880e8400-e29b-41d4-a716-446655440021', 'high_demand', 'Claims Adjusters, Examiners, & Investigators', '13-1031', 'Finance & Legal', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 22: Electricians
+('880e8400-e29b-41d4-a716-446655440022', 'high_demand', 'Electricians', '47-2111', 'Skilled Trades', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 23: Managers, All Other
+('880e8400-e29b-41d4-a716-446655440023', 'high_demand', 'Managers, All Other', '11-9199', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 24: Paralegals & Legal Assistants
+('880e8400-e29b-41d4-a716-446655440024', 'high_demand', 'Paralegals & Legal Assistants', '23-2011', 'Finance & Legal', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 25: Financial Managers
+('880e8400-e29b-41d4-a716-446655440025', 'high_demand', 'Financial Managers', '11-3031', 'Finance & Legal', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 26: Medical & Health Services Managers
+('880e8400-e29b-41d4-a716-446655440026', 'high_demand', 'Medical & Health Services Managers', '11-9111', 'Health & Education', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 27: Elementary School Teachers (except special & career/technical education)
+('880e8400-e29b-41d4-a716-446655440027', 'high_demand', 'Elementary School Teachers (except special & career/technical education)', '25-2021', 'Health & Education', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 28: Securities, Commodities & Financial Services Sales Agents
+('880e8400-e29b-41d4-a716-446655440028', 'high_demand', 'Securities, Commodities & Financial Services Sales Agents', '41-3031', 'Finance & Legal', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 29: Licensed Practical & Licensed Vocational Nurses
+('880e8400-e29b-41d4-a716-446655440029', 'high_demand', 'Licensed Practical & Licensed Vocational Nurses', '29-2061', 'Health & Education', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL'),
+-- Rank 30: Property, Real Estate & Community Association Managers
+('880e8400-e29b-41d4-a716-446655440030', 'high_demand', 'Property, Real Estate & Community Association Managers', '11-9141', 'Business', 'API_NEEDED: Long description from O*NET', NULL, 'Full-time', 'Pinellas County', 'FL');
 
 -- Insert Programs
 INSERT INTO programs (id, school_id, name, program_type, format, duration_text, short_desc, program_url, cip_code) VALUES
@@ -107,28 +138,13 @@ INSERT INTO programs (id, school_id, name, program_type, format, duration_text, 
 ('990e8400-e29b-41d4-a716-446655440005', '770e8400-e29b-41d4-a716-446655440002', 'Cybersecurity Specialist', 'Certificate', 'Hybrid', '12 months', 'Comprehensive cybersecurity training covering network security, ethical hacking, and compliance.', 'https://www.myptec.edu/programs/cybersecurity/', '11.0701');
 
 -- Insert Job Skills relationships
+-- 🚨 API INTEGRATION NEEDED: Skills mappings for all 30 Pinellas occupations
+-- Current relationships are placeholders - will be populated via O*NET Skills API
 INSERT INTO job_skills (job_id, skill_id, weight) VALUES
--- Senior Software Engineer
-('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440001', 1.0), -- JavaScript
-('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440002', 1.0), -- React
-('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440003', 0.8), -- Node.js
-('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440004', 0.7), -- Database
-('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440005', 0.6), -- Project Management
-('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440006', 0.8), -- Communication
-('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440007', 0.9), -- Problem Solving
--- Healthcare Data Analyst
-('880e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440008', 1.0), -- Python
-('880e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440009', 1.0), -- Data Analysis
-('880e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440004', 0.8), -- Database
-('880e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440006', 0.7), -- Communication
-('880e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440007', 0.8), -- Problem Solving
-('880e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440010', 0.6), -- Machine Learning
--- Web Developer
-('880e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440001', 1.0), -- JavaScript
-('880e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440002', 0.8), -- React
-('880e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440006', 0.6), -- Communication
-('880e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440007', 0.7), -- Problem Solving
-('880e8400-e29b-41d4-a716-446655440004', '550e8400-e29b-41d4-a716-446655440004', 0.5); -- Database
+-- Placeholder skills for General & Operations Managers (will be replaced with O*NET data)
+('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440005', 1.0), -- Project Management
+('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440006', 0.9), -- Communication
+('880e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440007', 0.8); -- Problem Solving
 
 -- Insert Program Skills relationships
 INSERT INTO program_skills (program_id, skill_id, weight) VALUES
@@ -180,11 +196,4 @@ INSERT INTO company_job_openings (id, company_id, external_job_title, soc_code, 
 -- Update skills count for jobs (this would normally be handled by triggers)
 UPDATE jobs SET skills_count = (
     SELECT COUNT(*) FROM job_skills WHERE job_skills.job_id = jobs.id
-) WHERE id IN (
-    '880e8400-e29b-41d4-a716-446655440001',
-    '880e8400-e29b-41d4-a716-446655440002',
-    '880e8400-e29b-41d4-a716-446655440003',
-    '880e8400-e29b-41d4-a716-446655440004',
-    '880e8400-e29b-41d4-a716-446655440005',
-    '880e8400-e29b-41d4-a716-446655440006'
-);
+) WHERE job_kind = 'high_demand';
