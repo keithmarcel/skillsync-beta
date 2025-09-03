@@ -3,19 +3,25 @@
 import Link from 'next/link'
 import PageHeader from '@/components/ui/page-header'
 import StickyTabs from '@/components/ui/sticky-tabs'
-import { ProgramCard } from '@/components/ui/program-card'
+import { FeaturedProgramCard } from '@/components/ui/featured-program-card'
 import { TitleHero } from '@/components/ui/title-hero'
 import { EmptyState } from '@/components/ui/empty-state'
 import DataTable from '@/components/ui/data-table'
 import SearchFilterControls from '@/components/ui/search-filter-controls'
 import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getFeaturedPrograms, getAllPrograms } from '@/lib/database/queries'
 import { transformProgramToCard, transformProgramToTable } from '@/lib/database/transforms'
 import { programsTableColumns, programsSearchFields } from '@/lib/table-configs'
 
 
 export default function ProgramsPage() {
-  const [activeTab, setActiveTab] = useState('featured')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Get tab from URL or default to 'featured'
+  const tabFromUrl = searchParams.get('tab') || 'featured'
+  const [activeTab, setActiveTab] = useState(tabFromUrl)
   const [featuredPrograms, setFeaturedPrograms] = useState<any[]>([])
   const [allPrograms, setAllPrograms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -25,6 +31,12 @@ export default function ProgramsPage() {
   const [sortBy, setSortBy] = useState('')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [filters, setFilters] = useState<Record<string, string>>({})
+
+  // Update activeTab when URL changes
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab') || 'featured'
+    setActiveTab(tabFromUrl)
+  }, [searchParams])
 
   useEffect(() => {
     async function loadProgramsData() {
@@ -46,6 +58,14 @@ export default function ProgramsPage() {
 
     loadProgramsData()
   }, [])
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId)
+    // Update URL to preserve tab state
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', tabId)
+    router.push(`/programs?${params.toString()}`)
+  }
 
   const handleSort = (value: string) => {
     if (sortBy === value) {
@@ -79,11 +99,11 @@ export default function ProgramsPage() {
       
       <StickyTabs 
         tabs={tabs}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
       
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Tab Content */}
           <div className="mt-6">
@@ -116,11 +136,14 @@ export default function ProgramsPage() {
                 
                 <div className="mt-5">
                   {loading ? (
-                  <div className="col-span-full text-center py-8">Loading programs...</div>
-                ) : (
+                    <div className="flex flex-col items-center justify-center py-16">
+                      <div className="w-8 h-8 border-4 border-gray-200 border-t-[#0694A2] rounded-full animate-spin mb-4"></div>
+                      <p className="text-sm text-gray-600 font-normal">Loading Featured Programs</p>
+                    </div>
+                  ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {featuredPrograms.map((program) => (
-                      <ProgramCard
+                      <FeaturedProgramCard
                         key={program.id}
                         id={program.id}
                         name={program.title}
@@ -152,11 +175,18 @@ export default function ProgramsPage() {
               <div>
                 <TitleHero 
                   title="All Programs"
-                  heroImage="/assets/hero_featured-programs.jpg"
+                  heroImage="/assets/hero_programs.jpg"
                 />
                 
                 {loading ? (
-                  <div className="text-center py-8">Loading programs...</div>
+                  <DataTable
+                    data={[]}
+                    columns={programsTableColumns}
+                    tableType="programs"
+                    showSearchSortFilter={false}
+                    isLoading={true}
+                    loadingText="Loading All Programs"
+                  />
                 ) : (
                   <div>
                     {/* Search/Sort/Filter - 32px from hero image */}
@@ -179,17 +209,19 @@ export default function ProgramsPage() {
                       <DataTable
                         data={allPrograms}
                         columns={programsTableColumns}
-                        searchPlaceholder="Search programs by name, school, or category"
-                        searchableFields={programsSearchFields}
                         tableType="programs"
                         showSearchSortFilter={false}
+                        isLoading={loading}
                         onRowAction={(action, row) => {
                           switch (action) {
                             case 'details':
-                              window.location.href = `/programs/${row.id}`
+                              window.open('#', '_blank')
                               break
-                            case 'apply':
-                              window.open(row.applicationUrl || '#', '_blank')
+                            case 'secondary':
+                              window.open('#', '_blank')
+                              break
+                            case 'tertiary':
+                              console.log('See Related Jobs for program:', row.id)
                               break
                             case 'favorite':
                               console.log('Add to favorites:', row.id)
@@ -213,44 +245,22 @@ export default function ProgramsPage() {
                 />
                 
                 <div className="mt-8">
+                {loading ? (
                   <DataTable
-                  data={[]} // TODO: Replace with actual favorites data
-                  columns={[
-                    {
-                      key: 'title',
-                      label: 'Program Name',
-                      sortable: true,
-                    },
-                    {
-                      key: 'description',
-                      label: 'Summary',
-                      sortable: true,
-                    },
-                    {
-                      key: 'program_type',
-                      label: 'Type',
-                      sortable: true,
-                    },
-                    {
-                      key: 'delivery_method',
-                      label: 'Format',
-                      sortable: true,
-                    },
-                    {
-                      key: 'school.name',
-                      label: 'School',
-                      sortable: true,
-                    },
-                    {
-                      key: 'actions',
-                      label: '',
-                    },
-                  ]}
-                  searchPlaceholder="Search your favorite programs"
-                  searchableFields={['title', 'description', 'school.name', 'program_type']}
-                  tableType="programs"
-                  isOnFavoritesTab={true}
-                  showSearchSortFilter={true}
+                    data={[]}
+                    columns={programsTableColumns}
+                    tableType="programs"
+                    showSearchSortFilter={false}
+                    isLoading={true}
+                    loadingText="Loading Saved Programs"
+                  />
+                ) : (
+                  <DataTable
+                    data={[]} // TODO: Replace with actual favorites data
+                    columns={programsTableColumns}
+                    tableType="programs"
+                    isOnFavoritesTab={true}
+                    showSearchSortFilter={true}
                   onRowAction={(action, row) => {
                     switch (action) {
                       case 'details':
@@ -265,6 +275,7 @@ export default function ProgramsPage() {
                     }
                   }}
                 />
+                )}
                 </div>
               </div>
             )}

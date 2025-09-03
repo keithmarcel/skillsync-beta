@@ -38,6 +38,23 @@ export const renderCategoryBadge = (category: string) => {
   }, titleCaseCategory)
 }
 
+// Helper function to render neutral badges (for program types)
+export const renderNeutralBadge = (value: string) => {
+  const titleCaseValue = value.split(' ').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  ).join(' ')
+  
+  return React.createElement(Badge, {
+    style: { 
+      backgroundColor: '#F3F4F6', 
+      color: '#374151',
+      borderRadius: '10px',
+      boxShadow: 'none'
+    },
+    className: "font-medium border-0"
+  }, titleCaseValue)
+}
+
 // Helper function to render readiness badges
 export const renderReadinessBadge = (readiness: string) => {
   const colors = readinessColors[readiness as keyof typeof readinessColors] || { bg: '#F3F4F6', text: '#374151' }
@@ -168,47 +185,48 @@ export const occupationsTableColumns = [
 
 export const programsTableColumns = [
   {
-    key: 'title',
-    label: 'Program Title',
+    key: 'name',
+    label: 'Name',
     sortable: true,
+    width: 'large',
   },
   {
-    key: 'school.name',
-    label: 'School',
+    key: 'short_desc',
+    label: 'Summary',
     sortable: true,
+    width: 'large',
   },
   {
     key: 'program_type',
     label: 'Type',
     sortable: true,
     filterable: true,
-    filterOptions: ['Certificate', 'Associate Degree', 'Bachelor Degree', 'Apprenticeship', 'Bootcamp'],
+    filterOptions: ['Certificate', "Associate's", 'Bachelor Degree', 'Apprenticeship', 'Bootcamp'],
+    render: (value: string) => renderNeutralBadge(value),
+    width: 'small',
   },
   {
-    key: 'duration_months',
-    label: 'Duration',
-    sortable: true,
-    render: (value: number) => value ? `${value} months` : 'N/A',
-  },
-  {
-    key: 'cost_estimate',
-    label: 'Cost',
-    sortable: true,
-    render: (value: number) => value ? `$${value.toLocaleString()}` : 'Contact School',
-  },
-  {
-    key: 'delivery_method',
+    key: 'format',
     label: 'Format',
     filterable: true,
-    filterOptions: ['In-person', 'Online', 'Hybrid'],
+    filterOptions: ['Online', 'Hybrid', 'In-person'],
+    render: (value: string) => renderNeutralBadge(value),
+    width: 'small',
+  },
+  {
+    key: 'school.name',
+    label: 'School',
+    sortable: true,
+    width: 'medium',
   },
   {
     key: 'actions',
     label: 'Actions',
+    width: 'small',
   },
 ]
 
 // Search field configurations
 export const jobsSearchFields = ['title', 'company.name', 'category', 'location_city', 'location_state']
 export const occupationsSearchFields = ['title', 'soc_code', 'category', 'education_requirements']
-export const programsSearchFields = ['title', 'school.name', 'program_type', 'delivery_method']
+export const programsSearchFields = ['name', 'school.name', 'program_type', 'format']

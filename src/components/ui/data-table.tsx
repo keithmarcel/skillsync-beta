@@ -1,13 +1,26 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
-import { Search, MoreHorizontal } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Search, ChevronDown, MoreHorizontal } from 'lucide-react'
+import Link from 'next/link'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { TablePagination } from '@/components/ui/table-pagination'
 
 interface Column {
   key: string
@@ -22,60 +35,65 @@ interface Column {
 interface DataTableProps {
   data: any[]
   columns: Column[]
-  searchPlaceholder?: string
-  searchableFields?: string[]
-  tableType?: 'jobs' | 'programs' | 'occupations'
+  tableType?: 'programs' | 'jobs' | 'assessments'
   isOnFavoritesTab?: boolean
+  loadingText?: string
   onRowAction?: (action: string, row: any) => void
   showSearchSortFilter?: boolean
+  isLoading?: boolean
 }
 
 export default function DataTable({
   data,
   columns,
-  searchPlaceholder = "Search...",
-  searchableFields = [],
   tableType = 'jobs',
   isOnFavoritesTab = false,
+  loadingText,
   onRowAction,
-  showSearchSortFilter = true
+  showSearchSortFilter = true,
+  isLoading = false
 }: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [filters, setFilters] = useState<Record<string, string>>({})
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 30
 
   // Get sortable and filterable columns
   const sortableColumns = columns.filter(col => col.sortable)
   const filterableColumns = columns.filter(col => col.filterable)
+  
+  // Get searchable fields from columns
+  const searchableFields = columns.filter(col => col.key !== 'actions').map(col => col.key)
 
   // Process data with search, sort, and filter
   const processedData = useMemo(() => {
-    let result = [...data]
+    let filtered = data
 
-    // Apply search
-    if (searchTerm && searchableFields.length > 0) {
-      result = result.filter(item =>
-        searchableFields.some(field => {
-          const value = field.split('.').reduce((obj, key) => obj?.[key], item)
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter((item: any) =>
+        searchableFields.some((field: string) => {
+          const value = field.split('.').reduce((obj: any, key: string) => obj?.[key], item)
           return value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
         })
       )
     }
 
-    // Apply filters
-    Object.entries(filters).forEach(([key, value]) => {
+    // Apply column filters
+    Object.entries(filters).forEach(([column, value]) => {
       if (value) {
-        result = result.filter(item => {
-          const itemValue = key.split('.').reduce((obj, k) => obj?.[k], item)
-          return itemValue === value
+        filtered = filtered.filter((item: any) => {
+          const itemValue = column.split('.').reduce((obj, key) => obj?.[key], item)
+          return itemValue?.toString().toLowerCase() === value.toLowerCase()
         })
       }
     })
 
     // Apply sorting
     if (sortBy) {
-      result.sort((a, b) => {
+      filtered.sort((a: any, b: any) => {
         const aValue = sortBy.split('.').reduce((obj, key) => obj?.[key], a)
         const bValue = sortBy.split('.').reduce((obj, key) => obj?.[key], b)
         
@@ -85,8 +103,16 @@ export default function DataTable({
       })
     }
 
-    return result
-  }, [data, searchTerm, searchableFields, filters, sortBy, sortOrder])
+    return filtered
+  }, [data, searchTerm, sortBy, sortOrder, filters, searchableFields])
+
+  // Pagination calculations
+  const totalItems = processedData.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedData = processedData.slice(startIndex, endIndex)
+  const showPagination = totalItems > itemsPerPage
 
   const handleSort = (value: string) => {
     if (sortBy === value) {
@@ -115,7 +141,14 @@ export default function DataTable({
 
   const getSecondaryActionLabel = (type: string) => {
     switch (type) {
-      case 'programs': return 'Apply Now'
+      case 'programs': return 'About the School'
+      default: return null
+    }
+  }
+
+  const getTertiaryActionLabel = (type: string) => {
+    switch (type) {
+      case 'programs': return 'See Related Jobs'
       default: return null
     }
   }
@@ -129,7 +162,7 @@ export default function DataTable({
           <div className="relative w-full max-w-[420px]">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder={searchPlaceholder}
+              placeholder="Search programs by name, school, or category"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -205,7 +238,7 @@ export default function DataTable({
 
           {/* Table Body */}
           <tbody>
-            {processedData.map((row: any, rowIndex: number) => (
+            {paginatedData.map((row: any, rowIndex: number) => (
               <tr key={rowIndex} className="text-[#0A0A0A] text-sm font-normal leading-5 border-b border-gray-100 hover:bg-gray-50 group">
                 {columns.map((column, colIndex) => {
                   const value = column.key.split('.').reduce((obj, key) => obj?.[key], row)
@@ -246,9 +279,14 @@ export default function DataTable({
                                 {getSecondaryActionLabel(tableType)}
                               </DropdownMenuItem>
                             )}
-                            <DropdownMenuSeparator />
+                            {getTertiaryActionLabel(tableType) && (
+                              <DropdownMenuItem onClick={() => onRowAction?.('tertiary', row)}>
+                                {getTertiaryActionLabel(tableType)}
+                              </DropdownMenuItem>
+                            )}
                             {(tableType === 'occupations' || tableType === 'jobs') && (
                               <>
+                                <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => onRowAction?.('resume', row)}>
                                   Upload Your Resume
                                 </DropdownMenuItem>
@@ -256,11 +294,6 @@ export default function DataTable({
                                   Take a Skills Assessment
                                 </DropdownMenuItem>
                               </>
-                            )}
-                            {tableType === 'programs' && (
-                              <DropdownMenuItem onClick={() => onRowAction?.('jobs', row)}>
-                                See Jobs for This Program
-                              </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => onRowAction?.(isOnFavoritesTab ? 'unfavorite' : 'favorite', row)}>
@@ -279,12 +312,30 @@ export default function DataTable({
           </tbody>
         </table>
 
-        {processedData.length === 0 && (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-[#0694A2] rounded-full animate-spin mb-4"></div>
+            <p className="text-sm text-gray-600 font-normal">
+              {loadingText || 'Loading'}
+            </p>
+          </div>
+        ) : processedData.length === 0 ? (
           <div className="flex items-center justify-center py-12 text-gray-500">
             No results found
           </div>
-        )}
+        ) : null}
       </div>
+      
+      {showPagination && (
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
+      )}
+      
     </div>
   )
 }

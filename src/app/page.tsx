@@ -66,7 +66,7 @@ export default function Dashboard() {
         }}
       />
 
-      <div className="max-w-[1280px] mx-auto px-6 py-8 mt-10">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
 
       {/* Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

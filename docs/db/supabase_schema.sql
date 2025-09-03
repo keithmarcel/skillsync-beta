@@ -39,6 +39,7 @@ CREATE TABLE public.companies (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   name text NOT NULL,
   logo_url text,
+  company_image_url text,
   is_trusted_partner boolean DEFAULT false,
   hq_city text,
   hq_state text,
@@ -98,6 +99,7 @@ CREATE TABLE public.jobs (
   long_desc text,
   featured_image_url text,
   skills_count integer DEFAULT 0,
+  required_proficiency_pct numeric,
   CONSTRAINT jobs_pkey PRIMARY KEY (id),
   CONSTRAINT jobs_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id)
 );

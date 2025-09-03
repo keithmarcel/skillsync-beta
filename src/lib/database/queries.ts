@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase/client'
 // Types for database entities
 export interface Job {
   id: string
-  job_kind: 'featured_role' | 'high_demand'
+  job_kind: 'featured_role' | 'occupation'
   title: string
   soc_code: string | null
   company_id: string | null
@@ -15,6 +15,7 @@ export interface Job {
   long_desc: string | null
   featured_image_url: string | null
   skills_count: number
+  required_proficiency_pct: number | null
   company?: Company
   skills?: JobSkill[]
 }
@@ -23,6 +24,7 @@ export interface Company {
   id: string
   name: string
   logo_url: string | null
+  company_image_url: string | null
   is_trusted_partner: boolean
   hq_city: string | null
   hq_state: string | null
@@ -113,6 +115,7 @@ export async function getFeaturedRoles(): Promise<Job[]> {
       )
     `)
     .eq('job_kind', 'featured_role')
+    .eq('is_featured', true)
     .order('title')
 
   if (error) {
@@ -133,7 +136,7 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
         skill:skills(*)
       )
     `)
-    .eq('job_kind', 'high_demand')
+    .eq('job_kind', 'occupation')
     .order('title')
 
   if (error) {

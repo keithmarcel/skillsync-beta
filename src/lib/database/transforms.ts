@@ -1,7 +1,34 @@
 import { Job, Company, Program, School, Assessment } from './queries'
 
+interface CompanyProfile {
+  name: string
+  logo: string
+  companyImage?: string
+  bio: string
+  headquarters: string
+  revenue: string
+  employees: string
+  industry: string
+  trustedPartner: boolean
+}
+
 // Transform database Job to component props format
 export function transformJobToFeaturedRole(job: Job) {
+  // Map job titles to proper job categories
+  const getJobCategory = (title: string) => {
+    const categoryMap: Record<string, string> = {
+      'Mechanical Assistant Project Manager': 'Skilled Trade',
+      'Senior Financial Analyst (FP&A)': 'Business',
+      'Mechanical Project Manager': 'Skilled Trade', 
+      'Surgical Technologist (Certified)': 'Healthcare',
+      'Business Development Manager': 'Business',
+      'Administrative Assistant': 'Business',
+      'Supervisor, Residential Inbound Sales': 'Business',
+      'Senior Mechanical Project Manager': 'Skilled Trade'
+    }
+    return categoryMap[title] || 'General'
+  }
+
   return {
     id: job.id,
     title: job.title,
@@ -21,11 +48,11 @@ export function transformJobToFeaturedRole(job: Job) {
       ? `${job.location_city}, ${job.location_state}` 
       : 'Location TBD',
     jobType: job.job_type || 'Full-time',
-    category: job.category || 'General',
+    category: getJobCategory(job.title), // Use actual job category instead of 'Featured Role'
     skillsCount: job.skills_count || 0,
     description: job.long_desc || '',
     medianSalary: job.median_wage_usd || 0,
-    requiredProficiency: 90, // Default proficiency score
+    requiredProficiency: job.required_proficiency_pct || 70, // Use database value or default
     featuredImage: job.featured_image_url || '/assets/hero_featured-roles.jpg',
     socCode: job.soc_code || '',
     
@@ -107,18 +134,16 @@ export function transformAssessmentToCard(assessment: Assessment) {
 }
 
 // Transform company data for modals/detailed views
-export function transformCompanyProfile(company: Company) {
+export function transformCompanyProfile(company: Company): CompanyProfile {
   return {
-    id: company.id,
     name: company.name,
     logo: company.logo_url || '',
+    companyImage: company.company_image_url || undefined,
     bio: company.bio || '',
-    headquarters: company.hq_city && company.hq_state
-      ? `${company.hq_city}, ${company.hq_state}`
-      : '',
-    revenue: company.revenue_range || '',
-    employees: company.employee_range || '',
-    industry: company.industry || '',
+    headquarters: company.hq_city && company.hq_state ? `${company.hq_city}, ${company.hq_state}` : 'Location not specified',
+    revenue: company.revenue_range || 'Revenue not disclosed',
+    employees: company.employee_range || 'Employee count not specified',
+    industry: company.industry || 'Industry not specified',
     trustedPartner: company.is_trusted_partner || false
   }
 }
@@ -128,10 +153,13 @@ export function transformProgramToTable(program: Program) {
   return {
     id: program.id,
     name: program.name,
+    short_desc: program.short_desc || '',
     program_type: program.program_type || 'Program',
     format: program.format || 'On-campus',
     duration_text: program.duration_text || 'Duration varies',
-    school: program.school?.name || 'Unknown School',
+    school: {
+      name: program.school?.name || 'Unknown School'
+    },
     skills_provided: program.skills?.length || 0
   }
 }

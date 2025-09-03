@@ -1,10 +1,11 @@
 const fs = require('fs');
 const csv = require('csv-parser');
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config({ path: '.env.local' });
 
-// Use local Supabase instance
-const supabaseUrl = 'http://127.0.0.1:54321';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+// Use remote Supabase instance from environment variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -17,20 +18,27 @@ async function importPinellasData() {
     fs.createReadStream('./docs/documentation/Pinellas-Hillsborough_Top_30_Filled.csv')
       .pipe(csv())
       .on('data', (data) => {
+        // Debug: log the actual data being parsed
+        console.log('Parsing row:', data.occupation_name, 'wage:', data.median_wage_value, 'unit:', data.median_wage_unit);
+        
         // Transform CSV data to match our jobs table schema
         const jobData = {
-          job_kind: 'high_demand', // Use valid enum value
+          job_kind: 'occupation',
+          education_level: data['Typical Education'] || 'Varies',
+          employment_outlook: 'High Demand',
+          is_featured: false,
           title: data.occupation_name,
           soc_code: data.soc_code,
           category: data.category,
           long_desc: data.description_long,
-          median_wage_usd: parseFloat(data.median_wage_value) * (data.median_wage_unit === 'hourly' ? 2080 : 1), // Convert hourly to annual
+          median_wage_usd: Math.round(parseFloat(data.median_wage_value) * (data.median_wage_unit === 'hourly' ? 2080 : 1)), // Convert hourly to annual
           skills_count: parseInt(data.skills_count) || 0,
           location_city: 'Tampa Bay',
           location_state: 'FL',
           job_type: 'Full-time'
         };
 
+        console.log('Transformed job:', jobData.title, 'annual wage:', jobData.median_wage_usd);
         results.push(jobData);
       })
       .on('end', async () => {

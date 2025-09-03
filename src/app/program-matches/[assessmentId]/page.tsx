@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import PageHeader from '@/components/ui/page-header'
 import Breadcrumb from '@/components/ui/breadcrumb'
 import AssessmentStepper from '@/components/ui/assessment-stepper'
-import { ProgramCard } from '@/components/ui/program-card'
+import { FeaturedProgramCard } from '@/components/ui/featured-program-card'
 import Link from 'next/link'
 import { routes } from '@/lib/routes'
 
@@ -225,7 +225,7 @@ export default function ProgramMatchesPage({ params }: { params: { assessmentId:
                     {Math.round(program.coverage_score * 100)}% match
                   </Badge>
                 </div>
-                <ProgramCard
+                <FeaturedProgramCard
                   id={program.id}
                   name={program.name}
                   school={{

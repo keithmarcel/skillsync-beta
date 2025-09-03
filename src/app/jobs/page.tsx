@@ -16,6 +16,7 @@ import DataTable from '@/components/ui/data-table'
 import SearchFilterControls from '@/components/ui/search-filter-controls'
 import { Search, MoreHorizontal, MapPin, Clock, Users, DollarSign } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getFeaturedRoles, getHighDemandOccupations } from '@/lib/database/queries'
 import { transformJobToFeaturedRole, transformJobToHighDemand } from '@/lib/database/transforms'
 import { occupationsTableColumns, occupationsSearchFields } from '@/lib/table-configs'
@@ -36,7 +37,12 @@ function getRoleReadinessBadge(readiness: string) {
 }
 
 export default function JobsPage() {
-  const [activeTab, setActiveTab] = useState('featured-roles')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Get tab from URL or default to 'featured-roles'
+  const tabFromUrl = searchParams.get('tab') || 'featured-roles'
+  const [activeTab, setActiveTab] = useState(tabFromUrl)
   const [featuredRoles, setFeaturedRoles] = useState<any[]>([])
   const [highDemandJobs, setHighDemandJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -46,6 +52,12 @@ export default function JobsPage() {
   const [sortBy, setSortBy] = useState('')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [filters, setFilters] = useState<Record<string, string>>({})
+
+  // Update activeTab when URL changes
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab') || 'featured-roles'
+    setActiveTab(tabFromUrl)
+  }, [searchParams])
 
   useEffect(() => {
     async function loadJobsData() {
@@ -67,6 +79,14 @@ export default function JobsPage() {
 
     loadJobsData()
   }, [])
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId)
+    // Update URL to preserve tab state
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', tabId)
+    router.push(`/jobs?${params.toString()}`)
+  }
 
   const handleSort = (value: string) => {
     if (sortBy === value) {
@@ -100,10 +120,10 @@ export default function JobsPage() {
       
       <StickyTabs 
         tabs={tabs}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
       
-      <div className="max-w-[1280px] mx-auto px-6">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Tab Content */}
           {activeTab === 'featured-roles' && (
@@ -136,7 +156,10 @@ export default function JobsPage() {
               <div className="mt-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
-                  <div className="col-span-full text-center py-8">Loading featured roles...</div>
+                  <div className="col-span-full flex flex-col items-center justify-center py-16">
+                    <div className="w-8 h-8 border-4 border-gray-200 border-t-[#0694A2] rounded-full animate-spin mb-4"></div>
+                    <p className="text-sm text-gray-600 font-normal">Loading Featured Roles</p>
+                  </div>
                 ) : featuredRoles.length > 0 ? (
                   featuredRoles.map((role) => (
                     <FeaturedRoleCard
@@ -172,7 +195,14 @@ export default function JobsPage() {
               />
               
               {loading ? (
-                <div className="text-center py-8">Loading high-demand occupations...</div>
+                <DataTable
+                  data={[]}
+                  columns={occupationsTableColumns}
+                  tableType="jobs"
+                  showSearchSortFilter={false}
+                  isLoading={true}
+                  loadingText="Loading Occupations"
+                />
               ) : (
                 <div>
                   {/* Search/Sort/Filter - 32px from hero image */}
@@ -197,7 +227,7 @@ export default function JobsPage() {
                       columns={occupationsTableColumns}
                       searchPlaceholder="Search occupations by keyword, SOC code, or category"
                       searchableFields={occupationsSearchFields}
-                      tableType="occupations"
+                      tableType="jobs"
                       showSearchSortFilter={false}
                       onRowAction={(action, row) => {
                         switch (action) {
@@ -232,42 +262,22 @@ export default function JobsPage() {
               />
               
               <div className="mt-8">
-                <DataTable
-                data={[]} // TODO: Replace with actual favorites data
-                columns={[
-                  {
-                    key: 'title',
-                    label: 'Occupation',
-                    sortable: true,
-                  },
-                  {
-                    key: 'description',
-                    label: 'Summary',
-                    sortable: true,
-                  },
-                  {
-                    key: 'median_wage_usd',
-                    label: 'Median Salary',
-                    sortable: true,
-                    render: (value: number) => `$${value?.toLocaleString() || 0}`,
-                  },
-                  {
-                    key: 'readiness',
-                    label: 'Role Readiness',
-                    filterable: true,
-                    filterOptions: ['Assess Skills', 'Close Gaps', 'Ready'],
-                    render: (value: string) => value || 'Assess Skills',
-                  },
-                  {
-                    key: 'actions',
-                    label: '',
-                  },
-                ]}
-                searchPlaceholder="Search your favorite jobs and occupations"
-                searchableFields={['title', 'description', 'category']}
-                tableType="occupations"
-                isOnFavoritesTab={true}
-                showSearchSortFilter={true}
+                {loading ? (
+                  <DataTable
+                    data={[]}
+                    columns={occupationsTableColumns}
+                    tableType="jobs"
+                    showSearchSortFilter={false}
+                    isLoading={true}
+                    loadingText="Loading Saved Jobs"
+                  />
+                ) : (
+                  <DataTable
+                    data={[]} // TODO: Replace with actual favorites data
+                    columns={occupationsTableColumns}
+                    tableType="jobs"
+                    isOnFavoritesTab={true}
+                    showSearchSortFilter={true}
                 onRowAction={(action, row) => {
                   switch (action) {
                     case 'details':
@@ -285,6 +295,7 @@ export default function JobsPage() {
                   }
                 }}
               />
+                )}
               </div>
             </div>
           )}

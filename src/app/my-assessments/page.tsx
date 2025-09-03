@@ -46,7 +46,7 @@ export default function MyAssessmentsPage() {
         variant="split"
       />
       
-      <div className="max-w-[1280px] mx-auto px-6 mt-10">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
         <TitleHero 
           heroImage="/assets/hero_my-assessments.jpg"
           title="My Assessments"
@@ -55,11 +55,11 @@ export default function MyAssessmentsPage() {
       </div>
       
       {loading ? (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center py-8">Loading your assessments...</div>
         </main>
       ) : !hasAssessments ? (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <EmptyState
             title="Your Assessment Journey"
             description="No assessments completed yet. Start exploring jobs and take your first skills assessment to begin your career journey!"
@@ -71,7 +71,7 @@ export default function MyAssessmentsPage() {
         </main>
       ) : (
         /* Main Content */
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
