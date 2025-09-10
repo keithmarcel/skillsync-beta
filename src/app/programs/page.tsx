@@ -13,11 +13,14 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { getFeaturedPrograms, getAllPrograms } from '@/lib/database/queries'
 import { transformProgramToCard, transformProgramToTable } from '@/lib/database/transforms'
 import { programsTableColumns, programsSearchFields } from '@/lib/table-configs'
+import { useFavorites } from '@/hooks/useFavorites'
+import { ProgramCard } from '@/components/ui/program-card'
 
 
 export default function ProgramsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { favoritePrograms, loading: favoritesLoading, addFavorite, removeFavorite, isFavorite } = useFavorites()
   
   // Get tab from URL or default to 'featured'
   const tabFromUrl = searchParams.get('tab') || 'featured'
@@ -212,7 +215,7 @@ export default function ProgramsPage() {
                         tableType="programs"
                         showSearchSortFilter={false}
                         isLoading={loading}
-                        onRowAction={(action, row) => {
+                        onRowAction={async (action, row) => {
                           switch (action) {
                             case 'details':
                               window.open('#', '_blank')
@@ -224,10 +227,10 @@ export default function ProgramsPage() {
                               console.log('See Related Jobs for program:', row.id)
                               break
                             case 'favorite':
-                              console.log('Add to favorites:', row.id)
+                              await addFavorite('program', row.id)
                               break
                             case 'unfavorite':
-                              console.log('Remove from favorites:', row.id)
+                              await removeFavorite('program', row.id)
                               break
                           }
                         }}
@@ -245,7 +248,7 @@ export default function ProgramsPage() {
                 />
                 
                 <div className="mt-8">
-                {loading ? (
+                {favoritesLoading ? (
                   <DataTable
                     data={[]}
                     columns={programsTableColumns}
@@ -256,12 +259,12 @@ export default function ProgramsPage() {
                   />
                 ) : (
                   <DataTable
-                    data={[]} // TODO: Replace with actual favorites data
+                    data={favoritePrograms.map(transformProgramToTable)}
                     columns={programsTableColumns}
                     tableType="programs"
                     isOnFavoritesTab={true}
                     showSearchSortFilter={true}
-                  onRowAction={(action, row) => {
+                  onRowAction={async (action, row) => {
                     switch (action) {
                       case 'details':
                         window.location.href = `/programs/${row.id}`
@@ -270,7 +273,7 @@ export default function ProgramsPage() {
                         console.log('See jobs for program:', row.id)
                         break
                       case 'unfavorite':
-                        console.log('Remove from favorites:', row.id)
+                        await removeFavorite('program', row.id)
                         break
                     }
                   }}

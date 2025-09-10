@@ -1,29 +1,19 @@
 'use client'
 
-import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import PageHeader from '@/components/ui/page-header'
-import StickyTabs from '@/components/ui/sticky-tabs'
-import { FeaturedRoleCard } from '@/components/ui/featured-role-card'
-import { TitleHero } from '@/components/ui/title-hero'
-import { EmptyState } from '@/components/ui/empty-state'
-import DataTable from '@/components/ui/data-table'
-import SearchFilterControls from '@/components/ui/search-filter-controls'
-import { Search, MoreHorizontal, MapPin, Clock, Users, DollarSign } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { getFeaturedRoles, getHighDemandOccupations } from '@/lib/database/queries'
-import { transformJobToFeaturedRole, transformJobToHighDemand } from '@/lib/database/transforms'
+import { Badge } from '@/components/ui/badge'
+import StickyTabs from '@/components/ui/sticky-tabs'
+import { TitleHero } from '@/components/ui/title-hero'
+import SearchFilterControls from '@/components/ui/search-filter-controls'
+import DataTable from '@/components/ui/data-table'
+import { FeaturedRoleCard } from '@/components/ui/featured-role-card'
+import PageHeader from '@/components/ui/page-header'
 import { occupationsTableColumns, occupationsSearchFields } from '@/lib/table-configs'
+import { getFeaturedRoles, getHighDemandOccupations } from '@/lib/database/queries'
+import { useFavorites } from '@/hooks/useFavorites'
+import { transformJobToFeaturedRole, transformJobToHighDemand } from '@/lib/database/transforms'
 
-// Mock data removed - now using database queries
-
-// Mock data removed - now using database queries
 
 function getRoleReadinessBadge(readiness: string) {
   switch (readiness) {
@@ -39,6 +29,7 @@ function getRoleReadinessBadge(readiness: string) {
 export default function JobsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { favoriteJobs, loading: favoritesLoading, addFavorite, removeFavorite, isFavorite } = useFavorites()
   
   // Get tab from URL or default to 'featured-roles'
   const tabFromUrl = searchParams.get('tab') || 'featured-roles'
@@ -229,7 +220,7 @@ export default function JobsPage() {
                       searchableFields={occupationsSearchFields}
                       tableType="jobs"
                       showSearchSortFilter={false}
-                      onRowAction={(action, row) => {
+                      onRowAction={async (action, row) => {
                         switch (action) {
                           case 'details':
                             window.location.href = `/jobs/${row.id}`
@@ -241,10 +232,10 @@ export default function JobsPage() {
                             window.location.href = `/assessments/quiz/${row.id}`
                             break
                           case 'favorite':
-                            console.log('Add to favorites:', row.id)
+                            await addFavorite('job', row.id)
                             break
                           case 'unfavorite':
-                            console.log('Remove from favorites:', row.id)
+                            await removeFavorite('job', row.id)
                             break
                         }
                       }}
@@ -262,7 +253,7 @@ export default function JobsPage() {
               />
               
               <div className="mt-8">
-                {loading ? (
+                {favoritesLoading ? (
                   <DataTable
                     data={[]}
                     columns={occupationsTableColumns}
@@ -273,12 +264,12 @@ export default function JobsPage() {
                   />
                 ) : (
                   <DataTable
-                    data={[]} // TODO: Replace with actual favorites data
+                    data={favoriteJobs.map(transformJobToHighDemand)}
                     columns={occupationsTableColumns}
                     tableType="jobs"
                     isOnFavoritesTab={true}
                     showSearchSortFilter={true}
-                onRowAction={(action, row) => {
+                onRowAction={async (action, row) => {
                   switch (action) {
                     case 'details':
                       window.location.href = `/jobs/${row.id}`
@@ -290,7 +281,7 @@ export default function JobsPage() {
                       console.log('Take assessment for:', row.id)
                       break
                     case 'unfavorite':
-                      console.log('Remove from favorites:', row.id)
+                      await removeFavorite('job', row.id)
                       break
                   }
                 }}
