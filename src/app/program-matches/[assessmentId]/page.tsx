@@ -1,6 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import PageHeader from '@/components/ui/page-header'
+import Breadcrumb from '@/components/ui/breadcrumb'
+import AssessmentStepper from '@/components/ui/assessment-stepper'
 import Link from 'next/link'
 import { routes } from '@/lib/routes'
 
@@ -46,7 +49,11 @@ const mockProgramMatches = [
 
 const mockAssessment = {
   id: '1',
-  job: { title: 'Senior Software Developer' },
+  job: { 
+    id: '1',
+    title: 'Project Management Specialists',
+    soc_code: '13-1082'
+  },
   gap_skills: ['Node.js', 'SQL', 'Git', 'Docker']
 }
 
@@ -131,49 +138,53 @@ export default function ProgramMatchesPage({ params }: { params: { assessmentId:
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href={routes.home} className="text-2xl font-bold text-gray-900">
-                SkillSync
-              </Link>
-            </div>
-            <nav className="flex space-x-8">
-              <Link href={routes.home} className="text-gray-500 hover:text-gray-900">
-                Dashboard
-              </Link>
-              <Link href={routes.jobs} className="text-gray-500 hover:text-gray-900">
-                Jobs
-              </Link>
-              <Link href={routes.programs} className="text-gray-500 hover:text-gray-900">
-                Programs
-              </Link>
-              <Link href={routes.myAssessments} className="text-gray-900 font-medium">
-                My Assessments
-              </Link>
-            </nav>
-          </div>
+      {/* Breadcrumbs above header */}
+      <div className="bg-gray-50 py-3">
+        <div className="max-w-[1280px] mx-auto px-6">
+          <Breadcrumb items={[
+            { label: 'Jobs', href: '/jobs' },
+            { label: 'High Demand Occupations', href: '/jobs' },
+            { label: assessment.job.title, href: `/jobs/${assessment.job.id}` },
+            { label: 'SkillSync Assessment', isActive: true }
+          ]} />
         </div>
-      </header>
+      </div>
+
+      <PageHeader 
+        isDynamic={true}
+        jobInfo={{
+          title: assessment.job.title,
+          socCode: assessment.job.soc_code
+        }}
+        showPrimaryAction={true}
+        showSecondaryAction={true}
+        primaryAction={{
+          label: "Favorite",
+          variant: "favorite",
+          isFavorited: false,
+          onClick: () => {
+            console.log('Toggle favorite for job:', assessment.job.id)
+          }
+        }}
+        secondaryAction={{
+          label: "Action 2"
+        }}
+        variant="split"
+      />
+
+      {/* Assessment stepper below header */}
+      <div className="bg-white py-6 border-b">
+        <div className="max-w-[1280px] mx-auto px-6">
+          <AssessmentStepper steps={[
+            { id: '1', label: 'Assess Your Skills', status: 'completed' },
+            { id: '2', label: 'SkillSync Readiness Score', status: 'completed' },
+            { id: '3', label: 'Education Program Matches', status: 'current' }
+          ]} />
+        </div>
+      </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
-        <nav className="mb-6">
-          <Link href={routes.assessment(assessment.id)} className="text-blue-600 hover:text-blue-800">
-            ← Back to Assessment Report
-          </Link>
-        </nav>
-
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Program Matches</h1>
-          <p className="text-gray-600">
-            Educational programs to help you develop skills for <strong>{assessment.job.title}</strong>
-          </p>
-        </div>
+      <main className="max-w-[1280px] mx-auto px-6 py-8">
 
         {/* Skills Gap Summary */}
         <Card className="mb-8">

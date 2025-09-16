@@ -170,8 +170,8 @@ export async function getProgramMatches(assessmentId: string) {
   // Get assessment with skill gaps
   const assessment = await getAssessment(assessmentId)
   const gapSkills = assessment.assessment_skill_results
-    .filter(result => result.band !== 'proficient')
-    .map(result => result.skills.id)
+    .filter((result: any) => result.band !== 'proficient')
+    .map((result: any) => result.skills.id)
 
   if (gapSkills.length === 0) {
     return []
@@ -192,25 +192,21 @@ export async function getProgramMatches(assessmentId: string) {
 
   if (error) throw error
 
-  // Score programs by gap skill coverage
-  const scoredPrograms = data.map(program => {
-    const coveredGapSkills = program.program_skills
-      .filter(ps => gapSkills.includes(ps.skills.id))
-    
-    const coverageScore = coveredGapSkills.length / gapSkills.length
-    const weightedScore = coveredGapSkills.reduce((sum, ps) => sum + (ps.weight || 1), 0)
+  // Calculate match scores
+  const programsWithScores = data.map((ps: any) => ({
+    ...ps,
+    matchScore: ps.program_skills.reduce((sum: any, ps: any) => 
+      sum + (gapSkills.includes(ps.skills.id) ? 1 : 0), 0
+    ),
+    totalSkills: ps.program_skills.length,
+    gapSkillsCovered: ps.program_skills.filter((ps: any) => 
+      gapSkills.includes(ps.skills.id)
+    ).length
+  }))
 
-    return {
-      ...program,
-      coverage_score: coverageScore,
-      weighted_score: weightedScore,
-      covered_skills: coveredGapSkills.map(ps => ps.skills.name)
-    }
-  })
-
-  // Sort by coverage and weighted score
-  return scoredPrograms
-    .sort((a, b) => b.coverage_score - a.coverage_score || b.weighted_score - a.weighted_score)
+  // Sort by match score and total skills
+  return programsWithScores
+    .sort((a, b) => b.matchScore - a.matchScore || b.totalSkills - a.totalSkills)
     .slice(0, 10)
 }
 

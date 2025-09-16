@@ -1,5 +1,12 @@
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+'use client'
+
+import React from 'react'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { Heart } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import Breadcrumb, { BreadcrumbItem } from './breadcrumb'
+import AssessmentStepper, { StepperStep } from './assessment-stepper'
 
 interface PageHeaderProps {
   title?: string
@@ -8,42 +15,99 @@ interface PageHeaderProps {
     label: string
     href?: string
     onClick?: () => void
+    variant?: 'default' | 'outline' | 'favorite'
+    isFavorited?: boolean
   }
   secondaryAction?: {
     label: string
     onClick?: () => void
     href?: string
+    variant?: 'default' | 'outline'
   }
   variant?: 'default' | 'centered' | 'split'
   isDynamic?: boolean
   userName?: string
   isReturningUser?: boolean
+  showPrimaryAction?: boolean
+  showSecondaryAction?: boolean
+  // Dynamic content props
+  programInfo?: {
+    name: string
+    school: string
+    location: string
+  }
+  jobInfo?: {
+    title: string
+    socCode?: string
+    company?: string
+  }
+  breadcrumbs?: BreadcrumbItem[]
+  assessmentSteps?: StepperStep[]
 }
 
-export function PageHeader({ 
-  title, 
-  subtitle, 
-  primaryAction, 
-  secondaryAction, 
+export default function PageHeader({
+  title,
+  subtitle,
+  primaryAction,
+  secondaryAction,
+  showPrimaryAction = false,
+  showSecondaryAction = false,
   variant = 'default',
   isDynamic = false,
   userName,
-  isReturningUser = false
+  isReturningUser,
+  programInfo,
+  jobInfo,
+  breadcrumbs,
+  assessmentSteps
 }: PageHeaderProps) {
   
-  // Generate dynamic greeting for homepage
+  const { toast } = useToast()
+  
+  // Generate dynamic content based on context
   const getDynamicTitle = () => {
     if (!isDynamic) return title
     
-    if (userName) {
-      return isReturningUser ? `Welcome back, ${userName}!` : `Welcome, ${userName}!`
-    } else {
-      return isReturningUser ? "Welcome back!" : "Welcome!"
+    if (jobInfo) {
+      return jobInfo.title
     }
+    
+    return title || "Welcome!"
+  }
+  
+  const getDynamicSubtitle = () => {
+    if (!isDynamic) return subtitle
+    
+    if (jobInfo) {
+      let sub = ''
+      if (jobInfo.socCode) sub += `SOC Code: ${jobInfo.socCode}`
+      if (jobInfo.company) sub += sub ? ` • ${jobInfo.company}` : jobInfo.company
+      return sub
+    }
+    
+    return subtitle || "Track your progress and take your next step toward career readiness."
+  }
+
+  // Handle favorite toggle with toast
+  const handleFavoriteToggle = (currentFavorited: boolean, jobTitle?: string) => {
+    if (primaryAction?.onClick) {
+      primaryAction.onClick()
+    }
+    
+    // Show toast message
+    const message = currentFavorited 
+      ? `Removed ${jobTitle || 'job'} from favorites`
+      : `Added ${jobTitle || 'job'} to favorites`
+    
+    toast({
+      title: currentFavorited ? "Removed from favorites" : "Added to favorites",
+      description: message,
+    })
   }
   
   const dynamicTitle = getDynamicTitle()
-  const dynamicSubtitle = isDynamic ? "Track your progress and take your next step toward career readiness." : subtitle
+  const dynamicSubtitle = getDynamicSubtitle()
+  
   if (variant === 'split') {
     return (
       <div className="bg-[#114B5F] py-12 mt-4">
@@ -58,43 +122,49 @@ export function PageHeader({
               </p>
             )}
           </div>
-          {primaryAction && !isDynamic && (
+          {(primaryAction || secondaryAction) && (
             <div className="flex items-center gap-4">
-              {primaryAction.href ? (
-                <Button 
-                  asChild
-                  className="flex h-9 px-2 py-4 justify-center items-center gap-2 rounded-md border border-teal-100 bg-teal-500 hover:bg-teal-600 text-white shadow-sm"
-                >
-                  <Link href={primaryAction.href}>{primaryAction.label}</Link>
-                </Button>
-              ) : (
-                <Button 
-                  onClick={primaryAction.onClick}
-                  className="flex h-9 px-2 py-4 justify-center items-center gap-2 rounded-md border border-teal-100 bg-teal-500 hover:bg-teal-600 text-white shadow-sm"
-                >
-                  {primaryAction.label}
-                </Button>
-              )}
-              {secondaryAction && (
+              {primaryAction && showPrimaryAction && (
                 <>
-                  {secondaryAction.href ? (
+                  {primaryAction.href ? (
                     <Button 
                       asChild
                       variant="outline"
-                      className="flex h-9 px-2 py-4 justify-center items-center gap-2 rounded-md border border-teal-100 bg-white text-teal-900 hover:bg-teal-50 shadow-sm"
+                      className="flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white"
                     >
-                      <Link href={secondaryAction.href}>{secondaryAction.label}</Link>
+                      <Link href={primaryAction.href}>{primaryAction.label}</Link>
                     </Button>
                   ) : (
                     <Button 
                       variant="outline"
-                      onClick={secondaryAction.onClick}
-                      className="flex h-9 px-2 py-4 justify-center items-center gap-2 rounded-md border border-teal-100 bg-white text-teal-900 hover:bg-teal-50 shadow-sm"
+                      onClick={() => {
+                        if (primaryAction.variant === 'favorite') {
+                          handleFavoriteToggle(primaryAction.isFavorited || false, dynamicTitle)
+                        } else if (primaryAction.onClick) {
+                          primaryAction.onClick()
+                        }
+                      }}
+                      className={`flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border transition-colors ${
+                        primaryAction.variant === 'favorite' && primaryAction.isFavorited
+                          ? 'border-rose-500 bg-rose-500 text-white hover:bg-teal-500'
+                          : 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white'
+                      }`}
                     >
-                      {secondaryAction.label}
+                      {primaryAction.label}
+                      {primaryAction.variant === 'favorite' && (
+                        <Heart className={`w-4 h-4 ${primaryAction.isFavorited ? 'fill-current' : ''}`} />
+                      )}
                     </Button>
                   )}
                 </>
+              )}
+              {secondaryAction && showSecondaryAction && (
+                <Button 
+                  variant="outline"
+                  className="flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white"
+                >
+                  {secondaryAction.label}
+                </Button>
               )}
             </div>
           )}
@@ -124,7 +194,7 @@ export function PageHeader({
         )}
         {(primaryAction || secondaryAction) && (
           <div className="flex items-center gap-4">
-            {primaryAction && (
+            {primaryAction && showPrimaryAction && (
               <>
                 {primaryAction.href ? (
                   <Button 
@@ -139,11 +209,14 @@ export function PageHeader({
                     className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg"
                   >
                     {primaryAction.label}
+                    {primaryAction.variant === 'favorite' && (
+                      <Heart className={`w-4 h-4 ${primaryAction.isFavorited ? 'fill-current' : ''}`} />
+                    )}
                   </Button>
                 )}
               </>
             )}
-            {secondaryAction && (
+            {secondaryAction && showSecondaryAction && (
               <>
                 {secondaryAction.href ? (
                   <Button 

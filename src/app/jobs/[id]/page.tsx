@@ -1,198 +1,395 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { PageHeader } from '@/components/ui/page-header'
-import Link from 'next/link'
-import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock } from 'lucide-react'
+'use client'
 
-// Mock data - will be replaced with real API calls
-const mockJob = {
-  id: '1',
-  title: 'Senior Software Developer',
-  job_kind: 'featured_role',
-  soc_code: '15-1252',
-  category: 'Technology',
-  job_type: 'Full-time',
-  location_city: 'St. Petersburg',
-  location_state: 'FL',
-  median_wage_usd: 95000,
-  long_desc: 'We are seeking a Senior Software Developer to join our innovative team. You will be responsible for designing, developing, and maintaining high-quality software applications that serve millions of users. This role offers the opportunity to work with cutting-edge technologies and collaborate with a talented team of engineers.',
-  featured_image_url: null,
-  skills_count: 12,
-  company: {
-    name: 'TechCorp',
-    logo_url: null,
-    is_trusted_partner: true,
-    bio: 'TechCorp is a leading technology company focused on creating innovative solutions that transform how businesses operate. Founded in 2010, we have grown to serve over 10,000 clients worldwide.'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import PageHeader from '@/components/ui/page-header'
+import BreadcrumbLayout from '@/components/ui/breadcrumb-layout'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import Link from 'next/link'
+import Image from 'next/image'
+import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } from 'lucide-react'
+
+// Mock data based on Figma designs
+const mockJobData = {
+  // Featured Role Example
+  '1': {
+    id: '1',
+    title: 'Mechanical Project Manager',
+    job_kind: 'featured_role',
+    soc_code: '13-1082',
+    category: 'Skilled Trades',
+    job_type: 'Full-Time',
+    location_city: 'St. Petersburg',
+    location_state: 'FL',
+    median_wage_usd: 85700,
+    education_requirements: 'Construction-related Degree',
+    proficiency_score: 90,
+    long_desc: "We're looking for a Mechanical Project Manager who is ready to not just manage projects – but live opportunities for future expansion through top tier customer service, quality execution, and project execution. In this role, you'll manage all business aspects of concurrent projects and ensure financial and quality targets are met.",
+    featured_image_url: null,
+    skills_count: 5,
+    company: {
+      name: 'Power Design',
+      logo_url: null,
+      is_trusted_partner: true,
+      bio: 'Power Design is a leading electrical contractor specializing in commercial and industrial projects. With over 30 years of experience, we deliver innovative solutions and maintain the highest standards of quality and safety.',
+      headquarters: 'St. Petersburg, FL',
+      revenue: '500 million to 1 billion USD',
+      employees: '1,001 to 5,000',
+      industry: 'Construction',
+      company_image: null
+    },
+    job_skills: [
+      { skill: { name: 'Process Improvement', category: 'Management' }, weight: 1.0 },
+      { skill: { name: 'Project Management', category: 'Management' }, weight: 0.9 },
+      { skill: { name: 'Data Analysis', category: 'Analysis' }, weight: 0.8 },
+      { skill: { name: 'Strategic Planning', category: 'Planning' }, weight: 0.8 },
+      { skill: { name: 'Budgeting', category: 'Finance' }, weight: 0.7 }
+    ],
+    core_responsibilities: [
+      'Manage all business aspects of concurrent projects and ensure financial and quality targets are met',
+      'Manage all activities associated with materials, budgeting, and production for assigned projects',
+      'Supervise and mentor select assistant project managers on the project team',
+      'Actively maintain customer relationships to ensure satisfaction and quality of service',
+      'Ensure adherence to Power Design\'s standards of quality, safety, and best practices'
+    ]
   },
-  job_skills: [
-    { skill: { name: 'JavaScript', category: 'Programming' }, weight: 1.0 },
-    { skill: { name: 'React', category: 'Frontend' }, weight: 0.9 },
-    { skill: { name: 'Node.js', category: 'Backend' }, weight: 0.8 },
-    { skill: { name: 'TypeScript', category: 'Programming' }, weight: 0.8 },
-    { skill: { name: 'SQL', category: 'Database' }, weight: 0.7 },
-    { skill: { name: 'Git', category: 'Version Control' }, weight: 0.6 }
-  ]
+  // Occupation Example
+  'occ-3': {
+    id: 'occ-3',
+    title: 'Project Management Specialists',
+    job_kind: 'occupation',
+    soc_code: '13-1082',
+    category: 'Business',
+    projected_open_positions: 18000,
+    education_requirements: "Bachelor's Degree",
+    job_growth_outlook: '+8% through 2030',
+    median_wage_usd: 86700,
+    long_desc: 'Project Management Specialists coordinate and manage projects across various industries to ensure they meet scope, budget and timeline requirements. They serve as a bridge between stakeholders, resources, and teams, driving efficiency and accountability from planning through delivery.',
+    featured_image_url: null,
+    skills_count: 5,
+    job_skills: [
+      { skill: { name: 'Process Improvement', category: 'Management' }, weight: 1.0 },
+      { skill: { name: 'Project Management', category: 'Management' }, weight: 0.9 },
+      { skill: { name: 'Data Analysis', category: 'Analysis' }, weight: 0.8 },
+      { skill: { name: 'Strategic Planning', category: 'Planning' }, weight: 0.8 },
+      { skill: { name: 'Budgeting', category: 'Finance' }, weight: 0.7 }
+    ],
+    core_responsibilities: [
+      'Analyze and approve business operations to improve efficiency and effectiveness',
+      'Identify operational risks and develop strategies to mitigate them',
+      'Manage project related correspondence and documents through designated systems',
+      'Work closely with various departments to streamline processes and improve outcomes',
+      'Use data analysis and metrics to support strategic initiatives and identify opportunities'
+    ],
+    related_job_titles: [
+      'Operations Coordinator',
+      'Operations Support Specialist',
+      'Business Process Analyst',
+      'Process Improvement Specialist'
+    ],
+    hiring_companies: [
+      { name: 'Power Design', logo: null },
+      { name: 'TD SYNNEX', logo: null },
+      { name: 'Spectrum', logo: null },
+      { name: 'BayCare', logo: null }
+    ]
+  }
+}
+
+function CompanyModal({ company }: { company: any }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">About the Company</Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <div className="flex items-center gap-4 mb-4">
+            <Image src={company.logo_url} alt={`${company.name} logo`} width={60} height={60} className="rounded" />
+            <div>
+              <DialogTitle className="text-xl">{company.name}</DialogTitle>
+              <DialogDescription>Learn more about this trusted partner</DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+        <div className="space-y-4">
+          {company.company_image && (
+            <Image src={company.company_image} alt={`${company.name}`} width={400} height={200} className="rounded-lg w-full" />
+          )}
+          <p className="text-gray-700">{company.bio}</p>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div><strong>Revenue:</strong> {company.revenue}</div>
+            <div><strong>Employees:</strong> {company.employees}</div>
+            <div><strong>Industry:</strong> {company.industry}</div>
+            <div><strong>Headquarters:</strong> {company.headquarters}</div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
-  const job = mockJob // In real app: await getJob(params.id)
+  const job = mockJobData[params.id as keyof typeof mockJobData]
+  
+  if (!job) {
+    return <div>Job not found</div>
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <PageHeader
-        title={job.title}
-        subtitle={`${job.location_city}, ${job.location_state} • ${job.job_type}`}
-        variant="split"
+      <PageHeader 
+        isDynamic={true}
+        jobInfo={{
+          title: job.title,
+          socCode: job.soc_code
+        }}
+        showPrimaryAction={true}
+        showSecondaryAction={true}
         primaryAction={{
-          label: "Start Assessment",
-          href: `/assessments/job/${job.id}`
+          label: "Favorite",
+          variant: "favorite",
+          isFavorited: false,
+          onClick: () => {
+            console.log('Toggle favorite for job:', job.id)
+          }
         }}
         secondaryAction={{
-          label: "Save Job",
-          onClick: () => console.log("Save job")
+          label: "Action 2"
         }}
+        variant="split"
       />
 
-      {/* Main Content */}
-      <main className="max-w-[1280px] mx-auto px-6 py-8">
-        {/* Breadcrumb */}
-        <nav className="mb-6">
-          <Link href="/jobs" className="flex items-center gap-2 text-teal-600 hover:text-teal-700 font-medium">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Jobs
-          </Link>
-        </nav>
-
-        {/* Job Header */}
-        <div className="bg-white rounded-2xl shadow-sm p-8 mb-8">
-          <div className="flex items-start justify-between mb-6">
+      <BreadcrumbLayout items={[
+        { label: 'Jobs', href: '/jobs' },
+        { label: 'Featured Roles', href: '/jobs' },
+        { label: job.title, isActive: true }
+      ]}>
+        {/* Company Info for Featured Roles */}
+        {job.job_kind === 'featured_role' && 'company' in job && (
+          <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg border">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                {job.company?.logo_url ? (
-                  <img src={job.company.logo_url} alt="logo" className="w-12 h-12 rounded" />
+              <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                {job.company.logo_url ? (
+                  <img 
+                    src={job.company.logo_url} 
+                    alt={`${job.company.name} logo`}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
                 ) : (
-                  <span className="text-xl font-semibold">{job.company?.name?.[0] || 'J'}</span>
+                  <span className="text-lg font-semibold text-gray-600">
+                    {job.company.name.charAt(0)}
+                  </span>
                 )}
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
-                <div className="flex items-center gap-2 mb-2">
-                  {job.soc_code && (
-                    <Badge variant="outline">SOC: {job.soc_code}</Badge>
-                  )}
-                  <Button variant="ghost" size="sm">♡ Favorite</Button>
-                </div>
+                <h3 className="font-semibold text-gray-900">{job.company.name}</h3>
+                <p className="text-sm text-gray-600">{job.company.headquarters}</p>
               </div>
             </div>
+            <Button variant="outline" size="sm">
+              About Company
+            </Button>
           </div>
+        )}
 
-          {/* Sponsor Panel (for featured roles) */}
-          {job.job_kind === 'featured_role' && job.company && (
-            <Card className="mb-6 border-blue-200 bg-blue-50">
+        {/* Job Overview */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2">
+            <Card className="rounded-2xl">
               <CardHeader>
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg">Featured Employer</CardTitle>
-                  {job.company.is_trusted_partner && (
-                    <Badge className="bg-blue-100 text-blue-800">Trusted Partner</Badge>
+                <CardTitle>{job.title}</CardTitle>
+                <CardDescription>
+                  {job.job_kind === 'featured_role' && 'company' in job 
+                    ? `${job.company.name} • ${job.company.headquarters}`
+                    : `SOC: ${job.soc_code}`
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-blue-100 text-blue-800">{job.category}</Badge>
+                  {'job_type' in job && job.job_type && <Badge className="bg-green-100 text-green-800">{job.job_type}</Badge>}
+                  <Badge className="bg-purple-100 text-purple-800">{job.skills_count} Skills</Badge>
+                </div>
+
+                {/* Key Stats */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                    <div className="text-sm opacity-80">Median Salary</div>
+                    <div className="text-xl font-bold">${job.median_wage_usd?.toLocaleString()}</div>
+                  </div>
+                  {job.job_kind === 'featured_role' ? (
+                    <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                      <div className="text-sm opacity-80">Role Location</div>
+                      <div className="text-sm text-white">
+                        {'location_city' in job && 'location_state' in job && (
+                          <span>{job.location_city}, {job.location_state}</span>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                      <div className="text-sm opacity-80">Projected Open Positions</div>
+                      <div className="text-sm text-white">
+                        {'projected_open_positions' in job && (
+                          <span>{job.projected_open_positions.toLocaleString()} projected open positions</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                    <div className="text-sm opacity-80">Typical Education Requirements</div>
+                    <div className="text-xl font-bold">{job.education_requirements}</div>
+                  </div>
+                  {job.job_kind === 'featured_role' ? (
+                    'proficiency_score' in job ? (
+                      <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                        <div className="text-sm opacity-80">Your Proficiency</div>
+                        <div className="text-xl font-bold">{job.proficiency_score}%</div>
+                      </div>
+                    ) : null
+                  ) : (
+                    'job_growth_outlook' in job ? (
+                      <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                        <div className="text-sm opacity-80">Job Growth Outlook</div>
+                        <div className="text-xl font-bold">{job.job_growth_outlook}</div>
+                      </div>
+                    ) : null
                   )}
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-700 mb-3">{job.company.bio}</p>
-                <Button variant="outline" size="sm">About Company</Button>
+
+                {/* Description */}
+                <div>
+                  <p className="text-gray-700 leading-relaxed">{job.long_desc}</p>
+                </div>
               </CardContent>
             </Card>
-          )}
+          </div>
 
-          {/* Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Overview</h2>
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <Badge variant="secondary">{job.category}</Badge>
-                  <Badge variant="secondary">{job.job_type}</Badge>
-                  <Badge variant="secondary">{job.skills_count} skills</Badge>
-                </div>
-                {job.median_wage_usd && (
-                  <p><strong>Median Salary:</strong> ${job.median_wage_usd.toLocaleString()}</p>
-                )}
-                {job.location_city && job.location_state && (
-                  <p><strong>Location:</strong> {job.location_city}, {job.location_state}</p>
-                )}
+          {/* Featured Image */}
+          <div className="lg:col-span-1">
+            {job.featured_image_url && (
+              <div className="sticky top-8">
+                <Image 
+                  src={job.featured_image_url} 
+                  alt={job.title} 
+                  width={400} 
+                  height={300} 
+                  className="rounded-2xl w-full h-auto"
+                />
               </div>
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Description</h2>
-              <p className="text-gray-700">{job.long_desc}</p>
-            </div>
+            )}
           </div>
         </div>
 
         {/* Skills & Responsibilities */}
-        <Card className="mb-8">
+        <Card className="rounded-2xl mb-8">
           <CardHeader>
-            <CardTitle>Skills & Responsibilities</CardTitle>
-            <CardDescription>Core skills required for this role</CardDescription>
+            <CardTitle className="text-xl">Skills and Responsibilities</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Core Skills */}
               <div>
-                <h3 className="font-semibold mb-3">Required Skills</h3>
-                <div className="space-y-2">
+                <h3 className="font-semibold mb-4">Core Skills</h3>
+                <div className="flex flex-wrap gap-2 mb-6">
                   {job.job_skills.map((jobSkill, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <span className="font-medium">{jobSkill.skill.name}</span>
-                        <span className="text-sm text-gray-500 ml-2">({jobSkill.skill.category})</span>
-                      </div>
-                      <div className="w-16 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full" 
-                          style={{ width: `${jobSkill.weight * 100}%` }}
-                        ></div>
-                      </div>
-                    </div>
+                    <Badge key={index} className="bg-teal-100 text-teal-800 hover:bg-teal-100">
+                      {jobSkill.skill.name}
+                    </Badge>
                   ))}
                 </div>
-              </div>
-              <div>
-                <h3 className="font-semibold mb-3">Key Responsibilities</h3>
+
+                <h3 className="font-semibold mb-4">Common Responsibilities</h3>
                 <ul className="space-y-2 text-gray-700">
-                  <li>• Design and develop scalable software applications</li>
-                  <li>• Collaborate with cross-functional teams</li>
-                  <li>• Write clean, maintainable code</li>
-                  <li>• Participate in code reviews and testing</li>
-                  <li>• Stay current with technology trends</li>
+                  {job.core_responsibilities?.map((responsibility, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-teal-600 mt-1">•</span>
+                      <span>{responsibility}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
+
+              {/* Related Job Titles (Occupations Only) */}
+              {job.job_kind === 'occupation' && 'related_job_titles' in job && job.related_job_titles && (
+                <div>
+                  <h3 className="font-semibold mb-4">Related Job Titles</h3>
+                  <ul className="space-y-2 text-gray-700">
+                    {job.related_job_titles.map((title, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="text-teal-600 mt-1">•</span>
+                        <span>{title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Assessment CTA */}
-        <Card>
+        {/* Skills Gap Assessment */}
+        <Card className="rounded-2xl mb-8">
           <CardHeader>
-            <CardTitle>Take Your Free Skills Assessment</CardTitle>
+            <CardTitle className="text-xl">Take Your Free Skills Gap Assessment</CardTitle>
             <CardDescription>
-              Discover how ready you are for this role and identify areas for improvement
+              We'll assess your skills, show you how they align with industry benchmarks, and recommend top regional programs that can help close any gaps.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button size="lg" className="h-16">
-                📄 Upload Resume
-                <span className="block text-xs opacity-75">Get instant skills analysis</span>
-              </Button>
-              <Button variant="outline" size="lg" className="h-16">
-                📝 Start Quiz
-                <span className="block text-xs opacity-75">Answer skill-based questions</span>
-              </Button>
+              <Card className="bg-[#114B5F] text-white border-0">
+                <CardContent className="p-6 text-center">
+                  <Upload className="w-8 h-8 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2">Assess Your Resume</h3>
+                  <p className="text-sm opacity-90 mb-4">Upload your Resume</p>
+                  <Button asChild className="bg-white text-[#114B5F] hover:bg-gray-100 w-full">
+                    <Link href={`/assessments/resume/${job.id}`}>
+                      Upload Your Resume →
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-[#114B5F] text-white border-0">
+                <CardContent className="p-6 text-center">
+                  <FileText className="w-8 h-8 mx-auto mb-3" />
+                  <h3 className="font-semibold mb-2">Take a Skills Assessment</h3>
+                  <p className="text-sm opacity-90 mb-4">Start Your Quiz</p>
+                  <Button asChild className="bg-white text-[#114B5F] hover:bg-gray-100 w-full">
+                    <Link href={`/assessments/quiz/${job.id}`}>
+                      Start Your Quiz →
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </CardContent>
         </Card>
-      </main>
+
+        {/* Hiring Companies for Occupations */}
+        {job.job_kind === 'occupation' && 'hiring_companies' in job && job.hiring_companies && (
+          <Card className="rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-6">
+                {job.hiring_companies.map((company: any, index: number) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Image src={company.logo} alt={`${company.name} logo`} width={40} height={40} className="rounded" />
+                    <span className="font-medium">{company.name}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </BreadcrumbLayout>
     </div>
   )
 }
