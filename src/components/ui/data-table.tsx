@@ -29,18 +29,19 @@ interface Column {
   sortable?: boolean
   filterable?: boolean
   filterOptions?: string[]
-  render?: (value: any, row: any) => React.ReactNode
+  render?: (value: any, row: any, isOnFavoritesTab?: boolean) => React.ReactNode
 }
 
 interface DataTableProps {
   data: any[]
   columns: Column[]
-  tableType?: 'programs' | 'jobs' | 'assessments'
+  tableType?: 'programs' | 'jobs' | 'assessments' | 'occupations'
   isOnFavoritesTab?: boolean
   loadingText?: string
   onRowAction?: (action: string, row: any) => void
   showSearchSortFilter?: boolean
   isLoading?: boolean
+  isFavorite?: (entityKind: 'job' | 'program', entityId: string) => boolean
 }
 
 export default function DataTable({
@@ -51,6 +52,7 @@ export default function DataTable({
   loadingText,
   onRowAction,
   showSearchSortFilter = true,
+  isFavorite,
   isLoading = false
 }: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -261,7 +263,7 @@ export default function DataTable({
                           href={`/${tableType}/${row.id}`}
                           className="text-inherit group-hover:text-[#0694A2] group-hover:underline transition-colors font-medium"
                         >
-                          {column.render ? column.render(value, row) : value}
+                          {column.render ? column.render(value, row, isOnFavoritesTab) : value}
                         </Link>
                       ) : colIndex === columns.length - 1 ? (
                         <DropdownMenu>
@@ -296,13 +298,21 @@ export default function DataTable({
                               </>
                             )}
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => onRowAction?.(isOnFavoritesTab ? 'unfavorite' : 'favorite', row)}>
-                              {isOnFavoritesTab ? 'Remove from Favorites' : 'Add to Favorites'}
+                            <DropdownMenuItem onClick={() => {
+                              const entityKind = tableType === 'programs' ? 'program' : 'job'
+                              const isCurrentlyFavorited = isOnFavoritesTab || (isFavorite && isFavorite(entityKind, row.id))
+                              onRowAction?.(isCurrentlyFavorited ? 'unfavorite' : 'favorite', row)
+                            }}>
+                              {(() => {
+                                const entityKind = tableType === 'programs' ? 'program' : 'job'
+                                const isCurrentlyFavorited = isOnFavoritesTab || (isFavorite && isFavorite(entityKind, row.id))
+                                return isCurrentlyFavorited ? 'Remove from Favorites' : 'Add to Favorites'
+                              })()}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       ) : (
-                        column.render ? column.render(value, row) : value
+                        column.render ? column.render(value, row, isOnFavoritesTab) : value
                       )}
                     </td>
                   )

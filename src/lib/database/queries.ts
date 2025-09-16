@@ -15,7 +15,7 @@ export interface Job {
   long_desc: string | null
   featured_image_url: string | null
   skills_count: number
-  required_proficiency_pct: number | null
+  required_proficiency_pct?: number | null
   company?: Company
   skills?: JobSkill[]
 }
@@ -24,7 +24,6 @@ export interface Company {
   id: string
   name: string
   logo_url: string | null
-  company_image_url: string | null
   is_trusted_partner: boolean
   hq_city: string | null
   hq_state: string | null
@@ -357,42 +356,142 @@ export async function getSkillsByCategory(category: string): Promise<Skill[]> {
 
 // Favorites queries (requires authentication)
 export async function getUserFavoriteJobs(userId: string): Promise<Job[]> {
-  // For development, return empty array to avoid RLS issues
-  // TODO: Replace with proper auth integration
   console.log('getUserFavoriteJobs called for user:', userId)
-  return []
+  
+  const { data: favorites, error: favError } = await supabase
+    .from('favorites')
+    .select('entity_id, created_at')
+    .eq('user_id', userId)
+    .eq('entity_kind', 'job')
+    .order('created_at', { ascending: false })
+
+  if (favError) {
+    console.error('❌ Error fetching favorite job IDs:', favError)
+    return []
+  }
+
+  if (!favorites || favorites.length === 0) {
+    console.log('📋 No favorite jobs found')
+    return []
+  }
+
+  const jobIds = favorites.map((fav: any) => fav.entity_id)
+  console.log('🎯 Fetching jobs for IDs:', jobIds.length)
+
+  // Then get the job details
+  const { data: jobs, error: jobsError } = await supabase
+    .from('jobs')
+    .select(`id, job_kind, title, soc_code, company_id, job_type, category, location_city, location_state, median_wage_usd, long_desc, featured_image_url, skills_count, companies(id, name, logo_url, is_trusted_partner, hq_city, hq_state, revenue_range, employee_range, industry, bio)`)
+    .in('id', jobIds)
+
+  if (jobsError) {
+    console.error('❌ Error fetching job details:', jobsError)
+    return []
+  }
+
+  console.log('✅ Fetched favorite jobs:', jobs?.length || 0, 'items')
+  
+  return jobs?.map(job => ({
+    ...job,
+    company: Array.isArray(job.companies) ? job.companies[0] : job.companies
+  })) || []
 }
 
 export async function getUserFavoritePrograms(userId: string): Promise<Program[]> {
-  // For development, return empty array to avoid RLS issues
-  // TODO: Replace with proper auth integration
-  console.log('getUserFavoritePrograms called for user:', userId)
-  return []
+  console.log('🔍 Fetching favorite programs for user:', userId)
+  
+  // First get the favorite program IDs
+  const { data: favorites, error: favError } = await supabase
+    .from('favorites')
+    .select('entity_id, created_at')
+    .eq('user_id', userId)
+    .eq('entity_kind', 'program')
+    .order('created_at', { ascending: false })
+
+  if (favError) {
+    console.error('❌ Error fetching favorite program IDs:', favError)
+    return []
+  }
+
+  if (!favorites || favorites.length === 0) {
+    console.log('📋 No favorite programs found')
+    return []
+  }
+
+  const programIds = favorites.map((fav: any) => fav.entity_id)
+  console.log('🎯 Fetching programs for IDs:', programIds.length)
+
+  // Then get the program details
+  const { data: programs, error: programsError } = await supabase
+    .from('programs')
+    .select(`id, school_id, name, program_type, format, duration_text, short_desc, program_url, cip_code, schools(id, name, logo_url, about_url, city, state)`)
+    .in('id', programIds)
+
+  if (programsError) {
+    console.error('❌ Error fetching program details:', programsError)
+    return []
+  }
+
+  console.log('✅ Fetched favorite programs:', programs?.length || 0, 'items')
+  
+  return programs?.map(program => ({
+    ...program,
+    school: Array.isArray(program.schools) ? program.schools[0] : program.schools
+  })) || []
 }
 
 export async function addToFavorites(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  // For development, simulate success to avoid RLS issues
-  // TODO: Replace with proper auth integration
-  console.log('🔥 ADD TO FAVORITES CALLED:', { userId, entityKind, entityId })
-  console.log('🔥 This should appear when you click Add to Favorites!')
+  console.log(' ADD TO FAVORITES CALLED:', { userId, entityKind, entityId })
   
-  // Simulate a small delay to make it feel real
-  await new Promise(resolve => setTimeout(resolve, 500))
-  
-  console.log('🔥 ADD TO FAVORITES COMPLETED successfully')
+  const { error } = await supabase
+    .from('favorites')
+    .insert({
+      user_id: userId,
+      entity_kind: entityKind,
+      entity_id: entityId
+    })
+
+  if (error) {
+    console.error('Error adding to favorites:', error)
+    return false
+  }
+
   return true
 }
 
 export async function removeFromFavorites(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  // For development, simulate success to avoid RLS issues
-  // TODO: Replace with proper auth integration
-  console.log('removeFromFavorites called:', { userId, entityKind, entityId })
+  console.log(' REMOVE FROM FAVORITES CALLED:', { userId, entityKind, entityId })
+  
+  const { error } = await supabase
+    .from('favorites')
+    .delete()
+    .eq('user_id', userId)
+    .eq('entity_kind', entityKind)
+    .eq('entity_id', entityId)
+
+  if (error) {
+    console.error('Error removing from favorites:', error)
+    return false
+  }
+
   return true
 }
 
 export async function isFavorite(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  // For development, return false to avoid RLS issues
-  // TODO: Replace with proper auth integration
-  console.log('isFavorite called:', { userId, entityKind, entityId })
-  return false
+  console.log(' IS FAVORITE CALLED:', { userId, entityKind, entityId })
+  
+  const { data, error } = await supabase
+    .from('favorites')
+    .select('entity_id')
+    .eq('user_id', userId)
+    .eq('entity_kind', entityKind)
+    .eq('entity_id', entityId)
+    .single()
+
+  if (error) {
+    // If no record found, it's not a favorite
+    return false
+  }
+
+  return !!data
 }

@@ -5,6 +5,8 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { AuthProvider } from "@/hooks/useAuth";
+import { AuthGuard } from "@/components/auth/auth-guard";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -24,13 +26,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${GeistSans.className} antialiased bg-gray-50`}>
-        <Navbar />
-        <main className="pt-12 sm:pt-20 min-h-screen">
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-        </main>
-        <Toaster />
+        <AuthProvider>
+          <AuthGuard>
+            <Navbar />
+            <main className="min-h-screen pt-12 sm:pt-20 [&:has(.auth-page)]:pt-0">
+              <ErrorBoundary>
+                {children}
+              </ErrorBoundary>
+            </main>
+            <Toaster />
+          </AuthGuard>
+        </AuthProvider>
       </body>
     </html>
   );

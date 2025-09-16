@@ -105,10 +105,14 @@ CREATE TABLE public.jobs (
 );
 CREATE TABLE public.profiles (
   id uuid NOT NULL,
+  email text NOT NULL,
   first_name text,
   last_name text,
-  zip text,
+  zip_code text,
   avatar_url text,
+  agreed_to_terms boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
   CONSTRAINT profiles_pkey PRIMARY KEY (id),
   CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
 );

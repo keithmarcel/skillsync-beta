@@ -18,9 +18,10 @@ interface UserMenuProps {
     email?: string
     avatar?: string
   }
+  onSignOut?: () => void
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ user, onSignOut }: UserMenuProps) {
   const initials = user?.name 
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase()
     : 'U'
@@ -84,7 +85,10 @@ export function UserMenu({ user }: UserMenuProps) {
         
         <DropdownMenuSeparator className="my-1 bg-gray-100" />
         
-        <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer">
+        <DropdownMenuItem 
+          className="flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 cursor-pointer"
+          onClick={onSignOut}
+        >
           <LogOut className="w-4 h-4" />
           Sign Out
         </DropdownMenuItem>

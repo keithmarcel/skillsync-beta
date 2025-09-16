@@ -11,6 +11,7 @@ import {
   FeaturedCardDescription,
   ActionButton
 } from './featured-card-base'
+import { FeaturedCardActions } from './featured-card-actions'
 import { RelatedJobsDialog } from './related-jobs-dialog'
 
 export function FeaturedProgramCard({ 
@@ -23,7 +24,10 @@ export function FeaturedProgramCard({
   description,
   skillsCallout,
   href,
-  className = ""
+  className = "",
+  isFavorited = false,
+  onAddFavorite,
+  onRemoveFavorite
 }: FeaturedProgramCardProps) {
   const [isRelatedJobsOpen, setIsRelatedJobsOpen] = useState(false)
 
@@ -44,6 +48,12 @@ export function FeaturedProgramCard({
 
   const handleSeeJobs = () => {
     setIsRelatedJobsOpen(true)
+  }
+
+  const handleViewDetails = () => {
+    if (href) {
+      window.location.href = href
+    }
   }
   const schoolLogo = school.logo ? (
     <div className="h-12 flex items-center">
@@ -72,6 +82,19 @@ export function FeaturedProgramCard({
           logo={schoolLogo}
           title={name}
           subtitle={school.name}
+          actionsMenu={
+            onAddFavorite && onRemoveFavorite ? (
+              <FeaturedCardActions
+                entityType="program"
+                entityId={id}
+                entityTitle={name}
+                isFavorited={isFavorited}
+                onAddFavorite={onAddFavorite}
+                onRemoveFavorite={onRemoveFavorite}
+                onViewDetails={handleViewDetails}
+              />
+            ) : undefined
+          }
         />
         <div className="mt-4">
           <MetaPillsRow pills={pills} />
