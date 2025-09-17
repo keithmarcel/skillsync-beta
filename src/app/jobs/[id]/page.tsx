@@ -11,6 +11,7 @@ import Image from 'next/image'
 import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getJobById } from '@/lib/database/queries'
+import { useFavorites } from '@/hooks/useFavorites'
 
 // Mock data for fallback - keeping minimal examples
 const mockJobData = {
@@ -138,6 +139,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites()
 
   useEffect(() => {
     async function loadJob() {
@@ -194,12 +196,16 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         }}
         showPrimaryAction={true}
         showSecondaryAction={true}
-        primaryAction={{
+        favoriteAction={{
           label: "Favorite",
           variant: "favorite",
-          isFavorited: false,
-          onClick: () => {
-            console.log('Toggle favorite for job:', job.id)
+          isFavorited: isFavorite('job', job.id),
+          onClick: async () => {
+            if (isFavorite('job', job.id)) {
+              await removeFavorite('job', job.id)
+            } else {
+              await addFavorite('job', job.id)
+            }
           }
         }}
         secondaryAction={{
