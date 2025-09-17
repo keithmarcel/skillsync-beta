@@ -111,3 +111,110 @@ font-size: var(--text-base-font-size, 16px);
 font-style: normal;
 font-weight: var(--font-weight-normal, 400);
 line-height: var(--text-base-line-height, 24px); /* 150% */
+
+---
+
+# Badges
+
+
+## Neutral
+  "badge-neutral-bg": "#F3F4F6",
+  "badge-neutral-text": "#111928",
+  "badge-neutral-radius": "10px"
+
+
+## My Assessments Page
+
+### Cards: Assessment Type
+    "Skills Assessment":"primary": "#1F2A37", "surface": "#F3F4F6" 
+    "Resume Upload": "primary": "#1F2A37", "surface": "#F3F4F6"
+
+### Cards: Role Readiness
+    "Ready":
+      "badge.fill": "#84E1BC",
+      "icon.fill": "#1F2A37",
+      "text.color": "#1F2A37",
+      "semantic": "success"
+
+    "Close Gaps": 
+      "badge.fill": "#FDBA8C",
+      "icon.fill": "#1F2A37",
+      "text.color": "#1F2A37",
+      "semantic": "warning"
+
+    "Needs Development": 
+      "badge.fill": "#F8B4B4",
+      "icon.fill": "#1F2A37",
+      "text.color": "#1F2A37",
+      "semantic": "danger"
+
+### Cards: Recommendations
+    "Apply": 
+      "surface.fill": "#F3FAF7",
+      "accent.fill": "#31C48D",
+      "icon.fill": "#1F2A37",
+      "text.color": "#1F2A37",
+      "onAccent.text": "#FFFFFF",
+      "semantic": "successAction"
+    "Retake":
+      "surface.fill": "#FDF2F2",
+      "accent.fill": "#F98080",
+      "icon.fill": "#1F2A37",
+      "text.color": "#1F2A37",
+      "onAccent.text": "#FFFFFF",
+      "semantic": "retryAction"
+    "Gaps":
+      "surface.fill": "#FFF8F1",
+      "accent.fill": "#FF8A4C",
+      "icon.fill": "#1F2A37",
+      "text.color": "#1F2A37",
+      "onAccent.text": "#FFFFFF",
+      "semantic": "infoHighlight"
+
+
+## Featured Roles, Hgh Demand Occupations, Job Favorites Tabs
+
+### Table: Job Category
+    "Health & Education": "primary": "#1E429F", "surface": "#F6F5FF" 
+    "Logistics":          "primary": "#014451", "surface": "#EDFAFA" 
+    "Hospitality":        "primary": "#633112", "surface": "#FCE8F3" 
+    "Finance & Legal":    "primary": "#42389D", "surface": "#E5EDFF" 
+    "Public Services":    "primary": "#8A2C0D", "surface": "#FFF8F1" 
+    "Tech & Services":    "primary": "#5521B5", "surface": "#EDEBFE" 
+    "Skilled Trades":     "primary": "#99154B", "surface": "#FCE8F3" 
+    "Business":           "primary": "#1E429F", "surface": "#E1EFFE" 
+
+### Table: Role Readiness
+    "ready":
+      "badge.fill": "#84E1BC",
+      "icon.fill": "#374151",
+      "text.color": "#374151",
+      "semantic": "success"
+    "close gaps":
+      "badge.fill": "#FDBA8C",
+      "icon.fill": "#374151",
+      "text.color": "#374151",
+      "semantic": "warning"
+    "assess skills":
+      "badge.fill": "#F3F4F6",
+      "icon.fill": "#374151",
+      "text.color": "#374151",
+      "semantic": "neutral"
+
+### Card: Featured Roles Metric
+  "card-callout-featured-role-data-bg": "#F3FAF7",
+  "card-callout-featured-role-data-border": "#E5E7EB",
+  "card-callout-featured-role-data-title": "#1F2A37",
+  "card-callout-featured-role-data-body": "#6B7280",
+  "card-callout-featured-role-data-accent": "#31C48D",
+  "card-callout-featured-role-data-surface": "#FFFFFF"
+
+
+## Featured Programs Tabs
+
+### Card: Featured Programs Skills Callout
+  "card-callout-program-job-skills-bg": "#F0F5FF",
+  "card-callout-program-job-skills-surface": "#F9FAFB",
+  "card-callout-program-job-skills-title": "#1F2A37",
+  "card-callout-program-job-skills-accent": "#1C64F2",
+  "card-callout-program-job-skills-radius": "8px"

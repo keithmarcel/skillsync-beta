@@ -114,7 +114,7 @@
 - **Company Profile Link**: Modal trigger for company information
 - **Job Details Link**: Link to specific role details page
 
-### High-Demand Occupations
+### High-Demand Occupations Data Item
 - **Occupation Name**: Title string (example: "Electricians")
 - **Occupation Summary**: One sentence description
 - **Occupation Category**: From universal job categories
@@ -126,6 +126,14 @@
 - **Long Job Description**: Multi-sentence detailed description
 - **Featured Image**: Custom image per occupation
 
+### High-Demand Occupations Table Columns
+- **Occupation Name**: Title string (example: "Electricians")
+- **Occupation Summary (Short)**: One sentence description
+- **Occupation Category**: From universal job categories
+- **Median Annual Salary**: Salary amount
+- **Role Readiness Status**: user's next action on the occupation (assess skills / no actions yet, close gaps / scored 50-84%, ready / scored 85%+)
+- **Row Actions**: Occupation details link, separator, upload a resume, take a skills assessment, separator, add to favorites (or remove from favorites if already favorited)
+
 ### Role Readiness Status
 - **Assess Skills**: Default status for users with no interactions
 - **Close Gaps**: Status for users scoring 50-84% on assessments
@@ -134,6 +142,13 @@
   - Assess Skills: Upload resume or start quiz options
   - Close Gaps: Links to matching programs
   - Role Ready: Ready to apply indication
+
+### Favorites Tab
+- **Saved Jobs**: User-favorited roles and occupations only
+- **Structure**: Utilized SkillSync DataTable component
+- **Columns**: Occupation Name, Occupation Summary (Short), Median Annual Salary, Role Readiness Status, Table Actions
+- **TableActions**: Job details link (Role Details or Occupation Details), separator, upload a resume, take a skills assessment, separator, remove from favorites
+
 
 ## Job Details Page Structure
 
@@ -222,6 +237,7 @@
 - **Multiple Questions**: Multiple questions per skill section
 - **Assessment Engine**: Processes answers against skill mappings and job requirements
 
+---
 ## Education Programs Data
 
 ### Program Information
@@ -251,9 +267,12 @@
 - **Actions**: About school link, program details link, favorite program option
 
 ### Favorites Tab
-- **Saved Programs**: User-favorited programs only
-- **Same Structure**: Identical to all programs table format
+- **Structure**: Utilized SkillSync DataTable component
+- **Columns**: Program name, summary (short), type, format, school, actions
+- **Row Actions**: Program details link, about the school link, separator, jobs with matching skills, separator, remove from favorites
 
+
+---
 ## My Assessments Data
 
 ### Assessment Cards

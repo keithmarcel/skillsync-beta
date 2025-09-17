@@ -8,6 +8,9 @@ import PageHeader from "@/components/ui/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { SkillSyncSnapshot } from "@/components/ui/skillsync-snapshot"
+import { ActionCard } from "@/components/ui/action-card"
+import { ListCard } from "@/components/ui/list-card"
+import { LoadingState } from "@/components/ui/loading-state"
 import { getUserAssessments, listJobs } from '@/lib/api'
 
 export default function Dashboard() {
@@ -38,14 +41,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+        <LoadingState variant="skeleton" count={3} size="lg" />
       </div>
     )
   }
@@ -70,60 +66,30 @@ export default function Dashboard() {
         }}
       />
 
-      <div className="max-w-[1280px] mx-auto px-6 py-8 mt-10">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
 
       {/* Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-teal-600 text-white">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-lg mb-2">Explore Top Occupations</h3>
-            <p className="text-teal-50 text-sm mb-4">
-              Discover high-demand roles in your region, view job descriptions, and learn more.
-            </p>
-            <Button variant="secondary" size="sm" className="hover:bg-teal-100 hover:text-gray-900 transition-colors text-sm" asChild>
-              <Link href="/jobs" className="flex items-center gap-2">
-                Explore Jobs
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-teal-600 text-white">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-lg mb-2">Browse Education Programs</h3>
-            <p className="text-teal-50 text-sm mb-4">
-              Find trusted education programs aligned to the skills employers want most.
-            </p>
-            <Button variant="secondary" size="sm" className="hover:bg-teal-100 hover:text-gray-900 transition-colors text-sm" asChild>
-              <Link href="/programs" className="flex items-center gap-2">
-                Browse Programs
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-teal-600 text-white">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-lg mb-2">Review Your Proficiency</h3>
-            <p className="text-teal-50 text-sm mb-4">
-              Review your readiness scores and see your assessment summary.
-            </p>
-            <Button variant="secondary" size="sm" className="hover:bg-teal-100 hover:text-gray-900 transition-colors text-sm" asChild>
-              <Link href="/assessments" className="flex items-center gap-2">
-                Review Assessments
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <ActionCard
+          title="Explore Top Occupations"
+          description="Discover high-demand roles in your region, view job descriptions, and learn more."
+          buttonText="Explore Jobs"
+          href="/jobs"
+        />
+        
+        <ActionCard
+          title="Browse Education Programs"
+          description="Find trusted education programs aligned to the skills employers want most."
+          buttonText="Browse Programs"
+          href="/programs"
+        />
+        
+        <ActionCard
+          title="Review Your Proficiency"
+          description="Review your readiness scores and see your assessment summary."
+          buttonText="Review Assessments"
+          href="/assessments"
+        />
       </div>
 
       <div className="py-10">
@@ -159,165 +125,81 @@ export default function Dashboard() {
 
       {/* Saved Jobs and Programs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Saved Jobs */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Saved Jobs</CardTitle>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/jobs" className="text-teal-600 hover:text-teal-700">
-                  View All →
-                </Link>
-              </Button>
-            </div>
-            <CardDescription>
-              Jobs you like that match your skills and career goals.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">Electronics</h4>
-                  <p className="text-xs text-gray-600">Oversees daily business functions and cross-functional...</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/jobs/1" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Job Details →
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">Bookkeeping, Accounting & Auditing Clerks</h4>
-                  <p className="text-xs text-gray-600">Maintains financial records and transactional acc...</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/jobs/2" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Job Details →
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">Computer User Support Specialists</h4>
-                  <p className="text-xs text-gray-600">Assists users with technical problems and IT su...</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/jobs/3" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Job Details →
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">Accountants & Auditors</h4>
-                  <p className="text-xs text-gray-600">Prepares, audits, and analyzes financial reports...</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/jobs/4" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Job Details →
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">General & Operations Managers</h4>
-                  <p className="text-xs text-gray-600">Oversees daily business functions and oper...</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/jobs/5" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Job Details →
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ListCard
+          title="Saved Jobs"
+          description="Jobs you like that match your skills and career goals."
+          viewAllHref="/jobs"
+          items={[
+            {
+              id: "1",
+              title: "Electronics",
+              description: "Oversees daily business functions and cross-functional...",
+              href: "/jobs/1"
+            },
+            {
+              id: "2", 
+              title: "Bookkeeping, Accounting & Auditing Clerks",
+              description: "Maintains financial records and transactional acc...",
+              href: "/jobs/2"
+            },
+            {
+              id: "3",
+              title: "Computer User Support Specialists", 
+              description: "Assists users with technical problems and IT su...",
+              href: "/jobs/3"
+            },
+            {
+              id: "4",
+              title: "Accountants & Auditors",
+              description: "Prepares, audits, and analyzes financial reports...",
+              href: "/jobs/4"
+            },
+            {
+              id: "5",
+              title: "General & Operations Managers",
+              description: "Oversees daily business functions and oper...",
+              href: "/jobs/5"
+            }
+          ]}
+        />
 
-        {/* Saved Programs */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Saved Programs</CardTitle>
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/programs" className="text-teal-600 hover:text-teal-700">
-                  View All →
-                </Link>
-              </Button>
-            </div>
-            <CardDescription>
-              Programs you've bookmarked to help close skill gaps.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">Project Management Certificate</h4>
-                  <p className="text-xs text-gray-600">St. Petersburg College</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/programs/1" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Program Details →
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">Electricity Program</h4>
-                  <p className="text-xs text-gray-600">Pinellas Technical College</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/programs/2" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Program Details →
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">IT Support Tech (CompTIA A+)</h4>
-                  <p className="text-xs text-gray-600">Pinellas Technical College</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/programs/3" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Program Details →
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">Business Intelligence Certificate</h4>
-                  <p className="text-xs text-gray-600">Pinellas Technical College</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/programs/4" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Program Details →
-                  </Link>
-                </Button>
-              </div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">A.S. Business Admin</h4>
-                  <p className="text-xs text-gray-600">St. Petersburg College</p>
-                </div>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/programs/5" className="text-teal-600 hover:text-teal-700 text-xs">
-                    Program Details →
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ListCard
+          title="Saved Programs"
+          description="Programs you've bookmarked to help close skill gaps."
+          viewAllHref="/programs"
+          items={[
+            {
+              id: "1",
+              title: "Project Management Certificate",
+              description: "St. Petersburg College",
+              href: "/programs/1"
+            },
+            {
+              id: "2",
+              title: "Electricity Program",
+              description: "Pinellas Technical College", 
+              href: "/programs/2"
+            },
+            {
+              id: "3",
+              title: "IT Support Tech (CompTIA A+)",
+              description: "Pinellas Technical College",
+              href: "/programs/3"
+            },
+            {
+              id: "4", 
+              title: "Business Intelligence Certificate",
+              description: "Pinellas Technical College",
+              href: "/programs/4"
+            },
+            {
+              id: "5",
+              title: "A.S. Business Admin",
+              description: "St. Petersburg College",
+              href: "/programs/5"
+            }
+          ]}
+        />
       </div>
 
       </div>
