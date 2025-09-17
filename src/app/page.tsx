@@ -12,11 +12,15 @@ import { ActionCard } from "@/components/ui/action-card"
 import { ListCard } from "@/components/ui/list-card"
 import { LoadingState } from "@/components/ui/loading-state"
 import { getUserAssessments, listJobs } from '@/lib/api'
+import { useFavorites } from '@/hooks/useFavorites'
 
 export default function Dashboard() {
   const [recentAssessments, setRecentAssessments] = useState<any[]>([])
   const [featuredJobs, setFeaturedJobs] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Get real favorites data
+  const { favoriteJobs, favoritePrograms, loading: favoritesLoading } = useFavorites()
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -128,77 +132,27 @@ export default function Dashboard() {
         <ListCard
           title="Saved Jobs"
           description="Jobs you like that match your skills and career goals."
-          viewAllHref="/jobs"
-          items={[
-            {
-              id: "1",
-              title: "Electronics",
-              description: "Oversees daily business functions and cross-functional...",
-              href: "/jobs/1"
-            },
-            {
-              id: "2", 
-              title: "Bookkeeping, Accounting & Auditing Clerks",
-              description: "Maintains financial records and transactional acc...",
-              href: "/jobs/2"
-            },
-            {
-              id: "3",
-              title: "Computer User Support Specialists", 
-              description: "Assists users with technical problems and IT su...",
-              href: "/jobs/3"
-            },
-            {
-              id: "4",
-              title: "Accountants & Auditors",
-              description: "Prepares, audits, and analyzes financial reports...",
-              href: "/jobs/4"
-            },
-            {
-              id: "5",
-              title: "General & Operations Managers",
-              description: "Oversees daily business functions and oper...",
-              href: "/jobs/5"
-            }
-          ]}
+          viewAllHref="/jobs?tab=favorites"
+          items={favoriteJobs.slice(0, 5).map(job => ({
+            id: job.id,
+            title: job.title,
+            description: job.long_desc ? 
+              (job.long_desc.length > 50 ? `${job.long_desc.substring(0, 50)}...` : job.long_desc) :
+              `${job.category} position with competitive benefits...`,
+            href: `/jobs/${job.id}`
+          }))}
         />
 
         <ListCard
           title="Saved Programs"
           description="Programs you've bookmarked to help close skill gaps."
-          viewAllHref="/programs"
-          items={[
-            {
-              id: "1",
-              title: "Project Management Certificate",
-              description: "St. Petersburg College",
-              href: "/programs/1"
-            },
-            {
-              id: "2",
-              title: "Electricity Program",
-              description: "Pinellas Technical College", 
-              href: "/programs/2"
-            },
-            {
-              id: "3",
-              title: "IT Support Tech (CompTIA A+)",
-              description: "Pinellas Technical College",
-              href: "/programs/3"
-            },
-            {
-              id: "4", 
-              title: "Business Intelligence Certificate",
-              description: "Pinellas Technical College",
-              href: "/programs/4"
-            },
-            {
-              id: "5",
-              title: "A.S. Business Admin",
-              description: "St. Petersburg College",
-              href: "/programs/5"
-            }
-          ]}
+          viewAllHref="/programs?tab=favorites"
+          items={favoritePrograms.slice(0, 5).map(program => ({
+            id: program.id,
+            title: program.name,
+            description: program.school?.name || 'Educational Institution',
+            href: `/programs/${program.id}`
+          }))}
         />
       </div>
 

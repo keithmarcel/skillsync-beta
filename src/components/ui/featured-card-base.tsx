@@ -223,12 +223,14 @@ export function FeaturedCardHeaderLayout({
   badge, 
   logo, 
   title, 
-  subtitle 
+  subtitle,
+  actionsMenu
 }: {
   badge?: React.ReactNode
   logo?: React.ReactNode
   title: string
   subtitle?: string
+  actionsMenu?: React.ReactNode
 }) {
   return (
     <>
@@ -236,11 +238,18 @@ export function FeaturedCardHeaderLayout({
         <div className="flex-1 flex items-center gap-3">
           {logo}
         </div>
-        {badge && (
-          <div className="flex-shrink-0">
-            {badge}
-          </div>
-        )}
+        <div className="flex items-center gap-1">
+          {badge && (
+            <div className="flex-shrink-0">
+              {badge}
+            </div>
+          )}
+          {actionsMenu && (
+            <div className="flex-shrink-0" style={{ marginLeft: badge ? '4px' : '0' }}>
+              {actionsMenu}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Title */}

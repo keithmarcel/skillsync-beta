@@ -131,6 +131,9 @@ export interface FeaturedProgramCardProps extends BaseCardProps {
   href?: string
   aboutSchoolHref?: string
   programDetailsHref?: string
+  isFavorited?: boolean
+  onAddFavorite?: () => void
+  onRemoveFavorite?: () => void
 }
 
 export interface AssessmentCardProps extends BaseCardProps {

@@ -65,11 +65,28 @@ export function transformJobToFeaturedRole(job: Job) {
 }
 
 export function transformJobToHighDemand(job: Job) {
+  // Map job titles to proper job categories for featured roles
+  const getJobCategory = (title: string) => {
+    const categoryMap: Record<string, string> = {
+      'Mechanical Assistant Project Manager': 'Skilled Trades',
+      'Senior Financial Analyst (FP&A)': 'Business',
+      'Mechanical Project Manager': 'Skilled Trades', 
+      'Surgical Technologist (Certified)': 'Health & Education',
+      'Business Development Manager': 'Business',
+      'Administrative Assistant': 'Business',
+      'Supervisor, Residential Inbound Sales': 'Business',
+      'Senior Mechanical Project Manager': 'Skilled Trades'
+    }
+    return categoryMap[title] || 'Business'
+  }
+
   return {
     id: job.id,
     title: job.title,
     socCode: job.soc_code || '',
-    category: job.category || 'General',
+    // Use mapped category for featured roles, database category for occupations
+    category: job.job_kind === 'featured_role' ? getJobCategory(job.title) : (job.category || 'General'),
+    job_kind: job.job_kind || 'occupation', // Add job_kind to distinguish featured roles vs occupations
     projectedOpenings: Math.floor(Math.random() * 5000) + 1000, // Mock data for now
     educationRequired: 'Bachelor\'s degree', // Mock data for now
     medianSalary: job.median_wage_usd || 0,
@@ -138,7 +155,7 @@ export function transformCompanyProfile(company: Company): CompanyProfile {
   return {
     name: company.name,
     logo: company.logo_url || '',
-    companyImage: company.company_image_url || undefined,
+    companyImage: undefined, // Field doesn't exist in database
     bio: company.bio || '',
     headquarters: company.hq_city && company.hq_state ? `${company.hq_city}, ${company.hq_state}` : 'Location not specified',
     revenue: company.revenue_range || 'Revenue not disclosed',

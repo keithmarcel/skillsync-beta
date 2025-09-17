@@ -7,7 +7,8 @@ import { UserMenu } from '@/components/ui/user-menu'
 import { GiveFeedbackDialog } from '@/components/ui/give-feedback-dialog'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, Heart, BookOpen, User, Home, Briefcase, GraduationCap, FileText, MessageSquare } from 'lucide-react'
+import { Menu, Heart, BookOpen, User, Home, Briefcase, GraduationCap, FileText, MessageSquare, LogIn, Settings, LogOut } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -25,6 +26,13 @@ const quickActions = [
 export function Navbar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const { user, loading, signOut } = useAuth()
+
+  // Hide navbar on authentication pages
+  const isAuthPage = pathname?.startsWith('/auth/')
+  if (isAuthPage) {
+    return null
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
@@ -61,9 +69,28 @@ export function Navbar() {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-4 ml-auto">
-            <div className="hidden sm:block">
-              <GiveFeedbackDialog />
-            </div>
+            {user && (
+              <div className="hidden sm:block">
+                <GiveFeedbackDialog />
+              </div>
+            )}
+            
+            {/* Authentication buttons for non-authenticated users */}
+            {!loading && !user && (
+              <div className="flex items-center gap-2">
+                <Link href="/auth/signin">
+                  <Button variant="ghost" size="sm" className="text-gray-700 hover:text-gray-900">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/auth/signup">
+                  <Button size="sm" className="bg-[#0694A2] hover:bg-[#0694A2]/90 text-white">
+                    Sign Up
+                  </Button>
+                </Link>
+              </div>
+            )}
             
             {/* Mobile menu trigger */}
             <div className="md:hidden">
@@ -77,15 +104,47 @@ export function Navbar() {
                 <SheetContent side="bottom" className="h-[80vh] rounded-t-2xl">
                   <div className="flex flex-col h-full">
                     {/* User info at top */}
-                    <div className="flex items-center gap-3 p-4 border-b border-gray-200">
-                      <div className="w-10 h-10 bg-[#0694A2] rounded-full flex items-center justify-center text-white font-medium">
-                        KW
+                    {user && (
+                      <div className="px-4 py-6 border-t border-gray-200">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
+                            <span className="text-sm font-medium text-teal-700">
+                              {user.email?.[0]?.toUpperCase() || 'U'}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {user.email || 'User'}
+                            </p>
+                            <p className="text-xs text-gray-500">{user.email}</p>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <button className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                            <Settings className="w-4 h-4" />
+                            Account Settings
+                          </button>
+                          <Link 
+                            href="/assessments"
+                            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                          >
+                            <FileText className="w-4 h-4" />
+                            My Assessments
+                          </Link>
+                          <button className="flex items-center gap-3 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                            <Heart className="w-4 h-4" />
+                            Favorites
+                          </button>
+                          <button 
+                            onClick={signOut}
+                            className="flex items-center gap-3 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            Sign Out
+                          </button>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-gray-900">Keith Woods</p>
-                        <p className="text-sm text-gray-500">keith-woods@bisk.com</p>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Main navigation */}
                     <div className="flex-1 py-4">
@@ -171,9 +230,9 @@ export function Navbar() {
                           Account Settings
                         </Link>
                         <button
-                          onClick={() => {
+                          onClick={async () => {
                             setIsOpen(false)
-                            // Add sign out logic here
+                            await signOut()
                           }}
                           className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left"
                         >
@@ -190,14 +249,17 @@ export function Navbar() {
             </div>
             
             {/* Desktop User menu */}
-            <div className="hidden md:block">
-              <UserMenu 
-                user={{
-                  name: "Keith Woods",
-                  email: "keith-woods@bisk.com"
-                }}
-              />
-            </div>
+            {user && (
+              <div className="hidden md:block">
+                <UserMenu 
+                  user={{
+                    name: user.email || 'User',
+                    email: user.email || ''
+                  }}
+                  onSignOut={signOut}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

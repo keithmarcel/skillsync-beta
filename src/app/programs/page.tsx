@@ -166,6 +166,9 @@ export default function ProgramsPage() {
                         }}
                         aboutSchoolHref={program.aboutSchoolLink}
                         programDetailsHref={`/programs/${program.id}`}
+                        isFavorited={isFavorite('program', program.id)}
+                        onAddFavorite={() => addFavorite('program', program.id)}
+                        onRemoveFavorite={() => removeFavorite('program', program.id)}
                       />
                     ))}
                   </div>
@@ -215,6 +218,7 @@ export default function ProgramsPage() {
                         tableType="programs"
                         showSearchSortFilter={false}
                         isLoading={loading}
+                        isFavorite={isFavorite}
                         onRowAction={async (action, row) => {
                           switch (action) {
                             case 'details':
@@ -259,7 +263,7 @@ export default function ProgramsPage() {
                   />
                 ) : (
                   <DataTable
-                    data={favoritePrograms.map(transformProgramToTable)}
+                    data={favoritePrograms.map(transformProgramToTable).sort((a, b) => a.name.localeCompare(b.name))}
                     columns={programsTableColumns}
                     tableType="programs"
                     isOnFavoritesTab={true}

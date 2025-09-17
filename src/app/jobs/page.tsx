@@ -168,6 +168,9 @@ export default function JobsPage() {
                       onAboutCompany={() => {
                         console.log(`About company for job ${role.id}`)
                       }}
+                      isFavorited={isFavorite('job', role.id)}
+                      onAddFavorite={() => addFavorite('job', role.id)}
+                      onRemoveFavorite={() => removeFavorite('job', role.id)}
                     />
                   ))
                 ) : (
@@ -218,8 +221,9 @@ export default function JobsPage() {
                       columns={occupationsTableColumns}
                       searchPlaceholder="Search occupations by keyword, SOC code, or category"
                       searchableFields={occupationsSearchFields}
-                      tableType="jobs"
+                      tableType="occupations"
                       showSearchSortFilter={false}
+                      isFavorite={isFavorite}
                       onRowAction={async (action, row) => {
                         switch (action) {
                           case 'details':
@@ -264,7 +268,7 @@ export default function JobsPage() {
                   />
                 ) : (
                   <DataTable
-                    data={favoriteJobs.map(transformJobToHighDemand)}
+                    data={favoriteJobs.map(transformJobToHighDemand).sort((a, b) => a.title.localeCompare(b.title))}
                     columns={occupationsTableColumns}
                     tableType="jobs"
                     isOnFavoritesTab={true}

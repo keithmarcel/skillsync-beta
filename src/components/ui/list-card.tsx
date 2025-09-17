@@ -30,7 +30,7 @@ export function ListCard({
         <div className="flex items-center justify-between">
           <CardTitle>{title}</CardTitle>
           <Button variant="ghost" size="sm" asChild>
-            <Link href={viewAllHref} className="text-teal-600 hover:text-teal-700">
+            <Link href={viewAllHref} className="text-teal-600 hover:text-teal-700" onClick={() => window.scrollTo(0, 0)}>
               View All →
             </Link>
           </Button>
@@ -48,7 +48,7 @@ export function ListCard({
                 <p className="text-xs text-gray-600">{item.description}</p>
               </div>
               <Button variant="ghost" size="sm" asChild>
-                <Link href={item.href} className="text-teal-600 hover:text-teal-700 text-xs">
+                <Link href={item.href} className="text-teal-600 hover:text-teal-700 text-xs" onClick={() => window.scrollTo(0, 0)}>
                   Details →
                 </Link>
               </Button>

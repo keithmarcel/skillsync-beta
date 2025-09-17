@@ -74,6 +74,41 @@ export const renderReadinessBadge = (readiness: string) => {
   }, titleCaseReadiness)
 }
 
+// Helper function to render "Hiring Now" badge
+export const renderHiringNowBadge = () => {
+  return React.createElement(Badge, {
+    style: { 
+      backgroundColor: '#ECFDF5', 
+      color: '#065F46',
+      borderRadius: '10px',
+      boxShadow: 'none'
+    },
+    className: "font-medium border-0 text-xs"
+  }, 'Hiring Now')
+}
+
+// Helper function to render job title with conditional badges for Favorites tab
+export const renderJobTitleWithBadges = (item: any, isOnFavoritesTab: boolean = false) => {
+  const title = item.title
+  const jobKind = item.job_kind
+  
+  if (!isOnFavoritesTab) {
+    return title
+  }
+  
+  // Only featured roles get "Hiring Now" badge in Job Title column
+  // Occupations show just the title with no badges
+  if (jobKind === 'featured_role') {
+    return React.createElement('div', { className: 'space-y-1' }, [
+      React.createElement('div', { key: 'title', className: 'font-medium' }, title),
+      React.createElement('div', { key: 'hiring-badge' }, renderHiringNowBadge())
+    ])
+  }
+  
+  // Occupations show just the title
+  return title
+}
+
 // Helper function to format salary
 export const formatSalary = (salary: number) => {
   return `$${salary?.toLocaleString() || 0}`
@@ -85,17 +120,19 @@ export const jobsTableColumns = [
     key: 'title',
     label: 'Role Title',
     sortable: true,
+    width: 'large' as const,
   },
   {
     key: 'company.name',
     label: 'Company',
     sortable: true,
+    width: 'medium' as const,
   },
   {
     key: 'category',
     label: 'Category',
     sortable: true,
-    width: 'medium',
+    width: 'medium' as const,
     filterable: true,
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
     render: (value: string) => renderCategoryBadge(value),
@@ -104,17 +141,18 @@ export const jobsTableColumns = [
     key: 'median_salary',
     label: 'AVG Salary',
     sortable: true,
-    width: 'small',
+    width: 'small' as const,
   },
   {
     key: 'role_readiness',
     label: 'Role Readiness',
     sortable: true,
-    width: 'medium',
+    width: 'medium' as const,
   },
   {
     key: 'location_city',
     label: 'Location',
+    width: 'medium' as const,
     render: (value: string, row: any) => 
       row.location_city && row.location_state 
         ? `${row.location_city}, ${row.location_state}`
@@ -124,6 +162,7 @@ export const jobsTableColumns = [
     key: 'median_wage_usd',
     label: 'Salary',
     sortable: true,
+    width: 'medium' as const,
     render: (value: number) => formatSalary(value),
   },
   {
@@ -131,27 +170,29 @@ export const jobsTableColumns = [
     label: 'Role Readiness',
     filterable: true,
     filterOptions: ['Assess Skills', 'Close Gaps', 'Ready'],
+    width: 'medium' as const,
     render: (value: string) => renderReadinessBadge(value || 'assess skills'),
   },
   {
     key: 'actions',
     label: '',
-    width: 'small',
+    width: 'small' as const,
   },
 ]
 
 export const occupationsTableColumns = [
   {
     key: 'title',
-    label: 'Occupation',
+    label: 'Job Title',
     sortable: true,
-    width: 'large', // Large column
+    width: 'large' as const, // Large column
+    render: (value: string, item: any, isOnFavoritesTab?: boolean) => renderJobTitleWithBadges(item, isOnFavoritesTab),
   },
   {
     key: 'description',
     label: 'Summary',
     sortable: true,
-    width: 'large', // Large column
+    width: 'large' as const, // Large column
   },
   {
     key: 'category',
@@ -160,14 +201,14 @@ export const occupationsTableColumns = [
     filterable: true,
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
     render: (value: string) => renderCategoryBadge(value),
-    width: 'small', // Small column for badges
+    width: 'small' as const, // Small column for badges
   },
   {
     key: 'median_wage_usd',
     label: 'AVG Salary',
     sortable: true,
     render: (value: number) => formatSalary(value),
-    width: 'medium',
+    width: 'medium' as const,
   },
   {
     key: 'readiness',
@@ -175,11 +216,12 @@ export const occupationsTableColumns = [
     filterable: true,
     filterOptions: ['Assess Skills', 'Close Gaps', 'Ready'],
     render: (value: string) => renderReadinessBadge(value || 'assess skills'),
-    width: 'medium', // Medium column
+    width: 'medium' as const, // Medium column
   },
   {
     key: 'actions',
     label: 'Actions',
+    width: 'small' as const,
   },
 ]
 
@@ -188,13 +230,13 @@ export const programsTableColumns = [
     key: 'name',
     label: 'Name',
     sortable: true,
-    width: 'large',
+    width: 'large' as const,
   },
   {
     key: 'short_desc',
     label: 'Summary',
     sortable: true,
-    width: 'large',
+    width: 'large' as const,
   },
   {
     key: 'program_type',
@@ -203,7 +245,7 @@ export const programsTableColumns = [
     filterable: true,
     filterOptions: ['Certificate', "Associate's", 'Bachelor Degree', 'Apprenticeship', 'Bootcamp'],
     render: (value: string) => renderNeutralBadge(value),
-    width: 'small',
+    width: 'small' as const,
   },
   {
     key: 'format',
@@ -211,18 +253,18 @@ export const programsTableColumns = [
     filterable: true,
     filterOptions: ['Online', 'Hybrid', 'In-person'],
     render: (value: string) => renderNeutralBadge(value),
-    width: 'small',
+    width: 'small' as const,
   },
   {
     key: 'school.name',
     label: 'School',
     sortable: true,
-    width: 'medium',
+    width: 'medium' as const,
   },
   {
     key: 'actions',
     label: 'Actions',
-    width: 'small',
+    width: 'small' as const,
   },
 ]
 

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { FeaturedCardBase, FeaturedCardHeader, FeaturedCardContent, FeaturedCardFooter, FeaturedCardHeaderLayout, MetaPillsRow, FeaturedCardDescription, StatsGrid, ActionButton, TrustedPartnerBadge, FeaturedCardDivider } from './featured-card-base'
 import { CompanyModal } from './company-modal'
+import { FeaturedCardActions } from './featured-card-actions'
 import { transformCompanyProfile } from '@/lib/database/transforms'
 
 interface FeaturedRoleCardProps {
@@ -27,6 +28,9 @@ interface FeaturedRoleCardProps {
   href: string
   onAboutCompany?: () => void
   className?: string
+  isFavorited?: boolean
+  onAddFavorite?: () => void
+  onRemoveFavorite?: () => void
 }
 
 export function FeaturedRoleCard({ 
@@ -41,13 +45,20 @@ export function FeaturedRoleCard({
   requiredProficiency,
   href,
   onAboutCompany,
-  className = ""
+  className = "",
+  isFavorited = false,
+  onAddFavorite,
+  onRemoveFavorite
 }: FeaturedRoleCardProps) {
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false)
 
   const handleAboutCompany = () => {
     setIsCompanyModalOpen(true)
     onAboutCompany?.()
+  }
+
+  const handleViewDetails = () => {
+    window.location.href = href
   }
   const companyLogo = company.logo ? (
     <div className="h-12 flex items-center">
@@ -85,6 +96,19 @@ export function FeaturedRoleCard({
           badge={company.isTrustedPartner ? <TrustedPartnerBadge /> : undefined}
           logo={companyLogo}
           title={title}
+          actionsMenu={
+            onAddFavorite && onRemoveFavorite ? (
+              <FeaturedCardActions
+                entityType="job"
+                entityId={id}
+                entityTitle={title}
+                isFavorited={isFavorited}
+                onAddFavorite={onAddFavorite}
+                onRemoveFavorite={onRemoveFavorite}
+                onViewDetails={handleViewDetails}
+              />
+            ) : undefined
+          }
         />
         <div className="mt-4">
           <MetaPillsRow pills={pills} />
@@ -116,7 +140,6 @@ export function FeaturedRoleCard({
           id: company.name, // Using name as fallback since we don't have company ID in props
           name: company.name,
           logo_url: company.logo,
-          company_image_url: null, // Will use placeholder
           is_trusted_partner: company.isTrustedPartner,
           hq_city: null,
           hq_state: null,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useMockAuth } from './useAuth'
+import { useAuth } from './useAuth'
 import { useToast } from './use-toast'
 import { 
   getUserFavoriteJobs, 
@@ -23,7 +23,7 @@ interface UseFavoritesReturn {
 }
 
 export function useFavorites(): UseFavoritesReturn {
-  const { user } = useMockAuth()
+  const { user } = useAuth()
   const { toast } = useToast()
   const [favoriteJobs, setFavoriteJobs] = useState<Job[]>([])
   const [favoritePrograms, setFavoritePrograms] = useState<Program[]>([])
@@ -31,12 +31,14 @@ export function useFavorites(): UseFavoritesReturn {
   const [error, setError] = useState<string | null>(null)
 
   const fetchFavorites = useCallback(async () => {
+    console.log('🔍 FETCH FAVORITES CALLED:', { user: user?.id })
+    
     if (!user?.id) {
-      console.log('No user ID available for fetching favorites')
+      console.log('❌ No user ID available for fetching favorites')
       return
     }
 
-    console.log('Fetching favorites for user:', user.id)
+    console.log('📥 Fetching favorites for user:', user.id)
     setLoading(true)
     setError(null)
     
@@ -46,11 +48,13 @@ export function useFavorites(): UseFavoritesReturn {
         getUserFavoritePrograms(user.id)
       ])
       
-      console.log('Fetched favorites:', { jobs: jobs.length, programs: programs.length })
+      console.log('📊 Fetched favorites:', { jobs: jobs.length, programs: programs.length })
+      console.log('📋 Jobs:', jobs)
+      console.log('📋 Programs:', programs)
       setFavoriteJobs(jobs)
       setFavoritePrograms(programs)
     } catch (err) {
-      console.error('Error fetching favorites:', err)
+      console.error('❌ Error fetching favorites:', err)
       setError('Failed to load favorites')
     } finally {
       setLoading(false)
@@ -62,15 +66,22 @@ export function useFavorites(): UseFavoritesReturn {
   }, [fetchFavorites])
 
   const addFavorite = useCallback(async (entityKind: 'job' | 'program', entityId: string): Promise<boolean> => {
+    console.log('🔥 ADD FAVORITE CALLED:', { entityKind, entityId, user: user?.id })
+    
     if (!user?.id) {
-      console.log('No user ID available for favorites')
+      console.error('❌ No user ID available for favorites')
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to add favorites.",
+        variant: "destructive",
+      })
       return false
     }
 
-    console.log('Adding favorite:', { entityKind, entityId, userId: user.id })
+    console.log('📝 Adding favorite:', { entityKind, entityId, userId: user.id })
     try {
       const success = await addToFavorites(user.id, entityKind, entityId)
-      console.log('Add favorite result:', success)
+      console.log('✅ Add favorite result:', success)
       if (success) {
         // Show success toast
         toast({
@@ -78,11 +89,19 @@ export function useFavorites(): UseFavoritesReturn {
           description: `${entityKind === 'job' ? 'Job' : 'Program'} has been added to your favorites.`,
         })
         // Refresh favorites to get updated data
+        console.log('🔄 Refreshing favorites after add...')
         await fetchFavorites()
+      } else {
+        console.error('❌ Add favorite failed')
+        toast({
+          title: "Error",
+          description: "Failed to add to favorites. Please try again.",
+          variant: "destructive",
+        })
       }
       return success
     } catch (err) {
-      console.error('Error adding favorite:', err)
+      console.error('❌ Error adding favorite:', err)
       toast({
         title: "Error",
         description: "Failed to add to favorites. Please try again.",
