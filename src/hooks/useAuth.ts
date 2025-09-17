@@ -5,9 +5,26 @@ import { useState, useEffect, createContext, useContext } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
+interface Profile {
+  id: string
+  email: string
+  role: string
+  first_name?: string
+  last_name?: string
+  zip_code?: string
+  admin_role?: 'super_admin' | 'company_admin' | 'provider_admin' | null
+  company_id?: string | null
+  school_id?: string | null
+}
+
 interface AuthContextType {
   user: User | null
+  profile: Profile | null
   loading: boolean
+  isAdmin: boolean
+  isSuperAdmin: boolean
+  isCompanyAdmin: boolean
+  isProviderAdmin: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (data: any) => Promise<void>
   signOut: () => Promise<void>
@@ -18,7 +35,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // Helper function to fetch user profile
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
+    if (error) {
+      console.error('❌ Profile fetch error:', error)
+      return null
+    }
+    
+    return data as Profile
+  }
 
   useEffect(() => {
     // Get initial session
@@ -36,6 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: session.user.email,
           expiresAt: session.expires_at ? new Date(session.expires_at * 1000) : 'unknown'
         })
+        
+        // Fetch profile data
+        const profileData = await fetchProfile(session.user.id)
+        setProfile(profileData)
       } else {
         console.log('❌ No session found')
       }
@@ -51,6 +89,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         console.log('🔄 Auth state change:', event, session?.user?.email || 'no user')
         setUser(session?.user ?? null)
+        
+        if (session?.user) {
+          const profileData = await fetchProfile(session.user.id)
+          setProfile(profileData)
+        } else {
+          setProfile(null)
+        }
+        
         setLoading(false)
       }
     )
@@ -112,9 +158,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error
   }
 
+  // Computed admin role properties
+  const isAdmin = Boolean(profile?.admin_role)
+  const isSuperAdmin = profile?.admin_role === 'super_admin'
+  const isCompanyAdmin = profile?.admin_role === 'company_admin'
+  const isProviderAdmin = profile?.admin_role === 'provider_admin'
+
   return React.createElement(
     AuthContext.Provider,
-    { value: { user, loading, signIn, signUp, signOut, resetPassword } },
+    { 
+      value: { 
+        user, 
+        profile, 
+        loading, 
+        isAdmin,
+        isSuperAdmin,
+        isCompanyAdmin,
+        isProviderAdmin,
+        signIn, 
+        signUp, 
+        signOut, 
+        resetPassword 
+      } 
+    },
     children
   )
 }
