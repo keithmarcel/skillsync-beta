@@ -196,16 +196,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         }}
         showPrimaryAction={true}
         showSecondaryAction={true}
-        favoriteAction={{
+        primaryAction={{
           label: "Favorite",
           variant: "favorite",
-          isFavorited: isFavorite('job', job.id),
+          isFavorited: false,
           onClick: async () => {
-            if (isFavorite('job', job.id)) {
-              await removeFavorite('job', job.id)
-            } else {
-              await addFavorite('job', job.id)
-            }
+            console.log('Favorite clicked for job:', job.id)
           }
         }}
         secondaryAction={{

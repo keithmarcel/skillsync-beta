@@ -125,21 +125,18 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
       <PageHeader 
         isDynamic={true}
         programInfo={{
-          title: program.name,
-          cipCode: program.cip_code
+          name: program.name,
+          school: program.schools?.name || '',
+          location: program.schools?.city || ''
         }}
         showPrimaryAction={true}
         showSecondaryAction={true}
-        favoriteAction={{
+        primaryAction={{
           label: "Favorite",
           variant: "favorite",
-          isFavorited: isFavorite('program', program.id),
+          isFavorited: false,
           onClick: async () => {
-            if (isFavorite('program', program.id)) {
-              await removeFavorite('program', program.id)
-            } else {
-              await addFavorite('program', program.id)
-            }
+            console.log('Favorite clicked for program:', program.id)
           }
         }}
         secondaryAction={{

@@ -219,8 +219,6 @@ export default function JobsPage() {
                     <DataTable
                       data={highDemandJobs}
                       columns={occupationsTableColumns}
-                      searchPlaceholder="Search occupations by keyword, SOC code, or category"
-                      searchableFields={occupationsSearchFields}
                       tableType="occupations"
                       showSearchSortFilter={false}
                       isFavorite={isFavorite}

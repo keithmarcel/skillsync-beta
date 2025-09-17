@@ -6,7 +6,6 @@ import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { AuthProvider } from "@/hooks/useAuth";
-import { AuthGuard } from "@/components/auth/auth-guard";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -27,7 +26,6 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${GeistSans.className} antialiased bg-gray-50`}>
         <AuthProvider>
-          <AuthGuard>
             <Navbar />
             <main className="min-h-screen pt-12 sm:pt-20 [&:has(.auth-page)]:pt-0">
               <ErrorBoundary>
@@ -35,7 +33,6 @@ export default function RootLayout({
               </ErrorBoundary>
             </main>
             <Toaster />
-          </AuthGuard>
         </AuthProvider>
       </body>
     </html>

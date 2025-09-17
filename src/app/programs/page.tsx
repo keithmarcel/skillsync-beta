@@ -14,7 +14,7 @@ import { getFeaturedPrograms, getAllPrograms } from '@/lib/database/queries'
 import { transformProgramToCard, transformProgramToTable } from '@/lib/database/transforms'
 import { programsTableColumns, programsSearchFields } from '@/lib/table-configs'
 import { useFavorites } from '@/hooks/useFavorites'
-import { ProgramCard } from '@/components/ui/program-card'
+// import { ProgramCard } from '@/components/ui/program-card'
 
 
 export default function ProgramsPage() {

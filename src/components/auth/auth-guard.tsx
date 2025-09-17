@@ -12,6 +12,9 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const { user, loading } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
+  
+  // Debug auth guard state
+  console.log('🛡️ AuthGuard state:', { user: !!user, loading, pathname })
 
   // List of public routes that don't require authentication
   const publicRoutes = [

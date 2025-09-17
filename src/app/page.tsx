@@ -1,53 +1,33 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import PageHeader from "@/components/ui/page-header"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import PageHeader from "@/components/ui/page-header"
 import { SkillSyncSnapshot } from "@/components/ui/skillsync-snapshot"
 import { ActionCard } from "@/components/ui/action-card"
 import { ListCard } from "@/components/ui/list-card"
 import { LoadingState } from "@/components/ui/loading-state"
-import { getUserAssessments, listJobs } from '@/lib/api'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useDashboardData } from '@/hooks/useDashboardData';
+import { useSnapshotData } from '@/hooks/useSnapshotData'; // Import the snapshot hook
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Dashboard() {
-  const [recentAssessments, setRecentAssessments] = useState<any[]>([])
-  const [featuredJobs, setFeaturedJobs] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  
-  // Get real favorites data
-  const { favoriteJobs, favoritePrograms, loading: favoritesLoading } = useFavorites()
+  // All data fetching and state management is now handled by custom hooks.
+  const { user } = useAuth();
+  const { recentAssessments, loading: dashboardLoading } = useDashboardData();
+  const { favoriteJobs, favoritePrograms, loading: favoritesLoading } = useFavorites();
+  const { metrics, skillData, hasAssessments, loading: snapshotLoading } = useSnapshotData();
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        const [assessments, jobs] = await Promise.all([
-          getUserAssessments().catch(() => []),
-          listJobs('featured_role').catch(() => [])
-        ])
-        
-        setRecentAssessments(assessments.slice(0, 3))
-        setFeaturedJobs(jobs.slice(0, 4))
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  // The loading state is now derived from all data hooks, ensuring a smooth experience.
+  const isLoading = dashboardLoading || favoritesLoading || snapshotLoading;
 
-    loadDashboardData()
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <LoadingState variant="skeleton" count={3} size="lg" />
       </div>
-    )
+    );
   }
 
   return (
@@ -55,8 +35,8 @@ export default function Dashboard() {
       <PageHeader 
         variant="split"
         isDynamic={true}
-        userName="Keith" // TODO: Get from user context/auth
-        isReturningUser={false} // TODO: Get from user session data
+        userName={user?.user_metadata?.first_name || 'Explorer'}
+        isReturningUser={recentAssessments.length > 0}
         primaryAction={{
           label: "Get Started",
           href: "/jobs"
@@ -100,27 +80,11 @@ export default function Dashboard() {
         <Separator />
       </div>
 
-      {/* Empty State Snapshot */}
-      <SkillSyncSnapshot hasAssessments={false} />
-
-      <div className="py-10">
-        <Separator />
-      </div>
-
-      {/* Filled State Snapshot with Sample Data */}
+      {/* The SkillSyncSnapshot is now fully dynamic and data-driven */}
       <SkillSyncSnapshot 
-        hasAssessments={true}
-        metrics={{
-          rolesReadyFor: 3,
-          overallRoleReadiness: 60,
-          skillsIdentified: 89,
-          gapsHighlighted: 56
-        }}
-        skillData={{
-          proficient: 34,
-          building: 45,
-          needsDevelopment: 66
-        }}
+        hasAssessments={hasAssessments}
+        metrics={metrics || undefined}
+        skillData={skillData || undefined}
       />
 
       <div className="py-10">

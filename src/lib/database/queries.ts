@@ -344,100 +344,44 @@ export async function getSkillsByCategory(category: string): Promise<Skill[]> {
     .from('skills')
     .select('*')
     .eq('category', category)
-    .order('name')
+    .order('name');
 
   if (error) {
-    console.error('Error fetching skills by category:', error)
-    return []
+    console.error('Error fetching skills by category:', error);
+    return [];
   }
-
-  return data || []
+  return data || [];
 }
 
 // Favorites queries (requires authentication)
 export async function getUserFavoriteJobs(userId: string): Promise<Job[]> {
-  console.log('getUserFavoriteJobs called for user:', userId)
-  
-  const { data: favorites, error: favError } = await supabase
-    .from('favorites')
-    .select('entity_id, created_at')
-    .eq('user_id', userId)
-    .eq('entity_kind', 'job')
-    .order('created_at', { ascending: false })
+  if (!userId) return [];
+  console.log('RPC: getUserFavoriteJobs called for user:', userId);
 
-  if (favError) {
-    console.error('❌ Error fetching favorite job IDs:', favError)
-    return []
+  const { data, error } = await supabase.rpc('get_favorite_jobs_with_company');
+
+  if (error) {
+    console.error('❌ Error fetching favorite jobs via RPC:', error);
+    return [];
   }
 
-  if (!favorites || favorites.length === 0) {
-    console.log('📋 No favorite jobs found')
-    return []
-  }
-
-  const jobIds = favorites.map((fav: any) => fav.entity_id)
-  console.log('🎯 Fetching jobs for IDs:', jobIds.length)
-
-  // Then get the job details
-  const { data: jobs, error: jobsError } = await supabase
-    .from('jobs')
-    .select(`id, job_kind, title, soc_code, company_id, job_type, category, location_city, location_state, median_wage_usd, long_desc, featured_image_url, skills_count, companies(id, name, logo_url, is_trusted_partner, hq_city, hq_state, revenue_range, employee_range, industry, bio)`)
-    .in('id', jobIds)
-
-  if (jobsError) {
-    console.error('❌ Error fetching job details:', jobsError)
-    return []
-  }
-
-  console.log('✅ Fetched favorite jobs:', jobs?.length || 0, 'items')
-  
-  return jobs?.map(job => ({
-    ...job,
-    company: Array.isArray(job.companies) ? job.companies[0] : job.companies
-  })) || []
+  console.log('✅ RPC: Fetched favorite jobs:', data?.length || 0, 'items');
+  return data || [];
 }
 
 export async function getUserFavoritePrograms(userId: string): Promise<Program[]> {
-  console.log('🔍 Fetching favorite programs for user:', userId)
-  
-  // First get the favorite program IDs
-  const { data: favorites, error: favError } = await supabase
-    .from('favorites')
-    .select('entity_id, created_at')
-    .eq('user_id', userId)
-    .eq('entity_kind', 'program')
-    .order('created_at', { ascending: false })
+  if (!userId) return [];
+  console.log('RPC: 🔍 Fetching favorite programs for user:', userId);
 
-  if (favError) {
-    console.error('❌ Error fetching favorite program IDs:', favError)
-    return []
+  const { data, error } = await supabase.rpc('get_favorite_programs_with_school');
+
+  if (error) {
+    console.error('❌ Error fetching favorite programs via RPC:', error);
+    return [];
   }
 
-  if (!favorites || favorites.length === 0) {
-    console.log('📋 No favorite programs found')
-    return []
-  }
-
-  const programIds = favorites.map((fav: any) => fav.entity_id)
-  console.log('🎯 Fetching programs for IDs:', programIds.length)
-
-  // Then get the program details
-  const { data: programs, error: programsError } = await supabase
-    .from('programs')
-    .select(`id, school_id, name, program_type, format, duration_text, short_desc, program_url, cip_code, schools(id, name, logo_url, about_url, city, state)`)
-    .in('id', programIds)
-
-  if (programsError) {
-    console.error('❌ Error fetching program details:', programsError)
-    return []
-  }
-
-  console.log('✅ Fetched favorite programs:', programs?.length || 0, 'items')
-  
-  return programs?.map(program => ({
-    ...program,
-    school: Array.isArray(program.schools) ? program.schools[0] : program.schools
-  })) || []
+  console.log('✅ RPC: Fetched favorite programs:', data?.length || 0, 'items');
+  return data || [];
 }
 
 export async function addToFavorites(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {

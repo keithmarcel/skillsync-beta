@@ -55,54 +55,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      console.log('🔍 Getting initial session...')
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
-      if (error) {
-        console.error('❌ Session error:', error)
-      }
-      
-      if (session) {
-        console.log('✅ Session found:', {
-          userId: session.user.id,
-          email: session.user.email,
-          expiresAt: session.expires_at ? new Date(session.expires_at * 1000) : 'unknown'
-        })
-        
-        // Fetch profile data
-        const profileData = await fetchProfile(session.user.id)
-        setProfile(profileData)
-      } else {
-        console.log('❌ No session found')
-      }
-      
-      setUser(session?.user ?? null)
-      setLoading(false)
-    }
+    // The middleware ensures the session is available on the client. We just need to read it.
+    const getInitialData = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
 
-    getInitialSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔄 Auth state change:', event, session?.user?.email || 'no user')
-        setUser(session?.user ?? null)
-        
-        if (session?.user) {
-          const profileData = await fetchProfile(session.user.id)
-          setProfile(profileData)
-        } else {
-          setProfile(null)
-        }
-        
-        setLoading(false)
+      if (session?.user) {
+        const profileData = await fetchProfile(session.user.id);
+        setProfile(profileData);
       }
-    )
+      setLoading(false);
+    };
 
-    return () => subscription.unsubscribe()
-  }, [])
+    getInitialData();
+
+    // Listen for changes to the auth state
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      // When the user signs out, the profile should be cleared immediately.
+      if (event === 'SIGNED_OUT') {
+        setProfile(null);
+      }
+      // The profile will be refetched on the next page load if needed.
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -159,30 +139,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   // Computed admin role properties
-  const isAdmin = Boolean(profile?.admin_role)
-  const isSuperAdmin = profile?.admin_role === 'super_admin'
-  const isCompanyAdmin = profile?.admin_role === 'company_admin'
-  const isProviderAdmin = profile?.admin_role === 'provider_admin'
+  const value = {
+    user,
+    profile,
+    loading,
+    isAdmin: !!profile?.admin_role,
+    isSuperAdmin: profile?.admin_role === 'super_admin',
+    isCompanyAdmin: profile?.admin_role === 'company_admin',
+    isProviderAdmin: profile?.admin_role === 'provider_admin',
+    signIn,
+    signUp,
+    signOut,
+    resetPassword,
+  };
 
-  return React.createElement(
-    AuthContext.Provider,
-    { 
-      value: { 
-        user, 
-        profile, 
-        loading, 
-        isAdmin,
-        isSuperAdmin,
-        isCompanyAdmin,
-        isProviderAdmin,
-        signIn, 
-        signUp, 
-        signOut, 
-        resetPassword 
-      } 
-    },
-    children
-  )
+  return React.createElement(AuthContext.Provider, { value }, children);
 }
 
 export function useAuth() {
@@ -193,15 +164,3 @@ export function useAuth() {
   return context
 }
 
-// Mock user for development - remove when real auth is implemented
-export function useMockAuth() {
-  return {
-    user: {
-      id: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
-      email: 'user@example.com',
-      name: 'John Doe'
-    },
-    loading: false,
-    signOut: async () => console.log('Mock sign out')
-  }
-}

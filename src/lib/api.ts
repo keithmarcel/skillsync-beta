@@ -5,26 +5,34 @@ type Tables = Database['public']['Tables']
 
 // Jobs API
 export async function listJobs(kind?: JobKind, region?: string) {
-  let query = supabase
-    .from('jobs')
-    .select(`
-      *,
-      companies(name, logo_url, is_trusted_partner),
-      job_skills(skill_id, weight)
-    `)
+  try {
+    let query = supabase
+      .from('jobs')
+      .select(`
+        *,
+        companies(name, logo_url, is_trusted_partner),
+        job_skills(skill_id, weight)
+      `)
 
-  if (kind) {
-    query = query.eq('job_kind', kind)
+    if (kind) {
+      query = query.eq('job_kind', kind)
+    }
+
+    if (region) {
+      query = query.eq('location_state', region)
+    }
+
+    const { data, error } = await query.order('title')
+    
+    if (error) {
+      console.error('listJobs error:', error)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('listJobs exception:', err)
+    return []
   }
-
-  if (region) {
-    query = query.eq('location_state', region)
-  }
-
-  const { data, error } = await query.order('title')
-  
-  if (error) throw error
-  return data
 }
 
 export async function getJob(id: string) {

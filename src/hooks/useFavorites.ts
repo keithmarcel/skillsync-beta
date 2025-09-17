@@ -9,7 +9,7 @@ import {
   addToFavorites, 
   removeFromFavorites 
 } from '@/lib/database/queries'
-import type { Job, Program } from '@/lib/database/queries'
+import type { Job, Program, Company, School } from '@/lib/database/queries'
 
 interface UseFavoritesReturn {
   favoriteJobs: Job[]
@@ -23,47 +23,59 @@ interface UseFavoritesReturn {
 }
 
 export function useFavorites(): UseFavoritesReturn {
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const [favoriteJobs, setFavoriteJobs] = useState<Job[]>([])
-  const [favoritePrograms, setFavoritePrograms] = useState<Program[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
+  const [favoriteJobs, setFavoriteJobs] = useState<Job[]>([]);
+  const [favoritePrograms, setFavoritePrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchFavorites = useCallback(async () => {
-    console.log('🔍 FETCH FAVORITES CALLED:', { user: user?.id })
-    
-    if (!user?.id) {
-      console.log('❌ No user ID available for fetching favorites')
-      return
-    }
-
-    console.log('📥 Fetching favorites for user:', user.id)
-    setLoading(true)
-    setError(null)
-    
+  const fetchFavorites = useCallback(async (userId: string) => {
+    console.log('📥 Fetching favorites for user:', userId);
+    setLoading(true);
+    setError(null);
     try {
       const [jobs, programs] = await Promise.all([
-        getUserFavoriteJobs(user.id),
-        getUserFavoritePrograms(user.id)
-      ])
-      
-      console.log('📊 Fetched favorites:', { jobs: jobs.length, programs: programs.length })
-      console.log('📋 Jobs:', jobs)
-      console.log('📋 Programs:', programs)
-      setFavoriteJobs(jobs)
-      setFavoritePrograms(programs)
+        getUserFavoriteJobs(userId),
+        getUserFavoritePrograms(userId),
+      ]);
+
+      console.log('📊 Fetched favorites:', { jobs: jobs.length, programs: programs.length });
+
+      const processedJobs = jobs.map(j => ({ ...j, company: j.company as Company }));
+      const processedPrograms = programs.map(p => ({ ...p, school: p.school as School }));
+
+      setFavoriteJobs(processedJobs);
+      setFavoritePrograms(processedPrograms);
     } catch (err) {
-      console.error('❌ Error fetching favorites:', err)
-      setError('Failed to load favorites')
+      console.error('❌ Error fetching favorites:', err);
+      setError('Failed to load favorites');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [user?.id])
+  }, []);
 
   useEffect(() => {
-    fetchFavorites()
-  }, [fetchFavorites])
+    // This effect now correctly handles all authentication states.
+    if (authLoading) {
+      // 1. If auth is loading, we are also loading.
+      console.log('⏳ Auth is loading, useFavorites is waiting...');
+      setLoading(true);
+      return;
+    }
+
+    if (user) {
+      // 2. If auth is done and we have a user, fetch their data.
+      console.log('✅ Auth finished, user found. Fetching favorites.');
+      fetchFavorites(user.id);
+    } else {
+      // 3. If auth is done and there is no user, we are done loading.
+      console.log('❌ Auth finished, no user. Clearing favorites.');
+      setFavoriteJobs([]);
+      setFavoritePrograms([]);
+      setLoading(false);
+    }
+  }, [user, authLoading, fetchFavorites]);
 
   const addFavorite = useCallback(async (entityKind: 'job' | 'program', entityId: string): Promise<boolean> => {
     console.log('🔥 ADD FAVORITE CALLED:', { entityKind, entityId, user: user?.id })
@@ -83,14 +95,12 @@ export function useFavorites(): UseFavoritesReturn {
       const success = await addToFavorites(user.id, entityKind, entityId)
       console.log('✅ Add favorite result:', success)
       if (success) {
-        // Show success toast
         toast({
           title: "Added to Favorites",
           description: `${entityKind === 'job' ? 'Job' : 'Program'} has been added to your favorites.`,
         })
-        // Refresh favorites to get updated data
         console.log('🔄 Refreshing favorites after add...')
-        await fetchFavorites()
+        await fetchFavorites(user.id)
       } else {
         console.error('❌ Add favorite failed')
         toast({
@@ -123,13 +133,11 @@ export function useFavorites(): UseFavoritesReturn {
       const success = await removeFromFavorites(user.id, entityKind, entityId)
       console.log('Remove favorite result:', success)
       if (success) {
-        // Show success toast
         toast({
           title: "Removed from Favorites",
           description: `${entityKind === 'job' ? 'Job' : 'Program'} has been removed from your favorites.`,
         })
-        // Refresh favorites to get updated data
-        await fetchFavorites()
+        await fetchFavorites(user.id)
       }
       return success
     } catch (err) {
@@ -152,6 +160,14 @@ export function useFavorites(): UseFavoritesReturn {
     }
   }, [favoriteJobs, favoritePrograms])
 
+  const refreshFavorites = useCallback(async () => {
+    if (user?.id) {
+      await fetchFavorites(user.id);
+    } else {
+      console.log('🔄 Cannot refresh favorites, no user found.');
+    }
+  }, [user?.id, fetchFavorites]);
+
   return {
     favoriteJobs,
     favoritePrograms,
@@ -160,6 +176,6 @@ export function useFavorites(): UseFavoritesReturn {
     addFavorite,
     removeFavorite,
     isFavorite,
-    refreshFavorites: fetchFavorites
+    refreshFavorites
   }
 }
