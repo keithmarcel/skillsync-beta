@@ -264,12 +264,15 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Badge className="bg-teal-500 text-white hover:bg-teal-600">{job.category}</Badge>
-                    <Badge className="bg-teal-500 text-white hover:bg-teal-600">{job.skills?.length || 0} Skills</Badge>
+                    <Badge className="bg-teal-500 text-white">{job.category}</Badge>
+                    <Badge className="bg-teal-500 text-white">{job.skills?.length || 0} Skills</Badge>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6 text-white">
+                {/* Divider after title */}
+                <div className="border-t border-[#093A4B]"></div>
+                
                 {/* Description */}
                 <div>
                   <p className="text-white leading-relaxed opacity-90">{job.long_desc}</p>
@@ -277,40 +280,83 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
                 {/* Key Stats */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
-                    <div className="text-sm opacity-80">Median Salary</div>
-                    <div className="text-xl font-bold">${job.median_wage_usd?.toLocaleString()}</div>
+                  <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20 flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-2.5 h-2.5 text-[#7EDCE2]" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-sm opacity-80">Median Salary</div>
+                      <div className="text-xl font-bold">${job.median_wage_usd?.toLocaleString()}</div>
+                    </div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
-                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
-                      <div className="text-sm opacity-80">Role Location</div>
-                      <div className="text-xl font-bold">
-                        {job.location_city && job.location_state 
-                          ? `${job.location_city}, ${job.location_state}`
-                          : 'St. Petersburg, FL'}
+                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20 flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-[#7EDCE2]" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-sm opacity-80">Role Location</div>
+                        <div className="text-xl font-bold">
+                          {job.location_city && job.location_state 
+                            ? `${job.location_city}, ${job.location_state}`
+                            : 'St. Petersburg, FL'}
+                        </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
-                      <div className="text-sm opacity-80">Projected Open Positions in Region</div>
-                      <div className="text-xl font-bold">
-                        ~{job.projected_open_positions?.toLocaleString() || '18,000'}
+                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20 flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-[#7EDCE2]" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-sm opacity-80">Projected Open Positions in Region</div>
+                        <div className="text-xl font-bold">
+                          ~{job.projected_open_positions?.toLocaleString() || '18,000'}
+                        </div>
                       </div>
                     </div>
                   )}
-                  <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
-                    <div className="text-sm opacity-80">Typical Education Requirements</div>
-                    <div className="text-xl font-bold">{job.education_requirements || "Bachelor's Degree"}</div>
+                  <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20 flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-2.5 h-2.5 text-[#7EDCE2]" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-sm opacity-80">Typical Education Requirements</div>
+                      <div className="text-xl font-bold">{job.education_requirements || "Bachelor's Degree"}</div>
+                    </div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
-                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
-                      <div className="text-sm opacity-80">Required Proficiency Score</div>
-                      <div className="text-xl font-bold">{job.proficiency_score || '90'}%</div>
+                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20 flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-[#7EDCE2]" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-sm opacity-80">Required Proficiency Score</div>
+                        <div className="text-xl font-bold">{job.proficiency_score || '90'}%</div>
+                      </div>
                     </div>
                   ) : (
-                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
-                      <div className="text-sm opacity-80">Job Growth Outlook</div>
-                      <div className="text-xl font-bold">{job.job_growth_outlook || '+8% through 2030'}</div>
+                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20 flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-2.5 h-2.5 text-[#7EDCE2]" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-sm opacity-80">Job Growth Outlook</div>
+                        <div className="text-xl font-bold">{job.job_growth_outlook || '+8% through 2030'}</div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -352,9 +398,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               We'll assess your skills, show you how they align with industry benchmarks, and recommend top regional programs that can help close any gaps.
             </p>
           </div>
-          <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
-            <Link href={`/assessments/quiz/${job.id}`}>
-              Start Your Assessment →
+          <Button asChild className="bg-[#114B5F] hover:bg-[#0F3A47] text-[#FAFAFA] px-3 py-2 rounded-lg flex-shrink-0 shadow-sm w-[215px] h-10 gap-2 font-normal text-base">
+            <Link href={`/assessments/quiz/${job.id}`} className="flex items-center justify-center gap-2">
+              Start Your Assessment
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M9 5l7 7-7 7"/>
+              </svg>
             </Link>
           </Button>
         </div>
@@ -369,29 +418,28 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               {/* Core Skills */}
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Skills</h3>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {job.skills?.map((jobSkill: any, index: number) => (
-                    <Badge key={index} className="bg-teal-500 text-white hover:bg-teal-600 border-0">
-                      {jobSkill.skill?.name || 'Unknown Skill'}
-                    </Badge>
-                  )) || [
-                    'Process Improvement', 'Project Management', 'Data Analysis', 'Strategic Planning', 'Budgeting'
-                  ].map((skill, index) => (
-                    <Badge key={index} className="bg-teal-500 text-white hover:bg-teal-600 border-0">
-                      {skill}
-                    </Badge>
+                <div className="border-t border-[#093A4B] mb-4"></div>
+                <div className="grid grid-cols-2 gap-4">
+                  {(job.skills || []).slice(0, 6).map((skill: any, index: number) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <span className="text-teal-400 mt-1">•</span>
+                      <span className="text-white text-sm">{skill.skill?.name || skill.name}</span>
+                    </div>
                   ))}
                 </div>
+              </div>
 
-                <h3 className="font-semibold mb-4 text-white">Common Responsibilities</h3>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Core Responsibilities */}
+              <div>
+                <h3 className="font-semibold mb-4 text-white">Core Responsibilities</h3>
+                <div className="border-t border-[#093A4B] mb-4"></div>
+                <div className="grid grid-cols-1 gap-3">
                   {(job.core_responsibilities || [
-                    'Analyze and approve business operations to improve efficiency and effectiveness',
-                    'Work closely with various departments to streamline processes and improve outcomes',
-                    'Use data analysis and metrics to support strategic initiatives and identify opportunities',
-                    'Identify operational risks and develop strategies to mitigate them',
-                    'Manage and oversee multiple projects, ensuring timely completion and alignment with business objectives',
-                    'Identify operational risks and develop strategies to mitigate them'
+                    'Manage project deliverables and timelines',
+                    'Coordinate with stakeholders and team members',
+                    'Ensure quality standards are met',
+                    'Monitor project budgets and resources',
+                    'Communicate progress and issues to leadership'
                   ]).map((responsibility: string, index: number) => (
                     <div key={index} className="flex items-start gap-2">
                       <span className="text-teal-400 mt-1">•</span>
@@ -401,19 +449,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 </div>
               </div>
 
-              {/* Related Job Titles (Occupations Only) */}
+              {/* Related Job Titles (for occupations only) */}
               {job.job_kind === 'occupation' && (
                 <div>
                   <h3 className="font-semibold mb-4 text-white">Related Job Titles</h3>
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="border-t border-[#093A4B] mb-4"></div>
+                  <div className="grid grid-cols-2 gap-3">
                     {(job.related_job_titles || [
                       'Operations Coordinator',
-                      'Operations Manager', 
-                      'Business Operations Analyst',
-                      'Process Improvement Specialist',
-                      'Operations Support Specialist',
+                      'Operations Support Specialist', 
                       'Business Process Analyst',
-                      'Operations Director',
+                      'Process Improvement Specialist',
                       'Operations Specialist'
                     ]).map((title: string, index: number) => (
                       <div key={index} className="flex items-start gap-2">
@@ -431,10 +477,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         {/* Hiring Companies for Occupations */}
         {job.job_kind === 'occupation' && (
           <Card className="rounded-2xl mb-16">
-            <CardHeader>
+            <CardHeader className="pb-5">
               <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>
             </CardHeader>
-            <CardContent className="p-8">
+            <CardContent className="p-8 pt-0">
               <div className="flex items-center justify-start gap-8">
                 {[
                   { name: 'Power Design', logo: '/companies/power-design.svg' },
