@@ -104,14 +104,42 @@ export default function Dashboard() {
           title="Saved Jobs"
           description="Jobs you like that match your skills and career goals."
           viewAllHref="/jobs?tab=favorites"
-          items={favoriteJobs.slice(0, 5).map(job => ({
-            id: job.id,
-            title: job.title,
-            description: job.long_desc ? 
-              (job.long_desc.length > 50 ? `${job.long_desc.substring(0, 50)}...` : job.long_desc) :
-              `${job.category} position with competitive benefits...`,
-            href: `/jobs/${job.id}`
-          }))}
+          items={favoriteJobs.slice(0, 5).map(job => {
+            // Apply proper category mapping for featured roles (consistent with jobs page)
+            const getProperCategory = (job: any) => {
+              if (job.job_kind === 'featured_role') {
+                // Prefer database category if set, otherwise use title-based mapping for legacy data
+                if (job.category && job.category.trim() !== '' && job.category !== 'Featured Role') {
+                  return job.category
+                }
+                
+                // Fallback to title-based mapping for legacy featured roles without categories
+                const categoryMap: Record<string, string> = {
+                  'Mechanical Assistant Project Manager': 'Skilled Trades',
+                  'Senior Financial Analyst (FP&A)': 'Business',
+                  'Mechanical Project Manager': 'Skilled Trades', 
+                  'Surgical Technologist (Certified)': 'Health & Education',
+                  'Business Development Manager': 'Business',
+                  'Administrative Assistant': 'Business',
+                  'Supervisor, Residential Inbound Sales': 'Business',
+                  'Senior Mechanical Project Manager': 'Skilled Trades'
+                }
+                return categoryMap[job.title] || 'Business'
+              }
+              return job.category || 'General'
+            }
+
+            const properCategory = getProperCategory(job)
+            
+            return {
+              id: job.id,
+              title: job.title,
+              description: job.long_desc ? 
+                (job.long_desc.length > 50 ? `${job.long_desc.substring(0, 50)}...` : job.long_desc) :
+                `${properCategory} position with competitive benefits...`,
+              href: `/jobs/${job.id}`
+            }
+          })}
         />
 
         <ListCard

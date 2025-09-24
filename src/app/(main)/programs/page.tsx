@@ -265,27 +265,37 @@ export default function ProgramsPage() {
                     isLoading={true}
                     loadingText="Loading Saved Programs"
                   />
-                ) : (
+                ) : favoritePrograms.length > 0 ? (
                   <DataTable
                     data={favoritePrograms.map(transformProgramToTable).sort((a, b) => a.name.localeCompare(b.name))}
                     columns={programsTableColumns}
                     tableType="programs"
                     isOnFavoritesTab={true}
                     showSearchSortFilter={true}
-                  onRowAction={async (action, row) => {
-                    switch (action) {
-                      case 'details':
-                        window.location.href = `/programs/${row.id}`
-                        break
-                      case 'jobs':
-                        console.log('See jobs for program:', row.id)
-                        break
-                      case 'unfavorite':
-                        await removeFavorite('program', row.id)
-                        break
-                    }
-                  }}
-                />
+                    isFavorite={isFavorite}
+                    onRowAction={async (action, row) => {
+                      switch (action) {
+                        case 'details':
+                          window.location.href = `/programs/${row.id}`
+                          break
+                        case 'jobs':
+                          console.log('See jobs for program:', row.id)
+                          break
+                        case 'unfavorite':
+                          await removeFavorite('program', row.id)
+                          break
+                      }
+                    }}
+                  />
+                ) : (
+                  <EmptyState
+                    title="No Saved Programs"
+                    description="You haven't saved any programs yet. Browse programs and click the heart icon to save them here."
+                    primaryButtonText="Browse Programs"
+                    secondaryButtonText="View All Programs"
+                    onPrimaryClick={() => setActiveTab('featured')}
+                    onSecondaryClick={() => setActiveTab('all')}
+                  />
                 )}
                 </div>
               </div>

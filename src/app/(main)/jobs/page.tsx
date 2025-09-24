@@ -65,8 +65,6 @@ export default function JobsPage() {
   const { user } = useAuth()
   const { favoriteJobs, loading: favoritesLoading, error: favoritesError, addFavorite, removeFavorite, isFavorite } = useFavorites()
 
-  console.log('🏗️ JOBS PAGE: Component rendered')
-  console.log('🏗️ JOBS PAGE: Favorites state:', { favoriteJobs, favoritesLoading, favoritesError })
   
   // Get tab from URL or default to 'featured-roles'
   const tabFromUrl = searchParams.get('tab') || 'featured-roles'
@@ -281,9 +279,6 @@ export default function JobsPage() {
                       showSearchSortFilter={false}
                       isFavorite={isFavorite}
                       onRowAction={async (action, row) => {
-                        console.log('🏗️ JOBS PAGE: Row action called:', { action, rowId: row.id, rowTitle: row.title })
-                        console.log('🏗️ JOBS PAGE: Row data:', row)
-
                         switch (action) {
                           case 'details':
                             window.location.href = `/jobs/${row.id}`
@@ -295,14 +290,9 @@ export default function JobsPage() {
                             window.location.href = `/assessments/quiz/${row.id}`
                             break
                           case 'favorite':
-                            console.log('🏗️ JOBS PAGE: Adding favorite for job:', row.id)
-                            console.log('🏗️ JOBS PAGE: Comparing to working Featured Role pattern...')
-                            // Let's try the exact same pattern as Featured Roles
-                            const result = await addFavorite('job', row.id)
-                            console.log('🏗️ JOBS PAGE: Add favorite result:', result)
+                            await addFavorite('job', row.id)
                             break
                           case 'unfavorite':
-                            console.log('🏗️ JOBS PAGE: Removing favorite for job:', row.id)
                             await removeFavorite('job', row.id)
                             break
                         }

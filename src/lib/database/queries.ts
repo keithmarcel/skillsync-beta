@@ -171,7 +171,8 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
   // Filter by published status (skip if column doesn't exist yet)
   const filteredData = data?.filter(job => {
     const company = (job as any).company as any
-    return company?.is_published !== false // Allow null/undefined (column doesn't exist yet)
+    // Allow occupations (no company) or jobs from published companies
+    return !job.company_id || company?.is_published !== false
   }) || []
 
   return filteredData
@@ -196,8 +197,8 @@ export async function getJobById(id: string): Promise<Job | null> {
     return null
   }
 
-  // Check if job's company is published (skip if column doesn't exist yet)
-  if (data) {
+  // Check if job's company is published (skip if column doesn't exist yet or job has no company)
+  if (data && data.company_id) {
     const company = data.company as any
     if (company?.is_published === false) {
       return null // Job is from unpublished company
@@ -399,55 +400,40 @@ export async function getSkillsByCategory(category: string): Promise<Skill[]> {
 // Favorites queries (requires authentication)
 export async function getUserFavoriteJobs(userId: string): Promise<Job[]> {
   if (!userId) return [];
-  console.log('RPC: getUserFavoriteJobs called for user:', userId);
-
-  // TEMPORARY: Development workaround for RLS issues
-  console.log('⚠️ DEVELOPMENT MODE: Returning empty favorites array')
-  return []
 
   const { data, error } = await supabase.rpc('get_favorite_jobs_with_company');
 
   if (error) {
-    console.error('❌ Error fetching favorite jobs via RPC:', error);
+    console.error('Error fetching favorite jobs:', error);
     return [];
   }
 
-  // Filter out jobs from unpublished companies
-  const publishedJobs = data?.filter((job: Job) => job.company?.is_published) || [];
+  // Filter out jobs from unpublished companies (but allow jobs without companies)
+  const publishedJobs = data?.filter((job: Job) => {
+    // Allow high-demand occupations (no company) or jobs from published companies
+    return !job.company_id || job.company?.is_published;
+  }) || [];
 
-  console.log('✅ RPC: Fetched favorite jobs from published companies:', publishedJobs.length, 'items');
   return publishedJobs;
 }
 
 export async function getUserFavoritePrograms(userId: string): Promise<Program[]> {
   if (!userId) return [];
-  console.log('RPC: 🔍 Fetching favorite programs for user:', userId);
-
-  // TEMPORARY: Development workaround for RLS issues
-  console.log('⚠️ DEVELOPMENT MODE: Returning empty programs array')
-  return []
 
   const { data, error } = await supabase.rpc('get_favorite_programs_with_school');
 
   if (error) {
-    console.error('❌ Error fetching favorite programs via RPC:', error);
+    console.error('Error fetching favorite programs:', error);
     return [];
   }
 
-  console.log('✅ RPC: Fetched favorite programs:', data?.length || 0, 'items');
   return data || [];
 }
 
 export async function addToFavorites(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  console.log('🔥 DATABASE: ADD TO FAVORITES CALLED:', { userId, entityKind, entityId })
-  
-  // TEMPORARY: Development workaround for RLS issues
-  console.log('⚠️ DEVELOPMENT MODE: Simulating successful favorite add')
-  return true
-  
   try {
     // Use upsert to handle duplicates gracefully
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('favorites')
       .upsert({
         user_id: userId,
@@ -456,33 +442,20 @@ export async function addToFavorites(userId: string, entityKind: 'job' | 'progra
       }, {
         onConflict: 'user_id,entity_kind,entity_id'
       })
-      .select()
-
-    console.log('🔥 DATABASE: Raw response data:', data)
-    console.log('🔥 DATABASE: Raw response error:', error)
 
     if (error) {
-      console.error('❌ DATABASE: Error detected!')
-      console.error('❌ DATABASE: Error.code:', error.code)
-      console.error('❌ DATABASE: Error.message:', error.message)
+      console.error('Error adding to favorites:', error);
       return false
     }
 
-    console.log('✅ DATABASE: Successfully added to favorites (upsert)')
     return true
   } catch (catchError) {
-    console.error('❌ DATABASE: Caught exception:', catchError)
+    console.error('Exception adding to favorites:', catchError)
     return false
   }
 }
 
 export async function removeFromFavorites(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  console.log('🔥 DATABASE: REMOVE FROM FAVORITES CALLED:', { userId, entityKind, entityId })
-  
-  // TEMPORARY: Development workaround for RLS issues
-  console.log('⚠️ DEVELOPMENT MODE: Simulating successful favorite removal')
-  return true
-  
   const { error } = await supabase
     .from('favorites')
     .delete()
@@ -491,17 +464,14 @@ export async function removeFromFavorites(userId: string, entityKind: 'job' | 'p
     .eq('entity_id', entityId)
 
   if (error) {
-    console.error('❌ DATABASE: Error removing from favorites:', error)
+    console.error('Error removing from favorites:', error)
     return false
   }
 
-  console.log('✅ DATABASE: Successfully removed from favorites')
   return true
 }
 
 export async function isFavorite(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  console.log(' IS FAVORITE CALLED:', { userId, entityKind, entityId })
-  
   const { data, error } = await supabase
     .from('favorites')
     .select('entity_id')
