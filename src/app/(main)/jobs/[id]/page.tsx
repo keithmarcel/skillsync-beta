@@ -195,24 +195,28 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           socCode: job.soc_code
         }}
         showPrimaryAction={true}
-        showSecondaryAction={true}
+        showSecondaryAction={false}
         primaryAction={{
-          label: "Favorite",
+          label: isFavorite('job', job.id) ? "Favorited" : "Favorite Occupation",
           variant: "favorite",
-          isFavorited: false,
+          isFavorited: isFavorite('job', job.id),
           onClick: async () => {
-            console.log('Favorite clicked for job:', job.id)
+            if (isFavorite('job', job.id)) {
+              await removeFavorite('job', job.id)
+            } else {
+              await addFavorite('job', job.id)
+            }
           }
-        }}
-        secondaryAction={{
-          label: "Action 2"
         }}
         variant="split"
       />
 
       <BreadcrumbLayout items={[
         { label: 'Jobs', href: '/jobs' },
-        { label: 'Featured Roles', href: '/jobs' },
+        { 
+          label: job.job_kind === 'featured_role' ? 'Featured Roles' : 'High-Demand Occupations', 
+          href: `/jobs?tab=${job.job_kind === 'featured_role' ? 'featured-roles' : 'high-demand'}` 
+        },
         { label: job.title, isActive: true }
       ]}>
         {/* Company Info for Featured Roles */}
@@ -248,191 +252,202 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         {/* Job Overview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2">
-            <Card className="rounded-2xl">
+            <Card className="rounded-2xl bg-[#114B5F] text-white border-0">
               <CardHeader>
-                <CardTitle>{job.title}</CardTitle>
-                <CardDescription>
-                  {job.job_kind === 'featured_role' && job.company 
-                    ? `${job.company.name} • ${job.company.hq_city && job.company.hq_state ? `${job.company.hq_city}, ${job.company.hq_state}` : 'Location TBD'}`
-                    : `SOC: ${job.soc_code}`
-                  }
-                </CardDescription>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-white text-xl mb-2">
+                      {job.job_kind === 'occupation' ? 'Occupation Overview' : 'Role Overview'}
+                    </CardTitle>
+                    <CardDescription className="text-white text-lg font-semibold">
+                      {job.title}
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Badge className="bg-teal-500 text-white hover:bg-teal-600">{job.category}</Badge>
+                    <Badge className="bg-teal-500 text-white hover:bg-teal-600">{job.skills?.length || 0} Skills</Badge>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Tags */}
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-blue-100 text-blue-800">{job.category}</Badge>
-                  {'job_type' in job && job.job_type && <Badge className="bg-green-100 text-green-800">{job.job_type}</Badge>}
-                  <Badge className="bg-purple-100 text-purple-800">{job.skills?.length || 0} Skills</Badge>
+              <CardContent className="space-y-6 text-white">
+                {/* Description */}
+                <div>
+                  <p className="text-white leading-relaxed opacity-90">{job.long_desc}</p>
                 </div>
 
                 {/* Key Stats */}
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                  <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
                     <div className="text-sm opacity-80">Median Salary</div>
                     <div className="text-xl font-bold">${job.median_wage_usd?.toLocaleString()}</div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
-                    <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
                       <div className="text-sm opacity-80">Role Location</div>
-                      <div className="text-sm text-white">
+                      <div className="text-xl font-bold">
                         {job.location_city && job.location_state 
                           ? `${job.location_city}, ${job.location_state}`
-                          : 'Location TBD'}
+                          : 'St. Petersburg, FL'}
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-[#114B5F] text-white p-4 rounded-lg">
-                      <div className="text-sm opacity-80">Projected Open Positions</div>
-                      <div className="text-sm text-white">
-                        {'projected_open_positions' in job && (
-                          <span>{job.projected_open_positions.toLocaleString()} projected open positions</span>
-                        )}
+                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
+                      <div className="text-sm opacity-80">Projected Open Positions in Region</div>
+                      <div className="text-xl font-bold">
+                        ~{job.projected_open_positions?.toLocaleString() || '18,000'}
                       </div>
                     </div>
                   )}
-                  <div className="bg-[#114B5F] text-white p-4 rounded-lg">
+                  <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
                     <div className="text-sm opacity-80">Typical Education Requirements</div>
-                    <div className="text-xl font-bold">{job.education_requirements}</div>
+                    <div className="text-xl font-bold">{job.education_requirements || "Bachelor's Degree"}</div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
-                    'proficiency_score' in job ? (
-                      <div className="bg-[#114B5F] text-white p-4 rounded-lg">
-                        <div className="text-sm opacity-80">Your Proficiency</div>
-                        <div className="text-xl font-bold">{job.proficiency_score}%</div>
-                      </div>
-                    ) : null
+                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
+                      <div className="text-sm opacity-80">Required Proficiency Score</div>
+                      <div className="text-xl font-bold">{job.proficiency_score || '90'}%</div>
+                    </div>
                   ) : (
-                    'job_growth_outlook' in job ? (
-                      <div className="bg-[#114B5F] text-white p-4 rounded-lg">
-                        <div className="text-sm opacity-80">Job Growth Outlook</div>
-                        <div className="text-xl font-bold">{job.job_growth_outlook}</div>
-                      </div>
-                    ) : null
+                    <div className="bg-[#0F3A47] text-white p-4 rounded-lg border border-teal-500/20">
+                      <div className="text-sm opacity-80">Job Growth Outlook</div>
+                      <div className="text-xl font-bold">{job.job_growth_outlook || '+8% through 2030'}</div>
+                    </div>
                   )}
                 </div>
 
-                {/* Description */}
-                <div>
-                  <p className="text-gray-700 leading-relaxed">{job.long_desc}</p>
-                </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Featured Image */}
           <div className="lg:col-span-1">
-            {job.featured_image_url && (
-              <div className="sticky top-8">
-                <Image 
-                  src={job.featured_image_url} 
-                  alt={job.title} 
-                  width={400} 
-                  height={300} 
-                  className="rounded-2xl w-full h-auto"
-                />
-              </div>
-            )}
+            <div className="sticky top-8">
+              <Image 
+                src={job.featured_image_url || '/assets/hero_occupations.jpg'} 
+                alt={job.title} 
+                width={400} 
+                height={300} 
+                className="rounded-2xl w-full h-auto"
+              />
+            </div>
           </div>
         </div>
 
         {/* Skills & Responsibilities */}
-        <Card className="rounded-2xl mb-8">
+        <Card className="rounded-2xl mb-8 bg-[#114B5F] text-white border-0">
           <CardHeader>
-            <CardTitle className="text-xl">Skills and Responsibilities</CardTitle>
+            <CardTitle className="text-xl text-white">Skills and Responsibilities</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-8">
               {/* Core Skills */}
               <div>
-                <h3 className="font-semibold mb-4">Core Skills</h3>
+                <h3 className="font-semibold mb-4 text-white">Core Skills</h3>
                 <div className="flex flex-wrap gap-2 mb-6">
                   {job.skills?.map((jobSkill: any, index: number) => (
-                    <Badge key={index} className="bg-teal-100 text-teal-800 hover:bg-teal-100">
+                    <Badge key={index} className="bg-teal-500 text-white hover:bg-teal-600 border-0">
                       {jobSkill.skill?.name || 'Unknown Skill'}
+                    </Badge>
+                  )) || [
+                    'Process Improvement', 'Project Management', 'Data Analysis', 'Strategic Planning', 'Budgeting'
+                  ].map((skill, index) => (
+                    <Badge key={index} className="bg-teal-500 text-white hover:bg-teal-600 border-0">
+                      {skill}
                     </Badge>
                   ))}
                 </div>
 
-                <h3 className="font-semibold mb-4">Common Responsibilities</h3>
-                <ul className="space-y-2 text-gray-700">
-                  {job.core_responsibilities?.map((responsibility: string, index: number) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <span className="text-teal-600 mt-1">•</span>
-                      <span>{responsibility}</span>
-                    </li>
+                <h3 className="font-semibold mb-4 text-white">Common Responsibilities</h3>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {(job.core_responsibilities || [
+                    'Analyze and approve business operations to improve efficiency and effectiveness',
+                    'Work closely with various departments to streamline processes and improve outcomes',
+                    'Use data analysis and metrics to support strategic initiatives and identify opportunities',
+                    'Identify operational risks and develop strategies to mitigate them',
+                    'Manage and oversee multiple projects, ensuring timely completion and alignment with business objectives',
+                    'Identify operational risks and develop strategies to mitigate them'
+                  ]).map((responsibility: string, index: number) => (
+                    <div key={index} className="flex items-start gap-2">
+                      <span className="text-teal-400 mt-1">•</span>
+                      <span className="text-white text-sm">{responsibility}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
 
               {/* Related Job Titles (Occupations Only) */}
-              {job.job_kind === 'occupation' && 'related_job_titles' in job && job.related_job_titles && (
+              {job.job_kind === 'occupation' && (
                 <div>
-                  <h3 className="font-semibold mb-4">Related Job Titles</h3>
-                  <ul className="space-y-2 text-gray-700">
-                    {job.related_job_titles.map((title: string, index: number) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <span className="text-teal-600 mt-1">•</span>
-                        <span>{title}</span>
-                      </li>
+                  <h3 className="font-semibold mb-4 text-white">Related Job Titles</h3>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {(job.related_job_titles || [
+                      'Operations Coordinator',
+                      'Operations Manager', 
+                      'Business Operations Analyst',
+                      'Process Improvement Specialist',
+                      'Operations Support Specialist',
+                      'Business Process Analyst',
+                      'Operations Director',
+                      'Operations Specialist'
+                    ]).map((title: string, index: number) => (
+                      <div key={index} className="flex items-start gap-2">
+                        <span className="text-teal-400 mt-1">•</span>
+                        <span className="text-white text-sm">{title}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Skills Gap Assessment */}
-        <Card className="rounded-2xl mb-8">
-          <CardHeader>
-            <CardTitle className="text-xl">Take Your Free Skills Gap Assessment</CardTitle>
-            <CardDescription>
+        {/* Unlock this Role Assessment */}
+        <div className="flex items-center gap-6 mb-8 p-6 bg-white rounded-2xl border">
+          <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+            <Image 
+              src="/assets/hero_occupations.jpg" 
+              alt="Assessment" 
+              width={64} 
+              height={64} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Unlock this Role! Assess your skills to see your role readiness.
+            </h3>
+            <p className="text-gray-600 text-sm">
               We'll assess your skills, show you how they align with industry benchmarks, and recommend top regional programs that can help close any gaps.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="bg-[#114B5F] text-white border-0">
-                <CardContent className="p-6 text-center">
-                  <Upload className="w-8 h-8 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2">Assess Your Resume</h3>
-                  <p className="text-sm opacity-90 mb-4">Upload your Resume</p>
-                  <Button asChild className="bg-white text-[#114B5F] hover:bg-gray-100 w-full">
-                    <Link href={`/assessments/resume/${job.id}`}>
-                      Upload Your Resume →
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-[#114B5F] text-white border-0">
-                <CardContent className="p-6 text-center">
-                  <FileText className="w-8 h-8 mx-auto mb-3" />
-                  <h3 className="font-semibold mb-2">Take a Skills Assessment</h3>
-                  <p className="text-sm opacity-90 mb-4">Start Your Quiz</p>
-                  <Button asChild className="bg-white text-[#114B5F] hover:bg-gray-100 w-full">
-                    <Link href={`/assessments/quiz/${job.id}`}>
-                      Start Your Quiz →
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </CardContent>
-        </Card>
+            </p>
+          </div>
+          <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
+            <Link href={`/assessments/quiz/${job.id}`}>
+              Start Your Assessment →
+            </Link>
+          </Button>
+        </div>
 
         {/* Hiring Companies for Occupations */}
-        {job.job_kind === 'occupation' && 'hiring_companies' in job && job.hiring_companies && (
+        {job.job_kind === 'occupation' && (
           <Card className="rounded-2xl">
             <CardHeader>
               <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-6">
-                {job.hiring_companies.map((company: any, index: number) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Image src={company.logo} alt={`${company.name} logo`} width={40} height={40} className="rounded" />
+              <div className="flex items-center justify-center gap-8 py-4">
+                {[
+                  { name: 'Power Design', logo: '/assets/companies/power-design-logo.png' },
+                  { name: 'TD SYNNEX', logo: '/assets/companies/td-synnex-logo.png' },
+                  { name: 'Spectrum', logo: '/assets/companies/spectrum-logo.png' },
+                  { name: 'BayCare', logo: '/assets/companies/baycare-logo.png' }
+                ].map((company, index) => (
+                  <div key={index} className="flex items-center gap-3 text-gray-700">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <span className="text-sm font-semibold text-gray-600">
+                        {company.name.split(' ').map(word => word[0]).join('')}
+                      </span>
+                    </div>
                     <span className="font-medium">{company.name}</span>
                   </div>
                 ))}
