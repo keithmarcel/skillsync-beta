@@ -225,19 +225,19 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         {job.job_kind === 'featured_role' && job.company && (
           <div className="flex items-center justify-between mb-6 p-4 bg-white rounded-lg border">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                {job.company.logo_url ? (
-                  <img 
-                    src={job.company.logo_url} 
-                    alt={`${job.company.name} logo`}
-                    className="w-12 h-12 rounded-lg object-contain p-1"
-                  />
-                ) : (
+              {job.company.logo_url ? (
+                <img 
+                  src={job.company.logo_url} 
+                  alt={`${job.company.name} logo`}
+                  className="h-8 w-auto object-contain"
+                />
+              ) : (
+                <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                   <span className="text-lg font-semibold text-gray-600">
                     {job.company.name.charAt(0)}
                   </span>
-                )}
-              </div>
+                </div>
+              )}
               <div>
                 <p className="text-sm text-gray-600">
                   <span className="font-semibold">{job.title}</span> is an in-demand role at <span className="font-semibold">{job.company.name}</span>.
