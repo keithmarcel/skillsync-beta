@@ -237,14 +237,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 )}
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">
+                <p className="text-sm text-gray-600">
                   <span className="font-semibold">{job.title}</span> is an in-demand role at <span className="font-semibold">{job.company.name}</span>.
                 </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500">📍</span>
-                  <span className="text-sm text-gray-500">Trusted Partner</span>
-                  <span className="text-sm text-gray-500">About the Company</span>
-                </div>
               </div>
             </div>
             <CompanyModal company={job.company} />
@@ -438,20 +433,19 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-center gap-8 py-4">
+              <div className="flex items-center justify-start gap-8 py-4">
                 {[
-                  { name: 'Power Design', logo: '/assets/companies/power-design-logo.png' },
-                  { name: 'TD SYNNEX', logo: '/assets/companies/td-synnex-logo.png' },
-                  { name: 'Spectrum', logo: '/assets/companies/spectrum-logo.png' },
-                  { name: 'BayCare', logo: '/assets/companies/baycare-logo.png' }
+                  { name: 'Power Design', logo: '/companies/power-design.svg' },
+                  { name: 'TD SYNNEX', logo: '/companies/td-synnexx.svg' },
+                  { name: 'Spectrum', logo: '/companies/spectrum.svg' },
+                  { name: 'BayCare', logo: '/companies/Baycare.svg' }
                 ].map((company, index) => (
                   <div key={index} className="flex items-center gap-3 text-gray-700">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-semibold text-gray-600">
-                        {company.name.split(' ').map(word => word[0]).join('')}
-                      </span>
-                    </div>
-                    <span className="font-medium">{company.name}</span>
+                    <img 
+                      src={company.logo} 
+                      alt={`${company.name} logo`}
+                      className="h-8 w-auto object-contain"
+                    />
                   </div>
                 ))}
               </div>
