@@ -20,15 +20,15 @@ export interface AdminAuditLog {
   action: string;
   entity_type: string;
   entity_id: string;
+  status: 'success' | 'error' | 'pending';
   metadata: Record<string, any>;
   created_at: string;
-  user?: {
+  profiles: {
+    id: string;
     email: string;
-    user_metadata?: {
-      full_name?: string;
-      avatar_url?: string;
-    };
-  };
+    first_name: string | null;
+    last_name: string | null;
+  } | null;
 }
 
 export interface AdminDashboardStats {

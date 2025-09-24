@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   // Helper function to fetch user profile
   const fetchProfile = async (userId: string) => {
@@ -55,16 +56,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
     // The middleware ensures the session is available on the client. We just need to read it.
     const getInitialData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
 
-      if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
-        setProfile(profileData);
+        if (session?.user) {
+          const profileData = await fetchProfile(session.user.id);
+          setProfile(profileData);
+        }
+      } catch (error) {
+        console.error("Error during initial auth data fetch:", error);
+        setUser(null);
+        setProfile(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     getInitialData();
@@ -82,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [mounted]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -136,6 +150,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email)
     if (error) throw error
+  }
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return React.createElement(AuthContext.Provider, { 
+      value: {
+        user: null,
+        profile: null,
+        loading: true,
+        isAdmin: false,
+        isSuperAdmin: false,
+        isCompanyAdmin: false,
+        isProviderAdmin: false,
+        signIn,
+        signUp,
+        signOut,
+        resetPassword,
+      }
+    }, children);
   }
 
   // Computed admin role properties

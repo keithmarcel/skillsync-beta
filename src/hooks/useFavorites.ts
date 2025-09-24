@@ -7,9 +7,12 @@ import {
   getUserFavoriteJobs, 
   getUserFavoritePrograms, 
   addToFavorites, 
-  removeFromFavorites 
+  removeFromFavorites,
+  getJobById,
+  type Job,
+  type Program,
+  type School
 } from '@/lib/database/queries'
-import type { Job, Program, Company, School } from '@/lib/database/queries'
 
 interface UseFavoritesReturn {
   favoriteJobs: Job[]
@@ -42,7 +45,10 @@ export function useFavorites(): UseFavoritesReturn {
 
       console.log('📊 Fetched favorites:', { jobs: jobs.length, programs: programs.length });
 
-      const processedJobs = jobs.map(j => ({ ...j, company: j.company as Company }));
+      const processedJobs = jobs.map(j => ({ 
+        ...j, 
+        company: typeof j.company === 'string' ? JSON.parse(j.company) : j.company 
+      }));
       const processedPrograms = programs.map(p => ({ ...p, school: p.school as School }));
 
       setFavoriteJobs(processedJobs);
@@ -78,10 +84,12 @@ export function useFavorites(): UseFavoritesReturn {
   }, [user, authLoading, fetchFavorites]);
 
   const addFavorite = useCallback(async (entityKind: 'job' | 'program', entityId: string): Promise<boolean> => {
-    console.log('🔥 ADD FAVORITE CALLED:', { entityKind, entityId, user: user?.id })
-    
+    console.log('🔥 ADD FAVORITE CALLED:', { entityKind, entityId, user: user?.id, userId: user?.id })
+    console.log('🔥 Current auth state:', { user, loading: authLoading })
+
     if (!user?.id) {
       console.error('❌ No user ID available for favorites')
+      console.error('❌ Auth state:', { user, authLoading })
       toast({
         title: "Authentication Required",
         description: "Please sign in to add favorites.",
@@ -95,12 +103,70 @@ export function useFavorites(): UseFavoritesReturn {
       const success = await addToFavorites(user.id, entityKind, entityId)
       console.log('✅ Add favorite result:', success)
       if (success) {
+        // TEMPORARY: For development mode, manually add to in-memory favorites
+        if (entityKind === 'job') {
+          console.log('🔧 DEV MODE: Fetching real job data for favorites list')
+          
+          // Fetch the real job data
+          getJobById(entityId).then(realJob => {
+            if (realJob) {
+              console.log('🔧 DEV MODE: Found real job data:', realJob.title)
+              setFavoriteJobs(prev => {
+                // Check if already exists to avoid duplicates
+                if (prev.some(job => job.id === entityId)) {
+                  console.log('🔧 DEV MODE: Job already in favorites, skipping')
+                  return prev
+                }
+                console.log('🔧 DEV MODE: Adding real job to favorites:', realJob)
+                return [...prev, realJob]
+              })
+            } else {
+              console.log('🔧 DEV MODE: Could not find job data, using fallback')
+              // Fallback to mock if job not found
+              setFavoriteJobs(prev => {
+                if (prev.some(job => job.id === entityId)) return prev
+                const mockJob: Job = {
+                  id: entityId,
+                  job_kind: 'occupation',
+                  title: 'Added Job',
+                  soc_code: null,
+                  company_id: null,
+                  job_type: null,
+                  category: 'Unknown',
+                  location_city: null,
+                  location_state: null,
+                  median_wage_usd: null,
+                  long_desc: 'Recently added job',
+                  featured_image_url: null,
+                  skills_count: 0,
+                  is_featured: false,
+                  employment_outlook: null,
+                  education_level: null,
+                  work_experience: null,
+                  on_job_training: null,
+                  job_openings_annual: null,
+                  growth_rate_percent: null,
+                  required_proficiency_pct: null,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                  status: 'published'
+                }
+                return [...prev, mockJob]
+              })
+            }
+          }).catch(error => {
+            console.error('🔧 DEV MODE: Error fetching job data:', error)
+          })
+        }
+        
         toast({
           title: "Added to Favorites",
           description: `${entityKind === 'job' ? 'Job' : 'Program'} has been added to your favorites.`,
         })
-        console.log('🔄 Refreshing favorites after add...')
-        await fetchFavorites(user.id)
+        
+        // TEMPORARY: Skip fetchFavorites in development mode since we manually updated the state
+        console.log('🔄 Skipping fetchFavorites in development mode - using manual state update')
+        // await fetchFavorites(user.id)
       } else {
         console.error('❌ Add favorite failed')
         toast({
@@ -120,7 +186,7 @@ export function useFavorites(): UseFavoritesReturn {
       setError('Failed to add favorite')
       return false
     }
-  }, [user?.id, fetchFavorites, toast])
+  }, [user?.id, fetchFavorites, toast, authLoading])
 
   const removeFavorite = useCallback(async (entityKind: 'job' | 'program', entityId: string): Promise<boolean> => {
     if (!user?.id) {
@@ -133,11 +199,20 @@ export function useFavorites(): UseFavoritesReturn {
       const success = await removeFromFavorites(user.id, entityKind, entityId)
       console.log('Remove favorite result:', success)
       if (success) {
+        // TEMPORARY: For development mode, manually remove from in-memory favorites
+        if (entityKind === 'job') {
+          console.log('🔧 DEV MODE: Manually removing job from favorites list')
+          setFavoriteJobs(prev => prev.filter(job => job.id !== entityId))
+        }
+        
         toast({
           title: "Removed from Favorites",
           description: `${entityKind === 'job' ? 'Job' : 'Program'} has been removed from your favorites.`,
         })
-        await fetchFavorites(user.id)
+        
+        // TEMPORARY: Skip fetchFavorites in development mode since we manually updated the state
+        console.log('🔄 Skipping fetchFavorites in development mode - using manual state update')
+        // await fetchFavorites(user.id)
       }
       return success
     } catch (err) {
@@ -153,12 +228,28 @@ export function useFavorites(): UseFavoritesReturn {
   }, [user?.id, fetchFavorites, toast])
 
   const isFavorite = useCallback((entityKind: 'job' | 'program', entityId: string): boolean => {
-    if (entityKind === 'job') {
-      return favoriteJobs.some(job => job.id === entityId)
-    } else {
-      return favoritePrograms.some(program => program.id === entityId)
+    console.log('🔍 IS FAVORITE CHECK:', { entityKind, entityId, loading })
+    console.log('🔍 Current favorite jobs:', favoriteJobs.map(j => ({ id: j.id, title: j.title })))
+    console.log('🔍 Looking for job ID:', entityId)
+    console.log('🔍 Available job IDs:', favoriteJobs.map(j => j.id))
+    
+    // If still loading, return false to avoid premature rendering
+    if (loading) {
+      console.log('🔍 Still loading favorites, returning false')
+      return false
     }
-  }, [favoriteJobs, favoritePrograms])
+    
+    if (entityKind === 'job') {
+      const result = favoriteJobs.some(job => job.id === entityId)
+      console.log('🔍 Is job favorited?', result)
+      console.log('🔍 Exact match check:', favoriteJobs.map(j => ({ id: j.id, matches: j.id === entityId })))
+      return result
+    } else {
+      const result = favoritePrograms.some(program => program.id === entityId)
+      console.log('🔍 Is program favorited?', result)
+      return result
+    }
+  }, [favoriteJobs, favoritePrograms, loading])
 
   const refreshFavorites = useCallback(async () => {
     if (user?.id) {

@@ -1,198 +1,111 @@
-import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView'
+'use client';
 
-export default async function OccupationDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
-  const isNew = params.id === 'new'
-  
-  let occupation = null
-  
-  if (!isNew) {
-    const { data, error } = await supabase
-      .from('jobs')
-      .select('*')
-      .eq('id', params.id)
-      .eq('job_kind', 'occupation')
-      .single()
-    
-    if (error) {
-      console.error('Error fetching occupation:', error)
-      notFound()
+import { useRouter } from 'next/navigation';
+import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
+import { useAdminEntity } from '@/hooks/useAdminEntity';
+import type { Job } from '@/lib/database/queries';
+
+export default function OccupationDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { 
+    entity: occupation, 
+    isLoading, 
+    error, 
+    handleSave, 
+    handleDelete 
+  } = useAdminEntity<Job>('jobs', params.id === 'new' ? null : params.id);
+
+  const isNew = params.id === 'new';
+
+  const defaultOccupation: Job = {
+    id: '',
+    title: '',
+    soc_code: '',
+    job_kind: 'occupation',
+    status: 'published',
+    company_id: null,
+    job_type: null,
+    category: null,
+    location_city: null,
+    location_state: null,
+    median_wage_usd: null,
+    long_desc: null,
+    featured_image_url: null,
+    skills_count: 0,
+    is_featured: false,
+    employment_outlook: null,
+    education_level: null,
+    work_experience: null,
+    on_job_training: null,
+    job_openings_annual: null,
+    growth_rate_percent: null,
+    required_proficiency_pct: null,
+    created_at: '',
+    updated_at: '',
+  };
+
+  const onSave = async (updatedData: Partial<Job>) => {
+    const savedOccupation = await handleSave({ ...updatedData, job_kind: 'occupation' });
+    if (savedOccupation && isNew) {
+      router.push(`/admin/occupations/${savedOccupation.id}`);
     }
-    
-    occupation = data
-  }
+  };
 
-  // Define the form tabs and fields
+  const onDelete = async () => {
+    const success = await handleDelete();
+    if (success) {
+      router.push('/admin/occupations');
+    }
+  };
+
   const tabs = [
     {
-      id: 'basic',
-      label: 'Basic Information',
+      id: 'overview',
+      label: 'Overview',
       fields: [
-        {
-          key: 'title',
-          label: 'Occupation Title',
-          type: EntityFieldType.TEXT,
-          required: true,
-          placeholder: 'e.g., Software Developer'
-        },
-        {
-          key: 'soc_code',
-          label: 'SOC Code',
-          type: EntityFieldType.TEXT,
-          placeholder: 'e.g., 15-1252'
-        },
-        {
-          key: 'category',
-          label: 'Category',
-          type: EntityFieldType.SELECT,
-          options: [
-            { value: 'technology', label: 'Technology' },
-            { value: 'healthcare', label: 'Healthcare' },
-            { value: 'finance', label: 'Finance' },
-            { value: 'manufacturing', label: 'Manufacturing' },
-            { value: 'education', label: 'Education' },
-            { value: 'government', label: 'Government' },
-            { value: 'retail', label: 'Retail' },
-            { value: 'hospitality', label: 'Hospitality' },
-            { value: 'construction', label: 'Construction' },
-            { value: 'transportation', label: 'Transportation' },
-            { value: 'other', label: 'Other' }
-          ]
-        },
-        {
-          key: 'location_city',
-          label: 'Primary City',
-          type: EntityFieldType.TEXT,
-          placeholder: 'e.g., Tampa'
-        },
-        {
-          key: 'location_state',
-          label: 'Primary State',
-          type: EntityFieldType.TEXT,
-          placeholder: 'e.g., FL'
-        }
-      ]
+        { key: 'title', label: 'Occupation Title', type: EntityFieldType.TEXT, required: true },
+        { key: 'soc_code', label: 'SOC Code', type: EntityFieldType.TEXT, required: true },
+        { key: 'long_desc', label: 'Description', type: EntityFieldType.TEXTAREA },
+        { key: 'category', label: 'Category', type: EntityFieldType.TEXT },
+        { key: 'job_type', label: 'Job Type', type: EntityFieldType.TEXT },
+        { key: 'location_city', label: 'City', type: EntityFieldType.TEXT },
+        { key: 'location_state', label: 'State', type: EntityFieldType.TEXT },
+      ],
     },
     {
-      id: 'compensation',
-      label: 'Compensation & Requirements',
+      id: 'labor_market',
+      label: 'Labor Market',
       fields: [
-        {
-          key: 'median_wage_usd',
-          label: 'Median Annual Salary (USD)',
-          type: EntityFieldType.NUMBER,
-          placeholder: 'e.g., 75000'
-        },
-        {
-          key: 'required_proficiency_pct',
-          label: 'Required Proficiency %',
-          type: EntityFieldType.NUMBER,
-          placeholder: 'e.g., 75',
-          description: 'Minimum proficiency percentage required for this occupation'
-        },
-        {
-          key: 'skills_count',
-          label: 'Number of Skills',
-          type: EntityFieldType.NUMBER,
-          placeholder: 'e.g., 15',
-          description: 'Total number of skills associated with this occupation'
-        }
-      ]
+        { key: 'median_wage_usd', label: 'Median Salary (USD)', type: EntityFieldType.NUMBER },
+        { key: 'employment_outlook', label: 'Employment Outlook', type: EntityFieldType.TEXT },
+        { key: 'education_level', label: 'Education Level', type: EntityFieldType.TEXT },
+        { key: 'work_experience', label: 'Work Experience', type: EntityFieldType.TEXT },
+        { key: 'on_job_training', label: 'On-the-Job Training', type: EntityFieldType.TEXT },
+        { key: 'job_openings_annual', label: 'Annual Job Openings', type: EntityFieldType.NUMBER },
+        { key: 'growth_rate_percent', label: 'Growth Rate (%)', type: EntityFieldType.NUMBER },
+      ],
     },
-    {
-      id: 'description',
-      label: 'Description',
-      fields: [
-        {
-          key: 'long_desc',
-          label: 'Occupation Description',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'Enter a detailed occupation description...'
-        }
-      ]
-    }
-  ]
-  
-  // Handle form submission
-  async function handleSave(updatedOccupation: any) {
-    'use server'
-    const supabase = createClient()
-    
-    const occupationToSave = {
-      title: updatedOccupation.title,
-      soc_code: updatedOccupation.soc_code,
-      category: updatedOccupation.category,
-      location_city: updatedOccupation.location_city,
-      location_state: updatedOccupation.location_state,
-      median_wage_usd: updatedOccupation.median_wage_usd ? parseInt(updatedOccupation.median_wage_usd) : null,
-      required_proficiency_pct: updatedOccupation.required_proficiency_pct ? parseInt(updatedOccupation.required_proficiency_pct) : null,
-      skills_count: updatedOccupation.skills_count ? parseInt(updatedOccupation.skills_count) : null,
-      long_desc: updatedOccupation.long_desc,
-      job_kind: 'occupation',
-      updated_at: new Date().toISOString()
-    }
-    
-    if (isNew) {
-      // Create new occupation
-      const { data, error } = await supabase
-        .from('jobs')
-        .insert([{
-          ...occupationToSave,
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to create occupation: ${error.message}`)
-      }
-      
-      return data
-    } else {
-      // Update existing occupation
-      const { data, error } = await supabase
-        .from('jobs')
-        .update(occupationToSave)
-        .eq('id', params.id)
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to update occupation: ${error.message}`)
-      }
-      
-      return data
-    }
+  ];
+
+  if (isLoading) {
+    return <div>Loading...</div>;
   }
 
-  // Handle delete
-  async function handleDelete(occupationId: string) {
-    'use server'
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('jobs')
-      .delete()
-      .eq('id', occupationId)
-    
-    if (error) {
-      throw new Error(`Failed to delete occupation: ${error.message}`)
-    }
+  if (error) {
+    return <div>Error: {error}</div>;
   }
-  
+
   return (
     <EntityDetailView
-      entity={occupation}
+      entity={occupation || defaultOccupation}
       entityType="occupation"
       tabs={tabs as any}
-      onSave={handleSave}
-      onDelete={!isNew ? handleDelete : undefined}
+      onSave={onSave as any}
+      onDelete={!isNew ? onDelete : undefined}
       isNew={isNew}
       backHref="/admin/occupations"
-      viewHref={!isNew ? `/jobs/${occupation?.id}` : undefined}
     />
-  )
+  );
 }
+
+

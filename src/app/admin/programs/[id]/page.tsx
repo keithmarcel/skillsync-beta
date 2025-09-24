@@ -1,46 +1,40 @@
-import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView'
+'use client';
 
-export default async function ProgramDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
-  const isNew = params.id === 'new'
-  
-  let program = null
-  let schools = []
-  let cipCodes = []
-  
-  // Fetch schools for dropdown
-  const { data: schoolsData } = await supabase
-    .from('schools')
-    .select('id, name')
-    .order('name')
-  
-  schools = schoolsData || []
+import { useRouter } from 'next/navigation';
+import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
+import { useAdminEntity } from '@/hooks/useAdminEntity';
+import { useSchoolsList } from '@/hooks/useSchoolsList';
+import { useCipCodesList } from '@/hooks/useCipCodesList';
+import type { Program } from '@/lib/database/queries';
 
-  // Fetch CIP codes for dropdown
-  const { data: cipData } = await supabase
-    .from('cip_codes')
-    .select('cip_code, title')
-    .order('cip_code')
-  
-  cipCodes = cipData || []
-  
-  if (!isNew) {
-    const { data, error } = await supabase
-      .from('programs')
-      .select('*')
-      .eq('id', params.id)
-      .single()
-    
-    if (error) {
-      console.error('Error fetching program:', error)
-      notFound()
-    }
-    
-    program = data
-  }
+export default function ProgramDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { 
+    entity: program, 
+    isLoading: isLoadingProgram, 
+    error: programError, 
+    handleSave, 
+    handleDelete 
+  } = useAdminEntity<Program>('programs', params.id === 'new' ? null : params.id);
+
+  const { schools, isLoading: isLoadingSchools } = useSchoolsList();
+  const { cipCodes, isLoading: isLoadingCipCodes } = useCipCodesList();
+
+  const isNew = params.id === 'new';
+  const isLoading = isLoadingProgram || isLoadingSchools || isLoadingCipCodes;
+
+  const defaultProgram: Program = {
+    id: '',
+    name: '',
+    school_id: null,
+    program_type: null,
+    format: null,
+    duration_text: null,
+    short_desc: null,
+    program_url: null,
+    cip_code: null,
+    status: 'draft',
+  };
 
   // Define the form tabs and fields
   const tabs = [
@@ -133,74 +127,39 @@ export default async function ProgramDetailPage({ params }: { params: { id: stri
     }
   ]
   
-  // Handle form submission
-  async function handleSave(updatedProgram: any) {
-    'use server'
-    const supabase = createClient()
-    
-    const programToSave = {
-      name: updatedProgram.name,
-      school_id: updatedProgram.school_id,
-      program_type: updatedProgram.program_type,
-      format: updatedProgram.format,
-      duration_text: updatedProgram.duration_text,
-      short_desc: updatedProgram.short_desc,
-      program_url: updatedProgram.program_url,
-      cip_code: updatedProgram.cip_code
+  const onSave = async (updatedData: Partial<Program>) => {
+    const savedProgram = await handleSave(updatedData);
+    if (savedProgram && isNew) {
+      router.push(`/admin/programs/${savedProgram.id}`);
     }
-    
-    if (isNew) {
-      // Create new program
-      const { data, error } = await supabase
-        .from('programs')
-        .insert([programToSave])
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to create program: ${error.message}`)
-      }
-      
-      return data
-    } else {
-      // Update existing program
-      const { data, error } = await supabase
-        .from('programs')
-        .update(programToSave)
-        .eq('id', params.id)
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to update program: ${error.message}`)
-      }
-      
-      return data
+  };
+
+  const onDelete = async () => {
+    const success = await handleDelete();
+    if (success) {
+      router.push('/admin/programs');
     }
+  };
+  
+  if (isLoading) {
+    return <div>Loading Program...</div>;
   }
 
-  // Handle delete
-  async function handleDelete(programId: string) {
-    'use server'
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('programs')
-      .delete()
-      .eq('id', programId)
-    
-    if (error) {
-      throw new Error(`Failed to delete program: ${error.message}`)
-    }
+  if (programError) {
+    return <div>Error: {programError}</div>;
   }
-  
+
+  if (!isNew && !program) {
+    return <div>Program not found.</div>;
+  }
+
   return (
     <EntityDetailView
-      entity={program}
+      entity={program || defaultProgram}
       entityType="program"
       tabs={tabs as any}
-      onSave={handleSave}
-      onDelete={!isNew ? handleDelete : undefined}
+      onSave={onSave}
+      onDelete={!isNew ? onDelete : undefined}
       isNew={isNew}
       backHref="/admin/programs"
       viewHref={!isNew ? `/programs/${program?.id}` : undefined}

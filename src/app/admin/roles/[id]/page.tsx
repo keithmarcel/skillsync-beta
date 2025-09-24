@@ -1,102 +1,58 @@
-import { Suspense } from 'react'
-import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { formatCurrency } from '@/lib/utils'
+'use client';
 
-export default async function RoleDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
-  const isNew = params.id === 'new'
+import { useRouter } from 'next/navigation';
+import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
+import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/utils';
+import { useAdminEntity } from '@/hooks/useAdminEntity';
+import { useCompaniesList } from '@/hooks/useCompaniesList';
+import { useSkillsList } from '@/hooks/useSkillsList';
+import { useAuth } from '@/hooks/useAuth';
+import type { Job } from '@/lib/database/queries';
+
+export default function RoleDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { profile, isCompanyAdmin, isSuperAdmin } = useAuth();
+  const { 
+    entity: role, 
+    isLoading: isLoadingRole, 
+    error: roleError, 
+    handleSave, 
+    handleDelete 
+  } = useAdminEntity<Job>('jobs', params.id === 'new' ? null : params.id);
   
-  // Get the current user's profile to check permissions
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-  
-  if (userError || !user) {
-    redirect('/login')
-  }
-  
-  // Get the user's profile with admin role
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, admin_role, company_id')
-    .eq('id', user.id)
-    .single()
-  
-  // Only super admins and company admins can access this page
-  const isSuperAdmin = profile?.admin_role === 'super_admin'
-  const isCompanyAdmin = profile?.admin_role === 'company_admin'
-  
-  if (!isSuperAdmin && !isCompanyAdmin) {
-    redirect('/admin')
-  }
-  
-  // For new role, initialize with default values
-  let role: any = null
-  let companies: any[] = []
-  
-  if (!isNew) {
-    // Get the role with related data
-    const { data: roleData } = await supabase
-      .from('jobs')
-      .select(`
-        *,
-        company:companies(*)
-      `)
-      .eq('id', params.id)
-      .single()
-    
-    if (!roleData) {
-      notFound()
-    }
-    
-    // Check if user has permission to edit this role
-    if (isCompanyAdmin && roleData.company_id !== profile.company_id) {
-      redirect('/admin/roles')
-    }
-    
-    role = {
-      ...roleData,
-      salary_min: roleData.salary_min ? roleData.salary_min / 100 : null,
-      salary_max: roleData.salary_max ? roleData.salary_max / 100 : null
-    }
-  } else {
-    // Initialize new role with default values
-    role = {
-      title: '',
-      description: '',
-      job_kind: 'featured_role',
-      status: 'draft',
-      is_featured: false,
-      company_id: isCompanyAdmin ? profile.company_id : null,
-      salary_min: null,
-      salary_max: null,
-      location: '',
-      employment_type: 'full_time',
-      experience_level: 'mid_level',
-      education_requirement: 'bachelors',
-      skills: [],
-      responsibilities: '',
-      benefits: ''
-    }
-  }
-  
-  // Get companies for the dropdown (only for super admin)
-  if (isSuperAdmin) {
-    const { data: companiesData } = await supabase
-      .from('companies')
-      .select('id, name')
-      .order('name')
-    
-    companies = companiesData || []
-  }
-  
-  // Get all skills for the skills selector
-  const { data: skills } = await supabase
-    .from('skills')
-    .select('id, name, category')
-    .order('name')
+  const { companies, isLoading: isLoadingCompanies } = useCompaniesList();
+  const { skills, isLoading: isLoadingSkills } = useSkillsList();
+
+  const isNew = params.id === 'new';
+  const isLoading = isLoadingRole || isLoadingCompanies || isLoadingSkills;
+
+  const defaultRole: Job = {
+    id: '',
+    title: '',
+    job_kind: 'featured_role',
+    status: 'draft',
+    is_featured: false,
+    company_id: isCompanyAdmin ? profile?.company_id || null : null,
+    soc_code: null,
+    job_type: null,
+    category: '',
+    location_city: null,
+    location_state: null,
+    median_wage_usd: null,
+    long_desc: null,
+    featured_image_url: null,
+    skills_count: 0,
+    employment_outlook: null,
+    education_level: null,
+    work_experience: null,
+    on_job_training: null,
+    job_openings_annual: null,
+    growth_rate_percent: null,
+    required_proficiency_pct: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
   
   // Define the form tabs and fields
   const tabs = [
@@ -133,6 +89,23 @@ export default async function RoleDetailPage({ params }: { params: { id: string 
           options: [
             { value: 'featured_role', label: 'Featured Role' },
             { value: 'occupation', label: 'High-Demand Occupation' }
+          ]
+        },
+        {
+          key: 'category',
+          label: 'Category',
+          type: EntityFieldType.SELECT,
+          required: true,
+          options: [
+            { value: '', label: 'Select a category' },
+            { value: 'Business', label: 'Business' },
+            { value: 'Health & Education', label: 'Health & Education' },
+            { value: 'Tech & Services', label: 'Tech & Services' },
+            { value: 'Finance & Legal', label: 'Finance & Legal' },
+            { value: 'Skilled Trades', label: 'Skilled Trades' },
+            { value: 'Logistics', label: 'Logistics' },
+            { value: 'Hospitality', label: 'Hospitality' },
+            { value: 'Public Services', label: 'Public Services' }
           ]
         },
         {
@@ -260,55 +233,6 @@ export default async function RoleDetailPage({ params }: { params: { id: string 
             </Button>
           )
         },
-        {
-          key: 'assessments',
-          label: 'Skill Assessments',
-          type: 'custom',
-          render: () => (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">Skill Assessments</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  // TODO: Implement assessment generation
-                  onClick={() => {}}
-                >
-                  + Generate Assessments
-                </Button>
-              </div>
-              
-              {!isNew && role.assessments?.length > 0 ? (
-                <div className="space-y-2">
-                  {role.assessments.map((assessment: any) => (
-                    <div key={assessment.id} className="p-4 border rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium">{assessment.skill_name} Assessment</h4>
-                          <p className="text-sm text-muted-foreground">
-                            {assessment.questions?.length || 0} questions
-                          </p>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button variant="outline" size="sm">Edit</Button>
-                          <Button variant="outline" size="sm" className="text-destructive">
-                            Remove
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    No assessments yet. Generate some based on the required skills.
-                  </p>
-                </div>
-              )}
-            </div>
-          )
-        }
       ]
     },
     {
@@ -340,144 +264,57 @@ export default async function RoleDetailPage({ params }: { params: { id: string 
     }
   ]
   
-  // Handle form submission
-  async function handleSave(updatedRole: any) {
-    'use server'
-    
-    const supabase = createClient()
-    
-    // Convert salary back to cents for storage
-    const roleToSave = {
-      ...updatedRole,
-      salary_min: updatedRole.salary_min ? Math.round(updatedRole.salary_min * 100) : null,
-      salary_max: updatedRole.salary_max ? Math.round(updatedRole.salary_max * 100) : null,
-      updated_at: new Date().toISOString()
+  const onSave = async (updatedData: Partial<Job>) => {
+    const savedRole = await handleSave(updatedData);
+    if (savedRole && isNew) {
+      router.push(`/admin/roles/${savedRole.id}`);
     }
-    
-    if (isNew) {
-      // Create new role
-      const { data, error } = await supabase
-        .from('jobs')
-        .insert([{
-          ...roleToSave,
-          created_by: user?.id || '',
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to create role: ${error.message}`)
-      }
-      
-      return data
-    } else {
-      // Update existing role
-      const { data, error } = await supabase
-        .from('jobs')
-        .update(roleToSave)
-        .eq('id', params.id)
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to update role: ${error.message}`)
-      }
-      
-      return data
+  };
+
+  const onDelete = async () => {
+    const success = await handleDelete();
+    if (success) {
+      router.push('/admin/roles');
     }
-  }
+  };
+
+  const onPublish = async () => {
+    await handleSave({ status: 'published' } as Partial<Job>);
+  };
+
+  const onUnpublish = async () => {
+    await handleSave({ status: 'draft' } as Partial<Job>);
+  };
+
+  const onFeatureToggle = async (roleId: string, featured: boolean) => {
+    await handleSave({ is_featured: featured } as Partial<Job>);
+  };
   
-  // Handle publish action
-  async function handlePublish(roleData: any) {
-    'use server'
-    
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('jobs')
-      .update({ 
-        status: 'published',
-        published_at: new Date().toISOString()
-      })
-      .eq('id', roleData.id)
-    
-    if (error) {
-      throw new Error(`Failed to publish role: ${error.message}`)
-    }
+  if (isLoading) {
+    return <div>Loading Role...</div>; // Replace with a proper skeleton loader
   }
-  
-  // Handle unpublish action
-  async function handleUnpublish(roleData: any) {
-    'use server'
-    
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('jobs')
-      .update({ 
-        status: 'draft',
-        published_at: null
-      })
-      .eq('id', roleData.id)
-    
-    if (error) {
-      throw new Error(`Failed to unpublish role: ${error.message}`)
-    }
+
+  if (roleError) {
+    return <div>Error: {roleError}</div>;
   }
-  
-  // Handle feature toggle
-  async function handleFeatureToggle(roleData: any, featured: boolean) {
-    'use server'
-    
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('jobs')
-      .update({ 
-        is_featured: featured,
-        featured_at: featured ? new Date().toISOString() : null
-      })
-      .eq('id', roleData.id)
-    
-    if (error) {
-      throw new Error(`Failed to update featured status: ${error.message}`)
-    }
+
+  if (!isNew && !role) {
+    return <div>Role not found.</div>;
   }
-  
-  // Handle delete action
-  async function handleDelete(roleData: any) {
-    'use server'
-    
-    const supabase = createClient()
-    
-    // Soft delete by setting status to 'deleted' instead of actually deleting
-    const { error } = await supabase
-      .from('jobs')
-      .update({ 
-        status: 'deleted',
-        deleted_at: new Date().toISOString()
-      })
-      .eq('id', roleData.id)
-    
-    if (error) {
-      throw new Error(`Failed to delete role: ${error.message}`)
-    }
-  }
-  
+
   return (
     <EntityDetailView
-      entity={role}
+      entity={role || defaultRole}
       entityType="role"
       tabs={tabs as any}
-      onSave={handleSave}
-      onDelete={!isNew ? handleDelete : undefined}
-      onPublish={!isNew ? handlePublish : undefined}
-      onUnpublish={!isNew && role.status === 'published' ? handleUnpublish : undefined}
-      onFeatureToggle={!isNew && isSuperAdmin ? handleFeatureToggle : undefined}
+      onSave={onSave}
+      onDelete={!isNew ? onDelete : undefined}
+      onPublish={!isNew ? onPublish : undefined}
+      onUnpublish={!isNew && role?.status === 'published' ? onUnpublish : undefined}
+      onFeatureToggle={!isNew && isSuperAdmin ? onFeatureToggle : undefined}
       isNew={isNew}
       backHref="/admin/roles"
-      viewHref={!isNew ? `/jobs/${role.slug || role.id}` : undefined}
+      viewHref={!isNew ? `/jobs/${role?.id}` : undefined}
     />
   )
 }

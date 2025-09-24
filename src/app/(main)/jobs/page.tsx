@@ -12,8 +12,41 @@ import PageHeader from '@/components/ui/page-header'
 import { occupationsTableColumns, occupationsSearchFields } from '@/lib/table-configs'
 import { getFeaturedRoles, getHighDemandOccupations } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useAuth } from '@/hooks/useAuth'
 import { transformJobToFeaturedRole, transformJobToHighDemand } from '@/lib/database/transforms'
+import { getUserAssessments } from '@/lib/database/queries'
 
+
+// Force dynamic rendering to avoid prerendering issues with Supabase
+export const dynamic = 'force-dynamic'
+
+// Function to determine role readiness based on REAL user assessment data
+function determineRoleReadiness(jobId: string, userAssessments?: any[]): string {
+  // Check if user has taken an assessment for this specific job
+  if (!userAssessments || userAssessments.length === 0) {
+    return 'assess skills' // No assessments taken
+  }
+  
+  // Find assessment for this specific job
+  const jobAssessment = userAssessments.find(assessment => assessment.job_id === jobId)
+  
+  if (!jobAssessment) {
+    return 'assess skills' // No assessment for this specific job
+  }
+  
+  // Check the assessment status/readiness
+  const readinessPct = jobAssessment.readiness_pct || 0
+  const statusTag = jobAssessment.status_tag
+  
+  // Determine readiness based on actual assessment results
+  if (statusTag === 'role_ready' || readinessPct >= 80) {
+    return 'ready'
+  } else if (statusTag === 'close_gaps' || readinessPct >= 50) {
+    return 'close gaps'
+  } else {
+    return 'assess skills'
+  }
+}
 
 function getRoleReadinessBadge(readiness: string) {
   switch (readiness) {
@@ -29,13 +62,18 @@ function getRoleReadinessBadge(readiness: string) {
 export default function JobsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { favoriteJobs, loading: favoritesLoading, addFavorite, removeFavorite, isFavorite } = useFavorites()
+  const { user } = useAuth()
+  const { favoriteJobs, loading: favoritesLoading, error: favoritesError, addFavorite, removeFavorite, isFavorite } = useFavorites()
+
+  console.log('🏗️ JOBS PAGE: Component rendered')
+  console.log('🏗️ JOBS PAGE: Favorites state:', { favoriteJobs, favoritesLoading, favoritesError })
   
   // Get tab from URL or default to 'featured-roles'
   const tabFromUrl = searchParams.get('tab') || 'featured-roles'
   const [activeTab, setActiveTab] = useState(tabFromUrl)
   const [featuredRoles, setFeaturedRoles] = useState<any[]>([])
   const [highDemandJobs, setHighDemandJobs] = useState<any[]>([])
+  const [userAssessments, setUserAssessments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   
   // Search/Sort/Filter state for high-demand tab
@@ -54,13 +92,33 @@ export default function JobsPage() {
     async function loadJobsData() {
       try {
         setLoading(true)
+        
+        // Load jobs data
         const [featuredData, highDemandData] = await Promise.all([
           getFeaturedRoles(),
           getHighDemandOccupations()
         ])
         
+        // Load user assessments if user is available
+        let assessments: any[] = []
+        if (user?.id) {
+          try {
+            assessments = await getUserAssessments(user.id)
+            console.log('🏗️ JOBS PAGE: Loaded user assessments:', assessments.length)
+          } catch (error) {
+            console.log('🏗️ JOBS PAGE: No assessments found or error loading:', error)
+          }
+        }
+        setUserAssessments(assessments)
+        
         setFeaturedRoles(featuredData.map(transformJobToFeaturedRole))
-        setHighDemandJobs(highDemandData.map(transformJobToHighDemand))
+        setHighDemandJobs(highDemandData.map(job => {
+          const transformed = transformJobToHighDemand(job)
+          return {
+            ...transformed,
+            readiness: determineRoleReadiness(job.id, assessments)
+          }
+        }))
       } catch (error) {
         console.error('Error loading jobs data:', error)
       } finally {
@@ -69,7 +127,7 @@ export default function JobsPage() {
     }
 
     loadJobsData()
-  }, [])
+  }, [user?.id])
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId)
@@ -223,6 +281,9 @@ export default function JobsPage() {
                       showSearchSortFilter={false}
                       isFavorite={isFavorite}
                       onRowAction={async (action, row) => {
+                        console.log('🏗️ JOBS PAGE: Row action called:', { action, rowId: row.id, rowTitle: row.title })
+                        console.log('🏗️ JOBS PAGE: Row data:', row)
+
                         switch (action) {
                           case 'details':
                             window.location.href = `/jobs/${row.id}`
@@ -234,9 +295,14 @@ export default function JobsPage() {
                             window.location.href = `/assessments/quiz/${row.id}`
                             break
                           case 'favorite':
-                            await addFavorite('job', row.id)
+                            console.log('🏗️ JOBS PAGE: Adding favorite for job:', row.id)
+                            console.log('🏗️ JOBS PAGE: Comparing to working Featured Role pattern...')
+                            // Let's try the exact same pattern as Featured Roles
+                            const result = await addFavorite('job', row.id)
+                            console.log('🏗️ JOBS PAGE: Add favorite result:', result)
                             break
                           case 'unfavorite':
+                            console.log('🏗️ JOBS PAGE: Removing favorite for job:', row.id)
                             await removeFavorite('job', row.id)
                             break
                         }
@@ -264,9 +330,53 @@ export default function JobsPage() {
                     isLoading={true}
                     loadingText="Loading Saved Jobs"
                   />
-                ) : (
+                ) : favoritesError ? (
+                  <div className="col-span-full text-center py-8">
+                    <p className="text-red-500 mb-4">Error loading favorite jobs</p>
+                    <p className="text-sm text-gray-400">{favoritesError}</p>
+                  </div>
+                ) : favoriteJobs.length > 0 ? (
                   <DataTable
-                    data={favoriteJobs.map(transformJobToHighDemand).sort((a, b) => a.title.localeCompare(b.title))}
+                    data={favoriteJobs.map(job => {
+                      // For favorites tab, apply proper category mapping for featured roles
+                      const getProperCategory = (job: any) => {
+                        if (job.job_kind === 'featured_role') {
+                          // Prefer database category if set, otherwise use title-based mapping for legacy data
+                          if (job.category && job.category.trim() !== '') {
+                            return job.category
+                          }
+                          
+                          // Fallback to title-based mapping for legacy featured roles without categories
+                          const categoryMap: Record<string, string> = {
+                            'Mechanical Assistant Project Manager': 'Skilled Trades',
+                            'Senior Financial Analyst (FP&A)': 'Business',
+                            'Mechanical Project Manager': 'Skilled Trades', 
+                            'Surgical Technologist (Certified)': 'Health & Education',
+                            'Business Development Manager': 'Business',
+                            'Administrative Assistant': 'Business',
+                            'Supervisor, Residential Inbound Sales': 'Business',
+                            'Senior Mechanical Project Manager': 'Skilled Trades'
+                          }
+                          return categoryMap[job.title] || 'Business'
+                        }
+                        return job.category || 'General'
+                      }
+                      
+                      return {
+                        id: job.id,
+                        title: job.title,
+                        description: job.long_desc || '',
+                        category: getProperCategory(job),
+                        median_wage_usd: job.median_wage_usd || 0,
+                        readiness: determineRoleReadiness(job.id, userAssessments),
+                        job_kind: job.job_kind,
+                        socCode: job.soc_code || '',
+                        location_city: job.location_city || '',
+                        location_state: job.location_state || '',
+                        company: job.company,
+                        skills: job.skills || []
+                      };
+                    }).sort((a, b) => a.title.localeCompare(b.title))}
                     columns={occupationsTableColumns}
                     tableType="jobs"
                     isOnFavoritesTab={true}
@@ -288,6 +398,11 @@ export default function JobsPage() {
                   }
                 }}
               />
+                ) : (
+                  <div className="col-span-full text-center py-8">
+                    <p className="text-gray-500 mb-4">No favorite jobs found</p>
+                    <p className="text-sm text-gray-400">Add jobs to your favorites from the Featured Roles or High-Demand Occupations tabs</p>
+                  </div>
                 )}
               </div>
             </div>

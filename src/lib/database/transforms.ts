@@ -17,16 +17,16 @@ export function transformJobToFeaturedRole(job: Job) {
   // Map job titles to proper job categories
   const getJobCategory = (title: string) => {
     const categoryMap: Record<string, string> = {
-      'Mechanical Assistant Project Manager': 'Skilled Trade',
+      'Mechanical Assistant Project Manager': 'Skilled Trades',
       'Senior Financial Analyst (FP&A)': 'Business',
-      'Mechanical Project Manager': 'Skilled Trade', 
-      'Surgical Technologist (Certified)': 'Healthcare',
+      'Mechanical Project Manager': 'Skilled Trades', 
+      'Surgical Technologist (Certified)': 'Health & Education',
       'Business Development Manager': 'Business',
       'Administrative Assistant': 'Business',
       'Supervisor, Residential Inbound Sales': 'Business',
-      'Senior Mechanical Project Manager': 'Skilled Trade'
+      'Senior Mechanical Project Manager': 'Skilled Trades'
     }
-    return categoryMap[title] || 'General'
+    return categoryMap[title] || 'Business'
   }
 
   return {
@@ -48,7 +48,7 @@ export function transformJobToFeaturedRole(job: Job) {
       ? `${job.location_city}, ${job.location_state}` 
       : 'Location TBD',
     jobType: job.job_type || 'Full-time',
-    category: getJobCategory(job.title), // Use actual job category instead of 'Featured Role'
+    category: job.category && job.category.trim() !== '' ? job.category : getJobCategory(job.title), // Prefer database category, fallback to title mapping
     skillsCount: job.skills_count || 0,
     description: job.long_desc || '',
     medianSalary: job.median_wage_usd || 0,
@@ -93,7 +93,7 @@ export function transformJobToHighDemand(job: Job) {
     jobGrowthOutlook: 'Faster than average', // Mock data for now
     description: job.long_desc || '',
     featuredImage: job.featured_image_url || '/assets/hero_featured-roles.jpg',
-    readinessStatus: 'available' as const,
+    readiness: 'assess skills', // Will be overridden by actual assessment data in component
     skillsRequired: job.skills_count || 0,
     
     // Skills data

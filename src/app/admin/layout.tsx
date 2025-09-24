@@ -1,10 +1,13 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { Loader2 } from 'lucide-react';
+import { AdminGuard } from '@/components/admin/AdminGuard';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
+import { Toaster } from '@/components/ui/toaster';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { GeistSans } from 'geist/font/sans';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -24,8 +27,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
   }, [user, loading, isAdmin, isSuperAdmin, isCompanyAdmin, isProviderAdmin, router]);
 
-  // Show loading state while checking auth
-  if (loading || !user) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Show loading state while checking auth or before the component has mounted
+  if (!isMounted || loading || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -48,15 +57,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <AdminSidebar 
-        isSuperAdmin={isSuperAdmin} 
-        isCompanyAdmin={isCompanyAdmin} 
-        isProviderAdmin={isProviderAdmin} 
-      />
-      <main className="flex-1 overflow-y-auto p-6">
-        {children}
+    <div className={`flex h-screen overflow-hidden bg-gray-50 ${GeistSans.className}`}>
+      <AdminSidebar />
+      <main className="flex-1 overflow-y-auto md:ml-0">
+        <div className="p-4 md:p-6">
+                  {children}
+        </div>
       </main>
+      <Toaster />
     </div>
   );
 }

@@ -1,28 +1,35 @@
-import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView'
+'use client';
 
-export default async function CompanyDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
-  const isNew = params.id === 'new'
-  
-  let company = null
-  
-  if (!isNew) {
-    const { data, error } = await supabase
-      .from('companies')
-      .select('*')
-      .eq('id', params.id)
-      .single()
-    
-    if (error) {
-      console.error('Error fetching company:', error)
-      notFound()
-    }
-    
-    company = data
-  }
+import { useRouter } from 'next/navigation';
+import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
+import { useAdminEntity } from '@/hooks/useAdminEntity';
+import type { Company } from '@/lib/database/queries';
+
+export default function CompanyDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { 
+    entity: company, 
+    isLoading, 
+    error, 
+    handleSave, 
+    handleDelete 
+  } = useAdminEntity<Company>('companies', params.id === 'new' ? null : params.id);
+  const isNew = params.id === 'new';
+
+  const defaultCompany: Company = {
+    id: '',
+    name: '',
+    industry: '',
+    hq_city: '',
+    hq_state: '',
+    employee_range: '',
+    revenue_range: '',
+    bio: '',
+    logo_url: '',
+    company_image_url: '',
+    is_trusted_partner: false,
+    is_published: true,
+  };
 
   // Define the form tabs and fields
   const tabs = [
@@ -129,105 +136,53 @@ export default async function CompanyDetailPage({ params }: { params: { id: stri
       label: 'Settings',
       fields: [
         {
-          key: 'is_trusted_partner',
-          label: 'Trusted Partner',
+          key: 'is_published',
+          label: 'Published Status',
           type: EntityFieldType.SWITCH,
-          description: 'Mark as a trusted partner to display special badge'
+          description: 'Control whether this company and its jobs are visible in the main app'
         }
       ]
     }
   ]
   
-  // Handle form submission
-  async function handleSave(updatedCompany: any) {
-    'use server'
-    const supabase = createClient()
-    
-    const companyToSave = {
-      name: updatedCompany.name,
-      industry: updatedCompany.industry,
-      hq_city: updatedCompany.hq_city,
-      hq_state: updatedCompany.hq_state,
-      employee_range: updatedCompany.employee_range,
-      revenue_range: updatedCompany.revenue_range,
-      bio: updatedCompany.bio,
-      logo_url: updatedCompany.logo_url,
-      company_image_url: updatedCompany.company_image_url,
-      is_trusted_partner: updatedCompany.is_trusted_partner || false,
-      updated_at: new Date().toISOString()
+  const onSave = async (updatedData: Partial<Company>) => {
+    const savedCompany = await handleSave(updatedData);
+    if (savedCompany && isNew) {
+      router.push(`/admin/companies/${savedCompany.id}`);
     }
-    
-    if (isNew) {
-      // Create new company
-      const { data, error } = await supabase
-        .from('companies')
-        .insert([{
-          ...companyToSave,
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to create company: ${error.message}`)
-      }
-      
-      return data
-    } else {
-      // Update existing company
-      const { data, error } = await supabase
-        .from('companies')
-        .update(companyToSave)
-        .eq('id', params.id)
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to update company: ${error.message}`)
-      }
-      
-      return data
-    }
-  }
+  };
 
-  // Handle delete
-  async function handleDelete(companyId: string) {
-    'use server'
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('companies')
-      .delete()
-      .eq('id', companyId)
-    
-    if (error) {
-      throw new Error(`Failed to delete company: ${error.message}`)
+  const onDelete = async () => {
+    const success = await handleDelete();
+    if (success) {
+      router.push('/admin/companies');
     }
-  }
+  };
 
-  // Handle feature toggle
-  async function handleFeatureToggle(companyId: string, featured: boolean) {
-    'use server'
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('companies')
-      .update({ is_trusted_partner: featured })
-      .eq('id', companyId)
-    
-    if (error) {
-      throw new Error(`Failed to update featured status: ${error.message}`)
-    }
-  }
+  const onFeatureToggle = async (companyId: string, featured: boolean) => {
+    await handleSave({ is_published: featured } as Partial<Company>);
+  };
   
+  if (isLoading) {
+    return <div>Loading Company...</div>; // Replace with a proper skeleton loader
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!isNew && !company) {
+    return <div>Company not found.</div>;
+  }
+
   return (
     <EntityDetailView
-      entity={company}
+      entity={company || defaultCompany}
       entityType="company"
       tabs={tabs as any}
-      onSave={handleSave}
-      onDelete={!isNew ? handleDelete : undefined}
-      onFeatureToggle={!isNew ? handleFeatureToggle : undefined}
+      onSave={onSave}
+      onDelete={!isNew ? onDelete : undefined}
+      onFeatureToggle={!isNew ? onFeatureToggle : undefined}
       isNew={isNew}
       backHref="/admin/companies"
       viewHref={!isNew ? `/companies/${company?.id}` : undefined}

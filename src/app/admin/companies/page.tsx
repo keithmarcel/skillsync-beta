@@ -1,113 +1,127 @@
-import { Suspense } from 'react'
-import { createClient } from '@/lib/supabase/server'
-import { AdminTable } from '@/components/admin/AdminTable'
-import { AdminLayout } from '@/components/admin/AdminLayout'
+'use client';
 
-export default async function CompaniesPage() {
-  const supabase = createClient()
-  
-  // Fetch companies data
-  const { data: companies, error } = await supabase
-    .from('companies')
-    .select(`
-      id,
-      name,
-      logo_url,
-      is_trusted_partner,
-      hq_city,
-      hq_state,
-      industry,
-      employee_range,
-      revenue_range,
-      bio,
-      created_at,
-      updated_at
-    `)
-    .order('name')
+import { AdminTable } from '@/components/admin/AdminTable';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useAdminTableData } from '@/hooks/useAdminTableData';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase/client';
+import type { Company } from '@/lib/database/queries';
+import { Plus } from 'lucide-react';
 
-  if (error) {
-    console.error('Error fetching companies:', error)
-    return <div>Error loading companies</div>
-  }
+export default function CompaniesPage() {
+  const selectQuery = `*`;
+  const { toast } = useToast();
+  const { data: companies, isLoading, error, refreshData } = useAdminTableData<Company>('companies', selectQuery);
 
   const columns = [
+    { key: 'name', header: 'Company Name', sortable: true },
+    { key: 'industry', header: 'Industry', sortable: true },
     {
-      key: 'name',
-      header: 'Company Name',
-      sortable: true
-    },
-    {
-      key: 'industry',
-      header: 'Industry',
-      sortable: true
-    },
-    {
-      key: 'hq_city',
+      key: 'location',
       header: 'Location',
-      render: (company: any) => company.hq_city && company.hq_state 
-        ? `${company.hq_city}, ${company.hq_state}` 
-        : company.hq_city || company.hq_state || '-'
+      render: (value: any, company: Company) => (company && company.hq_city && company.hq_state) ? `${company.hq_city}, ${company.hq_state}` : '-'
     },
+    { key: 'employee_range', header: 'Size', sortable: true },
     {
-      key: 'employee_range',
-      header: 'Size',
-      sortable: true
-    },
-    {
-      key: 'is_trusted_partner',
+      key: 'is_published',
       header: 'Status',
-      render: (company: any) => company.is_trusted_partner ? 'Trusted Partner' : 'Standard'
+      render: (value: any, company: Company) => (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={company.is_published ?? true} // Default to true if column doesn't exist yet
+            className="data-[state=checked]:bg-[#0694A2]"
+            onCheckedChange={async (isChecked) => {
+            const { error } = await supabase
+              .from('companies')
+              .update({ is_published: isChecked })
+              .eq('id', company.id);
+            if (error) {
+              console.error('Error updating company status:', error);
+              toast({
+                title: "Error",
+                description: error.message.includes('is_published')
+                  ? "Database migration needed. Run: ALTER TABLE companies ADD COLUMN is_published BOOLEAN DEFAULT true;"
+                  : "Failed to update company status. Please try again.",
+                variant: "destructive",
+              });
+            } else {
+              refreshData();
+              toast({
+                title: "Success",
+                description: `Company ${isChecked ? 'published' : 'unpublished'}.`,
+              });
+            }
+          }}
+          />
+          <span className="capitalize text-sm">
+            {company.is_published ?? true ? 'Published' : 'Unpublished'}
+          </span>
+        </div>
+      )
     }
-  ]
+  ];
 
   const actions = [
     {
       label: 'Edit',
-      href: (company: any) => `/admin/companies/${company.id}`
+      href: (company: Company) => company ? `/admin/companies/${company.id}` : '#'
     },
     {
       label: 'View Jobs',
-      href: (company: any) => `/admin/roles?company=${company.id}`
+      href: (company: Company) => company ? `/admin/roles?company=${company.id}` : '#'
     },
     {
-      label: 'Toggle Featured',
-      onClick: async (company: any) => {
-        'use server'
-        const supabase = createClient()
-        await supabase
+      label: 'Delete',
+      onClick: async (company: Company) => {
+        const { error } = await supabase
           .from('companies')
-          .update({ is_trusted_partner: !company.is_trusted_partner })
-          .eq('id', company.id)
-      }
-    }
-  ]
+          .delete()
+          .eq('id', company.id);
+        if (error) {
+          console.error('Error deleting company:', error);
+          toast({
+            title: "Error",
+            description: "Failed to delete company. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          refreshData();
+          toast({
+            title: "Success",
+            description: "Company deleted successfully.",
+          });
+        }
+      },
+      isDestructive: true,
+    },
+  ];
 
   return (
-    <AdminLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold">Companies</h1>
             <p className="text-gray-600">Manage company profiles and partnerships</p>
           </div>
-          <a 
-            href="/admin/companies/new"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-          >
-            Add Company
-          </a>
+          <Button asChild className="bg-teal-600 hover:bg-teal-700">
+            <Link href="/admin/companies/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Company
+            </Link>
+          </Button>
         </div>
 
-        <Suspense fallback={<div>Loading companies...</div>}>
-          <AdminTable
-            data={companies || []}
-            columns={columns}
-            actions={actions}
-            searchPlaceholder="Search companies..."
-            emptyMessage="No companies found"
-          />
-        </Suspense>
+        <AdminTable
+          data={companies || []}
+          columns={columns}
+          actions={actions}
+          loading={isLoading}
+          error={error}
+          searchPlaceholder="Search companies..."
+          emptyMessage="No companies found"
+        />
       </div>
-    </AdminLayout>
-  )
+  );
 }

@@ -1,110 +1,96 @@
-import { Suspense } from 'react'
-import { createClient } from '@/lib/supabase/server'
-import { AdminTable } from '@/components/admin/AdminTable'
-import { AdminLayout } from '@/components/admin/AdminLayout'
+'use client';
 
-export default async function OccupationsPage() {
-  const supabase = createClient()
-  
-  // Fetch high-demand occupations (jobs with job_kind = 'occupation')
-  const { data: occupations, error } = await supabase
-    .from('jobs')
-    .select(`
-      id,
-      title,
-      soc_code,
-      category,
-      location_city,
-      location_state,
-      median_wage_usd,
-      required_proficiency_pct,
-      long_desc,
-      skills_count,
-      created_at,
-      updated_at
-    `)
-    .eq('job_kind', 'occupation')
-    .order('title')
+import { AdminTable } from '@/components/admin/AdminTable';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useAdminTableData } from '@/hooks/useAdminTableData';
+import { supabase } from '@/lib/supabase/client';
+import { useMemo } from 'react';
+import type { Job } from '@/lib/database/queries';
+import { Plus } from 'lucide-react';
 
-  if (error) {
-    console.error('Error fetching occupations:', error)
-    return <div>Error loading occupations</div>
-  }
+export default function OccupationsPage() {
+  const selectQuery = `*, company:companies(*)`;
+  const initialFilter = useMemo(() => ({ job_kind: 'occupation' }), []);
+  const { data: occupations, isLoading, error, refreshData } = useAdminTableData<Job>('jobs', selectQuery, {
+    initialFilter
+  });
 
   const columns = [
+    { key: 'title', header: 'Occupation Title', sortable: true },
+    { key: 'soc_code', header: 'SOC Code', sortable: true },
+    { key: 'category', header: 'Category', sortable: true },
     {
-      key: 'title',
-      header: 'Occupation Title',
-      sortable: true
-    },
-    {
-      key: 'soc_code',
-      header: 'SOC Code',
-      sortable: true
-    },
-    {
-      key: 'category',
-      header: 'Category',
-      sortable: true
-    },
-    {
-      key: 'location_city',
+      key: 'location',
       header: 'Location',
-      render: (occupation: any) => occupation.location_city && occupation.location_state 
-        ? `${occupation.location_city}, ${occupation.location_state}` 
-        : occupation.location_city || occupation.location_state || 'National'
+      render: (job: Job) => {
+        if (!job) return 'National';
+        return job.location_city && job.location_state
+          ? `${job.location_city}, ${job.location_state}`
+          : job.location_city || job.location_state || 'National';
+      }
     },
     {
       key: 'median_wage_usd',
       header: 'Median Salary',
-      render: (occupation: any) => occupation.median_wage_usd 
-        ? `$${occupation.median_wage_usd.toLocaleString()}` 
-        : '-'
+      render: (job: Job) => {
+        if (!job || !job.median_wage_usd) return '-';
+        return `$${job.median_wage_usd.toLocaleString()}`;
+      }
     },
-    {
-      key: 'skills_count',
-      header: 'Skills',
-      render: (occupation: any) => occupation.skills_count || 0
-    }
-  ]
+    { key: 'skills_count', header: 'Skills', render: (job: Job) => job?.skills_count || 0 }
+  ];
 
   const actions = [
     {
       label: 'Edit',
-      href: (occupation: any) => `/admin/occupations/${occupation.id}`
+      href: (job: Job) => `/admin/occupations/${job.id}`
     },
     {
       label: 'View Skills',
-      href: (occupation: any) => `/admin/skills?occupation=${occupation.id}`
+      href: (job: Job) => `/admin/skills?occupation=${job.id}`
+    },
+    {
+      label: 'Delete',
+      onClick: async (job: Job) => {
+        const { error } = await supabase
+          .from('jobs')
+          .delete()
+          .eq('id', job.id);
+        if (error) {
+          console.error('Error deleting occupation:', error);
+        } else {
+          refreshData();
+        }
+      },
+      isDestructive: true,
     }
-  ]
+  ];
 
   return (
-    <AdminLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold">High-Demand Occupations</h1>
             <p className="text-gray-600">Manage occupation data and skill requirements</p>
           </div>
-          <a 
-            href="/admin/occupations/new"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-          >
-            Add Occupation
-          </a>
+          <Button asChild className="bg-teal-600 hover:bg-teal-700">
+            <Link href="/admin/occupations/new">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Occupation
+            </Link>
+          </Button>
         </div>
 
-        <Suspense fallback={<div>Loading occupations...</div>}>
-          <AdminTable
-            data={occupations || []}
-            columns={columns}
-            actions={actions}
-            searchPlaceholder="Search occupations..."
-            emptyMessage="No occupations found"
-          />
-        </Suspense>
+        <AdminTable
+          data={occupations || []}
+          columns={columns as any}
+          actions={actions}
+          loading={isLoading}
+          error={error}
+          searchPlaceholder="Search occupations..."
+          emptyMessage="No occupations found"
+        />
       </div>
-    </AdminLayout>
-  )
+  );
 }

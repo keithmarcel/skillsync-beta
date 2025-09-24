@@ -1,37 +1,36 @@
-import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView'
+'use client';
 
-export default async function AssessmentDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
-  const isNew = params.id === 'new'
-  
-  let assessment = null
-  let jobs = []
-  
-  // Fetch jobs for dropdown
-  const { data: jobsData } = await supabase
-    .from('jobs')
-    .select('id, title')
-    .order('title')
-  
-  jobs = jobsData || []
-  
-  if (!isNew) {
-    const { data, error } = await supabase
-      .from('assessments')
-      .select('*')
-      .eq('id', params.id)
-      .single()
-    
-    if (error) {
-      console.error('Error fetching assessment:', error)
-      notFound()
-    }
-    
-    assessment = data
-  }
+import { useRouter } from 'next/navigation';
+import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
+import { useAdminEntity } from '@/hooks/useAdminEntity';
+import { useJobsList } from '@/hooks/useJobsList';
+import type { Assessment } from '@/lib/database/queries';
+
+export default function AssessmentDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { 
+    entity: assessment, 
+    isLoading: isLoadingAssessment, 
+    error: assessmentError, 
+    handleSave, 
+    handleDelete 
+  } = useAdminEntity<Assessment>('assessments', params.id === 'new' ? null : params.id);
+
+  const { jobs, isLoading: isLoadingJobs } = useJobsList();
+
+  const isNew = params.id === 'new';
+  const isLoading = isLoadingAssessment || isLoadingJobs;
+
+  const defaultAssessment: Assessment = {
+    id: '',
+    job_id: null,
+    user_id: null,
+    method: 'quiz',
+    status_tag: 'needs_development',
+    readiness_pct: null,
+    analyzed_at: null,
+    is_active: false,
+  };
 
   // Define the form tabs and fields
   const tabs = [
@@ -109,93 +108,44 @@ export default async function AssessmentDetailPage({ params }: { params: { id: s
     }
   ]
   
-  // Handle form submission
-  async function handleSave(updatedAssessment: any) {
-    'use server'
-    const supabase = createClient()
-    
-    const assessmentToSave = {
-      title: updatedAssessment.title,
-      description: updatedAssessment.description,
-      job_id: updatedAssessment.job_id || null,
-      difficulty_level: updatedAssessment.difficulty_level,
-      time_limit_minutes: updatedAssessment.time_limit_minutes ? parseInt(updatedAssessment.time_limit_minutes) : null,
-      passing_score: updatedAssessment.passing_score ? parseInt(updatedAssessment.passing_score) : null,
-      is_active: updatedAssessment.is_active || false,
-      updated_at: new Date().toISOString()
+  const onSave = async (updatedData: Partial<Assessment>) => {
+    const savedAssessment = await handleSave(updatedData);
+    if (savedAssessment && isNew) {
+      router.push(`/admin/assessments/${savedAssessment.id}`);
     }
-    
-    if (isNew) {
-      // Create new assessment
-      const { data, error } = await supabase
-        .from('assessments')
-        .insert([{
-          ...assessmentToSave,
-          created_at: new Date().toISOString()
-        }])
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to create assessment: ${error.message}`)
-      }
-      
-      return data
-    } else {
-      // Update existing assessment
-      const { data, error } = await supabase
-        .from('assessments')
-        .update(assessmentToSave)
-        .eq('id', params.id)
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to update assessment: ${error.message}`)
-      }
-      
-      return data
-    }
-  }
+  };
 
-  // Handle delete
-  async function handleDelete(assessmentId: string) {
-    'use server'
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('assessments')
-      .delete()
-      .eq('id', assessmentId)
-    
-    if (error) {
-      throw new Error(`Failed to delete assessment: ${error.message}`)
+  const onDelete = async () => {
+    const success = await handleDelete();
+    if (success) {
+      router.push('/admin/assessments');
     }
-  }
+  };
 
-  // Handle feature toggle (active/inactive)
-  async function handleFeatureToggle(assessmentId: string, active: boolean) {
-    'use server'
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('assessments')
-      .update({ is_active: active })
-      .eq('id', assessmentId)
-    
-    if (error) {
-      throw new Error(`Failed to update active status: ${error.message}`)
-    }
-  }
+  const onFeatureToggle = async (id: string, active: boolean) => {
+    await handleSave({ is_active: active } as Partial<Assessment>);
+  };
   
+  if (isLoading) {
+    return <div>Loading Assessment...</div>;
+  }
+
+  if (assessmentError) {
+    return <div>Error: {assessmentError}</div>;
+  }
+
+  if (!isNew && !assessment) {
+    return <div>Assessment not found.</div>;
+  }
+
   return (
     <EntityDetailView
-      entity={assessment}
+      entity={assessment || defaultAssessment}
       entityType="assessment"
       tabs={tabs as any}
-      onSave={handleSave}
-      onDelete={!isNew ? handleDelete : undefined}
-      onFeatureToggle={!isNew ? handleFeatureToggle : undefined}
+      onSave={onSave}
+      onDelete={!isNew ? onDelete : undefined}
+      onFeatureToggle={!isNew ? onFeatureToggle : undefined}
       isNew={isNew}
       backHref="/admin/assessments"
       viewHref={!isNew ? `/assessments/${assessment?.id}` : undefined}

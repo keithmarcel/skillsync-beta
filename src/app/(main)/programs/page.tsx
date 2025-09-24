@@ -17,6 +17,10 @@ import { useFavorites } from '@/hooks/useFavorites'
 // import { ProgramCard } from '@/components/ui/program-card'
 
 
+// Force dynamic rendering to avoid prerendering issues with Supabase
+export const dynamic = 'force-dynamic'
+
+
 export default function ProgramsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()

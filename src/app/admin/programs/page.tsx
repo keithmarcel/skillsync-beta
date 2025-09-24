@@ -1,107 +1,126 @@
-import { Suspense } from 'react'
-import { createClient } from '@/lib/supabase/server'
-import { AdminTable } from '@/components/admin/AdminTable'
-import { AdminLayout } from '@/components/admin/AdminLayout'
+'use client';
 
-export default async function ProgramsPage() {
-  const supabase = createClient()
-  
-  // Fetch programs data with school information
-  const { data: programs, error } = await supabase
-    .from('programs')
-    .select(`
-      id,
-      name,
-      program_type,
-      format,
-      duration_text,
-      short_desc,
-      program_url,
-      cip_code,
-      created_at,
-      updated_at,
-      schools (
-        id,
-        name
-      )
-    `)
-    .order('name')
+import { AdminTable } from '@/components/admin/AdminTable';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { useAdminTableData } from '@/hooks/useAdminTableData';
+import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { supabase } from '@/lib/supabase/client';
+import type { Program } from '@/lib/database/queries';
+import { Plus } from 'lucide-react';
 
-  if (error) {
-    console.error('Error fetching programs:', error)
-    return <div>Error loading programs</div>
-  }
+export default function ProgramsPage() {
+  const selectQuery = `*, school:schools(id, name)`;
+  const { toast } = useToast();
+  const { data: programs, isLoading, error, refreshData } = useAdminTableData<Program>('programs', selectQuery);
 
   const columns = [
+    { key: 'name', header: 'Program Name', sortable: true },
     {
-      key: 'name',
-      header: 'Program Name',
-      sortable: true
-    },
-    {
-      key: 'schools.name',
+      key: 'provider',
       header: 'Provider',
-      render: (program: any) => program.schools?.name || '-'
+      render: (value: any, program: Program) => (program && program.school) ? program.school.name : '-'
     },
+    { key: 'program_type', header: 'Type', sortable: true },
+    { key: 'format', header: 'Format', sortable: true },
+    { key: 'duration_text', header: 'Duration', sortable: true },
+    { key: 'cip_code', header: 'CIP Code', sortable: true },
     {
-      key: 'program_type',
-      header: 'Type',
-      sortable: true
-    },
-    {
-      key: 'format',
-      header: 'Format',
-      sortable: true
-    },
-    {
-      key: 'duration_text',
-      header: 'Duration',
-      sortable: true
-    },
-    {
-      key: 'cip_code',
-      header: 'CIP Code',
-      sortable: true
+      key: 'status',
+      header: 'Status',
+      render: (value: any, program: Program) => (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={program.status === 'published'}
+            className="data-[state=checked]:bg-[#0694A2]"
+            onCheckedChange={async (isChecked) => {
+              const newStatus = isChecked ? 'published' : 'draft';
+              const { error } = await supabase
+                .from('programs')
+                .update({ status: newStatus })
+                .eq('id', program.id);
+              if (error) {
+                console.error('Error updating program status:', error);
+                toast({
+                  title: "Error",
+                  description: "Failed to update program status. Please try again.",
+                  variant: "destructive",
+                });
+              } else {
+                refreshData();
+                toast({
+                  title: "Success",
+                  description: `Program ${newStatus === 'published' ? 'published' : 'saved as draft'} successfully.`,
+                });
+              }
+            }}
+          />
+          <span className="capitalize text-sm">{program.status}</span>
+        </div>
+      ),
     }
-  ]
+  ];
 
   const actions = [
     {
       label: 'Edit',
-      href: (program: any) => `/admin/programs/${program.id}`
+      href: (program: Program) => program ? `/admin/programs/${program.id}` : '#'
     },
     {
       label: 'View Provider',
-      href: (program: any) => `/admin/providers/${program.school_id}`
+      href: (program: Program) => (program && program.school_id) ? `/admin/providers/${program.school_id}` : '#'
+    },
+    {
+      label: 'Delete',
+      onClick: async (program: Program) => {
+        const { error } = await supabase
+          .from('programs')
+          .delete()
+          .eq('id', program.id);
+        if (error) {
+          console.error('Error deleting program:', error);
+          toast({
+            title: "Error",
+            description: "Failed to delete program. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          refreshData();
+          toast({
+            title: "Success",
+            description: "Program deleted successfully.",
+          });
+        }
+      },
+      isDestructive: true,
     }
-  ]
+  ];
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Education Programs</h1>
-            <p className="text-gray-600">Manage training programs and certifications</p>
-          </div>
-          <a 
-            href="/admin/programs/new"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-          >
-            Add Program
-          </a>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Education Programs</h1>
+          <p className="text-gray-600">Manage training programs and certifications</p>
         </div>
-
-        <Suspense fallback={<div>Loading programs...</div>}>
-          <AdminTable
-            data={programs || []}
-            columns={columns}
-            actions={actions}
-            searchPlaceholder="Search programs..."
-            emptyMessage="No programs found"
-          />
-        </Suspense>
+        <Button asChild className="bg-teal-600 hover:bg-teal-700">
+          <Link href="/admin/programs/new">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Program
+          </Link>
+        </Button>
       </div>
-    </AdminLayout>
-  )
+
+      <AdminTable
+        data={programs || []}
+        columns={columns as any}
+        actions={actions}
+        loading={isLoading}
+        error={error}
+        searchPlaceholder="Search programs..."
+        emptyMessage="No programs found"
+      />
+    </div>
+  );
 }

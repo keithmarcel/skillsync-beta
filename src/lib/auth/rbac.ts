@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { UserRole, UserProfile } from './supabase-auth'
-import { createClient } from '@/lib/supabase/client'
 
 // Permission definitions for each user role
 export const PERMISSIONS = {

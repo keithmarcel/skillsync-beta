@@ -20,6 +20,11 @@ export async function middleware(request: NextRequest) {
 
   // --- Route Protection Logic ---
 
+  // Skip middleware for auth routes if user is not authenticated
+  if (!user && authRoutes.includes(pathname)) {
+    return response;
+  }
+
   // 1. If user is not logged in and trying to access a protected or admin route
   if (!user && (protectedRoutes.some(r => pathname.startsWith(r)) || adminRoutes.some(r => pathname.startsWith(r)))) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));

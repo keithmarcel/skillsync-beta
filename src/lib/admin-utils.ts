@@ -42,78 +42,93 @@ export const logAction = async (params: LogActionParams) => {
 
 export const getAdminStats = async () => {
   const supabase = createClient();
-  
-  const [
-    { count: totalUsers } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_admin', false),
-    { count: totalCompanies } = await supabase
-      .from('companies')
-      .select('*', { count: 'exact', head: true }),
-    { count: totalProviders } = await supabase
-      .from('education_providers')
-      .select('*', { count: 'exact', head: true }),
-    { count: totalPrograms } = await supabase
-      .from('education_programs')
-      .select('*', { count: 'exact', head: true }),
-    { count: totalRoles } = await supabase
-      .from('roles')
-      .select('*', { count: 'exact', head: true }),
-    { count: totalAssessments } = await supabase
-      .from('assessments')
-      .select('*', { count: 'exact', head: true }),
-  ] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_admin', false),
-    supabase.from('companies').select('*', { count: 'exact', head: true }),
-    supabase.from('education_providers').select('*', { count: 'exact', head: true }),
-    supabase.from('education_programs').select('*', { count: 'exact', head: true }),
-    supabase.from('roles').select('*', { count: 'exact', head: true }),
-    supabase.from('assessments').select('*', { count: 'exact', head: true }),
-  ]);
 
-  return {
-    totalUsers: totalUsers || 0,
-    totalCompanies: totalCompanies || 0,
-    totalProviders: totalProviders || 0,
-    totalPrograms: totalPrograms || 0,
-    totalRoles: totalRoles || 0,
-    totalAssessments: totalAssessments || 0,
-    pendingApprovals: 0, // Implement this based on your approval workflow
-    totalOccupations: 0, // Implement this if needed
-  };
+  try {
+    const [
+      usersResult,
+      companiesResult,
+      providersResult,
+      programsResult,
+      rolesResult,
+      assessmentsResult,
+    ] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('companies').select('id', { count: 'exact', head: true }),
+      supabase.from('schools').select('id', { count: 'exact', head: true }),
+      supabase.from('programs').select('id', { count: 'exact', head: true }),
+      supabase.from('jobs').select('id', { count: 'exact', head: true }).eq('job_kind', 'featured_role'),
+      supabase.from('assessments').select('id', { count: 'exact', head: true }),
+    ]);
+
+    // Log results for debugging
+    console.log('Admin Stats Debug:', {
+      users: usersResult,
+      companies: companiesResult,
+      providers: providersResult,
+      programs: programsResult,
+      roles: rolesResult,
+      assessments: assessmentsResult,
+    });
+
+    return {
+      total_users: usersResult.count || 0,
+      total_companies: companiesResult.count || 0,
+      total_providers: providersResult.count || 0,
+      total_programs: programsResult.count || 0,
+      total_roles: rolesResult.count || 0,
+      total_assessments: assessmentsResult.count || 0,
+      pending_approvals: 0, // Implement this based on your approval workflow
+      total_occupations: 0, // Implement this if needed
+    };
+  } catch (error) {
+    console.error('Error fetching admin stats:', error);
+    return {
+      total_users: 0,
+      total_companies: 0,
+      total_providers: 0,
+      total_programs: 0,
+      total_roles: 0,
+      total_assessments: 0,
+      pending_approvals: 0,
+      total_occupations: 0,
+    };
+  }
 };
 
 export const getRecentActivity = async (limit = 10) => {
   const supabase = createClient();
-  
-  const { data: activities, error } = await supabase
+
+  const { data: activities, error: activitiesError } = await supabase
     .from('admin_audit_logs')
-    .select(`
-      *,
-      profiles:user_id (id, email, first_name, last_name)
-    `)
+    .select('*')
     .order('created_at', { ascending: false })
     .limit(limit);
 
-  if (error) {
-    console.error('Error fetching recent activity:', error);
+  if (activitiesError) {
+    console.error('Error fetching recent activity:', activitiesError);
     return [];
   }
 
-  return activities.map((activity: any) => ({
-    id: activity.id,
-    action: activity.action,
-    entityType: activity.entity_type,
-    entityId: activity.entity_id,
-    status: activity.status,
-    timestamp: activity.created_at,
-    user: {
-      id: activity.profiles?.id,
-      email: activity.profiles?.email,
-      name: activity.profiles?.first_name 
-        ? `${activity.profiles.first_name} ${activity.profiles.last_name || ''}`.trim()
-        : undefined,
-    },
+  if (!activities || activities.length === 0) {
+    return [];
+  }
+
+  const userIds = Array.from(new Set(activities.map(a => a.user_id).filter(Boolean)));
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, email, first_name, last_name')
+    .in('id', userIds);
+
+  if (profilesError) {
+    console.error('Error fetching profiles for activity:', profilesError);
+    // Return activities without profile info if profiles fetch fails
+    return activities;
+  }
+
+  const profilesMap = new Map(profiles.map(p => [p.id, p]));
+
+  return activities.map(activity => ({
+    ...activity,
+    profiles: profilesMap.get(activity.user_id) || null,
   }));
 };

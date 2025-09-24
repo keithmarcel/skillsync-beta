@@ -1,28 +1,30 @@
-import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView'
+'use client';
 
-export default async function ProviderDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
-  const isNew = params.id === 'new'
-  
-  let provider = null
-  
-  if (!isNew) {
-    const { data, error } = await supabase
-      .from('schools')
-      .select('*')
-      .eq('id', params.id)
-      .single()
-    
-    if (error) {
-      console.error('Error fetching provider:', error)
-      notFound()
-    }
-    
-    provider = data
-  }
+import { useRouter } from 'next/navigation';
+import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
+import { useAdminEntity } from '@/hooks/useAdminEntity';
+import type { School } from '@/lib/database/queries';
+
+export default function ProviderDetailPage({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const { 
+    entity: provider, 
+    isLoading, 
+    error, 
+    handleSave, 
+    handleDelete 
+  } = useAdminEntity<School>('schools', params.id === 'new' ? null : params.id);
+
+  const isNew = params.id === 'new';
+
+  const defaultProvider: School = {
+    id: '',
+    name: '',
+    logo_url: '',
+    about_url: '',
+    city: '',
+    state: '',
+  };
 
   // Define the form tabs and fields
   const tabs = [
@@ -71,71 +73,39 @@ export default async function ProviderDetailPage({ params }: { params: { id: str
     }
   ]
   
-  // Handle form submission
-  async function handleSave(updatedProvider: any) {
-    'use server'
-    const supabase = createClient()
-    
-    const providerToSave = {
-      name: updatedProvider.name,
-      city: updatedProvider.city,
-      state: updatedProvider.state,
-      about_url: updatedProvider.about_url,
-      logo_url: updatedProvider.logo_url
+  const onSave = async (updatedData: Partial<School>) => {
+    const savedProvider = await handleSave(updatedData);
+    if (savedProvider && isNew) {
+      router.push(`/admin/providers/${savedProvider.id}`);
     }
-    
-    if (isNew) {
-      // Create new provider
-      const { data, error } = await supabase
-        .from('schools')
-        .insert([providerToSave])
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to create provider: ${error.message}`)
-      }
-      
-      return data
-    } else {
-      // Update existing provider
-      const { data, error } = await supabase
-        .from('schools')
-        .update(providerToSave)
-        .eq('id', params.id)
-        .select()
-        .single()
-      
-      if (error) {
-        throw new Error(`Failed to update provider: ${error.message}`)
-      }
-      
-      return data
+  };
+
+  const onDelete = async () => {
+    const success = await handleDelete();
+    if (success) {
+      router.push('/admin/providers');
     }
+  };
+  
+  if (isLoading) {
+    return <div>Loading Provider...</div>;
   }
 
-  // Handle delete
-  async function handleDelete(providerId: string) {
-    'use server'
-    const supabase = createClient()
-    
-    const { error } = await supabase
-      .from('schools')
-      .delete()
-      .eq('id', providerId)
-    
-    if (error) {
-      throw new Error(`Failed to delete provider: ${error.message}`)
-    }
+  if (error) {
+    return <div>Error: {error}</div>;
   }
-  
+
+  if (!isNew && !provider) {
+    return <div>Provider not found.</div>;
+  }
+
   return (
     <EntityDetailView
-      entity={provider}
+      entity={provider || defaultProvider}
       entityType="provider"
       tabs={tabs as any}
-      onSave={handleSave}
-      onDelete={!isNew ? handleDelete : undefined}
+      onSave={onSave}
+      onDelete={!isNew ? onDelete : undefined}
       isNew={isNew}
       backHref="/admin/providers"
       viewHref={!isNew ? `/providers/${provider?.id}` : undefined}

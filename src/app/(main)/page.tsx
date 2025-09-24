@@ -11,8 +11,15 @@ import { useFavorites } from '@/hooks/useFavorites'
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useSnapshotData } from '@/hooks/useSnapshotData'; // Import the snapshot hook
 import { useAuth } from '@/hooks/useAuth';
+import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
+  const [mounted, setMounted] = useState(false)
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // All data fetching and state management is now handled by custom hooks.
   const { user } = useAuth();
   const { recentAssessments, loading: dashboardLoading } = useDashboardData();
@@ -20,7 +27,7 @@ export default function Dashboard() {
   const { metrics, skillData, hasAssessments, loading: snapshotLoading } = useSnapshotData();
 
   // The loading state is now derived from all data hooks, ensuring a smooth experience.
-  const isLoading = dashboardLoading || favoritesLoading || snapshotLoading;
+  const isLoading = !mounted || dashboardLoading || favoritesLoading || snapshotLoading;
 
   if (isLoading) {
     return (

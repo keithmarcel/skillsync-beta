@@ -1,274 +1,186 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { AdminGuard } from '@/components/admin/AdminGuard'
-import { AdminLayout } from '@/components/admin/AdminLayout'
-import { EntityTable, EntityColumn } from '@/components/admin/EntityTable'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Plus, Briefcase } from 'lucide-react'
-import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
-
-interface FeaturedRole {
-  id: string
-  title: string
-  soc_code: string
-  company: {
-    name: string
-    is_trusted_partner: boolean
-  }
-  category: string
-  median_wage_usd: number
-  location_city: string
-  location_state: string
-  status: 'draft' | 'published' | 'archived'
-  is_featured: boolean
-  created_at: string
-  updated_at: string
-}
-
-const columns: EntityColumn[] = [
-  {
-    key: 'title',
-    label: 'Role Title',
-    sortable: true
-  },
-  {
-    key: 'soc_code',
-    label: 'SOC Code',
-    sortable: true
-  },
-  {
-    key: 'company',
-    label: 'Company',
-    render: (company: any) => (
-      <div className="flex items-center gap-2">
-        <span>{company?.name}</span>
-        {company?.is_trusted_partner && (
-          <Badge variant="secondary" className="text-xs">
-            Trusted Partner
-          </Badge>
-        )}
-      </div>
-    )
-  },
-  {
-    key: 'category',
-    label: 'Category',
-    sortable: true
-  },
-  {
-    key: 'median_wage_usd',
-    label: 'Median Wage',
-    render: (wage: number) => wage ? `$${wage.toLocaleString()}` : 'N/A'
-  },
-  {
-    key: 'location_city',
-    label: 'Location',
-    render: (city: string, row: FeaturedRole) => 
-      `${city || 'N/A'}, ${row.location_state || 'N/A'}`
-  },
-  {
-    key: 'status',
-    label: 'Status',
-    sortable: true
-  },
-  {
-    key: 'is_featured',
-    label: 'Featured'
-  },
-  {
-    key: 'updated_at',
-    label: 'Last Updated',
-    sortable: true
-  }
-]
+import { AdminGuard } from '@/components/admin/AdminGuard';
+import { AdminTable } from '@/components/admin/AdminTable';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { supabase } from '@/lib/supabase/client';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import { Plus, Briefcase } from 'lucide-react';
+import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import { useAdminTableData } from '@/hooks/useAdminTableData';
+import { useToast } from '@/hooks/use-toast';
+import { useMemo } from 'react';
+import type { Job } from '@/lib/database/queries';
+import { renderCategoryBadge } from '@/lib/table-configs';
 
 export default function AdminRolesPage() {
-  const { profile, isCompanyAdmin } = useAuth()
-  const [roles, setRoles] = useState<FeaturedRole[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [sortColumn, setSortColumn] = useState<string>('')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const { isCompanyAdmin } = useAuth();
+  const { toast } = useToast();
+  const selectQuery = '*, company:companies(*)';
+  const initialFilter = useMemo(() => ({ job_kind: 'featured_role' }), []);
+  const { data: roles, isLoading, error, refreshData } = useAdminTableData<Job>('jobs', selectQuery, { 
+    initialFilter 
+  });
 
-  useEffect(() => {
-    loadRoles()
-  }, [])
-
-  const loadRoles = async () => {
-    try {
-      setLoading(true)
-      // TODO: Implement API call to fetch roles based on user permissions
-      // For now, using mock data
-      const mockRoles: FeaturedRole[] = [
-        {
-          id: '1',
-          title: 'Software Engineer',
-          soc_code: '15-1252',
-          company: {
-            name: 'Tech Corp',
-            is_trusted_partner: true
-          },
-          category: 'Technology',
-          median_wage_usd: 95000,
-          location_city: 'Tampa',
-          location_state: 'FL',
-          status: 'published',
-          is_featured: true,
-          created_at: '2024-01-15T10:00:00Z',
-          updated_at: '2024-01-20T14:30:00Z'
-        },
-        {
-          id: '2',
-          title: 'Project Manager',
-          soc_code: '11-9021',
-          company: {
-            name: 'Business Solutions Inc',
-            is_trusted_partner: false
-          },
-          category: 'Business',
-          median_wage_usd: 78000,
-          location_city: 'St. Petersburg',
-          location_state: 'FL',
-          status: 'draft',
-          is_featured: false,
-          created_at: '2024-01-10T09:00:00Z',
-          updated_at: '2024-01-18T16:45:00Z'
+  const columns = [
+    { key: 'title', header: 'Role Title', sortable: true },
+    { key: 'soc_code', header: 'SOC Code', sortable: true },
+    {
+      key: 'company',
+      header: 'Company',
+      render: (value: any, row: Job) => {
+        if (!row) return null;
+        return (
+          <div className="flex items-center gap-2">
+            <span>{row.company?.name}</span>
+          </div>
+        );
+      }
+    },
+    { 
+      key: 'category', 
+      header: 'Category', 
+      sortable: true,
+      render: (value: any, row: Job) => {
+        // Apply proper category mapping for featured roles
+        const getProperCategory = (job: Job) => {
+          // If database category is set and not "Featured Role", use it
+          if (job.category && job.category.trim() !== '' && job.category !== 'Featured Role') {
+            return job.category
+          }
+          
+          // Apply title-based mapping for legacy featured roles
+          const categoryMap: Record<string, string> = {
+            'Mechanical Assistant Project Manager': 'Skilled Trades',
+            'Senior Financial Analyst (FP&A)': 'Business',
+            'Mechanical Project Manager': 'Skilled Trades', 
+            'Surgical Technologist (Certified)': 'Health & Education',
+            'Business Development Manager': 'Business',
+            'Administrative Assistant': 'Business',
+            'Supervisor, Residential Inbound Sales': 'Business',
+            'Senior Mechanical Project Manager': 'Skilled Trades'
+          }
+          return categoryMap[job.title] || 'Business'
         }
-      ]
-      
-      setRoles(mockRoles)
-    } catch (error) {
-      console.error('Failed to load roles:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+        
+        const properCategory = getProperCategory(row)
+        return renderCategoryBadge(properCategory)
+      }
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (value: any, row: Job) => (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={row.status === 'published'}
+            className="data-[state=checked]:bg-[#0694A2]"
+            onCheckedChange={async (isChecked) => {
+              const newStatus = isChecked ? 'published' : 'draft';
+              const { error } = await supabase
+                .from('jobs')
+                .update({ status: newStatus })
+                .eq('id', row.id);
+              if (error) {
+                console.error('Error updating job status:', error);
+                toast({
+                  title: "Error",
+                  description: "Failed to update role status. Please try again.",
+                  variant: "destructive",
+                });
+              } else {
+                refreshData();
+                toast({
+                  title: "Success",
+                  description: `Role ${newStatus === 'published' ? 'published' : 'saved as draft'} successfully.`,
+                });
+              }
+            }}
+          />
+          <span className="capitalize text-sm">{row.status}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'updated_at',
+      header: 'Last Updated',
+      render: (value: any, row: Job) => (row.updated_at ? formatDistanceToNow(new Date(row.updated_at), { addSuffix: true }) : '-'),
+    },
+  ];
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    // TODO: Implement server-side search or client-side filtering
-  }
+  const companyRoleCount = isCompanyAdmin ? roles.filter(r => (r as any).status !== 'archived').length : 0;
+  const roleLimit = 10;
 
-  const handleSort = (column: string, direction: 'asc' | 'desc') => {
-    setSortColumn(column)
-    setSortDirection(direction)
-    // TODO: Implement sorting logic
-  }
-
-  // Filter roles based on search query
-  const filteredRoles = roles.filter(role => 
-    role.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    role.soc_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    role.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    role.category.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-
-  // Get role count for company admin limit display
-  const companyRoleCount = isCompanyAdmin ? roles.filter(r => r.status !== 'archived').length : 0
-  const roleLimit = 10
 
   return (
     <AdminGuard>
-      <AdminLayout>
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Featured Roles</h1>
-              <p className="text-gray-600">
-                {isCompanyAdmin 
-                  ? "Manage your company's featured roles and job postings"
-                  : "Manage all featured roles across partner companies"
-                }
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              {isCompanyAdmin && (
-                <div className="text-sm text-gray-600">
-                  <span className="font-medium">{companyRoleCount}</span> / {roleLimit} roles used
-                </div>
-              )}
-              <Button asChild>
-                <Link href="/admin/roles/new">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add New Role
-                </Link>
-              </Button>
-            </div>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Featured Roles</h1>
+            <p className="text-gray-600">
+              {isCompanyAdmin 
+                ? "Manage your company's featured roles and job postings"
+                : "Manage all featured roles across partner companies"
+              }
+            </p>
           </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Roles</CardTitle>
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{roles.length}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Published</CardTitle>
-                <Badge variant="default" className="h-4 px-1 text-xs">Live</Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {roles.filter(r => r.status === 'published').length}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Draft</CardTitle>
-                <Badge variant="outline" className="h-4 px-1 text-xs">Draft</Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {roles.filter(r => r.status === 'draft').length}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Featured</CardTitle>
-                <Badge variant="secondary" className="h-4 px-1 text-xs">⭐</Badge>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {roles.filter(r => r.is_featured).length}
-                </div>
-              </CardContent>
-            </Card>
+          <div className="flex items-center gap-4">
+            {isCompanyAdmin && (
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">{companyRoleCount}</span> / {roleLimit} roles used
+              </div>
+            )}
+            <Button asChild className="bg-teal-600 hover:bg-teal-700">
+              <Link href="/admin/roles/new">
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Role
+              </Link>
+            </Button>
           </div>
-
-          {/* Roles Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>All Roles</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <EntityTable
-                data={filteredRoles}
-                columns={columns}
-                loading={loading}
-                searchPlaceholder="Search roles by title, SOC code, company, or category..."
-                onSearch={handleSearch}
-                onSort={handleSort}
-                entityType="roles"
-              />
-            </CardContent>
-          </Card>
         </div>
-      </AdminLayout>
+
+        <AdminTable
+          data={roles || []}
+          columns={columns as any}
+          actions={[
+            {
+              label: 'Edit',
+              href: (row: Job) => `/admin/roles/${row.id}`,
+            },
+            {
+              label: 'Delete',
+              onClick: async (row: Job) => {
+                const { error } = await supabase
+                  .from('jobs')
+                  .delete()
+                  .eq('id', row.id);
+                if (error) {
+                  console.error('Error deleting role:', error);
+                  toast({
+                    title: "Error",
+                    description: "Failed to delete role. Please try again.",
+                    variant: "destructive",
+                  });
+                } else {
+                  refreshData();
+                  toast({
+                    title: "Success",
+                    description: "Role deleted successfully.",
+                  });
+                }
+              },
+              isDestructive: true,
+            },
+          ]}
+          loading={isLoading}
+          error={error}
+          searchPlaceholder="Search roles..."
+          emptyMessage="No roles found"
+        />
+      </div>
     </AdminGuard>
-  )
+  );
 }

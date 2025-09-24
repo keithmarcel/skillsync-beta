@@ -23,8 +23,8 @@ export default function AuthCallbackPage() {
         }
 
         if (data.session) {
-          // User is authenticated, redirect to dashboard
-          router.push('/dashboard')
+          // User is authenticated, redirect to home page
+          router.push('/')
         } else {
           // No session, redirect to sign in
           router.push('/auth/signin')
