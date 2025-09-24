@@ -333,7 +333,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Unlock this Role Assessment */}
-        <div className="flex items-center gap-6 mb-8 p-8 bg-white rounded-2xl border">
+        <div className="flex items-center gap-8 mb-12 p-8 bg-white rounded-2xl border">
           <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
             <Image 
               src="/assets/hero_occupations.jpg" 
