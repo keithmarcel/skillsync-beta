@@ -149,6 +149,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         if (jobData) {
           console.log('Job data loaded:', jobData)
           console.log('Company data:', jobData.company)
+          console.log('Company logo_url:', jobData.company?.logo_url)
           setJob(jobData)
         } else {
           setError('Job not found')
