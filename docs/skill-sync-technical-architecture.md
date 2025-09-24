@@ -67,6 +67,17 @@ jobs (
   long_desc text,
   featured_image_url text,
   skills_count integer,
+  -- Extended fields for UI support
+  education_requirements text,
+  projected_open_positions integer,
+  job_growth_outlook text,
+  core_responsibilities jsonb,
+  related_job_titles jsonb,
+  proficiency_score integer,
+  -- Pipeline integration fields
+  onet_updated_at timestamp,
+  bls_updated_at timestamp,
+  data_source text DEFAULT 'manual',
   created_at timestamp,
   updated_at timestamp
 )
@@ -78,7 +89,15 @@ companies (
   id uuid PRIMARY KEY,
   name text NOT NULL,
   is_published boolean DEFAULT true,
-  -- other fields...
+  logo_url text,
+  company_image text,
+  hq_city text,
+  hq_state text,
+  revenue_range text,
+  employee_range text,
+  industry text,
+  bio text,
+  is_trusted_partner boolean DEFAULT false
 )
 ```
 
@@ -380,6 +399,18 @@ const useAdminEntity = () => {
 **Root Cause:** Network issues or incorrect environment configuration
 **Solution:** Verify Supabase URL/keys, check network connectivity
 **Prevention:** Always test RPC functions directly in Supabase dashboard
+
+### Job Details Page Issues
+
+#### Issue: Missing data fields for occupations vs featured roles
+**Root Cause:** Database schema didn't support all required UI fields
+**Solution:** Extended jobs table with occupation-specific fields (projected_open_positions, job_growth_outlook, education_requirements, core_responsibilities, related_job_titles)
+**Prevention:** Always verify schema supports all UI requirements before implementation
+
+#### Issue: Favoriting button not updating state
+**Root Cause:** Missing proper state management integration
+**Solution:** Use existing useFavorites hook with proper isFavorite checking and add/remove actions
+**Prevention:** Always integrate with existing state management patterns
 
 ### Database Schema Issues
 
