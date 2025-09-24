@@ -300,8 +300,8 @@ export default function DataTable({
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => {
                               const entityKind = tableType === 'programs' ? 'program' : 'job'
-                              const isCurrentlyFavorited = isOnFavoritesTab || (isFavorite && isFavorite(entityKind, row.id))
-                              onRowAction?.(isCurrentlyFavorited ? 'unfavorite' : 'favorite', row)
+                              const action = isOnFavoritesTab ? 'unfavorite' : ((isFavorite && isFavorite(entityKind, row.id)) ? 'unfavorite' : 'favorite')
+                              onRowAction?.(action, row)
                             }}>
                               {(() => {
                                 const entityKind = tableType === 'programs' ? 'program' : 'job'

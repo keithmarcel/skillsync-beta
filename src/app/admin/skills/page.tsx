@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,8 +36,6 @@ export default function AdminSkillsPage() {
   const [newAlias, setNewAlias] = useState('')
   const [loading, setLoading] = useState(true)
   const [isAddAliasOpen, setIsAddAliasOpen] = useState(false)
-
-  const supabase = createClient()
 
   useEffect(() => {
     loadSkills()
@@ -76,7 +74,7 @@ export default function AdminSkillsPage() {
 
       if (error) throw error
       
-      const aliasesWithSkillNames = data?.map(item => ({
+      const aliasesWithSkillNames = data?.map((item: any) => ({
         skill_id: item.skill_id,
         alias: item.alias,
         skill_name: (item.skills as any)?.name

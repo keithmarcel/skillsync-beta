@@ -10,7 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, Settings, Heart, LogOut, FileText } from 'lucide-react'
+import { User, Settings, Heart, LogOut, FileText, Shield } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
 
 interface UserMenuProps {
   user?: {
@@ -22,6 +23,7 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user, onSignOut }: UserMenuProps) {
+  const { isAdmin } = useAuth();
   const initials = user?.name 
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase()
     : 'U'
@@ -82,6 +84,21 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
           <Heart className="w-4 h-4" />
           Favorites
         </DropdownMenuItem>
+
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator className="my-1 bg-gray-100" />
+            <DropdownMenuItem asChild>
+              <Link 
+                href="/admin" 
+                className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                <Shield className="w-4 h-4" />
+                Admin Tools
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         
         <DropdownMenuSeparator className="my-1 bg-gray-100" />
         

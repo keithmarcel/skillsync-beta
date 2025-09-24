@@ -2,7 +2,7 @@
 -- This migration addresses the enum mismatch and adds missing columns
 
 -- First, update the job_kind enum to match remote database
-ALTER TYPE public.job_kind RENAME VALUE 'high_demand' TO 'occupation';
+-- ALTER TYPE public.job_kind RENAME VALUE 'high_demand' TO 'occupation';
 
 -- Add missing columns to support both job types properly
 ALTER TABLE public.jobs 

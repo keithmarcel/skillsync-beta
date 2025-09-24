@@ -2,49 +2,62 @@ import { supabase } from '@/lib/supabase/client'
 
 // Types for database entities
 export interface Job {
-  id: string
-  job_kind: 'featured_role' | 'occupation'
-  title: string
-  soc_code: string | null
-  company_id: string | null
-  job_type: string | null
-  category: string | null
-  location_city: string | null
-  location_state: string | null
-  median_wage_usd: number | null
-  long_desc: string | null
-  featured_image_url: string | null
-  skills_count: number
-  required_proficiency_pct?: number | null
-  company?: Company
-  skills?: JobSkill[]
+  id: string;
+  job_kind: 'featured_role' | 'occupation';
+  title: string;
+  soc_code: string | null;
+  company_id: string | null;
+  job_type: string | null;
+  category: string | null;
+  location_city: string | null;
+  location_state: string | null;
+  median_wage_usd: number | null;
+  long_desc: string | null;
+  featured_image_url: string | null;
+  skills_count: number;
+  is_featured: boolean;
+  employment_outlook: string | null;
+  education_level: string | null;
+  work_experience: string | null;
+  on_job_training: string | null;
+  job_openings_annual: number | null;
+  growth_rate_percent: number | null;
+  required_proficiency_pct: number | null;
+  created_at: string;
+  updated_at: string;
+  status: 'draft' | 'published' | 'archived';
+  company?: Company;
+  skills?: JobSkill[];
 }
 
 export interface Company {
-  id: string
-  name: string
-  logo_url: string | null
-  is_trusted_partner: boolean
-  hq_city: string | null
-  hq_state: string | null
-  revenue_range: string | null
-  employee_range: string | null
-  industry: string | null
-  bio: string | null
+  id: string;
+  name: string;
+  logo_url: string | null;
+  is_trusted_partner: boolean;
+  is_published: boolean;
+  hq_city: string | null;
+  hq_state: string | null;
+  revenue_range: string | null;
+  employee_range: string | null;
+  industry: string | null;
+  bio: string | null;
+  company_image_url: string | null;
 }
 
 export interface Program {
-  id: string
-  school_id: string | null
-  name: string
-  program_type: string | null
-  format: string | null
-  duration_text: string | null
-  short_desc: string | null
-  program_url: string | null
-  cip_code: string | null
-  school?: School
-  skills?: ProgramSkill[]
+  id: string;
+  school_id: string | null;
+  name: string;
+  program_type: string | null;
+  format: string | null;
+  duration_text: string | null;
+  short_desc: string | null;
+  program_url: string | null;
+  cip_code: string | null;
+  status: 'draft' | 'published' | 'archived';
+  school?: School;
+  skills?: ProgramSkill[];
 }
 
 export interface School {
@@ -64,6 +77,7 @@ export interface Assessment {
   analyzed_at: string | null
   readiness_pct: number | null
   status_tag: 'role_ready' | 'close_gaps' | 'needs_development' | null
+  is_active?: boolean
   job?: Job
   skill_results?: AssessmentSkillResult[]
 }
@@ -119,10 +133,21 @@ export async function getFeaturedRoles(): Promise<Job[]> {
 
   if (error) {
     console.error('Error fetching featured roles:', error)
+    // If column doesn't exist, return empty array (will be fixed after migration)
+    if (error.message.includes('is_published')) {
+      console.warn('is_published column not found - please run database migration')
+      return []
+    }
     return []
   }
 
-  return data || []
+  // Filter by published status (skip if column doesn't exist yet)
+  const filteredData = data?.filter(job => {
+    const company = job.company as any
+    return company?.is_published !== false // Allow null/undefined (column doesn't exist yet)
+  }) || []
+
+  return filteredData
 }
 
 export async function getHighDemandOccupations(): Promise<Job[]> {
@@ -143,7 +168,14 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
     return []
   }
 
-  return data || []
+  // Filter by published status (skip if column doesn't exist yet)
+  const filteredData = data?.filter(job => {
+    const company = (job as any).company as any
+    // Allow occupations (no company) or jobs from published companies
+    return !job.company_id || company?.is_published !== false
+  }) || []
+
+  return filteredData
 }
 
 export async function getJobById(id: string): Promise<Job | null> {
@@ -165,7 +197,15 @@ export async function getJobById(id: string): Promise<Job | null> {
     return null
   }
 
-  return data
+  // Check if job's company is published (skip if column doesn't exist yet or job has no company)
+  if (data && data.company_id) {
+    const company = data.company as any
+    if (company?.is_published === false) {
+      return null // Job is from unpublished company
+    }
+  }
+
+  return data as Job
 }
 
 // Program queries
@@ -298,7 +338,6 @@ export async function getTrustedPartners(): Promise<Company[]> {
   const { data, error } = await supabase
     .from('companies')
     .select('*')
-    .eq('is_trusted_partner', true)
     .order('name')
 
   if (error) {
@@ -306,7 +345,12 @@ export async function getTrustedPartners(): Promise<Company[]> {
     return []
   }
 
-  return data || []
+  // Filter for published companies (or all if column doesn't exist yet)
+  const filteredData = data?.filter(company => {
+    return (company as any).is_published !== false // Allow null/undefined (column doesn't exist yet)
+  }) || []
+
+  return filteredData
 }
 
 // School queries
@@ -344,124 +388,74 @@ export async function getSkillsByCategory(category: string): Promise<Skill[]> {
     .from('skills')
     .select('*')
     .eq('category', category)
-    .order('name')
+    .order('name');
 
   if (error) {
-    console.error('Error fetching skills by category:', error)
-    return []
+    console.error('Error fetching skills by category:', error);
+    return [];
   }
-
-  return data || []
+  return data || [];
 }
 
 // Favorites queries (requires authentication)
 export async function getUserFavoriteJobs(userId: string): Promise<Job[]> {
-  console.log('getUserFavoriteJobs called for user:', userId)
-  
-  const { data: favorites, error: favError } = await supabase
-    .from('favorites')
-    .select('entity_id, created_at')
-    .eq('user_id', userId)
-    .eq('entity_kind', 'job')
-    .order('created_at', { ascending: false })
+  if (!userId) return [];
 
-  if (favError) {
-    console.error('❌ Error fetching favorite job IDs:', favError)
-    return []
+  const { data, error } = await supabase.rpc('get_favorite_jobs_with_company');
+
+  if (error) {
+    console.error('Error fetching favorite jobs:', error);
+    return [];
   }
 
-  if (!favorites || favorites.length === 0) {
-    console.log('📋 No favorite jobs found')
-    return []
-  }
+  // Filter out jobs from unpublished companies (but allow jobs without companies)
+  const publishedJobs = data?.filter((job: Job) => {
+    // Allow high-demand occupations (no company) or jobs from published companies
+    return !job.company_id || job.company?.is_published;
+  }) || [];
 
-  const jobIds = favorites.map((fav: any) => fav.entity_id)
-  console.log('🎯 Fetching jobs for IDs:', jobIds.length)
-
-  // Then get the job details
-  const { data: jobs, error: jobsError } = await supabase
-    .from('jobs')
-    .select(`id, job_kind, title, soc_code, company_id, job_type, category, location_city, location_state, median_wage_usd, long_desc, featured_image_url, skills_count, companies(id, name, logo_url, is_trusted_partner, hq_city, hq_state, revenue_range, employee_range, industry, bio)`)
-    .in('id', jobIds)
-
-  if (jobsError) {
-    console.error('❌ Error fetching job details:', jobsError)
-    return []
-  }
-
-  console.log('✅ Fetched favorite jobs:', jobs?.length || 0, 'items')
-  
-  return jobs?.map(job => ({
-    ...job,
-    company: Array.isArray(job.companies) ? job.companies[0] : job.companies
-  })) || []
+  return publishedJobs;
 }
 
 export async function getUserFavoritePrograms(userId: string): Promise<Program[]> {
-  console.log('🔍 Fetching favorite programs for user:', userId)
-  
-  // First get the favorite program IDs
-  const { data: favorites, error: favError } = await supabase
-    .from('favorites')
-    .select('entity_id, created_at')
-    .eq('user_id', userId)
-    .eq('entity_kind', 'program')
-    .order('created_at', { ascending: false })
+  if (!userId) return [];
 
-  if (favError) {
-    console.error('❌ Error fetching favorite program IDs:', favError)
-    return []
+  const { data, error } = await supabase.rpc('get_favorite_programs_with_school');
+
+  if (error) {
+    console.error('Error fetching favorite programs:', error);
+    return [];
   }
 
-  if (!favorites || favorites.length === 0) {
-    console.log('📋 No favorite programs found')
-    return []
-  }
-
-  const programIds = favorites.map((fav: any) => fav.entity_id)
-  console.log('🎯 Fetching programs for IDs:', programIds.length)
-
-  // Then get the program details
-  const { data: programs, error: programsError } = await supabase
-    .from('programs')
-    .select(`id, school_id, name, program_type, format, duration_text, short_desc, program_url, cip_code, schools(id, name, logo_url, about_url, city, state)`)
-    .in('id', programIds)
-
-  if (programsError) {
-    console.error('❌ Error fetching program details:', programsError)
-    return []
-  }
-
-  console.log('✅ Fetched favorite programs:', programs?.length || 0, 'items')
-  
-  return programs?.map(program => ({
-    ...program,
-    school: Array.isArray(program.schools) ? program.schools[0] : program.schools
-  })) || []
+  return data || [];
 }
 
 export async function addToFavorites(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  console.log(' ADD TO FAVORITES CALLED:', { userId, entityKind, entityId })
-  
-  const { error } = await supabase
-    .from('favorites')
-    .insert({
-      user_id: userId,
-      entity_kind: entityKind,
-      entity_id: entityId
-    })
+  try {
+    // Use upsert to handle duplicates gracefully
+    const { error } = await supabase
+      .from('favorites')
+      .upsert({
+        user_id: userId,
+        entity_kind: entityKind,
+        entity_id: entityId
+      }, {
+        onConflict: 'user_id,entity_kind,entity_id'
+      })
 
-  if (error) {
-    console.error('Error adding to favorites:', error)
+    if (error) {
+      console.error('Error adding to favorites:', error);
+      return false
+    }
+
+    return true
+  } catch (catchError) {
+    console.error('Exception adding to favorites:', catchError)
     return false
   }
-
-  return true
 }
 
 export async function removeFromFavorites(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  console.log(' REMOVE FROM FAVORITES CALLED:', { userId, entityKind, entityId })
-  
   const { error } = await supabase
     .from('favorites')
     .delete()
@@ -478,8 +472,6 @@ export async function removeFromFavorites(userId: string, entityKind: 'job' | 'p
 }
 
 export async function isFavorite(userId: string, entityKind: 'job' | 'program', entityId: string): Promise<boolean> {
-  console.log(' IS FAVORITE CALLED:', { userId, entityKind, entityId })
-  
   const { data, error } = await supabase
     .from('favorites')
     .select('entity_id')

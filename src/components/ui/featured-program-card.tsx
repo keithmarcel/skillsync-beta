@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { FeaturedProgramCardProps } from '@/lib/card-interfaces'
 import { 

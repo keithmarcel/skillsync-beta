@@ -5,9 +5,26 @@ import { useState, useEffect, createContext, useContext } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
+interface Profile {
+  id: string
+  email: string
+  role: string
+  first_name?: string
+  last_name?: string
+  zip_code?: string
+  admin_role?: 'super_admin' | 'company_admin' | 'provider_admin' | null
+  company_id?: string | null
+  school_id?: string | null
+}
+
 interface AuthContextType {
   user: User | null
+  profile: Profile | null
   loading: boolean
+  isAdmin: boolean
+  isSuperAdmin: boolean
+  isCompanyAdmin: boolean
+  isProviderAdmin: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (data: any) => Promise<void>
   signOut: () => Promise<void>
@@ -18,45 +35,68 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
+
+  // Helper function to fetch user profile
+  const fetchProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
+    if (error) {
+      console.error('❌ Profile fetch error:', error)
+      return null
+    }
+    
+    return data as Profile
+  }
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      console.log('🔍 Getting initial session...')
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
-      if (error) {
-        console.error('❌ Session error:', error)
-      }
-      
-      if (session) {
-        console.log('✅ Session found:', {
-          userId: session.user.id,
-          email: session.user.email,
-          expiresAt: session.expires_at ? new Date(session.expires_at * 1000) : 'unknown'
-        })
-      } else {
-        console.log('❌ No session found')
-      }
-      
-      setUser(session?.user ?? null)
-      setLoading(false)
-    }
-
-    getInitialSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔄 Auth state change:', event, session?.user?.email || 'no user')
-        setUser(session?.user ?? null)
-        setLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
+    setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    // The middleware ensures the session is available on the client. We just need to read it.
+    const getInitialData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          const profileData = await fetchProfile(session.user.id);
+          setProfile(profileData);
+        }
+      } catch (error) {
+        console.error("Error during initial auth data fetch:", error);
+        setUser(null);
+        setProfile(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialData();
+
+    // Listen for changes to the auth state
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      // When the user signs out, the profile should be cleared immediately.
+      if (event === 'SIGNED_OUT') {
+        setProfile(null);
+      }
+      // The profile will be refetched on the next page load if needed.
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [mounted]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -112,11 +152,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error
   }
 
-  return React.createElement(
-    AuthContext.Provider,
-    { value: { user, loading, signIn, signUp, signOut, resetPassword } },
-    children
-  )
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return React.createElement(AuthContext.Provider, { 
+      value: {
+        user: null,
+        profile: null,
+        loading: true,
+        isAdmin: false,
+        isSuperAdmin: false,
+        isCompanyAdmin: false,
+        isProviderAdmin: false,
+        signIn,
+        signUp,
+        signOut,
+        resetPassword,
+      }
+    }, children);
+  }
+
+  // Computed admin role properties
+  const value = {
+    user,
+    profile,
+    loading,
+    isAdmin: !!profile?.admin_role,
+    isSuperAdmin: profile?.admin_role === 'super_admin',
+    isCompanyAdmin: profile?.admin_role === 'company_admin',
+    isProviderAdmin: profile?.admin_role === 'provider_admin',
+    signIn,
+    signUp,
+    signOut,
+    resetPassword,
+  };
+
+  return React.createElement(AuthContext.Provider, { value }, children);
 }
 
 export function useAuth() {
@@ -127,15 +197,3 @@ export function useAuth() {
   return context
 }
 
-// Mock user for development - remove when real auth is implemented
-export function useMockAuth() {
-  return {
-    user: {
-      id: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
-      email: 'user@example.com',
-      name: 'John Doe'
-    },
-    loading: false,
-    signOut: async () => console.log('Mock sign out')
-  }
-}

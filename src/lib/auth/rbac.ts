@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { UserRole, UserProfile } from './supabase-auth'
 
 // Permission definitions for each user role
@@ -203,12 +204,12 @@ export function withPermission<T extends object>(
     if (!userRole || !hasPermission(userRole, requiredPermission)) {
       if (fallback) {
         const FallbackComponent = fallback
-        return <FallbackComponent {...(componentProps as T)} />
+        return React.createElement(FallbackComponent, componentProps as T)
       }
       return null
     }
     
-    return <Component {...(componentProps as T)} />
+    return React.createElement(Component, componentProps as T)
   }
 }
 

@@ -141,6 +141,8 @@ export function FeaturedRoleCard({
           name: company.name,
           logo_url: company.logo,
           is_trusted_partner: company.isTrustedPartner,
+          is_published: true, // Default to published since this is a featured role
+          company_image_url: null, // Not available in current props
           hq_city: null,
           hq_state: null,
           revenue_range: company.revenue || null,
