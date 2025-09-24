@@ -147,6 +147,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         setLoading(true)
         const jobData = await getJobById(params.id)
         if (jobData) {
+          console.log('Job data loaded:', jobData)
+          console.log('Company data:', jobData.company)
           setJob(jobData)
         } else {
           setError('Job not found')
@@ -318,21 +320,20 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
           {/* Featured Image */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8">
+            <div className="sticky top-8 h-full">
               <Image 
                 src={job.featured_image_url || '/assets/hero_occupations.jpg'} 
                 alt={job.title} 
                 width={400} 
                 height={300} 
-                className="rounded-2xl w-full object-cover"
-                style={{ height: 'auto', minHeight: '300px' }}
+                className="rounded-2xl w-full h-full object-cover"
               />
             </div>
           </div>
         </div>
 
         {/* Unlock this Role Assessment */}
-        <div className="flex items-center gap-6 mb-8 p-6 bg-white rounded-2xl border">
+        <div className="flex items-center gap-6 mb-8 p-8 bg-white rounded-2xl border">
           <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
             <Image 
               src="/assets/hero_occupations.jpg" 
@@ -428,12 +429,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
         {/* Hiring Companies for Occupations */}
         {job.job_kind === 'occupation' && (
-          <Card className="rounded-2xl">
+          <Card className="rounded-2xl mb-16">
             <CardHeader>
               <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-start gap-8 py-4">
+            <CardContent className="p-8">
+              <div className="flex items-center justify-start gap-8">
                 {[
                   { name: 'Power Design', logo: '/companies/power-design.svg' },
                   { name: 'TD SYNNEX', logo: '/companies/td-synnexx.svg' },
@@ -444,7 +445,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <img 
                       src={company.logo} 
                       alt={`${company.name} logo`}
-                      className="h-8 w-auto object-contain"
+                      className="h-6 w-auto object-contain"
                     />
                   </div>
                 ))}
