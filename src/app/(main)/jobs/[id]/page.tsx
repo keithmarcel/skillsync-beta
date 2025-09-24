@@ -228,7 +228,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   <img 
                     src={job.company.logo_url} 
                     alt={`${job.company.name} logo`}
-                    className="w-12 h-12 rounded-lg object-cover"
+                    className="w-12 h-12 rounded-lg object-contain p-1"
                   />
                 ) : (
                   <span className="text-lg font-semibold text-gray-600">
@@ -237,12 +237,14 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 )}
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">{job.company.name}</h3>
-                <p className="text-sm text-gray-600">
-                  {job.company.hq_city && job.company.hq_state 
-                    ? `${job.company.hq_city}, ${job.company.hq_state}` 
-                    : 'Location TBD'}
+                <p className="text-sm text-gray-600 mb-1">
+                  <span className="font-semibold">{job.title}</span> is an in-demand role at <span className="font-semibold">{job.company.name}</span>.
                 </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">📍</span>
+                  <span className="text-sm text-gray-500">Trusted Partner</span>
+                  <span className="text-sm text-gray-500">About the Company</span>
+                </div>
               </div>
             </div>
             <CompanyModal company={job.company} />
@@ -327,10 +329,37 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 alt={job.title} 
                 width={400} 
                 height={300} 
-                className="rounded-2xl w-full h-auto"
+                className="rounded-2xl w-full object-cover"
+                style={{ height: 'auto', minHeight: '300px' }}
               />
             </div>
           </div>
+        </div>
+
+        {/* Unlock this Role Assessment */}
+        <div className="flex items-center gap-6 mb-8 p-6 bg-white rounded-2xl border">
+          <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+            <Image 
+              src="/assets/hero_occupations.jpg" 
+              alt="Assessment" 
+              width={64} 
+              height={64} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Unlock this Role! Assess your skills to see your role readiness.
+            </h3>
+            <p className="text-gray-600 text-sm">
+              We'll assess your skills, show you how they align with industry benchmarks, and recommend top regional programs that can help close any gaps.
+            </p>
+          </div>
+          <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
+            <Link href={`/assessments/quiz/${job.id}`}>
+              Start Your Assessment →
+            </Link>
+          </Button>
         </div>
 
         {/* Skills & Responsibilities */}
@@ -401,32 +430,6 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </div>
           </CardContent>
         </Card>
-
-        {/* Unlock this Role Assessment */}
-        <div className="flex items-center gap-6 mb-8 p-6 bg-white rounded-2xl border">
-          <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
-            <Image 
-              src="/assets/hero_occupations.jpg" 
-              alt="Assessment" 
-              width={64} 
-              height={64} 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Unlock this Role! Assess your skills to see your role readiness.
-            </h3>
-            <p className="text-gray-600 text-sm">
-              We'll assess your skills, show you how they align with industry benchmarks, and recommend top regional programs that can help close any gaps.
-            </p>
-          </div>
-          <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
-            <Link href={`/assessments/quiz/${job.id}`}>
-              Start Your Assessment →
-            </Link>
-          </Button>
-        </div>
 
         {/* Hiring Companies for Occupations */}
         {job.job_kind === 'occupation' && (
