@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { LayoutDashboard, Building2, Briefcase, GraduationCap, FileText, Settings, LogOut, Home, User, Users, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Building2, Briefcase, GraduationCap, FileText, Settings, LogOut, Home, User, Users, Menu, X, Database } from 'lucide-react';
 import { NAVIGATION_STYLES, BUTTON_STYLES } from '@/lib/design-system';
 
 
@@ -57,6 +57,12 @@ const navigation = [
     name: 'Assessments',
     href: '/admin/assessments',
     icon: FileText,
+    roles: ['super_admin'],
+  },
+  {
+    name: 'Skills Data',
+    href: '/admin/skills-data',
+    icon: Database,
     roles: ['super_admin'],
   },
   {

@@ -163,7 +163,7 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
   const { data: jobSkillsData } = await supabase
     .from('job_skills')
     .select(`
-      skill:skills(*),
+      skills (*),
       importance_level,
       proficiency_threshold
     `)
@@ -177,6 +177,13 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
     ).data?.id)
 
   let jobSkills = jobSkillsData || []
+
+  // Transform the data structure to match expected format
+  jobSkills = jobSkills.map(item => ({
+    skill: item.skills,
+    importance_level: item.importance_level,
+    proficiency_threshold: item.proficiency_threshold
+  }))
 
   if (!jobSkills || jobSkills.length === 0) {
     console.warn(`No skills found for SOC code ${socCode}, using fallback skills`)
@@ -250,7 +257,6 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
 
   for (let i = 0; i < jobSkills.length; i++) {
     const jobSkill = jobSkills[i]
-    const skill = jobSkill.skill
 
     // Determine proficiency level based on threshold
     const proficiencyLevel = jobSkill.proficiency_threshold >= 85 ? 'expert' :
@@ -286,7 +292,7 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
     // Insert questions
     const questionInserts = questions.map((q, idx) => ({
       section_id: section.id,
-      skill_id: skill.id,
+      skill_id: jobSkill.skill.id,
       stem: q.stem,
       choices: q.choices,
       correct_answer: q.correct_answer,
