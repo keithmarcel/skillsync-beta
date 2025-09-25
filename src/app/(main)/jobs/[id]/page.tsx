@@ -264,8 +264,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Badge className="bg-teal-500 text-white">{job.category}</Badge>
-                    <Badge className="bg-teal-500 text-white">{job.skills?.length || 0} Skills</Badge>
+                    <Badge className="bg-[#0F3A47] text-white border-0 hover:bg-[#0F3A47]">{job.category}</Badge>
+                    <Badge className="bg-[#0F3A47] text-white border-0 hover:bg-[#0F3A47]">{job.skills?.length || 0} Skills</Badge>
                   </div>
                 </div>
               </CardHeader>
@@ -418,21 +418,22 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               {/* Core Skills */}
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Skills</h3>
-                <div className="border-t border-[#093A4B] mb-4"></div>
                 <div className="grid grid-cols-2 gap-4">
                   {(job.skills || []).slice(0, 6).map((skill: any, index: number) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <span className="text-teal-400 mt-1">•</span>
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-teal-400">•</span>
                       <span className="text-white text-sm">{skill.skill?.name || skill.name}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
+              {/* Divider between sections */}
+              <div className="border-t border-[#093A4B]"></div>
+
               {/* Core Responsibilities */}
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Responsibilities</h3>
-                <div className="border-t border-[#093A4B] mb-4"></div>
                 <div className="grid grid-cols-1 gap-3">
                   {(job.core_responsibilities || [
                     'Manage project deliverables and timelines',
@@ -441,8 +442,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     'Monitor project budgets and resources',
                     'Communicate progress and issues to leadership'
                   ]).map((responsibility: string, index: number) => (
-                    <div key={index} className="flex items-start gap-2">
-                      <span className="text-teal-400 mt-1">•</span>
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-teal-400">•</span>
                       <span className="text-white text-sm">{responsibility}</span>
                     </div>
                   ))}
@@ -451,24 +452,28 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
               {/* Related Job Titles (for occupations only) */}
               {job.job_kind === 'occupation' && (
-                <div>
-                  <h3 className="font-semibold mb-4 text-white">Related Job Titles</h3>
-                  <div className="border-t border-[#093A4B] mb-4"></div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {(job.related_job_titles || [
-                      'Operations Coordinator',
-                      'Operations Support Specialist', 
-                      'Business Process Analyst',
-                      'Process Improvement Specialist',
-                      'Operations Specialist'
-                    ]).map((title: string, index: number) => (
-                      <div key={index} className="flex items-start gap-2">
-                        <span className="text-teal-400 mt-1">•</span>
-                        <span className="text-white text-sm">{title}</span>
-                      </div>
-                    ))}
+                <>
+                  {/* Divider between sections */}
+                  <div className="border-t border-[#093A4B]"></div>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-4 text-white">Related Job Titles</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(job.related_job_titles || [
+                        'Operations Coordinator',
+                        'Operations Support Specialist', 
+                        'Business Process Analyst',
+                        'Process Improvement Specialist',
+                        'Operations Specialist'
+                      ]).map((title: string, index: number) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <span className="text-teal-400">•</span>
+                          <span className="text-white text-sm">{title}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
           </CardContent>

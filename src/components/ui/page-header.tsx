@@ -144,15 +144,15 @@ export default function PageHeader({
                           primaryAction.onClick()
                         }
                       }}
-                      className={`flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border transition-colors ${
-                        primaryAction.variant === 'favorite' && primaryAction.isFavorited
-                          ? 'border-rose-500 bg-rose-500 text-white hover:bg-teal-500'
+                      className={`flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border ${
+                        primaryAction.variant === 'favorite'
+                          ? 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:border-[#0694A2] hover:text-[#0694A2]'
                           : 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white'
                       }`}
                     >
                       {primaryAction.label}
                       {primaryAction.variant === 'favorite' && (
-                        <Heart className={`w-4 h-4 ${primaryAction.isFavorited ? 'fill-current' : ''}`} />
+                        <Heart className={`w-4 h-4 ${primaryAction.isFavorited ? 'fill-[#0694A2] text-[#0694A2]' : 'hover:fill-[#0694A2]'}`} />
                       )}
                     </Button>
                   )}
