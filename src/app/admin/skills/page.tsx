@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Plus, Search, Download, Upload, Trash2, Edit } from 'lucide-react'
+import { Plus, Search, Download, Upload, Trash2, Edit, Globe, Database } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 
 interface Skill {
@@ -28,18 +28,29 @@ interface SkillAlias {
   skill_name?: string
 }
 
+interface SocCodeJob {
+  soc_code: string
+  job_count: number
+  title: string
+  skills_populated?: boolean
+}
+
 export default function AdminSkillsPage() {
   const [skills, setSkills] = useState<Skill[]>([])
   const [aliases, setAliases] = useState<SkillAlias[]>([])
+  const [socCodes, setSocCodes] = useState<SocCodeJob[]>([])
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [newAlias, setNewAlias] = useState('')
+  const [selectedSocCode, setSelectedSocCode] = useState('')
+  const [populatingSoc, setPopulatingSoc] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isAddAliasOpen, setIsAddAliasOpen] = useState(false)
 
   useEffect(() => {
     loadSkills()
     loadAliases()
+    loadSocCodes()
   }, [])
 
   const loadSkills = async () => {

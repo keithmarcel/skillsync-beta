@@ -95,6 +95,31 @@ export default function GenerateAssessmentPage() {
 
     setGenerating(true)
     try {
+      // Try to populate skills first (optional enhancement)
+      try {
+        toast.info('Enhancing with O*NET data...')
+
+        const populateResponse = await fetch('/api/admin/populate-job-skills', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ socCode: socCode.trim() })
+        })
+
+        const populateData = await populateResponse.json()
+
+        if (populateData.success && populateData.total_skills_added > 0) {
+          toast.success(`Enhanced with ${populateData.total_skills_added} real skills from O*NET!`)
+        } else {
+          toast.info('Using existing skills data (O*NET enhancement optional)')
+        }
+      } catch (populateError) {
+        console.warn('O*NET population failed, continuing with existing skills:', populateError)
+        toast.info('Using existing skills data (API enhancement optional)')
+      }
+
+      // Generate the quiz regardless of skill population success
+      toast.info('Generating AI assessment...')
+
       const response = await fetch('/api/quizzes/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

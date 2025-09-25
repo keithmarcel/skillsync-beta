@@ -160,7 +160,7 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
   }
 
   // Get skills required for this SOC code
-  const { data: jobSkills } = await supabase
+  const { data: jobSkillsData } = await supabase
     .from('job_skills')
     .select(`
       skill:skills(*),
@@ -176,8 +176,57 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
         .single()
     ).data?.id)
 
+  let jobSkills = jobSkillsData || []
+
   if (!jobSkills || jobSkills.length === 0) {
-    throw new Error(`No skills found for SOC code ${socCode}`)
+    console.warn(`No skills found for SOC code ${socCode}, using fallback skills`)
+
+    // Create fallback skills for common professional categories
+    const fallbackSkills = [
+      { name: 'Problem Solving', category: 'Business', proficiency: 'intermediate' },
+      { name: 'Communication', category: 'Business', proficiency: 'intermediate' },
+      { name: 'Project Management', category: 'Operations', proficiency: 'beginner' },
+      { name: 'Critical Thinking', category: 'Business', proficiency: 'intermediate' },
+      { name: 'Teamwork', category: 'Business', proficiency: 'intermediate' }
+    ]
+
+    // Create or get fallback skills
+    const mappedFallbackSkills = []
+    for (const skill of fallbackSkills) {
+      let existingSkill = await supabase
+        .from('skills')
+        .select('*')
+        .eq('name', skill.name)
+        .single()
+
+      if (!existingSkill.data) {
+        const { data: newSkill } = await supabase
+          .from('skills')
+          .insert({
+            name: skill.name,
+            category: skill.category,
+            description: `${skill.name} proficiency`,
+            proficiency_levels: {
+              beginner: 'Basic understanding and application',
+              intermediate: 'Solid working knowledge with some independence',
+              expert: 'Advanced mastery and ability to teach others'
+            }
+          })
+          .select()
+          .single()
+
+        existingSkill.data = newSkill
+      }
+
+      mappedFallbackSkills.push({
+        skill: existingSkill.data,
+        importance_level: 'helpful',
+        proficiency_threshold: skill.proficiency === 'expert' ? 85 : skill.proficiency === 'intermediate' ? 70 : 50,
+        weight: 1.0
+      })
+    }
+
+    jobSkills = mappedFallbackSkills
   }
 
   // Create the quiz
@@ -212,11 +261,11 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
       .from('quiz_sections')
       .insert({
         quiz_id: quiz.id,
-        skill_id: skill.id,
-        title: skill.name,
-        description: `Assessment of ${skill.name} proficiency`,
+        skill_id: jobSkill.skill.id,
+        title: jobSkill.skill.name,
+        description: `Assessment of ${jobSkill.skill.name} proficiency`,
         questions_per_section: 5, // 5 questions per skill per assessment
-        order_index: i
+        order_index: jobSkills.indexOf(jobSkill)
       })
       .select()
       .single()
@@ -227,8 +276,8 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
     const questionCount = 10
     const questions = await generateSkillQuestions({
       socCode,
-      skillId: skill.id,
-      skillName: skill.name,
+      skillId: jobSkill.skill.id,
+      skillName: jobSkill.skill.name,
       proficiencyLevel: proficiencyLevel as any,
       questionCount,
       companyId
