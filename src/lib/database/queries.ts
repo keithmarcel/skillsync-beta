@@ -692,3 +692,243 @@ export async function addSkillToProgram(programId: string, skillId: string, skil
 
   return true
 }
+
+// Quiz System Queries
+export async function getQuizBySocCode(socCode: string, companyId?: string): Promise<Quiz | null> {
+  const { data, error } = await supabase
+    .from('quizzes')
+    .select(`
+      *,
+      company:companies(*),
+      sections:quiz_sections(
+        *,
+        skill:skills(*),
+        questions:quiz_questions(count)
+      )
+    `)
+    .eq('soc_code', socCode)
+    .eq('is_standard', !companyId)
+    .eq('company_id', companyId || null)
+    .eq('status', 'published')
+    .single()
+
+  if (error) {
+    console.error('Error fetching quiz by SOC code:', error)
+    return null
+  }
+
+  return data as Quiz
+}
+
+export async function getQuizById(id: string): Promise<Quiz | null> {
+  const { data, error } = await supabase
+    .from('quizzes')
+    .select(`
+      *,
+      company:companies(*),
+      sections:quiz_sections(
+        *,
+        skill:skills(*)
+      )
+    `)
+    .eq('id', id)
+    .single()
+
+  if (error) {
+    console.error('Error fetching quiz:', error)
+    return null
+  }
+
+  return data as Quiz
+}
+
+export async function getQuizQuestions(quizId: string): Promise<QuizQuestion[]> {
+  const { data, error } = await supabase
+    .from('quiz_questions')
+    .select(`
+      *,
+      skill:skills(*)
+    `)
+    .eq('section_id', (
+      await supabase
+        .from('quiz_sections')
+        .select('id')
+        .eq('quiz_id', quizId)
+    ).data?.map(s => s.id) || [])
+    .eq('is_active', true)
+
+  if (error) {
+    console.error('Error fetching quiz questions:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export async function getAssessmentQuestions(assessmentId: string): Promise<QuizQuestion[]> {
+  const { data, error } = await supabase
+    .from('assessment_responses')
+    .select(`
+      question:quiz_questions(*, skill:skills(*))
+    `)
+    .eq('assessment_id', assessmentId)
+
+  if (error) {
+    console.error('Error fetching assessment questions:', error)
+    return []
+  }
+
+  return data?.map(item => item.question) || []
+}
+
+export async function createAssessment(assessmentData: {
+  user_id: string
+  quiz_id: string
+  job_id?: string
+  selected_questions: string[]
+}): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('assessments')
+    .insert({
+      user_id: assessmentData.user_id,
+      quiz_id: assessmentData.quiz_id,
+      job_id: assessmentData.job_id,
+      selected_questions: assessmentData.selected_questions,
+      method: 'quiz'
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating assessment:', error)
+    return null
+  }
+
+  return data.id
+}
+
+export async function submitAssessmentResponse(
+  assessmentId: string,
+  questionId: string,
+  selectedAnswer: string,
+  timeSpentSeconds: number
+): Promise<boolean> {
+  // Get the correct answer
+  const { data: question } = await supabase
+    .from('quiz_questions')
+    .select('correct_answer')
+    .eq('id', questionId)
+    .single()
+
+  if (!question) return false
+
+  const isCorrect = selectedAnswer === question.correct_answer
+
+  const { error } = await supabase
+    .from('assessment_responses')
+    .insert({
+      assessment_id: assessmentId,
+      question_id: questionId,
+      selected_answer: selectedAnswer,
+      is_correct: isCorrect,
+      time_spent_seconds: timeSpentSeconds
+    })
+
+  if (error) {
+    console.error('Error submitting assessment response:', error)
+    return false
+  }
+
+  // Update question usage statistics
+  await supabase
+    .from('quiz_questions')
+    .update({
+      usage_count: supabase.raw('usage_count + 1'),
+      last_used_at: new Date().toISOString()
+    })
+    .eq('id', questionId)
+
+  return true
+}
+
+export async function completeAssessment(assessmentId: string): Promise<boolean> {
+  const { data: responses } = await supabase
+    .from('assessment_responses')
+    .select(`
+      question:quiz_questions(skill_id, points),
+      is_correct
+    `)
+    .eq('assessment_id', assessmentId)
+
+  if (!responses) return false
+
+  // Calculate skill-level results
+  const skillResults = new Map<string, { correct: number, total: number, totalPoints: number }>()
+
+  for (const response of responses) {
+    const skillId = response.question.skill_id
+    const points = response.question.points
+
+    if (!skillResults.has(skillId)) {
+      skillResults.set(skillId, { correct: 0, total: 0, totalPoints: 0 })
+    }
+
+    const result = skillResults.get(skillId)!
+    result.total++
+    result.totalPoints += points
+    if (response.is_correct) {
+      result.correct++
+    }
+  }
+
+  // Insert skill results
+  const skillResultInserts = Array.from(skillResults.entries()).map(([skillId, result]) => ({
+    assessment_id: assessmentId,
+    skill_id: skillId,
+    score_pct: (result.correct / result.total) * 100,
+    band: calculateProficiencyBand((result.correct / result.total) * 100),
+    correct_answers: result.correct,
+    total_questions: result.total
+  }))
+
+  const { error: skillResultsError } = await supabase
+    .from('assessment_skill_results')
+    .insert(skillResultInserts)
+
+  if (skillResultsError) {
+    console.error('Error saving skill results:', skillResultsError)
+    return false
+  }
+
+  // Calculate overall readiness score
+  const overallScore = skillResultInserts.reduce((sum, result) => sum + result.score_pct, 0) / skillResultInserts.length
+
+  // Update assessment with completion data
+  const { error: updateError } = await supabase
+    .from('assessments')
+    .update({
+      readiness_pct: overallScore,
+      status_tag: getReadinessStatus(overallScore),
+      completed_at: new Date().toISOString()
+    })
+    .eq('id', assessmentId)
+
+  if (updateError) {
+    console.error('Error completing assessment:', updateError)
+    return false
+  }
+
+  return true
+}
+
+function calculateProficiencyBand(scorePct: number): 'needs_development' | 'building' | 'proficient' {
+  if (scorePct >= 85) return 'proficient'
+  if (scorePct >= 50) return 'building'
+  return 'needs_development'
+}
+
+function getReadinessStatus(overallScore: number): 'role_ready' | 'close_gaps' | 'needs_development' {
+  if (overallScore >= 85) return 'role_ready'
+  if (overallScore >= 50) return 'close_gaps'
+  return 'needs_development'
+}
