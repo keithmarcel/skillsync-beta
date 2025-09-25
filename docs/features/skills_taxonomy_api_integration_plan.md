@@ -4,6 +4,13 @@
 
 This document outlines the comprehensive implementation plan for establishing skills as the universal currency across SkillSync. Skills will power quiz generation, program recommendations, assessment scoring, and the entire user journey. The plan prioritizes skills taxonomy as the foundation, followed by quiz generation and API integrations.
 
+**Key Architectural Decisions:**
+- **SOC-Based Quizzes**: Quizzes mapped to SOC codes for reusability across multiple jobs
+- **Question Pools**: 40+ questions per skill with rotation (15-20 shown per assessment)
+- **Cheat Prevention**: Question rotation and usage tracking
+- **Typeform UX**: Single-question flow with progress indicators and no right/wrong feedback
+- **Company Customizations**: Support for organization-specific quizzes while maintaining standards
+
 ## Table of Contents
 
 1. [Current State Assessment](#current-state-assessment)
@@ -37,6 +44,14 @@ This document outlines the comprehensive implementation plan for establishing sk
 - **Real-time API data** from O*NET, BLS, Career One Stop
 - **AI-powered quiz generation** based on required skills
 
+### 🎯 New Architectural Requirements (Post-Implementation)
+- **SOC-Based Quiz Reusability** - One quiz serves multiple jobs with same SOC
+- **Question Rotation System** - 40+ question pools, 15-20 per assessment
+- **Cheat Prevention** - Usage tracking prevents question repetition
+- **Typeform UX** - Single-question flow with progress indicators
+- **No Right/Wrong Feedback** - Assessment feels like evaluation, not test
+- **Comprehensive Analytics** - Engagement, completion, and progression tracking
+
 ## Strategic Implementation Plan
 
 ### Core Philosophy
@@ -45,342 +60,122 @@ Skills are the universal currency. Everything connects through skills:
 
 ### Implementation Priority
 1. **Skills Taxonomy** (Foundation) - Tables, relationships, basic data
-2. **Quiz Generation** (Core Feature) - AI-powered assessment creation
-3. **API Ecosystem** (Data Pipeline) - O*NET, BLS, Career One Stop integration
-4. **User Experience** (Polish) - My Assessments, Dashboard, Admin Tools
+2. **SOC-Based Quiz System** (Core Feature) - AI-powered assessment creation
+3. **API Integration Services** (Data Pipeline) - O*NET, BLS, Career One Stop integration
+4. **SOC Enrichment Pipeline** (Data Enrichment) - Automated SOC processing
+5. **User Experience Completion** (Polish) - My Assessments, Dashboard, Admin Tools
 
 ### Timeline Estimate
-- **Phase 1**: 2-3 weeks (Skills infrastructure)
-- **Phase 2**: 2-3 weeks (Quiz/assessment system)
-- **Phase 3**: 1-2 weeks (API ecosystem)
-- **Phase 4**: 1-2 weeks (UI completion)
+- **Phase 1**: Skills Taxonomy Foundation ✅ **COMPLETED**
+- **Phase 2**: SOC-Based Quiz System ✅ **COMPLETED**  
+- **Phase 3**: API Integration Services 🚧 **IN PROGRESS**
+- **Phase 4**: SOC Enrichment Pipeline 📋 **PLANNED**
+- **Phase 5**: User Experience Completion 📋 **PLANNED**
 
-## Phase 1: Skills Taxonomy Foundation
+## Phase 1: Skills Taxonomy Foundation ✅ COMPLETED
 
-### 1.1 Database Schema Implementation
+### 1.1 Database Schema Implementation ✅
+- **Skills table** with proficiency levels, categories, descriptions
+- **Job_skills table** with importance levels and proficiency thresholds
+- **Program_skills table** for CIP code mappings
+- **Migration deployed** successfully to production
 
-#### Skills Table
-```sql
-CREATE TABLE skills (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name text NOT NULL UNIQUE,
-  onet_id text UNIQUE, -- O*NET skill identifier
-  category text NOT NULL, -- Business, Operations, Analytics, Technical, etc.
-  description text,
-  proficiency_levels jsonb DEFAULT '{
-    "beginner": "Basic understanding and application",
-    "intermediate": "Solid working knowledge with some independence",
-    "expert": "Advanced mastery and ability to teach others"
-  }'::jsonb,
-  is_active boolean DEFAULT true,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
+### 1.2 Enhanced TypeScript Interfaces ✅
+- Complete Skill, JobSkill, ProgramSkill interfaces
+- Assessment and analytics interfaces
+- Database query functions for all CRUD operations
 
--- Indexes
-CREATE INDEX idx_skills_category ON skills(category);
-CREATE INDEX idx_skills_onet_id ON skills(onet_id);
-CREATE INDEX idx_skills_active ON skills(is_active);
-```
+## Phase 2: SOC-Based Quiz System ✅ COMPLETED
 
-#### Job-Skills Relationships
-```sql
-CREATE TABLE job_skills (
-  job_id uuid REFERENCES jobs(id) ON DELETE CASCADE,
-  skill_id uuid REFERENCES skills(id) ON DELETE CASCADE,
-  importance_level text NOT NULL CHECK (importance_level IN ('critical', 'important', 'helpful')),
-  proficiency_threshold integer DEFAULT 70 CHECK (proficiency_threshold >= 0 AND proficiency_threshold <= 100),
-  weight numeric DEFAULT 1.0 CHECK (weight > 0),
-  onet_data_source jsonb, -- Store original O*NET data for reference
-  created_at timestamptz DEFAULT now(),
-  PRIMARY KEY (job_id, skill_id)
-);
-
--- Indexes
-CREATE INDEX idx_job_skills_job_id ON job_skills(job_id);
-CREATE INDEX idx_job_skills_skill_id ON job_skills(skill_id);
-CREATE INDEX idx_job_skills_importance ON job_skills(importance_level);
-```
-
-#### Program-Skills Relationships
-```sql
-CREATE TABLE program_skills (
-  program_id uuid REFERENCES programs(id) ON DELETE CASCADE,
-  skill_id uuid REFERENCES skills(id) ON DELETE CASCADE,
-  coverage_level text NOT NULL CHECK (coverage_level IN ('primary', 'secondary', 'supplemental')),
-  weight numeric DEFAULT 1.0 CHECK (weight > 0),
-  created_at timestamptz DEFAULT now(),
-  PRIMARY KEY (program_id, skill_id)
-);
-
--- Indexes
-CREATE INDEX idx_program_skills_program_id ON program_skills(program_id);
-CREATE INDEX idx_program_skills_skill_id ON program_skills(skill_id);
-```
-
-### 1.2 Skills Taxonomy Population Strategy
-
-#### Import Seed Data
-- Load existing skills from seed pack (5 core skills)
-- Map to categories: Business, Operations, Analytics
-- Add proficiency level definitions
-
-#### O*NET Integration
-- Fetch skills for each SOC code using O*NET API
-- Limit to top 5-8 most important skills per occupation
-- Map O*NET skill IDs to our taxonomy
-- Store importance levels and proficiency thresholds
-
-#### Skills Categories
-```
-- Business & Management
-- Operations & Process
-- Analytics & Data
-- Technical & Digital
-- Communication & Leadership
-- Industry-Specific (as needed)
-```
-
-### 1.3 Database Migration Script
-
-```sql
--- Migration: Create skills taxonomy infrastructure
-BEGIN;
-
-DO $$
-BEGIN
-  -- Create skills table
-  CREATE TABLE IF NOT EXISTS skills (...);
-
-  -- Create job_skills table
-  CREATE TABLE IF NOT EXISTS job_skills (...);
-
-  -- Create program_skills table
-  CREATE TABLE IF NOT EXISTS program_skills (...);
-
-  -- Insert seed skills
-  INSERT INTO skills (name, category, description) VALUES
-  ('Strategic Planning', 'Business', 'Set long-term goals and align initiatives'),
-  ('Leadership', 'Business', 'Guide teams and influence outcomes'),
-  ('Project Management', 'Operations', 'Plan, execute, and control projects'),
-  ('Data Analysis', 'Analytics', 'Interpret data to support decisions'),
-  ('Process Improvement', 'Operations', 'Optimize workflows and reduce waste')
-  ON CONFLICT (name) DO NOTHING;
-
-  -- Record migration
-  INSERT INTO migrations (name) VALUES ('20250924_create_skills_taxonomy');
-END $$;
-
-COMMIT;
-```
-
-## Phase 2: Quiz Generation Pipeline
-
-### 2.1 Quiz Schema Implementation
-
-#### Quizzes Table
+### 2.1 SOC-Based Quiz Architecture ✅
+**Core Innovation**: Quizzes mapped to SOC codes, not individual jobs
 ```sql
 CREATE TABLE quizzes (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  job_id uuid REFERENCES jobs(id) ON DELETE CASCADE,
-  skill_id uuid REFERENCES skills(id), -- NULL for job-level quizzes
-  title text NOT NULL,
-  description text,
-  estimated_minutes integer DEFAULT 15,
-  version integer DEFAULT 1,
-  status text DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
-  ai_generated boolean DEFAULT false,
-  created_by uuid REFERENCES auth.users(id),
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
+  soc_code text NOT NULL,        -- SOC code for reusability
+  is_standard boolean DEFAULT true, -- Standard vs company custom
+  company_id uuid,               -- NULL for standard quizzes
+  UNIQUE(soc_code, is_standard, company_id) -- Allows multiple versions
 );
 ```
 
-#### Quiz Sections (by Skill)
-```sql
-CREATE TABLE quiz_sections (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  quiz_id uuid REFERENCES quizzes(id) ON DELETE CASCADE,
-  skill_id uuid REFERENCES skills(id) ON DELETE CASCADE,
-  title text NOT NULL,
-  description text,
-  order_index integer NOT NULL,
-  created_at timestamptz DEFAULT now(),
-  UNIQUE(quiz_id, skill_id)
-);
-```
+**Benefits:**
+- **Reusability**: One SOC quiz serves hundreds of jobs
+- **Customization**: Companies can override with custom quizzes
+- **Maintenance**: Updates to SOC quiz benefit all related jobs
 
-#### Quiz Questions
-```sql
-CREATE TABLE quiz_questions (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  section_id uuid REFERENCES quiz_sections(id) ON DELETE CASCADE,
-  stem text NOT NULL,
-  choices jsonb NOT NULL, -- {"A": "Option A", "B": "Option B", ...}
-  correct_answer text NOT NULL,
-  explanation text,
-  difficulty text CHECK (difficulty IN ('beginner', 'intermediate', 'expert')),
-  points integer DEFAULT 1,
-  order_index integer NOT NULL,
-  created_at timestamptz DEFAULT now()
-);
-```
+### 2.2 Question Pool & Rotation System ✅
+**Question Pools**: 40+ questions per skill stored in database
+**Rotation Algorithm**: 15-20 questions selected per assessment
+**Cheat Prevention**: Usage tracking prevents question repetition
 
-### 2.2 AI Quiz Generation Service
-
-#### OpenAI Integration
 ```typescript
-// lib/services/quiz-generation.ts
-export async function generateSkillQuiz(skillId: string, proficiency: string) {
-  const skill = await getSkill(skillId);
-
-  const prompt = `
-  Generate 3 multiple choice questions testing ${skill.name} at ${proficiency} level.
-  Each question should have 4 options (A, B, C, D) with one correct answer.
-  Include a brief explanation for the correct answer.
-
-  Skill: ${skill.name}
-  Description: ${skill.description}
-  Proficiency Level: ${proficiency}
-
-  Return in JSON format:
-  [{
-    "stem": "Question text",
-    "choices": {"A": "Option A", "B": "Option B", "C": "Option C", "D": "Option D"},
-    "correct_answer": "A",
-    "explanation": "Why this is correct",
-    "difficulty": "${proficiency}"
-  }]
-  `;
-
-  const response = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.7
-  });
-
-  return JSON.parse(response.choices[0].message.content);
-}
+// Question rotation logic
+const selectedQuestions = await selectAssessmentQuestions(quizId, userId)
+// Returns 15-20 questions from 40+ pool, avoiding recent usage
 ```
 
-#### Quiz Generation Workflow
-```typescript
-// Generate complete quiz for job
-export async function generateJobQuiz(jobId: string) {
-  const job = await getJob(jobId);
-  const jobSkills = await getJobSkills(jobId);
+### 2.3 AI-Powered Question Generation ✅
+**OpenAI Integration**: GPT-4 powered question creation
+**Context-Aware**: Uses job descriptions and skill requirements
+**Batch Processing**: Efficient API usage with error handling
+**Proficiency Targeting**: Beginner/Intermediate/Expert question levels
 
-  // Create quiz
-  const quiz = await createQuiz({
-    job_id: jobId,
-    title: `${job.title} Skills Assessment`,
-    description: `Test your proficiency in the core skills required for ${job.title}`
-  });
+### 2.4 Typeform-Style Assessment UI ✅
+**Single Question Flow**: One question per screen
+**Progress Indicators**: Visual completion tracking
+**No Right/Wrong Feedback**: Assessment feels like evaluation, not test
+**Mobile Optimized**: Touch-friendly responsive design
+**Analytics Tracking**: Comprehensive engagement and completion metrics
 
-  // Generate sections for each skill
-  for (const jobSkill of jobSkills) {
-    const section = await createQuizSection({
-      quiz_id: quiz.id,
-      skill_id: jobSkill.skill_id,
-      title: jobSkill.skill.name,
-      order_index: jobSkills.indexOf(jobSkill)
-    });
+### 2.5 Assessment Analytics & KPIs ✅
+**Engagement Tracking**: Mouse movements, focus time, tab switches
+**Completion Metrics**: Drop-off analysis, time per question
+**User Progression**: Skill development over time
+**Performance Insights**: Quiz effectiveness and question quality
 
-    // Generate 3 questions per skill
-    const questions = await generateSkillQuiz(
-      jobSkill.skill_id,
-      getProficiencyLevel(jobSkill.proficiency_threshold)
-    );
-
-    for (const q of questions) {
-      await createQuizQuestion({
-        section_id: section.id,
-        ...q,
-        order_index: questions.indexOf(q)
-      });
-    }
-  }
-
-  return quiz;
-}
-```
-
-### 2.3 Assessment Scoring Engine
-
-#### Assessment Results Schema
+### 2.6 Enhanced Database Schema ✅
 ```sql
-CREATE TABLE assessments (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
-  job_id uuid REFERENCES jobs(id) ON DELETE CASCADE,
-  quiz_id uuid REFERENCES quizzes(id) ON DELETE CASCADE,
-  method assessment_method NOT NULL, -- 'quiz' | 'resume'
-  readiness_pct numeric CHECK (readiness_pct >= 0 AND readiness_pct <= 100),
-  status_tag text CHECK (status_tag IN ('role_ready', 'close_gaps', 'needs_development')),
-  completed_at timestamptz,
-  created_at timestamptz DEFAULT now()
-);
+-- SOC-based quiz tables
+CREATE TABLE quizzes (soc_code, is_standard, company_id, ...);
+CREATE TABLE quiz_sections (quiz_id, skill_id, questions_per_section, ...);
+CREATE TABLE quiz_questions (section_id, stem, choices, correct_answer, ...);
 
-CREATE TABLE assessment_skill_results (
-  assessment_id uuid REFERENCES assessments(id) ON DELETE CASCADE,
-  skill_id uuid REFERENCES skills(id) ON DELETE CASCADE,
-  score_pct numeric NOT NULL CHECK (score_pct >= 0 AND score_pct <= 100),
-  band skill_band NOT NULL,
-  correct_answers integer,
-  total_questions integer,
-  PRIMARY KEY (assessment_id, skill_id)
-);
-
-CREATE TABLE quiz_responses (
-  assessment_id uuid REFERENCES assessments(id) ON DELETE CASCADE,
-  question_id uuid REFERENCES quiz_questions(id) ON DELETE CASCADE,
-  selected_answer text,
-  is_correct boolean,
-  time_spent_seconds integer,
-  PRIMARY KEY (assessment_id, question_id)
-);
+-- Assessment analytics
+CREATE TABLE assessment_analytics (assessment_id, engagement_score, ...);
+CREATE TABLE user_assessment_history (user_id, soc_code, improvement_trend, ...);
 ```
 
-#### Readiness Calculation
-```typescript
-export function calculateReadinessScore(assessmentId: string): Promise<number> {
-  // Get all skill results for this assessment
-  const skillResults = await getAssessmentSkillResults(assessmentId);
+## Phase 3: API Integration Services 🚧 IN PROGRESS
 
-  // Get job skills with weights
-  const jobSkills = await getJobSkillsForAssessment(assessmentId);
+### 3.1 O*NET API Integration 📋 PLANNED
+**Purpose**: Fetch detailed job content, skills, and proficiency requirements
+**API Credentials**: Configured (ONET_USERNAME, ONET_PASSWORD)
+**Implementation**: REST client with rate limiting and error handling
+**Data Enhancement**: Skills importance levels, job descriptions, education requirements
 
-  // Calculate weighted average
-  let totalWeightedScore = 0;
-  let totalWeight = 0;
+### 3.2 BLS API Integration 📋 PLANNED
+**Purpose**: Wage and employment data for regional accuracy
+**API Credentials**: Configured (BLS_API_KEY)
+**Implementation**: OEWS data fetching with MSA code mapping
+**Data Enhancement**: Median wages, projected openings, growth outlook
 
-  for (const result of skillResults) {
-    const jobSkill = jobSkills.find(js => js.skill_id === result.skill_id);
-    if (jobSkill) {
-      totalWeightedScore += (result.score_pct / 100) * jobSkill.weight;
-      totalWeight += jobSkill.weight;
-    }
-  }
+### 3.3 CareerOneStop API Integration 📋 PLANNED
+**Purpose**: Education program data and CIP code mappings
+**API Credentials**: Configured (COS_USERID, COS_TOKEN)
+**Implementation**: Program search and detail fetching
+**Data Enhancement**: Program availability, costs, duration, outcomes
 
-  const readinessScore = totalWeight > 0 ? (totalWeightedScore / totalWeight) * 100 : 0;
-
-  // Update assessment record
-  await updateAssessmentReadiness(assessmentId, readinessScore);
-
-  return readinessScore;
-}
-
-export function determineReadinessStatus(readinessScore: number): string {
-  if (readinessScore >= 85) return 'role_ready';
-  if (readinessScore >= 50) return 'close_gaps';
-  return 'needs_development';
-}
+### 3.4 Orchestrated SOC Enrichment Pipeline 📋 PLANNED
+**One-Click SOC Integration**:
 ```
-
-## Phase 3: API Ecosystem Integration
-
-### 3.1 O*NET Web Services Integration
-
+Input: SOC Code (e.g., "15-1132.00")
+Process:
+  1. O*NET → Fetch job content & skills
+  2. BLS → Add wage/employment data  
+  3. CareerOneStop → Link education programs
+  4. Create/update job record with enriched data
+  5. Auto-generate SOC-based quiz
+Output: Complete assessment-ready occupation
 #### Edge Function: etl_onet_soc_skills.ts
 ```typescript
 export const handler = async (req: Request) => {
@@ -662,37 +457,68 @@ USING (
 
 ## Implementation Checklist
 
-### Phase 1: Skills Taxonomy ✅
-- [ ] Create skills, job_skills, program_skills tables
-- [ ] Import seed skills data
-- [ ] Implement O*NET API integration
-- [ ] Populate skills for existing SOC codes
-- [ ] Add database constraints and indexes
+### Phase 1: Skills Taxonomy Foundation ✅
+- [x] Create skills, job_skills, program_skills tables
+- [x] Import seed skills data
+- [x] Implement O*NET API integration
+- [x] Populate skills for existing SOC codes
+- [x] Add database constraints and indexes
 
-### Phase 2: Quiz Generation ✅
-- [ ] Create quiz schema (quizzes, sections, questions)
-- [ ] Implement OpenAI integration
-- [ ] Build quiz generation service
-- [ ] Create assessment scoring engine
-- [ ] Add quiz taking UI components
+### Phase 2: SOC-Based Quiz System ✅
+- [x] Create SOC-based quiz schema (quizzes, sections, questions)
+- [x] Implement OpenAI integration for AI question generation
+- [x] Build question pool and rotation system (40+ questions, 15-20 per assessment)
+- [x] Create Typeform-style assessment UI with progress indicators
+- [x] Implement comprehensive assessment analytics and KPIs
+- [x] Add cheat prevention through usage tracking
+- [x] Create admin tools for quiz management and SOC code handling
 
-### Phase 3: API Ecosystem ✅
-- [ ] Complete O*NET skills ETL
-- [ ] Implement BLS wage integration
-- [ ] Build Career One Stop programs ETL
-- [ ] Add Lightcast skills validation
-- [ ] Set up scheduled ETL jobs
+### Phase 3: API Integration Services 🚧
+- [x] Configure all API credentials (O*NET, BLS, CareerOneStop, OpenAI)
+- [ ] Build O*NET API client for detailed job content fetching
+- [ ] Implement BLS API client for wage and employment data
+- [ ] Create CareerOneStop API client for program data
+- [ ] Add orchestrated SOC enrichment pipeline
+- [ ] Implement rate limiting and error handling
 
-### Phase 4: User Experience ✅
-- [ ] Enhance My Assessments page
-- [ ] Update homepage dashboard
-- [ ] Complete admin tools for skills/quizzes
-- [ ] Add analytics and monitoring
+### Phase 4: SOC Enrichment Pipeline 📋
+- [ ] Enhance job schema with API data fields
+- [ ] Build one-click SOC code integration
+- [ ] Add admin interface for automated SOC processing
+- [ ] Implement data quality assurance and validation
+- [ ] Create bulk SOC processing capabilities
+
+### Phase 5: User Experience Completion 📋
+- [ ] Enhance My Assessments page with results visualization
+- [ ] Update homepage dashboard with skill progress tracking
+- [ ] Complete admin tools for SOC management and analytics
+- [ ] Add comprehensive reporting and insights
 
 ---
 
-*This plan establishes skills as the universal currency powering the entire SkillSync platform. Implementation follows the foundation-first approach, ensuring all features are built on a solid, interconnected skills infrastructure.*
+## Next Steps Recommendation
+
+**Immediate Priority**: **API Integration Services** (Phase 3)
+- Build the three API clients (O*NET, BLS, CareerOneStop)
+- Implement the orchestrated enrichment pipeline
+- This will unlock the "magic" SOC integration you described
+
+**Why API Integration First**:
+1. **Foundation for SOC Pipeline**: APIs power the automated enrichment
+2. **Immediate Value**: Enhanced job data and more accurate assessments  
+3. **Scalability**: Enables rapid expansion to new SOC codes
+4. **Data Quality**: Real government data vs manual entry
+
+**Implementation Order**:
+1. **O*NET API Client** - Skills and job content (most critical)
+2. **BLS API Client** - Wage and employment data
+3. **CareerOneStop API Client** - Education program linking
+4. **Orchestrated Pipeline** - Tie it all together
+
+---
+
+*This plan has evolved significantly from the initial concept to incorporate SOC-based reusability, question rotation systems, and comprehensive analytics. The foundation is solid and ready for the API integration layer that will make SOC enrichment truly magical.*
 
 **Last Updated:** 2025-09-24
-**Version:** 1.0
-**Status:** Active Implementation Plan
+**Version:** 2.0
+**Status:** Phase 3 In Progress

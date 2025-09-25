@@ -420,21 +420,6 @@ export async function getSchools(): Promise<School[]> {
 }
 
 
-export async function getSkillsByCategory(category: string): Promise<Skill[]> {
-  const { data, error } = await supabase
-    .from('skills')
-    .select('*')
-    .eq('category', category)
-    .order('name');
-
-  if (error) {
-    console.error('Error fetching skills by category:', error);
-    return [];
-  }
-  return data || [];
-}
-
-// Favorites queries (requires authentication)
 export async function getUserFavoriteJobs(userId: string): Promise<Job[]> {
   if (!userId) return [];
 
@@ -501,7 +486,7 @@ export async function removeFromFavorites(userId: string, entityKind: 'job' | 'p
     .eq('entity_id', entityId)
 
   if (error) {
-    console.error('Error removing from favorites:', error)
+    console.error('Error removing from favorites:', error);
     return false
   }
 
@@ -571,7 +556,7 @@ export async function getSkillCategories(): Promise<string[]> {
   }
 
   // Get unique categories
-  const categories = Array.from(new Set(data?.map(item => item.category) || [])]
+  const categories = Array.from(new Set(data?.map(item => item.category) || []))
   return categories.sort()
 }
 
