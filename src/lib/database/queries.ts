@@ -88,31 +88,82 @@ export interface Skill {
   onet_id: string | null
   category: string | null
   description: string | null
-  lightcast_id: string | null
-  source: string | null
-  source_version: string | null
+  proficiency_levels: {
+    beginner: string
+    intermediate: string
+    expert: string
+  } | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface JobSkill {
   job_id: string
   skill_id: string
+  importance_level: 'critical' | 'important' | 'helpful'
+  proficiency_threshold: number
   weight: number
+  onet_data_source: any
   skill?: Skill
 }
 
 export interface ProgramSkill {
   program_id: string
   skill_id: string
+  coverage_level: 'primary' | 'secondary' | 'supplemental'
   weight: number
   skill?: Skill
 }
 
-export interface AssessmentSkillResult {
-  assessment_id: string
+export interface Quiz {
+  id: string
+  soc_code: string
+  title: string
+  description: string | null
+  estimated_minutes: number
+  total_questions: number
+  questions_per_assessment: number
+  version: number
+  status: 'draft' | 'published' | 'archived'
+  ai_generated: boolean
+  is_standard: boolean
+  company_id: string | null
+  company?: Company
+  sections?: QuizSection[]
+  created_at: string
+  updated_at: string
+}
+
+export interface QuizSection {
+  id: string
+  quiz_id: string
   skill_id: string
-  score_pct: number
-  band: 'developing' | 'proficient' | 'expert'
+  title: string
+  description: string | null
+  questions_per_section: number
+  total_questions: number
+  order_index: number
   skill?: Skill
+  questions?: QuizQuestion[]
+  created_at: string
+}
+
+export interface QuizQuestion {
+  id: string
+  section_id: string
+  skill_id: string
+  stem: string
+  choices: Record<string, string>
+  correct_answer: string
+  explanation: string | null
+  difficulty: 'beginner' | 'intermediate' | 'expert' | null
+  points: number
+  is_active: boolean
+  usage_count: number
+  last_used_at: string | null
+  skill?: Skill
+  created_at: string
 }
 
 // Job queries
@@ -368,20 +419,6 @@ export async function getSchools(): Promise<School[]> {
   return data || []
 }
 
-// Skill queries
-export async function getSkills(): Promise<Skill[]> {
-  const { data, error } = await supabase
-    .from('skills')
-    .select('*')
-    .order('name')
-
-  if (error) {
-    console.error('Error fetching skills:', error)
-    return []
-  }
-
-  return data || []
-}
 
 export async function getSkillsByCategory(category: string): Promise<Skill[]> {
   const { data, error } = await supabase
@@ -486,4 +523,172 @@ export async function isFavorite(userId: string, entityKind: 'job' | 'program', 
   }
 
   return !!data
+}
+
+// Enhanced Skills Taxonomy Queries
+export async function getSkills(): Promise<Skill[]> {
+  const { data, error } = await supabase
+    .from('skills')
+    .select('*')
+    .eq('is_active', true)
+    .order('category', { ascending: true })
+    .order('name', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching skills:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export async function getSkillsByCategory(category: string): Promise<Skill[]> {
+  const { data, error } = await supabase
+    .from('skills')
+    .select('*')
+    .eq('category', category)
+    .eq('is_active', true)
+    .order('name')
+
+  if (error) {
+    console.error('Error fetching skills by category:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export async function getSkillCategories(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('skills')
+    .select('category')
+    .not('category', 'is', null)
+    .eq('is_active', true)
+
+  if (error) {
+    console.error('Error fetching skill categories:', error)
+    return []
+  }
+
+  // Get unique categories
+  const categories = Array.from(new Set(data?.map(item => item.category) || [])]
+  return categories.sort()
+}
+
+export async function getJobSkills(jobId: string): Promise<JobSkill[]> {
+  const { data, error } = await supabase
+    .from('job_skills')
+    .select(`
+      *,
+      skill:skills(*)
+    `)
+    .eq('job_id', jobId)
+    .order('importance_level', { ascending: false })
+    .order('weight', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching job skills:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export async function getProgramSkills(programId: string): Promise<ProgramSkill[]> {
+  const { data, error } = await supabase
+    .from('program_skills')
+    .select(`
+      *,
+      skill:skills(*)
+    `)
+    .eq('program_id', programId)
+    .order('coverage_level', { ascending: false })
+    .order('weight', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching program skills:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export async function getSkillsForSocCode(socCode: string): Promise<JobSkill[]> {
+  // Find jobs with this SOC code and get their skills
+  const { data: jobs, error: jobsError } = await supabase
+    .from('jobs')
+    .select('id')
+    .eq('soc_code', socCode)
+
+  if (jobsError || !jobs || jobs.length === 0) {
+    console.error('Error finding jobs for SOC code:', jobsError)
+    return []
+  }
+
+  // Get skills for the first job with this SOC code
+  // (assuming all jobs with same SOC code should have same skills)
+  return getJobSkills(jobs[0].id)
+}
+
+export async function createSkill(skillData: {
+  name: string
+  category: string
+  description?: string
+  onet_id?: string
+  proficiency_levels?: any
+}): Promise<Skill | null> {
+  const { data, error } = await supabase
+    .from('skills')
+    .insert(skillData)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating skill:', error)
+    return null
+  }
+
+  return data
+}
+
+export async function addSkillToJob(jobId: string, skillId: string, skillData: {
+  importance_level: 'critical' | 'important' | 'helpful'
+  proficiency_threshold?: number
+  weight?: number
+  onet_data_source?: any
+}): Promise<boolean> {
+  const { error } = await supabase
+    .from('job_skills')
+    .insert({
+      job_id: jobId,
+      skill_id: skillId,
+      ...skillData
+    })
+
+  if (error) {
+    console.error('Error adding skill to job:', error)
+    return false
+  }
+
+  return true
+}
+
+export async function addSkillToProgram(programId: string, skillId: string, skillData: {
+  coverage_level: 'primary' | 'secondary' | 'supplemental'
+  weight?: number
+}): Promise<boolean> {
+  const { error } = await supabase
+    .from('program_skills')
+    .insert({
+      program_id: programId,
+      skill_id: skillId,
+      ...skillData
+    })
+
+  if (error) {
+    console.error('Error adding skill to program:', error)
+    return false
+  }
+
+  return true
 }
