@@ -6,26 +6,42 @@ import { supabase } from '@/lib/supabase/client'
 // POST /api/admin/populate-job-skills - Populate skills for jobs with SOC codes
 export async function POST(request: NextRequest) {
   try {
-    const { socCode, forceRefresh } = await request.json()
+    console.log('API called: populate-job-skills')
+    console.log('Environment check:', {
+      ONET_USERNAME: process.env.ONET_USERNAME,
+      ONET_PASSWORD: process.env.ONET_PASSWORD ? 'SET' : 'NOT SET',
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY ? 'SET' : 'NOT SET'
+    })
 
-    console.log(`Starting job skills population${socCode ? ` for SOC ${socCode}` : ' for all SOC codes'}`)
+    const { socCode, forceRefresh } = await request.json()
+    console.log('Request params:', { socCode, forceRefresh })
 
     // Get jobs that need skills populated
-    let query = supabase
+    let jobsQuery = supabase
       .from('jobs')
       .select('id, soc_code, title')
       .not('soc_code', 'is', null)
 
     if (socCode) {
-      query = query.eq('soc_code', socCode)
+      jobsQuery = jobsQuery.eq('soc_code', socCode)
     }
 
+    // Get jobs that don't already have skills (unless force refresh)
+    let finalQuery = jobsQuery
     if (!forceRefresh) {
-      // Only process jobs that don't already have skills
-      query = query.not('id', 'in', `(${supabase.from('job_skills').select('job_id').then(r => r.data?.map(js => js.job_id).join(',') || '')})`)
+      // First get all job_ids that already have skills
+      const { data: existingJobSkills } = await supabase
+        .from('job_skills')
+        .select('job_id')
+
+      const existingJobIds = existingJobSkills?.map(js => js.job_id) || []
+
+      if (existingJobIds.length > 0) {
+        finalQuery = jobsQuery.not('id', 'in', `(${existingJobIds.join(',')})`)
+      }
     }
 
-    const { data: jobs, error: jobsError } = await query
+    const { data: jobs, error: jobsError } = await finalQuery
 
     if (jobsError) throw jobsError
     if (!jobs || jobs.length === 0) {
@@ -104,6 +120,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('API completed successfully')
     return NextResponse.json({
       success: true,
       message: `Processed ${jobs.length} jobs, added ${totalSkillsAdded} skill relationships`,
@@ -113,7 +130,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Failed to populate job skills:', error)
+    console.error('Top level error in API route:', error)
     return NextResponse.json(
       { error: 'Failed to populate job skills', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

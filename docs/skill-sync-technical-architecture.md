@@ -12,7 +12,7 @@ This document provides comprehensive technical documentation for the SkillSync a
 4. [Component Architecture](#component-architecture)
 5. [State Management](#state-management)
 6. [Authentication & Authorization](#authentication--authorization)
-7. [Favoriting System Implementation](#favoriting-system-implementation)
+7. [Skills Taxonomy & O*NET Integration](#skills-taxonomy--onet-integration)
 8. [Admin Tools Architecture](#admin-tools-architecture)
 9. [Common Issues & Solutions](#common-issues--solutions)
 10. [Development Workflow](#development-workflow)
@@ -385,6 +385,188 @@ const useAdminEntity = () => {
   return { data, loading, actions };
 };
 ```
+
+## Skills Taxonomy & O*NET Integration
+
+### Overview
+
+The Skills Taxonomy system is a comprehensive pipeline that integrates with the U.S. Department of Labor's O*NET database to populate job-specific skills data. This system serves as the foundation for AI-powered assessment generation and skill-based job matching.
+
+### Architecture Components
+
+#### 1. O*NET API Service (`/src/lib/services/onet-api.ts`)
+
+**Purpose:** Interfaces with O*NET Web Services to fetch occupational data
+
+**Key Features:**
+- Fetches Skills, Knowledge, and Abilities data for SOC codes
+- Implements intelligent filtering to prioritize professional skills
+- Uses weighted selection algorithm (Knowledge: 80%, Abilities: 15%, Skills: 5%)
+- Handles API authentication and rate limiting
+
+**Core Methods:**
+```typescript
+class OnetApiService {
+  async getOccupationSkills(socCode: string): Promise<OnetSkill[]>
+  private filterGenericSkills(skills: OnetSkill[]): OnetSkill[]
+  private selectSkillsWithWeighting(skills, knowledge, abilities): OnetSkill[]
+}
+```
+
+#### 2. Skills Database Schema
+
+**Skills Table:**
+- `id` (UUID) - Primary key
+- `name` (text) - Skill name from O*NET
+- `onet_id` (text) - O*NET identifier for deduplication
+- `category` (text) - Mapped category (Business, Technical, Operations)
+- `description` (text) - Detailed skill description
+- `source` (text) - Always 'ONET' for pipeline-generated skills
+
+**Job-Skills Relationship Table:**
+- `job_id` (UUID) - Foreign key to jobs table
+- `skill_id` (UUID) - Foreign key to skills table
+- `importance_level` (text) - critical/important/helpful
+- `proficiency_threshold` (integer) - 0-100 scale
+- `weight` (decimal) - Relative importance for assessments
+- `onet_data_source` (text) - skills/knowledge/abilities
+
+#### 3. Skill Deduplication System
+
+**Strategy:** Perfect deduplication using O*NET IDs
+- Skills are created once and referenced by multiple jobs
+- No duplicate "Administration and Management" entries
+- Maintains referential integrity across job-skill relationships
+
+**Implementation:**
+```typescript
+// Check for existing skill by O*NET ID
+const existingSkill = await supabase
+  .from('skills')
+  .select('*')
+  .eq('onet_id', onetSkill.id)
+  .single()
+
+if (!existingSkill.data) {
+  // Create new skill only if doesn't exist
+}
+```
+
+### Skills Population Pipeline
+
+#### 1. Admin Interface (`/src/app/admin/skills-data/page.tsx`)
+
+**Features:**
+- Real-time progress tracking with estimated completion times
+- SOC code management with skills count display
+- Individual and bulk population operations
+- Skills viewing modal for populated SOC codes
+
+**Progress Tracking:**
+- Adaptive time estimation based on actual processing speed
+- Visual progress bar with percentage completion
+- Current SOC code being processed display
+- Success/failure notifications with detailed metrics
+
+#### 2. Population API (`/src/app/api/admin/populate-job-skills/route.ts`)
+
+**Workflow:**
+1. Fetch jobs by SOC code (or all jobs if no filter)
+2. Skip jobs that already have skills (unless force refresh)
+3. Call O*NET API service for each unique SOC code
+4. Map O*NET skills to internal taxonomy
+5. Create job-skill relationships with importance weighting
+6. Return detailed results with success/failure counts
+
+**Error Handling:**
+- Graceful handling of SOC codes with no O*NET data
+- Detailed logging of API failures and data gaps
+- Rollback capability for failed operations
+
+### Intelligent Skill Filtering
+
+#### Generic Skill Exclusion
+
+**Problem:** O*NET includes many generic skills that don't add assessment value
+- Basic communication (Speaking, Reading Comprehension)
+- Universal abilities (Oral Comprehension, English Language)
+- Generic problem-solving (Complex Problem Solving)
+
+**Solution:** Comprehensive filtering system
+```typescript
+const genericSkillNames = [
+  'English Language', 'Speaking', 'Reading Comprehension',
+  'Oral Comprehension', 'Oral Expression', 'Written Comprehension',
+  'Customer and Personal Service', 'Problem Sensitivity',
+  // ... 40+ generic skills filtered out
+]
+```
+
+#### Weighted Selection Algorithm
+
+**Prioritization Strategy:**
+- **Knowledge (80%):** Domain-specific expertise (Administration and Management, Strategic Planning)
+- **Abilities (15%):** Relevant cognitive skills (Critical Thinking, but filtered)
+- **Skills (5%):** Only essential technical skills
+
+**Benefits:**
+- Produces assessment-relevant skills for employers
+- Eliminates generic communication skills
+- Focuses on differentiating competencies
+- Reduces total skills to 10 most important per job
+
+### Integration Points
+
+#### 1. Assessment Generation Pipeline
+- Skills serve as input for AI quiz generation
+- Importance levels determine question weighting
+- Professional skills prioritized over soft skills
+
+#### 2. Job Matching System
+- Skills enable semantic job-candidate matching
+- Skill overlap calculations for recommendations
+- Competency gap analysis for career guidance
+
+#### 3. Analytics & Reporting
+- Skills data powers employer insights
+- Candidate skill distribution analysis
+- Market demand trending by skill category
+
+### Troubleshooting Guide
+
+#### Issue: SOC Codes Getting Skipped
+**Root Cause:** All skills filtered out as generic
+**Solution:** Review filtering criteria, some SOCs are inherently generic
+**Prevention:** Log detailed filtering results for analysis
+
+#### Issue: Duplicate Skills in Database
+**Root Cause:** O*NET ID deduplication not working
+**Solution:** Check `onet_id` field population and uniqueness constraints
+**Prevention:** Always verify deduplication logic in tests
+
+#### Issue: Poor Assessment Quality
+**Root Cause:** Generic skills making it through filters
+**Solution:** Enhance filtering criteria, adjust weighting algorithm
+**Prevention:** Regular review of generated assessments for skill relevance
+
+#### Issue: O*NET API Failures
+**Root Cause:** Rate limiting, authentication, or service downtime
+**Solution:** Implement exponential backoff, verify credentials
+**Prevention:** Monitor API health and implement circuit breakers
+
+### Performance Considerations
+
+- **Batch Processing:** Process multiple SOC codes in parallel where possible
+- **Caching:** Cache O*NET responses to reduce API calls
+- **Database Optimization:** Use proper indexes on `onet_id` and `soc_code` fields
+- **Progress Tracking:** Real-time updates without blocking UI
+
+### Future Enhancements
+
+1. **Manual Skill Override:** Allow admins to add/remove skills per job
+2. **Skill Taxonomy Evolution:** Track skill importance changes over time
+3. **Industry-Specific Filtering:** Customize filtering by industry vertical
+4. **Assessment Feedback Loop:** Use assessment results to refine skill selection
 
 ## Common Issues & Solutions
 

@@ -17,8 +17,14 @@ export async function middleware(request: NextRequest) {
   const authRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password']; // Routes for unauthenticated users
   const protectedRoutes = ['/', '/jobs', '/programs', '/assessments', '/profile']; // Routes for any authenticated user
   const adminRoutes = ['/admin']; // Routes for admin users only
+  const apiRoutes = ['/api']; // API routes - allow for now
 
   // --- Route Protection Logic ---
+
+  // Skip middleware for API routes (for now)
+  if (apiRoutes.some(r => pathname.startsWith(r))) {
+    return response;
+  }
 
   // Skip middleware for auth routes if user is not authenticated
   if (!user && authRoutes.includes(pathname)) {

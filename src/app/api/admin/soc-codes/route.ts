@@ -20,13 +20,34 @@ export async function GET(request: NextRequest) {
         socCodeMap.set(job.soc_code, {
           soc_code: job.soc_code,
           title: job.title,
-          job_count: 0
+          job_count: 0,
+          skills_count: 0
         })
       }
       socCodeMap.get(job.soc_code).job_count++
     })
 
+    // Get skills count for each SOC code
     const socCodes = Array.from(socCodeMap.values())
+    for (const socData of socCodes) {
+      const { data: skillsData, error: skillsError } = await supabase
+        .from('skills')
+        .select(`
+          id,
+          job_skills!inner (
+            jobs!inner (
+              soc_code
+            )
+          )
+        `)
+        .eq('job_skills.jobs.soc_code', socData.soc_code)
+
+      if (!skillsError && skillsData) {
+        // Count unique skills for this SOC code
+        const uniqueSkillIds = new Set(skillsData.map(s => s.id))
+        socData.skills_count = uniqueSkillIds.size
+      }
+    }
 
     return NextResponse.json({ socCodes })
   } catch (error) {

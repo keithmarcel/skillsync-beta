@@ -226,7 +226,7 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
       }
 
       mappedFallbackSkills.push({
-        skill: existingSkill.data,
+        skills: existingSkill.data,
         importance_level: 'helpful',
         proficiency_threshold: skill.proficiency === 'expert' ? 85 : skill.proficiency === 'intermediate' ? 70 : 50,
         weight: 1.0
@@ -267,9 +267,9 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
       .from('quiz_sections')
       .insert({
         quiz_id: quiz.id,
-        skill_id: jobSkill.skill.id,
-        title: jobSkill.skill.name,
-        description: `Assessment of ${jobSkill.skill.name} proficiency`,
+        skill_id: jobSkill.skills.id,
+        title: jobSkill.skills.name,
+        description: `Assessment of ${jobSkill.skills.name} proficiency`,
         questions_per_section: 5, // 5 questions per skill per assessment
         order_index: jobSkills.indexOf(jobSkill)
       })
@@ -282,8 +282,8 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
     const questionCount = 10
     const questions = await generateSkillQuestions({
       socCode,
-      skillId: jobSkill.skill.id,
-      skillName: jobSkill.skill.name,
+      skillId: jobSkill.skills.id,
+      skillName: jobSkill.skills.name,
       proficiencyLevel: proficiencyLevel as any,
       questionCount,
       companyId
@@ -292,7 +292,7 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
     // Insert questions
     const questionInserts = questions.map((q, idx) => ({
       section_id: section.id,
-      skill_id: jobSkill.skill.id,
+      skill_id: jobSkill.skills.id,
       stem: q.stem,
       choices: q.choices,
       correct_answer: q.correct_answer,
