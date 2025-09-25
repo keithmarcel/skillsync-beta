@@ -146,7 +146,7 @@ export default function PageHeader({
                       }}
                       className={`flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border ${
                         primaryAction.variant === 'favorite'
-                          ? 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:border-[#D5F5F6] hover:text-[#D5F5F6]'
+                          ? 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:border-[#D5F5F6] hover:text-[#D5F5F6] hover:bg-transparent'
                           : 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white'
                       }`}
                     >
