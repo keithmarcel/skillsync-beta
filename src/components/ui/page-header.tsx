@@ -144,7 +144,7 @@ export default function PageHeader({
                           primaryAction.onClick()
                         }
                       }}
-                      className={`flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border ${
+                      className={`group flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border ${
                         primaryAction.variant === 'favorite'
                           ? 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:border-[#D5F5F6] hover:text-[#D5F5F6] hover:bg-transparent'
                           : 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white'
@@ -152,7 +152,7 @@ export default function PageHeader({
                     >
                       {primaryAction.label}
                       {primaryAction.variant === 'favorite' && (
-                        <Heart className={`w-4 h-4 transition-colors ${primaryAction.isFavorited ? 'fill-[#0694A2] text-[#0694A2]' : 'hover:fill-[#0694A2] hover:text-[#0694A2]'}`} />
+                        <Heart className={`w-4 h-4 transition-colors ${primaryAction.isFavorited ? 'fill-[#0694A2] text-[#0694A2]' : 'group-hover:fill-[#0694A2] group-hover:text-[#0694A2]'}`} />
                       )}
                     </Button>
                   )}
