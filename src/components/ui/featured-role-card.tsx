@@ -63,11 +63,11 @@ export function FeaturedRoleCard({
   const companyLogo = company.logo ? (
     <div className="h-12 flex items-center">
       <img 
-        src={`/companies/${company.logo}`} 
+        src={company.logo.startsWith('/') ? company.logo : `/companies/${company.logo}`} 
         alt={`${company.name} logo`} 
         className="h-8 w-auto max-w-[140px] object-contain" 
         onError={(e) => {
-          console.log('Logo failed to load:', `/companies/${company.logo}`)
+          console.log('Logo failed to load:', company.logo)
           e.currentTarget.style.display = 'none'
         }}
       />
@@ -93,7 +93,6 @@ export function FeaturedRoleCard({
     <FeaturedCardBase className={className}>
       <FeaturedCardHeader>
         <FeaturedCardHeaderLayout
-          badge={company.isTrustedPartner ? <TrustedPartnerBadge /> : undefined}
           logo={companyLogo}
           title={title}
           actionsMenu={
