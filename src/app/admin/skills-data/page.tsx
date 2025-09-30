@@ -191,14 +191,12 @@ export default function SkillsDataPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            </div>
+      <div className="w-full">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+          <div className="space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-full"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
           </div>
         </div>
       </div>
@@ -206,10 +204,9 @@ export default function SkillsDataPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
+    <div className="w-full">
+      {/* Header */}
+      <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Skills Data Management</h1>
           <p className="text-gray-600">
             Populate job skills from O*NET occupational data - upstream data source for assessments

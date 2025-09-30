@@ -60,8 +60,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div className={`flex h-screen overflow-hidden bg-gray-50 ${GeistSans.className}`}>
       <AdminSidebar />
       <main className="flex-1 overflow-y-auto md:ml-0">
-        <div className="p-4 md:p-6">
-                  {children}
+        <div className="p-4 md:p-8 w-full">
+          {children}
         </div>
       </main>
       <Toaster />
