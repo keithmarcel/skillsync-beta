@@ -1570,3 +1570,79 @@ This guide should prevent the need to "start from scratch" when investigating fu
 - Skills management interface
 - Bulk operations (future enhancement)
 - Provider admin permissions (scoped access)
+
+---
+
+## Day 2 Complete: CIP Codes & Short Descriptions (Sept 30, 2025)
+
+### ✅ CIP Code Assignment
+
+**Status:** All 223 programs have CIP codes assigned
+
+**Implementation:**
+1. **CIP Data Import** - 1,949 CIP codes + 5,903 crosswalk mappings from NCES
+2. **AI Assignment** - GPT-4o-mini suggests CIP codes based on program content
+3. **Manual Fallback** - 3 workforce programs assigned 24.0102 (General Studies)
+4. **Admin UI** - CIP codes visible in table, editable in detail form with helpText
+
+**Results:**
+- 219 programs: AI/HubSpot assigned CIP codes
+- 3 programs: Manual assignment (GED, High School Equivalency, Essential Skills)
+- Cost: ~$0.30 for AI suggestions
+- Time: ~7.5 minutes batch processing
+
+**Database Fields:**
+- `cip_code` - 6-digit CIP code (foreign key to cip_codes table)
+- `cip_assignment_confidence` - AI confidence score (0-100)
+- `cip_assignment_method` - How assigned: ai_auto, manual, partner_provided
+- `cip_approved` - Approval status (all true for testing)
+- `cip_suggestions` - JSONB array of AI suggestions
+
+### ✅ Short Descriptions Generation
+
+**Status:** AI-generated short descriptions for all programs
+
+**Implementation:**
+- Script: `scripts/generate-short-descriptions.js`
+- Model: GPT-4o-mini
+- Requirements: 13-15 words, ~95 characters
+- Skips programs with existing good descriptions
+
+**Results:**
+- Professional, concise descriptions
+- Cost: ~$0.30 for all programs
+- Time: ~4 minutes
+
+### ✅ Admin UI Improvements
+
+**Fixed Issues:**
+1. Select.Item empty string errors - Changed all placeholders to 'none'
+2. CIP code visibility - Added to programs table column
+3. Featured programs filter - Added `.eq('is_featured', true)` to query
+4. helpText support - Shows current CIP assignment below dropdown
+
+**Files Modified:**
+- `src/app/admin/programs/page.tsx` - Added CIP column
+- `src/app/admin/programs/[id]/page.tsx` - Fixed all Select placeholders
+- `src/components/admin/EntityDetailView.tsx` - Added helpText rendering
+- `src/lib/database/queries.ts` - Fixed getFeaturedPrograms filter
+
+### ✅ Global OpenAI Configuration
+
+**Centralized Model Selection:**
+- Created `src/lib/config/openai.ts`
+- Default: gpt-4o-mini (15x cheaper, 20x higher limits)
+- All services use centralized config
+- Environment override: `OPENAI_MODEL` env var
+
+**Cost Savings:**
+- GPT-4: $2.50/1M input tokens
+- GPT-4o-mini: $0.15/1M input tokens
+- 94% cost reduction
+
+**Key Files:**
+- `/src/lib/config/openai.ts` - Centralized config
+- `/src/lib/services/cip-suggestion.ts` - CIP assignment
+- `/src/lib/services/assessment-engine.ts` - Assessment evaluation
+- `/scripts/assign-cips-batch.js` - Batch CIP assignment
+- `/scripts/generate-short-descriptions.js` - Description generation
