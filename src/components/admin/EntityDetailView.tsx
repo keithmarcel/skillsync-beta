@@ -47,6 +47,7 @@ export interface EntityField<T = any, K extends keyof T = keyof T> {
   hidden?: boolean
   placeholder?: string
   description?: string
+  helpText?: string
   validate?: (value: T[K], formData: T) => string | undefined
   format?: (value: T[K]) => any
   parse?: (value: any) => T[K]
@@ -385,6 +386,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
                 ))}
               </SelectContent>
             </Select>
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
