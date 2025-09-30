@@ -22,42 +22,75 @@ export default function ProgramsPage() {
       header: 'Provider',
       render: (value: any, program: Program) => (program && program.school) ? program.school.name : '-'
     },
+    { key: 'discipline', header: 'Discipline', sortable: true },
+    { key: 'catalog_provider', header: 'Catalog', sortable: true },
     { key: 'program_type', header: 'Type', sortable: true },
-    { key: 'format', header: 'Format', sortable: true },
-    { key: 'duration_text', header: 'Duration', sortable: true },
-    { key: 'cip_code', header: 'CIP Code', sortable: true },
+    {
+      key: 'skills_count',
+      header: 'Skills',
+      render: (value: any, program: Program) => (
+        <span className="text-sm">{program.skills_count || 0}</span>
+      )
+    },
+    {
+      key: 'is_featured',
+      header: 'Featured',
+      render: (value: any, program: Program) => (
+        <Switch
+          checked={program.is_featured}
+          className="data-[state=checked]:bg-[#0694A2]"
+          onCheckedChange={async (isChecked) => {
+            const { error } = await supabase
+              .from('programs')
+              .update({ is_featured: isChecked })
+              .eq('id', program.id);
+            if (error) {
+              console.error('Error updating featured status:', error);
+              toast({
+                title: "Error",
+                description: "Failed to update featured status. Please try again.",
+                variant: "destructive",
+              });
+            } else {
+              refreshData();
+              toast({
+                title: "Success",
+                description: `Program ${isChecked ? 'marked as featured' : 'unmarked as featured'}.`,
+              });
+            }
+          }}
+        />
+      ),
+    },
     {
       key: 'status',
-      header: 'Status',
+      header: 'Published',
       render: (value: any, program: Program) => (
-        <div className="flex items-center gap-2">
-          <Switch
-            checked={program.status === 'published'}
-            className="data-[state=checked]:bg-[#0694A2]"
-            onCheckedChange={async (isChecked) => {
-              const newStatus = isChecked ? 'published' : 'draft';
-              const { error } = await supabase
-                .from('programs')
-                .update({ status: newStatus })
-                .eq('id', program.id);
-              if (error) {
-                console.error('Error updating program status:', error);
-                toast({
-                  title: "Error",
-                  description: "Failed to update program status. Please try again.",
-                  variant: "destructive",
-                });
-              } else {
-                refreshData();
-                toast({
-                  title: "Success",
-                  description: `Program ${newStatus === 'published' ? 'published' : 'saved as draft'} successfully.`,
-                });
-              }
-            }}
-          />
-          <span className="capitalize text-sm">{program.status}</span>
-        </div>
+        <Switch
+          checked={program.status === 'published'}
+          className="data-[state=checked]:bg-[#0694A2]"
+          onCheckedChange={async (isChecked) => {
+            const newStatus = isChecked ? 'published' : 'draft';
+            const { error } = await supabase
+              .from('programs')
+              .update({ status: newStatus })
+              .eq('id', program.id);
+            if (error) {
+              console.error('Error updating program status:', error);
+              toast({
+                title: "Error",
+                description: "Failed to update program status. Please try again.",
+                variant: "destructive",
+              });
+            } else {
+              refreshData();
+              toast({
+                title: "Success",
+                description: `Program ${newStatus === 'published' ? 'published' : 'saved as draft'} successfully.`,
+              });
+            }
+          }}
+        />
       ),
     }
   ];

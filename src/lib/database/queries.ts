@@ -57,13 +57,23 @@ export interface Program {
   id: string;
   school_id: string | null;
   name: string;
+  program_id: string;
   program_type: string | null;
   format: string | null;
   duration_text: string | null;
   short_desc: string | null;
+  long_desc: string | null;
+  discipline: string | null;
+  catalog_provider: string | null;
   program_url: string | null;
+  program_guide_url: string | null;
   cip_code: string | null;
+  is_featured: boolean;
+  featured_image_url: string | null;
+  skills_count: number;
   status: 'draft' | 'published' | 'archived';
+  created_at: string;
+  updated_at: string;
   school?: School;
   skills?: ProgramSkill[];
 }
@@ -71,9 +81,11 @@ export interface Program {
 export interface School {
   id: string
   name: string
+  logo_url: string | null
   about_url: string | null
   city: string | null
   state: string | null
+  catalog_affiliation: string | null
 }
 
 export interface AssessmentSkillResult {
