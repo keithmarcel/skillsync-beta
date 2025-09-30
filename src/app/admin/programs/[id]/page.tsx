@@ -137,6 +137,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           key: 'cip_code',
           label: 'CIP Code',
           type: EntityFieldType.SELECT,
+          helpText: program?.cip_code ? `Currently assigned: ${program.cip_code}` : 'No CIP code assigned yet',
           options: [
             { value: 'none', label: 'Select a CIP code' },
             ...cipCodes.map(cip => ({
