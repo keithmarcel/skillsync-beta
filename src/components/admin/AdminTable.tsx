@@ -161,13 +161,24 @@ export function AdminTable<T extends Record<string, any>>({
     }
     
     return data.filter(row => {
+      // Handle global search across all columns
+      if (filters.global) {
+        const searchTerm = filters.global.toLowerCase();
+        const matchesGlobal = columns.some(column => {
+          const cellValue = row[column.key]?.toString().toLowerCase() || '';
+          return cellValue.includes(searchTerm);
+        });
+        if (!matchesGlobal) return false;
+      }
+      
+      // Handle column-specific filters
       return Object.entries(filters).every(([key, value]) => {
-        if (!value) return true;
+        if (!value || key === 'global') return true;
         const cellValue = row[key]?.toString().toLowerCase() || '';
         return cellValue.includes(value.toLowerCase());
       });
     });
-  }, [data, filters, onFilter]);
+  }, [data, filters, onFilter, columns]);
 
   // Apply local sorting
   const sortedData = useMemo(() => {
@@ -460,7 +471,13 @@ export function AdminTable<T extends Record<string, any>>({
                           </React.Fragment>
                         ))}
                         {actions && actions.map((action, index) => {
-                          const handleActionClick = () => {
+                          const handleActionClick = (e: React.MouseEvent) => {
+                            // If action has href, let the link handle navigation
+                            if (action.href) {
+                              return;
+                            }
+                            
+                            e.preventDefault();
                             if (action.isDestructive) {
                               setDialogState({
                                 isOpen: true,
@@ -473,6 +490,18 @@ export function AdminTable<T extends Record<string, any>>({
                               action.onClick?.(row);
                             }
                           };
+
+                          // If action has href, render as link
+                          if (action.href) {
+                            const href = typeof action.href === 'function' ? action.href(row) : action.href;
+                            return (
+                              <DropdownMenuItem key={index} asChild>
+                                <a href={href} className="cursor-pointer">
+                                  {action.label}
+                                </a>
+                              </DropdownMenuItem>
+                            );
+                          }
 
                           return (
                             <DropdownMenuItem key={index} onClick={handleActionClick}>
