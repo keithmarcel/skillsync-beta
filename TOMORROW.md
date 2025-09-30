@@ -1,8 +1,8 @@
-# 3-Day Sprint to Launch
+# 4-Day Sprint to Launch
 
-**Target:** Complete by Wednesday Night (Jan 31 - Feb 2)  
+**Target:** Complete by Thursday Night (Jan 31 - Feb 4)  
 **Current:** Phases 1-5 Complete ✅  
-**Remaining:** Programs Catalog + Assessment Experience + Final QA
+**Remaining:** Programs + Assessment + Admin Dashboards + RFI + QA
 
 ---
 
@@ -98,21 +98,54 @@
 
 ---
 
-### **MONDAY (Feb 3) - FINAL QA & POLISH**
-**Goal:** Production-Ready Platform  
-**Time:** 6-8 hours
+### **MONDAY (Feb 3) - Admin Dashboards & RFI**
+**Goal:** Company/Provider Dashboards + RFI Flow  
+**Time:** 10-12 hours
 
-#### Morning (3-4 hours)
+#### Morning (5-6 hours)
+- [ ] **Company Admin Dashboard** (3-4 hours)
+  - View candidate submissions
+  - Manage featured roles (CRUD)
+  - Basic company profile editing
+  - Simple analytics (views, submissions count)
+- [ ] **Provider Admin Dashboard** (2-3 hours)
+  - Manage programs (CRUD)
+  - View RFI submissions
+  - Basic provider profile editing
+
+#### Afternoon (5-6 hours)
+- [ ] **RFI Form + Integration** (3-4 hours)
+  - Create RFI form component
+  - Store submissions in database
+  - HubSpot API integration
+  - Email notifications (Supabase or SendGrid)
+- [ ] **Role-Based Access Control** (2-3 hours)
+  - Create role assignment tables
+  - RLS policies for companies/providers
+  - Dynamic navigation based on role
+  - Test access control
+
+**End of Day:** Admin features complete
+
+---
+
+### **TUESDAY (Feb 4) - FINAL QA & POLISH**
+**Goal:** Production-Ready Platform  
+**Time:** 8-10 hours
+
+#### Morning (4-5 hours)
 - [ ] **End-to-End Testing**
   - Test complete user journey:
     1. Browse jobs → Take assessment
     2. View results → Get recommendations
     3. Submit to company (featured roles)
     4. Revisit past assessments
-  - Test all user flows
+  - Test company admin: view submissions, manage roles
+  - Test provider admin: manage programs, view RFIs
+  - Test RFI form: submit → HubSpot → email
   - Fix any bugs found
 
-#### Afternoon (3-4 hours)
+#### Afternoon (4-5 hours)
 - [ ] **Final UI/UX/Functionality QA**
   - Visual polish pass
   - Mobile responsiveness check
@@ -139,32 +172,38 @@ Detailed implementation plans created:
 
 ## ⚠️ SCOPE DECISIONS
 
-### IN SCOPE (Must Complete by Wed)
+### IN SCOPE (Must Complete by Thu)
 ✅ Programs catalog with CIP/SOC mapping  
 ✅ Assessment results page  
 ✅ Program recommendations  
 ✅ Submit to Company flow  
 ✅ My Assessments results view  
+✅ **Company admin dashboard** (view submissions, manage roles)  
+✅ **Provider admin dashboard** (manage programs, view RFIs)  
+✅ **RFI form + HubSpot integration**  
+✅ **Role-based access control**  
 ✅ Final QA & polish
 
 ### OUT OF SCOPE (Post-Launch)
-❌ Company admin dashboards  
-❌ Provider admin dashboards  
-❌ Chamber admin dashboard  
-❌ RFI form + HubSpot integration  
-❌ Advanced role management
+❌ Chamber admin dashboard (aggregate analytics)  
+❌ Advanced analytics/reporting  
+❌ Bulk operations  
+❌ Email campaign integration
 
-**Rationale:** Focus on core job seeker experience first. Admin/partner features can be added after launch.
+**Rationale:** Core job seeker experience + essential partner tools for launch. Advanced analytics can be added post-launch.
 
 ---
 
 ## 🎯 SUCCESS CRITERIA
 
-**By Wednesday Night:**
+**By Thursday Night:**
 - [ ] All 30 occupations enriched
 - [ ] 200+ programs in catalog
 - [ ] Complete assessment experience working
 - [ ] User can: browse → assess → get results → see programs → submit to company
+- [ ] Company admin can: view submissions, manage roles
+- [ ] Provider admin can: manage programs, view RFIs
+- [ ] RFI form works with HubSpot integration
 - [ ] All critical bugs fixed
 - [ ] UI polished and professional
 - [ ] Documentation complete
@@ -178,11 +217,12 @@ Detailed implementation plans created:
 | Friday | UI + Programs Foundation | 8-10 |
 | Saturday | Programs Complete + AI | 10-12 |
 | Sunday | Assessment Experience | 10-14 |
-| Monday | Final QA & Polish | 6-8 |
-| **TOTAL** | **Full Sprint** | **34-44 hours** |
+| Monday | Admin Dashboards + RFI | 10-12 |
+| Tuesday | Final QA & Polish | 8-10 |
+| **TOTAL** | **Full Sprint** | **46-58 hours** |
 
-**Realistic with focused work:** ✅ Achievable  
-**Buffer:** Monday is buffer day for any overruns
+**Realistic with focused work:** ✅ Achievable over 4 days  
+**Buffer:** Tuesday afternoon is buffer for any overruns
 
 ---
 
@@ -195,7 +235,7 @@ Detailed implementation plans created:
 - [ ] Performance acceptable
 - [ ] Documentation complete
 
-### Launch Day (Thursday)
+### Launch Day (Friday, Feb 5)
 - [ ] Final smoke test
 - [ ] Deploy to production
 - [ ] Monitor for errors
