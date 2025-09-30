@@ -20,13 +20,25 @@ async function generateShortDescription(programName, longDescription) {
 Program Name: ${programName}
 Full Description: ${longDescription || 'Not provided'}
 
-Requirements:
+CRITICAL REQUIREMENTS:
 - EXACTLY 13-15 words
 - Target ~95 characters (with spaces)
-- Focus on key value proposition
-- Professional and engaging tone
-- No fluff or filler words
-- Start with an action verb or key benefit
+- Cut straight to the core offering - what skills/knowledge does this program provide?
+- NO school names, program names, or generic lead-ins ("The program...", "This certificate...", "Nexford's...", "UMSL's...")
+- NO marketing fluff ("more than an education", "advance your career", "balance work and family")
+- Start with varied action verbs: Gain, Build, Develop, Learn, Explore, Acquire, Prepare, Study, etc.
+- AVOID overusing "Master" - use it sparingly
+- Focus on concrete skills and outcomes
+
+GOOD EXAMPLES:
+- "Gain blockchain logistics skills to enhance cybersecurity and optimize global supply chain management."
+- "Build AI and cybersecurity expertise tailored for healthcare through expert-led online courses."
+- "Develop data-driven decision-making skills in analytics, machine learning, and visualization techniques."
+
+BAD EXAMPLES (DO NOT EMULATE):
+- "Advance your career with a flexible, online BA in..."
+- "Nexford's Bachelor of Business Administration program is more than..."
+- "The Intermediate Certificate equips learners with..."
 
 Return ONLY the short description, nothing else.`;
 
@@ -36,7 +48,7 @@ Return ONLY the short description, nothing else.`;
       messages: [
         {
           role: "system",
-          content: "You are an expert copywriter specializing in educational program descriptions. Create concise, compelling descriptions that capture the essence of programs in exactly 13-15 words."
+          content: "You are an expert copywriter specializing in educational program descriptions. Create concise, skills-focused descriptions in exactly 13-15 words. Cut straight to what students will learn - no fluff, no school names, no generic marketing. Use varied action verbs (Gain, Build, Develop, Learn, Explore) and focus on concrete outcomes."
         },
         {
           role: "user",
@@ -86,15 +98,8 @@ async function processPrograms() {
       const program = programs[i];
       console.log(`\n[${i + 1}/${programs.length}] ${program.name}`);
       
-      // Skip if already has a good short description (13-15 words)
-      if (program.short_desc) {
-        const wordCount = program.short_desc.split(/\s+/).length;
-        if (wordCount >= 13 && wordCount <= 15) {
-          console.log(`   ✓ Already has good short description (${wordCount} words)`);
-          skipped++;
-          continue;
-        }
-      }
+      // Regenerate all descriptions with improved prompt
+      // (Comment out the skip logic to regenerate everything)
       
       // Generate new short description
       const result = await generateShortDescription(
