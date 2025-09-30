@@ -1,3 +1,0 @@
-id,job_kind,title,soc_code,company_id,job_type,category,location_city,location_state,median_wage_usd,long_desc,featured_image_url,skills_count
-cebdfd6a-892c-4ee9-afd5-80d193970225,occupation,Project Management Specialists,13-1082,,,Business,St. Petersburg,FL,86700,"Plan, initiate, and manage projects. Lead teams, manage timelines, budgets, and quality.",https://example.org/pm-occupation.jpg,5
-9b37b149-eada-46d3-aae8-a415f7a51f58,featured_role,Mechanical Assistant Project Manager,13-1082,1107063b-0d74-455b-b55b-c7e234062da1,Full-time,Skilled Trades,St. Petersburg,FL,66000,"Work with senior PMs to coordinate scope, schedules, vendors, and quality across mechanical projects.",https://example.org/power-design-mapm.jpg,5

@@ -2,10 +2,29 @@
 // Generates reusable question pools per skill with rotation capabilities
 
 import OpenAI from 'openai'
-import { supabase } from '@/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
+import { updateProgress } from '@/lib/utils/progress'
+import { 
+  generateEnhancedAIContext, 
+  getMarketIntelligence, 
+  getCompanyContext,
+  calculateSkillWeighting
+} from './enhanced-ai-context'
 
+// Use server-side Supabase client for service operations
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
+
+// Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY!
 })
 
 export interface QuizGenerationOptions {
@@ -15,6 +34,7 @@ export interface QuizGenerationOptions {
   proficiencyLevel: 'beginner' | 'intermediate' | 'expert'
   questionCount: number // Typically 8-10 per skill for 40+ total pool
   companyId?: string // For custom company quizzes
+  sessionId?: string // For progress tracking
 }
 
 export interface GeneratedQuestion {
@@ -64,7 +84,10 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
         proficiencyLevel,
         jobContext,
         count: batchCount,
-        existingQuestions: questions // Avoid duplicates
+        existingQuestions: questions, // Avoid duplicates
+        socCode: options.socCode,
+        companyId: options.companyId,
+        sessionId: options.sessionId
       })
 
       questions.push(...batchQuestions)
@@ -85,32 +108,56 @@ async function generateQuestionBatch({
   proficiencyLevel,
   jobContext,
   count,
-  existingQuestions
+  existingQuestions,
+  socCode,
+  companyId,
+  sessionId
 }: {
   skill: any
   proficiencyLevel: string
   jobContext: string
   count: number
   existingQuestions: GeneratedQuestion[]
+  socCode?: string
+  companyId?: string
+  sessionId?: string
 }): Promise<GeneratedQuestion[]> {
 
   const existingStems = existingQuestions.map(q => q.stem.toLowerCase())
 
-  const prompt = `Generate ${count} multiple-choice questions testing ${skill.name} proficiency at the ${proficiencyLevel} level.
+  // Get enhanced context data
+  const marketData = await getMarketIntelligence(socCode || '', skill.name)
+  const companyData = await getCompanyContext(companyId || null)
+  
+  // Calculate skill weighting for enhanced difficulty
+  const skillWeighting = calculateSkillWeighting(
+    skill.importance_level === 'critical' ? 4.5 :
+    skill.importance_level === 'important' ? 3.5 : 2.5,
+    marketData.currentDemand,
+    3.0, // Default company weight
+    0.75 // Default performance correlation
+  )
 
-Skill Description: ${skill.description}
-Proficiency Context: ${skill.proficiency_levels?.[proficiencyLevel] || 'Standard proficiency expectations'}
+  // Generate enhanced AI context
+  const enhancedPrompt = await generateEnhancedAIContext(
+    socCode || '',
+    skill.name,
+    {
+      importance: skill.importance_level === 'critical' ? 4.5 :
+                  skill.importance_level === 'important' ? 3.5 : 2.5,
+      workActivities: ['Standard occupational tasks'],
+      knowledge: ['Domain expertise required'],
+      jobZone: { education: 'Post-secondary', experience: 'Moderate' }
+    },
+    marketData,
+    companyData,
+    sessionId
+  )
 
-Real-world Context (example jobs):
-${jobContext}
+  const prompt = `${enhancedPrompt}
 
-Requirements:
-- Each question must have exactly 4 options (A, B, C, D)
-- Only one correct answer
-- Questions should be practical and job-relevant
-- Include a brief explanation for the correct answer
-- Difficulty level: ${proficiencyLevel}
-- Avoid these existing question stems: ${existingStems.slice(0, 5).join(', ')}
+Generate ${count} multiple-choice questions with exactly 4 options (A, B, C, D).
+Avoid these existing question stems: ${existingStems.slice(0, 5).join(', ')}
 
 Return in this exact JSON format:
 [{
@@ -118,7 +165,7 @@ Return in this exact JSON format:
   "choices": {"A": "Option A", "B": "Option B", "C": "Option C", "D": "Option D"},
   "correct_answer": "A",
   "explanation": "Brief explanation of why this is correct",
-  "difficulty": "${proficiencyLevel}"
+  "difficulty": "${skillWeighting.difficultyLevel}"
 }]`
 
   const response = await openai.chat.completions.create({
@@ -145,7 +192,19 @@ Return in this exact JSON format:
 /**
  * Create or update a SOC-based quiz with generated questions
  */
-export async function createSocQuiz(socCode: string, companyId?: string): Promise<string> {
+export async function createSocQuiz(socCode: string, companyId?: string, sessionId?: string): Promise<string> {
+  console.log('Starting quiz creation for SOC:', socCode, 'company:', companyId)
+
+  // Update progress: Creating quiz structure
+  if (sessionId) {
+    updateProgress(sessionId, {
+      status: 'creating_structure',
+      step: 3,
+      totalSteps: 5,
+      message: 'Creating quiz structure and sections...'
+    })
+  }
+
   // Check if standard quiz already exists
   const { data: existingQuiz } = await supabase
     .from('quizzes')
@@ -156,175 +215,176 @@ export async function createSocQuiz(socCode: string, companyId?: string): Promis
     .single()
 
   if (existingQuiz) {
+    console.log('Quiz already exists:', existingQuiz.id)
     throw new Error(`Quiz already exists for SOC ${socCode}`)
   }
 
-  // Get skills required for this SOC code
-  const { data: jobSkillsData } = await supabase
+  console.log('No existing quiz found, proceeding with creation')
+
+  console.log(`=== QUIZ GENERATION DEBUG FOR ${socCode} ===`)
+
+  // REQUIRE SOC-specific skills - no fallbacks allowed
+  // First get the job ID for this SOC code
+  const { data: jobData, error: jobError } = await supabase
+    .from('jobs')
+    .select('id')
+    .eq('soc_code', socCode)
+    .limit(1)
+    .single()
+
+  console.log('Job lookup result:', { jobData, jobError })
+
+  if (jobError || !jobData) {
+    console.error('No job found for SOC code:', socCode)
+    throw new Error(`No job found for SOC code ${socCode}. Cannot create quiz without a job.`)
+  }
+
+  console.log('Found job for SOC code:', jobData.id)
+
+  // Now get skills for this job
+  const { data: jobSkillsData, error: jobSkillsError } = await supabase
     .from('job_skills')
     .select(`
-      skills (*),
+      job_id,
+      skill_id,
       importance_level,
-      proficiency_threshold
+      proficiency_threshold,
+      skills (
+        id,
+        name,
+        category,
+        description
+      )
     `)
-    .eq('job_id', (
-      await supabase
-        .from('jobs')
-        .select('id')
-        .eq('soc_code', socCode)
-        .limit(1)
-        .single()
-    ).data?.id)
+    .eq('job_id', jobData.id)
 
-  let jobSkills = jobSkillsData || []
+  console.log('Skills lookup result:', { 
+    count: jobSkillsData?.length || 0, 
+    error: jobSkillsError,
+    hasData: !!jobSkillsData
+  })
 
-  // Transform the data structure to match expected format
-  jobSkills = jobSkills.map(item => ({
-    skill: item.skills,
+  if (jobSkillsError) {
+    console.error('Job skills query error:', jobSkillsError)
+    throw new Error(`Database error querying skills for SOC code ${socCode}: ${jobSkillsError.message}`)
+  }
+
+  if (!jobSkillsData || jobSkillsData.length === 0) {
+    console.error('No skills found - jobSkillsData:', jobSkillsData)
+    throw new Error(`No skills found for SOC code ${socCode}. Cannot create quiz without SOC-specific skills.`)
+  }
+
+  console.log('Found SOC-specific skills:', jobSkillsData.length)
+
+  const jobSkills = jobSkillsData.map(item => ({
+    skills: item.skills,
     importance_level: item.importance_level,
     proficiency_threshold: item.proficiency_threshold
   }))
 
-  if (!jobSkills || jobSkills.length === 0) {
-    console.warn(`No skills found for SOC code ${socCode}, using fallback skills`)
+  console.log(`Using ${jobSkills.length}SOC-specific skills for quiz creation`)
 
-    // Create fallback skills for common professional categories
-    const fallbackSkills = [
-      { name: 'Problem Solving', category: 'Business', proficiency: 'intermediate' },
-      { name: 'Communication', category: 'Business', proficiency: 'intermediate' },
-      { name: 'Project Management', category: 'Operations', proficiency: 'beginner' },
-      { name: 'Critical Thinking', category: 'Business', proficiency: 'intermediate' },
-      { name: 'Teamwork', category: 'Business', proficiency: 'intermediate' }
-    ]
-
-    // Create or get fallback skills
-    const mappedFallbackSkills = []
-    for (const skill of fallbackSkills) {
-      let existingSkill = await supabase
-        .from('skills')
-        .select('*')
-        .eq('name', skill.name)
-        .single()
-
-      if (!existingSkill.data) {
-        const { data: newSkill } = await supabase
-          .from('skills')
-          .insert({
-            name: skill.name,
-            category: skill.category,
-            description: `${skill.name} proficiency`,
-            proficiency_levels: {
-              beginner: 'Basic understanding and application',
-              intermediate: 'Solid working knowledge with some independence',
-              expert: 'Advanced mastery and ability to teach others'
-            }
-          })
-          .select()
-          .single()
-
-        existingSkill.data = newSkill
-      }
-
-      mappedFallbackSkills.push({
-        skills: existingSkill.data,
-        importance_level: 'helpful',
-        proficiency_threshold: skill.proficiency === 'expert' ? 85 : skill.proficiency === 'intermediate' ? 70 : 50,
-        weight: 1.0
-      })
-    }
-
-    jobSkills = mappedFallbackSkills
-  }
-
-  // Create the quiz
+  // Create the quiz - match actual schema
   const { data: quiz, error: quizError } = await supabase
     .from('quizzes')
     .insert({
-      soc_code: socCode,
-      title: `${socCode} Skills Assessment`,
-      description: `Comprehensive assessment of skills required for SOC code ${socCode}`,
-      is_standard: !companyId,
-      company_id: companyId,
-      status: 'draft' // Will be published after question generation
+      job_id: jobData.id, // Use job_id instead of soc_code
+      estimated_minutes: 15,
+      version: 1
     })
     .select()
     .single()
 
-  if (quizError) throw quizError
+  if (quizError) {
+    console.error('Quiz creation error:', quizError)
+    throw quizError
+  }
+
+  console.log('Quiz created successfully:', quiz.id)
 
   // Create sections and generate questions for each skill
   let totalQuestions = 0
 
   for (let i = 0; i < jobSkills.length; i++) {
-    const jobSkill = jobSkills[i]
+    const jobSkill = jobSkills[i] as any
 
     // Determine proficiency level based on threshold
     const proficiencyLevel = jobSkill.proficiency_threshold >= 85 ? 'expert' :
                            jobSkill.proficiency_threshold >= 70 ? 'intermediate' : 'beginner'
 
-    // Create quiz section
-    const { data: section, error: sectionError } = await supabase
-      .from('quiz_sections')
-      .insert({
-        quiz_id: quiz.id,
-        skill_id: jobSkill.skills.id,
-        title: jobSkill.skills.name,
-        description: `Assessment of ${jobSkill.skills.name} proficiency`,
-        questions_per_section: 5, // 5 questions per skill per assessment
-        order_index: jobSkills.indexOf(jobSkill)
-      })
-      .select()
-      .single()
+    console.log(`Creating section for skill: ${jobSkill.skills?.name} (${proficiencyLevel})`)
 
-    if (sectionError) throw sectionError
+    // Create quiz section - match actual schema
+      const { data: section, error: sectionError } = await supabase
+        .from('quiz_sections')
+        .insert({
+          quiz_id: quiz.id,
+          skill_id: jobSkill.skills?.id,
+          order_index: i
+        })
+        .select()
+        .single()
 
-    // Generate 8-10 questions per skill (for 40+ total pool)
-    const questionCount = 10
+    if (sectionError) {
+      console.error('Section creation error:', sectionError)
+      throw sectionError
+    }
+    console.log('Section created successfully:', section.id)
+
+    // Generate AI questions using OpenAI
+    const questionCount = 5 // Generate 5 questions per skill
+    console.log(`Generating ${questionCount} AI questions for skill: ${jobSkill.skills?.name}`)
+
     const questions = await generateSkillQuestions({
       socCode,
-      skillId: jobSkill.skills.id,
-      skillName: jobSkill.skills.name,
+      skillId: jobSkill.skills?.id,
+      skillName: jobSkill.skills?.name,
       proficiencyLevel: proficiencyLevel as any,
       questionCount,
       companyId
     })
 
-    // Insert questions
+    console.log(`Successfully generated ${questions.length} questions`)
+
+    // Insert questions - match actual schema
     const questionInserts = questions.map((q, idx) => ({
       section_id: section.id,
-      skill_id: jobSkill.skills.id,
       stem: q.stem,
       choices: q.choices,
-      correct_answer: q.correct_answer,
-      explanation: q.explanation,
-      difficulty: q.difficulty,
-      points: 1
+      answer_key: q.correct_answer, // Use answer_key instead of correct_answer
+      difficulty: q.difficulty
     }))
 
     const { error: questionsError } = await supabase
       .from('quiz_questions')
       .insert(questionInserts)
 
-    if (questionsError) throw questionsError
+    if (questionsError) {
+      console.error('Questions creation error:', questionsError)
+      throw questionsError
+    }
 
-    // Update section with total question count
-    await supabase
-      .from('quiz_sections')
-      .update({ total_questions: questionCount })
-      .eq('id', section.id)
+    console.log(`Created ${questions.length} questions for section`)
 
-    totalQuestions += questionCount
+    // Update section with total question count - remove if column doesn't exist
+    // await supabase
+    //   .from('quiz_sections')
+    //   .update({ total_questions: questions.length })
+    //   .eq('id', section.id)
+
+    totalQuestions += questions.length
   }
 
-  // Update quiz with total question count and publish it
-  await supabase
-    .from('quizzes')
-    .update({
-      total_questions: totalQuestions,
-      status: 'published'
-    })
-    .eq('id', quiz.id)
+  // Update quiz with total question count and publish it - remove if columns don't exist
+  // await supabase
+  //   .from('quizzes')
+  //   .update({
+  //     total_questions: totalQuestions,
+  //     status: 'published'
+  //   })
+  //   .eq('id', quiz.id)
 
+  console.log(`Quiz creation completed successfully with ${totalQuestions} total questions`)
   return quiz.id
 }
 

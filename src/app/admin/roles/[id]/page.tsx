@@ -50,6 +50,14 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     job_openings_annual: null,
     growth_rate_percent: null,
     required_proficiency_pct: null,
+    // Company-specific fields for featured roles
+    core_responsibilities: null,
+    growth_opportunities: null,
+    team_structure: null,
+    work_environment: null,
+    travel_requirements: null,
+    performance_metrics: null,
+    training_provided: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -168,6 +176,13 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           placeholder: 'e.g., 120000',
           format: (value: number | null) => value ? formatCurrency(value) : '',
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
+        },
+        {
+          key: 'soc_code',
+          label: 'SOC Code',
+          type: EntityFieldType.TEXT,
+          placeholder: 'e.g., 13-1082',
+          description: 'Standard Occupational Classification code for government compliance'
         }
       ]
     },
@@ -233,6 +248,72 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             </Button>
           )
         },
+      ]
+    },
+    {
+      id: 'company_details',
+      label: 'Company-Specific Details',
+      fields: [
+        {
+          key: 'core_responsibilities',
+          label: 'Core Responsibilities',
+          type: EntityFieldType.TEXTAREA,
+          placeholder: 'Enter specific responsibilities for this role at your company...',
+          description: 'Company-specific responsibilities that differentiate this role'
+        },
+        {
+          key: 'growth_opportunities',
+          label: 'Growth Opportunities',
+          type: EntityFieldType.TEXTAREA,
+          placeholder: 'Describe career advancement and growth opportunities...',
+          description: 'How employees can advance in this role'
+        },
+        {
+          key: 'team_structure',
+          label: 'Team Structure',
+          type: EntityFieldType.TEXTAREA,
+          placeholder: 'Describe the team this role will work with...',
+          description: 'Team size, reporting structure, collaboration style'
+        },
+        {
+          key: 'work_environment',
+          label: 'Work Environment',
+          type: EntityFieldType.SELECT,
+          options: [
+            { value: 'office', label: 'Office-based' },
+            { value: 'remote', label: 'Remote' },
+            { value: 'hybrid', label: 'Hybrid' },
+            { value: 'field', label: 'Field work' },
+            { value: 'mixed', label: 'Mixed environment' }
+          ],
+          description: 'Primary work environment for this role'
+        },
+        {
+          key: 'travel_requirements',
+          label: 'Travel Requirements',
+          type: EntityFieldType.SELECT,
+          options: [
+            { value: 'none', label: 'No travel required' },
+            { value: 'minimal', label: 'Minimal (< 10%)' },
+            { value: 'occasional', label: 'Occasional (10-25%)' },
+            { value: 'frequent', label: 'Frequent (25-50%)' },
+            { value: 'extensive', label: 'Extensive (> 50%)' }
+          ]
+        },
+        {
+          key: 'performance_metrics',
+          label: 'Key Performance Metrics',
+          type: EntityFieldType.TEXTAREA,
+          placeholder: 'How success is measured in this role...',
+          description: 'Specific KPIs and success metrics for this position'
+        },
+        {
+          key: 'training_provided',
+          label: 'Training & Development',
+          type: EntityFieldType.TEXTAREA,
+          placeholder: 'Describe training programs and professional development opportunities...',
+          description: 'Company-provided training and skill development programs'
+        }
       ]
     },
     {

@@ -2,366 +2,259 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, Sparkles, BookOpen, Target, Users, Clock } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Loader2, Sparkles, AlertCircle, CheckCircle, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase/client'
+import Link from 'next/link'
+import Breadcrumb from '@/components/ui/breadcrumb'
 
-interface Quiz {
-  id: string
+interface SocCodeWithSkills {
   soc_code: string
+  job_count: number
+  skill_count: number
   title: string
-  status: 'draft' | 'published' | 'archived'
-  total_questions: number
-  questions_per_assessment: number
-  is_standard: boolean
-  created_at: string
-}
-
-interface JobWithSoc {
-  soc_code: string
-  title: string
-  count: number
 }
 
 export default function GenerateAssessmentPage() {
   const router = useRouter()
-  const [quizzes, setQuizzes] = useState<Quiz[]>([])
-  const [availableSocs, setAvailableSocs] = useState<JobWithSoc[]>([])
+  const [availableSocCodes, setAvailableSocCodes] = useState<SocCodeWithSkills[]>([])
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [socCode, setSocCode] = useState('')
   const [companyId, setCompanyId] = useState('')
 
-  // Load existing quizzes and available SOC codes
   useEffect(() => {
-    loadData()
+    loadAvailableSocCodes()
   }, [])
 
-  const loadData = async () => {
+  const loadAvailableSocCodes = async () => {
     try {
       setLoading(true)
+      
+      // Get SOC codes that have jobs with skills
+      const { data, error } = await supabase
+        .from('job_skills')
+        .select(`
+          jobs!inner(soc_code, title),
+          skills(name)
+        `)
+        .order('jobs(soc_code)')
 
-      // Load existing quizzes
-      const quizResponse = await fetch('/api/quizzes')
-      const quizData = await quizResponse.json()
-      setQuizzes(quizData.quizzes || [])
+      if (error) throw error
 
-      // Load available SOC codes from jobs
-      const { data: jobs } = await supabase
+      // Group by SOC code and count skills
+      const socCodeMap = new Map<string, SocCodeWithSkills>()
+      
+      data?.forEach((item: any) => {
+        const socCode = item.jobs.soc_code
+        const title = item.jobs.title
+        
+        if (!socCodeMap.has(socCode)) {
+          socCodeMap.set(socCode, {
+            soc_code: socCode,
+            title: title,
+            job_count: 0,
+            skill_count: 0
+          })
+        }
+        
+        const entry = socCodeMap.get(socCode)!
+        entry.skill_count++
+      })
+
+      // Count jobs per SOC code
+      const jobCounts = await supabase
         .from('jobs')
-        .select('soc_code, title')
+        .select('soc_code')
         .not('soc_code', 'is', null)
 
-      // Group by SOC code and count
-      const socMap = new Map<string, { title: string, count: number }>()
-      jobs?.forEach((job: any) => {
-        if (job.soc_code) {
-          const existing = socMap.get(job.soc_code)
-          if (existing) {
-            existing.count++
-          } else {
-            socMap.set(job.soc_code, { title: job.title, count: 1 })
-          }
+      jobCounts.data?.forEach((job: any) => {
+        if (job.soc_code && socCodeMap.has(job.soc_code)) {
+          socCodeMap.get(job.soc_code)!.job_count++
         }
       })
 
-      const socList = Array.from(socMap.entries()).map(([soc_code, data]) => ({
-        soc_code,
-        title: data.title,
-        count: data.count
-      }))
-
-      setAvailableSocs(socList)
-
-    } catch (error) {
-      console.error('Failed to load data:', error)
-      toast.error('Failed to load assessment data')
+      setAvailableSocCodes(Array.from(socCodeMap.values()).sort((a, b) => 
+        b.skill_count - a.skill_count
+      ))
+      
+    } catch (err) {
+      console.error('Error loading available SOC codes:', err)
+      toast.error('Failed to load available SOC codes')
     } finally {
       setLoading(false)
     }
   }
 
-  const generateQuiz = async () => {
+  const handleGenerateQuiz = async () => {
     if (!socCode.trim()) {
-      toast.error('SOC code is required')
+      toast.error('Please select a SOC code')
       return
     }
 
     setGenerating(true)
     try {
-      // Try to populate skills first (optional enhancement)
-      try {
-        toast.info('Enhancing with O*NET data...')
-
-        const populateResponse = await fetch('/api/admin/populate-job-skills', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ socCode: socCode.trim() })
-        })
-
-        const populateData = await populateResponse.json()
-
-        if (populateData.success && populateData.total_skills_added > 0) {
-          toast.success(`Enhanced with ${populateData.total_skills_added} real skills from O*NET!`)
-        } else {
-          toast.info('Using existing skills data (O*NET enhancement optional)')
-        }
-      } catch (populateError) {
-        console.warn('O*NET population failed, continuing with existing skills:', populateError)
-        toast.info('Using existing skills data (API enhancement optional)')
-      }
-
-      // Generate the quiz regardless of skill population success
-      toast.info('Generating AI assessment...')
-
       const response = await fetch('/api/quizzes/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
           socCode: socCode.trim(),
-          companyId: companyId || null
-        })
+          companyId: companyId || undefined 
+        }),
       })
 
-      const data = await response.json()
+      const result = await response.json()
 
-      if (data.success) {
-        toast.success('Assessment quiz generated successfully!')
-        setSocCode('')
-        setCompanyId('')
-        loadData() // Refresh the list
-      } else {
-        toast.error(data.error || 'Failed to generate assessment')
+      if (!response.ok) {
+        throw new Error(result.details || result.error || 'Failed to generate quiz')
       }
-    } catch (error) {
-      console.error('Failed to generate quiz:', error)
-      toast.error('Failed to generate assessment')
+
+      toast.success(`Quiz generated successfully!`)
+      
+      // Redirect to the quiz detail page
+      router.push(`/admin/assessments/${result.quizId}/quiz`)
+      
+    } catch (err) {
+      console.error('Error generating quiz:', err)
+      toast.error(err instanceof Error ? err.message : 'Failed to generate quiz')
     } finally {
       setGenerating(false)
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      draft: 'secondary',
-      published: 'default',
-      archived: 'outline'
-    } as const
-
-    return (
-      <Badge variant={variants[status as keyof typeof variants] || 'secondary'}>
-        {status}
-      </Badge>
-    )
+  const selectSocCode = (selectedSocCode: string) => {
+    setSocCode(selectedSocCode)
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin" />
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <div className="flex items-center justify-center mb-4">
-          <Sparkles className="w-8 h-8 text-purple-600 mr-3" />
-          <h1 className="text-3xl font-bold text-gray-900">
-            Generate AI Assessment
-          </h1>
-        </div>
-        <p className="text-gray-600">
-          Create comprehensive skill assessments using SOC codes and AI-powered question generation
-        </p>
+    <div className="space-y-6">
+      {/* Breadcrumbs */}
+      <Breadcrumb items={[
+        { label: 'Admin', href: '/admin' },
+        { label: 'Assessments', href: '/admin/assessments' },
+        { label: 'Generate New Quiz', isActive: true }
+      ]} />
+
+      <div>
+        <h1 className="text-3xl font-bold">Generate New Assessment</h1>
+        <p className="text-gray-600">Create SOC-based assessment quizzes from job skills data</p>
       </div>
 
-      {/* Generation Form */}
+      <Alert>
+        <Sparkles className="h-4 w-4" />
+        <AlertDescription>
+          <strong>SOC-Specific Assessments:</strong> Quizzes can only be generated for SOC codes that have associated job skills. 
+          This ensures assessments are based on real occupational requirements, not generic questions.
+        </AlertDescription>
+      </Alert>
+
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <BookOpen className="w-5 h-5 mr-2" />
-            SOC-Based Assessment Generation
-          </CardTitle>
+          <CardTitle>SOC Code Selection</CardTitle>
+          <CardDescription>
+            Select a SOC code that has job skills defined. Only SOC codes with skills can generate meaningful assessments.
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <Label htmlFor="socCode">SOC Code *</Label>
-              <Select value={socCode} onValueChange={setSocCode}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select SOC code..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableSocs.map((soc) => (
-                    <SelectItem key={soc.soc_code} value={soc.soc_code}>
-                      {soc.soc_code} - {soc.title} ({soc.count} job{soc.count !== 1 ? 's' : ''})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-gray-500 mt-1">
-                Standard Occupational Classification code for job matching
-              </p>
-            </div>
-
-            <div>
-              <Label htmlFor="companyId">Company (Optional)</Label>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="socCode">SOC Code</Label>
               <Input
-                id="companyId"
-                placeholder="Company ID for custom assessment"
-                value={companyId}
-                onChange={(e) => setCompanyId(e.target.value)}
+                id="socCode"
+                placeholder="e.g., 13-1082"
+                value={socCode}
+                onChange={(e) => setSocCode(e.target.value)}
               />
-              <p className="text-sm text-gray-500 mt-1">
-                Leave empty for standard O*NET assessment
-              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>&nbsp;</Label>
+              <Button 
+                onClick={handleGenerateQuiz}
+                disabled={generating || !socCode.trim()}
+                className="w-full bg-[#114B5F] hover:bg-[#0d3a4a]"
+              >
+                {generating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating Assessment...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Assessment
+                  </>
+                )}
+              </Button>
             </div>
           </div>
-
-          {/* Generation Process Explanation */}
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-medium text-blue-900 mb-2">What happens when you generate:</h3>
-            <div className="text-sm text-blue-800 space-y-1">
-              <div>• AI analyzes SOC code and related job skills</div>
-              <div>• Generates 40+ contextual questions (8-10 per skill)</div>
-              <div>• Creates reusable assessment for all matching jobs</div>
-              <div>• Includes proficiency levels and question rotation</div>
-            </div>
-          </div>
-
-          <Button
-            onClick={generateQuiz}
-            disabled={generating || !socCode.trim()}
-            className="w-full md:w-auto"
-            size="lg"
-          >
-            {generating ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Generating Assessment...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5 mr-2" />
-                Generate AI Assessment
-              </>
-            )}
-          </Button>
         </CardContent>
       </Card>
 
-      {/* Existing Assessments */}
       <Card>
         <CardHeader>
-          <CardTitle>Existing Assessments</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            Available SOC Codes with Skills
+          </CardTitle>
+          <CardDescription>
+            SOC codes that have jobs with associated skills and can generate assessments ({availableSocCodes.length} available)
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          {quizzes.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              No assessments generated yet. Create your first AI assessment above!
-            </p>
+          {availableSocCodes.length === 0 ? (
+            <div className="text-center py-8">
+              <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No SOC Codes Available</h3>
+              <p className="text-gray-600 mb-4">
+                No SOC codes with associated job skills were found. You need to populate job skills data before generating assessments.
+              </p>
+              <p className="text-sm text-gray-500">
+                Import seed data or manually add job skills to enable assessment generation.
+              </p>
+            </div>
           ) : (
-            <div className="space-y-4">
-              {quizzes.map((quiz) => (
-                <div
-                  key={quiz.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {availableSocCodes.map((item) => (
+                <Card 
+                  key={item.soc_code}
+                  className={`cursor-pointer transition-all hover:shadow-md ${
+                    socCode === item.soc_code ? 'ring-2 ring-[#114B5F] bg-blue-50' : 'hover:bg-gray-50'
+                  }`}
+                  onClick={() => selectSocCode(item.soc_code)}
                 >
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3">
-                      <h3 className="font-medium">{quiz.title}</h3>
-                      {getStatusBadge(quiz.status)}
-                      {quiz.is_standard && (
-                        <Badge variant="outline">Standard</Badge>
-                      )}
+                  <CardContent className="p-4">
+                    <div className="font-mono text-sm font-semibold text-[#114B5F] mb-1">
+                      {item.soc_code}
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                      SOC {quiz.soc_code} • {quiz.total_questions} questions •
-                      {quiz.questions_per_assessment} per assessment
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Created {new Date(quiz.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Edit
-                    </Button>
-                  </div>
-                </div>
+                    <div className="text-sm font-medium mb-2 line-clamp-2">
+                      {item.title}
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-600">
+                      <span>{item.skill_count} skills</span>
+                      <span>{item.job_count} jobs</span>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <BookOpen className="w-8 h-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Assessments</p>
-                <p className="text-2xl font-bold">{quizzes.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <Target className="w-8 h-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Published</p>
-                <p className="text-2xl font-bold">
-                  {quizzes.filter(q => q.status === 'published').length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <Clock className="w-8 h-8 text-orange-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">SOC Codes Available</p>
-                <p className="text-2xl font-bold">{availableSocs.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center">
-              <Users className="w-8 h-8 text-purple-600" />
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Standard Assessments</p>
-                <p className="text-2xl font-bold">
-                  {quizzes.filter(q => q.is_standard).length}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   )
 }

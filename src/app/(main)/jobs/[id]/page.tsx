@@ -13,92 +13,7 @@ import { useEffect, useState } from 'react'
 import { getJobById } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
 
-// Mock data for fallback - keeping minimal examples
-const mockJobData = {
-  // Featured Role Example
-  '1': {
-    id: '1',
-    title: 'Mechanical Project Manager',
-    job_kind: 'featured_role',
-    soc_code: '13-1082',
-    category: 'Skilled Trades',
-    job_type: 'Full-Time',
-    location_city: 'St. Petersburg',
-    location_state: 'FL',
-    median_wage_usd: 85700,
-    education_requirements: 'Construction-related Degree',
-    proficiency_score: 90,
-    long_desc: "We're looking for a Mechanical Project Manager who is ready to not just manage projects – but live opportunities for future expansion through top tier customer service, quality execution, and project execution. In this role, you'll manage all business aspects of concurrent projects and ensure financial and quality targets are met.",
-    featured_image_url: null,
-    skills_count: 5,
-    company: {
-      name: 'Power Design',
-      logo_url: null,
-      is_trusted_partner: true,
-      bio: 'Power Design is a leading electrical contractor specializing in commercial and industrial projects. With over 30 years of experience, we deliver innovative solutions and maintain the highest standards of quality and safety.',
-      headquarters: 'St. Petersburg, FL',
-      revenue: '500 million to 1 billion USD',
-      employees: '1,001 to 5,000',
-      industry: 'Construction',
-      company_image: null
-    },
-    job_skills: [
-      { skill: { name: 'Process Improvement', category: 'Management' }, weight: 1.0 },
-      { skill: { name: 'Project Management', category: 'Management' }, weight: 0.9 },
-      { skill: { name: 'Data Analysis', category: 'Analysis' }, weight: 0.8 },
-      { skill: { name: 'Strategic Planning', category: 'Planning' }, weight: 0.8 },
-      { skill: { name: 'Budgeting', category: 'Finance' }, weight: 0.7 }
-    ],
-    core_responsibilities: [
-      'Manage all business aspects of concurrent projects and ensure financial and quality targets are met',
-      'Manage all activities associated with materials, budgeting, and production for assigned projects',
-      'Supervise and mentor select assistant project managers on the project team',
-      'Actively maintain customer relationships to ensure satisfaction and quality of service',
-      'Ensure adherence to Power Design\'s standards of quality, safety, and best practices'
-    ]
-  },
-  // Occupation Example
-  'occ-3': {
-    id: 'occ-3',
-    title: 'Project Management Specialists',
-    job_kind: 'occupation',
-    soc_code: '13-1082',
-    category: 'Business',
-    projected_open_positions: 18000,
-    education_requirements: "Bachelor's Degree",
-    job_growth_outlook: '+8% through 2030',
-    median_wage_usd: 86700,
-    long_desc: 'Project Management Specialists coordinate and manage projects across various industries to ensure they meet scope, budget and timeline requirements. They serve as a bridge between stakeholders, resources, and teams, driving efficiency and accountability from planning through delivery.',
-    featured_image_url: null,
-    skills_count: 5,
-    job_skills: [
-      { skill: { name: 'Process Improvement', category: 'Management' }, weight: 1.0 },
-      { skill: { name: 'Project Management', category: 'Management' }, weight: 0.9 },
-      { skill: { name: 'Data Analysis', category: 'Analysis' }, weight: 0.8 },
-      { skill: { name: 'Strategic Planning', category: 'Planning' }, weight: 0.8 },
-      { skill: { name: 'Budgeting', category: 'Finance' }, weight: 0.7 }
-    ],
-    core_responsibilities: [
-      'Analyze and approve business operations to improve efficiency and effectiveness',
-      'Identify operational risks and develop strategies to mitigate them',
-      'Manage project related correspondence and documents through designated systems',
-      'Work closely with various departments to streamline processes and improve outcomes',
-      'Use data analysis and metrics to support strategic initiatives and identify opportunities'
-    ],
-    related_job_titles: [
-      'Operations Coordinator',
-      'Operations Support Specialist',
-      'Business Process Analyst',
-      'Process Improvement Specialist'
-    ],
-    hiring_companies: [
-      { name: 'Power Design', logo: null },
-      { name: 'TD SYNNEX', logo: null },
-      { name: 'Spectrum', logo: null },
-      { name: 'BayCare', logo: null }
-    ]
-  }
-}
+// No mock data - using real database data only
 
 function CompanyModal({ company }: { company: any }) {
   return (
@@ -290,6 +205,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <div>
                       <div className="text-sm opacity-80">Median Salary</div>
                       <div className="text-xl font-bold">${job.median_wage_usd?.toLocaleString()}</div>
+                      {job.job_kind === 'occupation' && (
+                        <div className="text-xs opacity-70 mt-1">National Average</div>
+                      )}
                     </div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
@@ -318,7 +236,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <div>
                         <div className="text-sm opacity-80">Projected Open Positions in Region</div>
                         <div className="text-xl font-bold">
-                          ~{job.projected_open_positions?.toLocaleString() || '18,000'}
+                          {job.projected_open_positions ? `~${job.projected_open_positions.toLocaleString()}` : 'Data not available'}
                         </div>
                       </div>
                     </div>
@@ -331,7 +249,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </div>
                     <div>
                       <div className="text-sm opacity-80">Typical Education Requirements</div>
-                      <div className="text-xl font-bold">{job.education_requirements || "Bachelor's Degree"}</div>
+                      <div className="text-xl font-bold">{job.education_level || job.education_requirements || 'Not specified'}</div>
                     </div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
@@ -343,7 +261,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       </div>
                       <div>
                         <div className="text-sm opacity-80">Required Proficiency Score</div>
-                        <div className="text-xl font-bold">{job.proficiency_score || '90'}%</div>
+                        <div className="text-xl font-bold">{job.proficiency_score ? `${job.proficiency_score}%` : 'Not specified'}</div>
                       </div>
                     </div>
                   ) : (
@@ -354,8 +272,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">Job Growth Outlook</div>
-                        <div className="text-xl font-bold">{job.job_growth_outlook || '+8% through 2030'}</div>
+                        <div className="text-sm opacity-80">Career Outlook</div>
+                        <div className="text-base font-semibold">{job.employment_outlook || 'Data not available'}</div>
+                        {job.employment_outlook && (
+                          <div className="text-xs opacity-70 mt-1">Based on national data</div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -399,7 +320,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </p>
           </div>
           <Button asChild className="bg-[#114B5F] hover:bg-[#0F3A47] text-[#FAFAFA] px-3 py-2 rounded-lg flex-shrink-0 shadow-sm w-[215px] h-10 gap-2 font-normal text-base">
-            <Link href={`/assessments/quiz/${job.id}`} className="flex items-center justify-center gap-2">
+            <Link href={`/assessments/quiz/${job.soc_code}`} className="flex items-center justify-center gap-2">
               Start Your Assessment
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M9 5l7 7-7 7"/>
@@ -419,12 +340,14 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Skills</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {(job.skills || []).slice(0, 6).map((skill: any, index: number) => (
+                  {job.skills && job.skills.length > 0 ? job.skills.slice(0, 6).map((skill: any, index: number) => (
                     <div key={index} className="flex items-center gap-2">
                       <span className="text-teal-400">•</span>
                       <span className="text-white text-sm">{skill.skill?.name || skill.name}</span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-white/70 text-sm">No skills data available</div>
+                  )}
                 </div>
               </div>
 
@@ -435,42 +358,122 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Responsibilities</h3>
                 <div className="grid grid-cols-1 gap-3">
-                  {(job.core_responsibilities || [
-                    'Manage project deliverables and timelines',
-                    'Coordinate with stakeholders and team members',
-                    'Ensure quality standards are met',
-                    'Monitor project budgets and resources',
-                    'Communicate progress and issues to leadership'
-                  ]).map((responsibility: string, index: number) => (
+                  {job.core_responsibilities && job.core_responsibilities.length > 0 ? job.core_responsibilities.map((responsibility: string, index: number) => (
                     <div key={index} className="flex items-center gap-2">
                       <span className="text-teal-400">•</span>
                       <span className="text-white text-sm">{responsibility}</span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-white/70 text-sm">No responsibilities data available</div>
+                  )}
                 </div>
               </div>
 
               {/* Related Job Titles (for occupations only) */}
               {job.job_kind === 'occupation' && (
                 <>
+                  {/* Bright Outlook Badge */}
+                  {job.bright_outlook === 'Bright' && (
+                    <>
+                      <div className="border-t border-[#093A4B]"></div>
+                      <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-4 flex items-start gap-3">
+                        <div className="text-yellow-400 flex-shrink-0">
+                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="font-semibold text-yellow-100 mb-1">Bright Outlook Occupation</div>
+                          <div className="text-sm text-yellow-200">{job.bright_outlook_category}</div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Typical Tasks Section */}
+                  {job.tasks && job.tasks.length > 0 && (
+                    <>
+                      <div className="border-t border-[#093A4B]"></div>
+                      <div>
+                        <h3 className="font-semibold mb-4 text-white">Typical Tasks & Responsibilities</h3>
+                        <div className="text-sm text-white/70 mb-3">Day-to-day activities in this occupation</div>
+                        <div className="space-y-3">
+                          {job.tasks.slice(0, 8).map((task: any, index: number) => (
+                            <div key={index} className="flex items-start gap-3">
+                              <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
+                                {task.DataValue && (
+                                  <span className="text-xs text-white/50 mt-1 inline-block">Importance: {task.DataValue}/5.0</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Tools & Technology Section */}
+                  {job.tools_and_technology && job.tools_and_technology.length > 0 && (
+                    <>
+                      <div className="border-t border-[#093A4B]"></div>
+                      <div>
+                        <h3 className="font-semibold mb-4 text-white">Tools & Technology</h3>
+                        <div className="text-sm text-white/70 mb-3">Software and equipment commonly used</div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {job.tools_and_technology.slice(0, 12).map((tool: any, index: number) => (
+                            <div key={index} className="bg-[#0F3A47] rounded-lg p-3 border border-teal-500/20">
+                              <div className="text-sm font-medium text-white">
+                                {tool.ToolName || tool.TechnologyName}
+                              </div>
+                              {tool.Category && (
+                                <div className="text-xs text-white/50 mt-1">{tool.Category}</div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* CareerOneStop Video */}
+                  {job.video_url && (
+                    <>
+                      <div className="border-t border-[#093A4B]"></div>
+                      <div>
+                        <h3 className="font-semibold mb-4 text-white">Career Video</h3>
+                        <a 
+                          href={job.video_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-teal-400 hover:text-teal-300 font-medium transition-colors"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
+                          </svg>
+                          Watch Career Video on CareerOneStop
+                        </a>
+                      </div>
+                    </>
+                  )}
+
                   {/* Divider between sections */}
                   <div className="border-t border-[#093A4B]"></div>
                   
                   <div>
                     <h3 className="font-semibold mb-4 text-white">Related Job Titles</h3>
                     <div className="grid grid-cols-2 gap-3">
-                      {(job.related_job_titles || [
-                        'Operations Coordinator',
-                        'Operations Support Specialist', 
-                        'Business Process Analyst',
-                        'Process Improvement Specialist',
-                        'Operations Specialist'
-                      ]).map((title: string, index: number) => (
+                      {job.related_job_titles && job.related_job_titles.length > 0 ? job.related_job_titles.map((title: string, index: number) => (
                         <div key={index} className="flex items-center gap-2">
                           <span className="text-teal-400">•</span>
                           <span className="text-white text-sm">{title}</span>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="text-white/70 text-sm col-span-2">No related titles available</div>
+                      )}
                     </div>
                   </div>
                 </>

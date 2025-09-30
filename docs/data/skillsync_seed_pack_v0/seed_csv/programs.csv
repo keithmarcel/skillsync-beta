@@ -1,4 +1,0 @@
-id,school_id,name,program_type,format,duration_text,short_desc,program_url,cip_code
-1871a957-5718-40ba-8fb4-d3442f6362bc,203d2f96-0fbe-4cc6-840c-669f08d137b7,Project Management Certificate,Certificate,Online,12 weeks,"Case-study driven program covering planning, execution, agile tools, and team leadership.",https://example.org/spc-pm-certificate,52.0211
-b64d3f7f-fdb6-4726-8c6a-db9ad1d524ff,71e2645b-3df0-4a11-bfd7-a18959216337,Business Analytics Certificate,Certificate,Hybrid,16 weeks,"Hands-on analytics for operations, dashboards, and decision-making.",https://example.org/usf-biz-analytics,30.7102
-b58626bf-9664-4ae6-a26d-c8b0696300af,bf528caf-555e-4cbb-bd85-aac536450124,Building Construction Technologies Certificate,Certificate,In-person,9 months,"Construction fundamentals, safety, project coordination, and materials management.",https://example.org/ptc-bct,46.0415

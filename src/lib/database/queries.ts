@@ -23,6 +23,14 @@ export interface Job {
   job_openings_annual: number | null;
   growth_rate_percent: number | null;
   required_proficiency_pct: number | null;
+  // Company-specific fields for featured roles
+  core_responsibilities: string | null;
+  growth_opportunities: string | null;
+  team_structure: string | null;
+  work_environment: string | null;
+  travel_requirements: string | null;
+  performance_metrics: string | null;
+  training_provided: string | null;
   created_at: string;
   updated_at: string;
   status: 'draft' | 'published' | 'archived';
@@ -63,22 +71,40 @@ export interface Program {
 export interface School {
   id: string
   name: string
-  logo_url: string | null
   about_url: string | null
   city: string | null
   state: string | null
+}
+
+export interface AssessmentSkillResult {
+  id: string
+  assessment_id: string
+  skill_id: string
+  score: number
+  score_pct: number
+  proficiency_level: 'beginner' | 'intermediate' | 'expert'
+  band?: string
+  correct_answers?: number
+  total_questions?: number
+  skill?: Skill
 }
 
 export interface Assessment {
   id: string
   user_id: string | null
   job_id: string | null
-  method: 'quiz' | 'resume'
-  analyzed_at: string | null
-  readiness_pct: number | null
-  status_tag: 'role_ready' | 'close_gaps' | 'needs_development' | null
+  quiz_id: string | null
+  total_score: number
+  proficiency_level: 'beginner' | 'intermediate' | 'expert'
+  completed_at: string
+  created_at: string
   is_active?: boolean
+  readiness_pct?: number | null
+  analyzed_at?: string
+  method?: string
+  status_tag?: string
   job?: Job
+  quiz?: Quiz
   skill_results?: AssessmentSkillResult[]
 }
 

@@ -381,17 +381,18 @@ export function AdminTable<T extends Record<string, any>>({
           <thead>
             <tr className="bg-[#F9FAFB] text-[#114B5F] text-xs font-semibold uppercase tracking-wide border-b border-[#E5E7EB]">
               {bulkActions && (
-                <th className="py-6 px-4 w-[50px]">
+                <th className="py-6 px-4 w-[50px] sticky left-0 bg-[#F9FAFB] z-20 border-r border-[#E5E7EB]">
                   <Checkbox
                     checked={selectAll}
                     onCheckedChange={handleSelectAll}
+                    className="text-[#114B5F] focus:ring-[#114B5F]"
                   />
                 </th>
               )}
               {columns.map((column, index) => (
                 <th 
                   key={column.key}
-                  className={`py-6 px-6 text-left ${index === columns.length - 1 ? 'text-center' : ''}`}
+                  className={`py-6 px-6 text-left ${index === columns.length - 1 ? 'text-center' : ''} ${column.className || ''}`}
                   style={{ width: column.width }}
                 >
                   {column.sortable !== false ? (
@@ -411,7 +412,7 @@ export function AdminTable<T extends Record<string, any>>({
                   )}
                 </th>
               ))}
-              {(rowActions || actions) && <th className="py-6 px-6 text-center w-[100px]">Actions</th>}
+              {(rowActions || actions) && <th className="py-6 px-6 text-center w-[100px] sticky right-0 bg-[#F9FAFB] z-10 border-l border-[#E5E7EB]">Actions</th>}
             </tr>
           </thead>
 
@@ -424,11 +425,12 @@ export function AdminTable<T extends Record<string, any>>({
                 onClick={() => onRowClick?.(row)}
               >
                 {bulkActions && (
-                  <td className="py-6 px-4">
+                  <td className="py-6 px-4 sticky left-0 bg-white z-20 border-r border-gray-100">
                     <Checkbox
                       checked={selectedRows.has(String(row[keyField]))}
                       onCheckedChange={() => handleSelectRow(String(row[keyField]))}
                       onClick={(e) => e.stopPropagation()}
+                      className="text-[#114B5F] focus:ring-[#114B5F]"
                     />
                   </td>
                 )}
@@ -444,7 +446,7 @@ export function AdminTable<T extends Record<string, any>>({
                   </td>
                 ))}
                 {(rowActions || actions) && (
-                  <td className="py-6 px-6 text-center">
+                  <td className="py-6 px-6 text-center sticky right-0 bg-white z-10 border-l border-gray-100">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0 mx-auto">

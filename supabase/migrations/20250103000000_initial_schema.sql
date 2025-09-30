@@ -1,7 +1,7 @@
 -- Initial SkillSync Database Schema
 -- Create custom types first
 CREATE TYPE public.assessment_method AS ENUM ('quiz', 'resume');
-CREATE TYPE public.job_kind AS ENUM ('featured_role', 'high_demand');
+CREATE TYPE public.job_kind AS ENUM ('featured_role', 'occupation');
 CREATE TYPE public.skill_band AS ENUM ('developing', 'proficient', 'expert');
 
 -- Create tables in dependency order
