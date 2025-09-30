@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { getOpenAIModel } from '../config/openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -38,7 +39,7 @@ Return top 3 CIP codes with confidence scores (0-100) and brief reasoning.
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // Cheaper, faster, higher rate limits
+      model: getOpenAIModel(), // Uses centralized config (gpt-4o-mini by default)
       messages: [
         {
           role: "system",

@@ -1,7 +1,8 @@
 // Assessment Proficiency Engine - Enterprise-Grade Assessment Intelligence
 // Sister service to Quiz Generation Engine with same precision and sophistication
 
-import OpenAI from 'openai'
+import OpenAI from 'openai';
+import { getOpenAIModel } from '../config/openai';
 import { createClient } from '@supabase/supabase-js'
 import { 
   generateEnhancedAIContext, 
@@ -282,7 +283,7 @@ RESPONSE FORMAT (JSON only):
 `
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: getOpenAIModel(), // Uses centralized config (gpt-4o-mini by default)
       messages: [
         {
           role: "system",
