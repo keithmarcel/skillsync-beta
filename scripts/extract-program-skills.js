@@ -24,10 +24,16 @@ async function extractSkillsForProgram(programId, programName, cipCode) {
     const socCodes = socMappings.map(m => m.soc_code);
 
     // Step 2: Get jobs for these SOC codes
-    const { data: jobs } = await supabase
+    // Note: Crosswalk uses format "11-1021" but jobs table uses "11-1021.00"
+    // We need to match on the base code (first 7 characters)
+    const { data: allJobs } = await supabase
       .from('jobs')
-      .select('id, soc_code')
-      .in('soc_code', socCodes);
+      .select('id, soc_code');
+    
+    const jobs = allJobs?.filter(job => {
+      const baseCode = job.soc_code.substring(0, 7); // Get "11-1021" from "11-1021.00"
+      return socCodes.includes(baseCode);
+    });
 
     if (!jobs || jobs.length === 0) {
       return { success: false, error: `No jobs for SOCs: ${socCodes.slice(0, 3).join(', ')}...` };
