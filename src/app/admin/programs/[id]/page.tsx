@@ -105,7 +105,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           label: 'Credential Type',
           type: EntityFieldType.SELECT,
           options: [
-            { value: '', label: 'Select type' },
+            { value: 'none', label: 'Select type' },
             { value: 'Certificate', label: 'Certificate' },
             { value: 'Diploma', label: 'Diploma' },
             { value: "Associate's Degree", label: "Associate's Degree" },
@@ -120,7 +120,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           label: 'Format',
           type: EntityFieldType.SELECT,
           options: [
-            { value: '', label: 'Select format' },
+            { value: 'none', label: 'Select format' },
             { value: 'Online', label: 'Online' },
             { value: 'In-Person', label: 'In-Person' },
             { value: 'Hybrid', label: 'Hybrid' },
