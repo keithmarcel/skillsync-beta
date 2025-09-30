@@ -25,6 +25,7 @@ export default function ProgramsPage() {
     { key: 'discipline', header: 'Discipline', sortable: true },
     { key: 'catalog_provider', header: 'Catalog', sortable: true },
     { key: 'program_type', header: 'Type', sortable: true },
+    { key: 'cip_code', header: 'CIP Code', sortable: true },
     {
       key: 'skills_count',
       header: 'Skills',

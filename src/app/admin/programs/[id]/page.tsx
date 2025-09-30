@@ -138,7 +138,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           label: 'CIP Code',
           type: EntityFieldType.SELECT,
           options: [
-            { value: '', label: 'Select a CIP code' },
+            { value: 'none', label: 'Select a CIP code' },
             ...cipCodes.map(cip => ({
               value: cip.cip_code,
               label: `${cip.cip_code} - ${cip.title}`
