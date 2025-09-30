@@ -18,12 +18,14 @@ All root-level `.sql` files moved to archive:
 - `schema.sql`, `updated_schema.sql`
 
 ### JavaScript Scripts → `/docs/archive/js-scripts/`
-All root-level `.js` files moved to archive:
+Root-level utility `.js` files moved to archive:
 - `apply-rls-direct.js`, `apply-rls-policies.js`
 - `check-actual-schema.js`, `check-db-status.js`
 - `check-jobs-data.js`, `check-profiles-columns.js`
 - `check-profiles-schema.js`, `create-mock-user.js`
 - `fix-missing-profile.js`, `verify-company-publishing.js`
+
+**Note:** `tailwind.config.js` and `postcss.config.js` were initially moved but restored to root (required for build)
 
 ### Documentation → `/docs/reference/`
 - `HUBSPOT_IMPORT_QUICKSTART.md` → `/docs/reference/`
