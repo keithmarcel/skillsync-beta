@@ -9,6 +9,7 @@
 
 ### Core Documentation
 - **[Technical Architecture](skill-sync-technical-architecture.md)** - Complete technical reference
+- **[Sprint Roadmap](SPRINT_ROADMAP.md)** - 2-day sprint to Friday demo (CURRENT)
 - **[Documentation Audit](DOCUMENTATION_AUDIT.md)** - Maintenance guide and cleanup plan
 - **[Cleanup Plan](CLEANUP_PLAN.md)** - Recent reorganization details
 
