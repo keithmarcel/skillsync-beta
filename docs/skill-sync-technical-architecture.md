@@ -1473,3 +1473,100 @@ This guide should prevent the need to "start from scratch" when investigating fu
 - `/src/lib/services/careeronestop-api.ts` - CareerOneStop integration
 - `/src/app/api/admin/occupation-enrichment/` - Admin API routes
 - `/src/app/admin/occupations/page.tsx` - Admin UI
+
+---
+
+## HubSpot Programs Import & Admin Tools (Sept 30, 2025)
+
+### ✅ FULLY OPERATIONAL
+
+**Status:** Complete HubSpot programs import and admin tools implementation.
+
+**Implemented Features:**
+
+#### 1. Programs Schema Extension
+- Added 10 new fields to programs table:
+  - `program_id` (unique identifier from HubSpot or generated)
+  - `catalog_provider` (Direct vs Bisk Amplified)
+  - `discipline` (Business, Technology, Healthcare, etc.)
+  - `long_desc` (full program description)
+  - `program_guide_url` (PDF/guide link)
+  - `is_featured` (featured programs flag)
+  - `featured_image_url` (hero image for detail pages)
+  - `skills_count` (auto-updated via trigger)
+  - `created_at`, `updated_at` (timestamps with triggers)
+
+#### 2. HubSpot Import Pipeline
+- **Imported:** 218 Bisk Amplified programs from HubSpot
+- **Created:** 19 new schools from HubSpot data
+- **Staging Table:** `hubspot_programs_staging` for data preservation
+- **Mapping:** HubSpot Record ID → program_id
+- **Processing:** Automatic school creation and program linking
+
+#### 3. Admin Tools Updates
+- **Programs List:** Full-width table with new columns
+  - Discipline, Catalog Provider, Skills Count
+  - Featured toggle (on/off switch)
+  - Published toggle (draft/published)
+  - Search across all columns
+  - Actions dropdown (Edit, View Provider, Delete)
+  
+- **Program Detail Form:** 5-tab structure
+  - Tab 1: Basic Information (name, school, discipline, catalog, type, format, duration, CIP, featured)
+  - Tab 2: Program Content (short desc, long desc, program URL, guide URL)
+  - Tab 3: Media (featured image URL)
+  - Tab 4: Skills (skills count - view only, manual edit ready)
+  - Tab 5: Metadata (program_id, created_at, updated_at - read-only)
+
+- **Schools Table:** Added `catalog_affiliation` field
+  - Supports one-to-many: School → Multiple catalog providers
+  - Example: USF has both Direct and Bisk Amplified programs
+
+#### 4. Data Integrity
+- ✅ All 223 programs have unique program_ids
+- ✅ Direct programs: 5 (IDs start with '3')
+- ✅ Bisk Amplified programs: 218 (numeric IDs from HubSpot)
+- ✅ All programs linked to valid schools (23 total)
+- ✅ No orphaned records or null constraints
+- ✅ Skills_count auto-updates via trigger
+
+#### 5. Admin UI Fixes
+- ✅ Search functionality working across all columns
+- ✅ Actions dropdown with proper href navigation
+- ✅ Featured/Published toggles functional
+- ✅ Full-width layout for table data
+- ✅ Consistent padding and spacing
+
+**Test Coverage:**
+- 35 automated tests (all passing)
+- Schema validation (20 columns)
+- Data integrity (uniqueness, relationships)
+- CRUD operations (create, read, update, delete)
+- UI flows (list, search, edit, view, toggle, delete)
+- Performance benchmarks (< 1s list, < 500ms search)
+
+**Key Migrations:**
+- `20250930000000_extend_programs_schema.sql` - Added 10 new fields
+- `20250930000001_create_hubspot_staging.sql` - Staging table
+- `20250930000002_align_programs_with_jobs.sql` - Triggers and functions
+- `20250930000003_add_school_catalog_affiliation.sql` - School catalog field
+- `20250930000004_remove_featured_image_constraint.sql` - Allow featured without image
+
+**Key Files:**
+- `/src/lib/database/queries.ts` - Updated Program interface
+- `/src/app/admin/programs/page.tsx` - Programs list with toggles
+- `/src/app/admin/programs/[id]/page.tsx` - 5-tab detail form
+- `/src/components/admin/AdminTable.tsx` - Fixed search and actions
+- `/scripts/validate-admin-tools.js` - Validation script
+- `/scripts/test-admin-ui-flows.js` - End-to-end UI tests
+
+**Documentation:**
+- `/docs/reference/hubspot-import-guide.md` - Import process
+- `/docs/reference/admin-tools-schema-update-analysis.md` - Schema analysis
+- `/docs/csv/hubspot-programs_2025-09-02-2.md` - Source data mapping
+
+**Next Steps:**
+- CIP-SOC-Skills pipeline integration
+- Skills management interface
+- Bulk operations (future enhancement)
+- Provider admin permissions (scoped access)
