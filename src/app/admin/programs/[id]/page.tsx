@@ -63,7 +63,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           type: EntityFieldType.SELECT,
           required: true,
           options: [
-            { value: '', label: 'Select a provider' },
+            { value: 'none', label: 'Select a provider' },
             ...schools.map(school => ({
               value: school.id,
               label: school.name
@@ -76,7 +76,7 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           type: EntityFieldType.SELECT,
           required: true,
           options: [
-            { value: '', label: 'Select a discipline' },
+            { value: 'none', label: 'Select a discipline' },
             { value: 'Business', label: 'Business' },
             { value: 'Technology', label: 'Technology' },
             { value: 'Healthcare', label: 'Healthcare' },
