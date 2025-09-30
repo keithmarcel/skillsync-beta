@@ -38,7 +38,7 @@ Return top 3 CIP codes with confidence scores (0-100) and brief reasoning.
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini", // Cheaper, faster, higher rate limits
       messages: [
         {
           role: "system",
@@ -51,7 +51,9 @@ CIP codes follow this format:
 
 Always suggest 6-digit CIP codes that best match the program's content, level, and discipline.
 
-Format your response as JSON:
+IMPORTANT: Return ONLY valid JSON, no other text.
+
+Format:
 {
   "suggestions": [
     {
@@ -74,9 +76,8 @@ Be conservative with confidence scores:
           content: context
         }
       ],
-      response_format: { type: "json_object" },
       temperature: 0.3, // Lower temperature for more consistent results
-      max_tokens: 500
+      max_tokens: 400
     });
 
     const result = JSON.parse(response.choices[0].message.content || '{"suggestions":[]}');

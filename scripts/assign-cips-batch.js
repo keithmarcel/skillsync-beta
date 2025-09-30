@@ -27,13 +27,15 @@ Use 6-digit CIP codes (format: ##.####).
 
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini", // Cheaper, faster, higher rate limits
       messages: [
         {
           role: "system",
           content: `You are a CIP code classification expert. Suggest 6-digit CIP 2020 codes.
 
-Format response as JSON:
+IMPORTANT: Return ONLY valid JSON, no other text.
+
+Format:
 {
   "suggestions": [
     {
@@ -56,9 +58,8 @@ Confidence guidelines:
           content: context
         }
       ],
-      response_format: { type: "json_object" },
       temperature: 0.3,
-      max_tokens: 500
+      max_tokens: 400
     });
 
     const result = JSON.parse(response.choices[0].message.content || '{"suggestions":[]}');
@@ -166,8 +167,8 @@ async function batchAssignCIPs() {
         needsReview++;
       }
       
-      // Rate limiting - wait 1 second between API calls
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Rate limiting - wait 2 seconds between API calls to avoid hitting limits
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
     
     console.log('\n==============================');
