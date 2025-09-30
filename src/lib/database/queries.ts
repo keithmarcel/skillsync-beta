@@ -309,6 +309,7 @@ export async function getFeaturedPrograms(): Promise<Program[]> {
         skill:skills(*)
       )
     `)
+    .eq('is_featured', true)
     .limit(6)
     .order('name')
 
