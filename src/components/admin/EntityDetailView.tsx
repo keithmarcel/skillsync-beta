@@ -366,9 +366,11 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
             <Select
-              value={value !== undefined ? String(value) : ''}
+              value={value !== undefined && value !== null && value !== '' ? String(value) : 'none'}
               onValueChange={(val) => {
-                handleChange(field.key, field.parse ? field.parse(val) : val, field)
+                // Convert 'none' back to null for database
+                const actualValue = val === 'none' ? null : val;
+                handleChange(field.key, field.parse ? field.parse(actualValue) : actualValue, field)
               }}
               disabled={field.disabled}
             >
