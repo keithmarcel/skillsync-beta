@@ -12,7 +12,12 @@
 - ✅ Reusable admin components (DestructiveDialog, toast patterns)
 - ✅ My Assessments page with real user data
 
-**Current Focus:** Testing weighted scoring with simulator, then Admin CMS tools
+**Current Focus:** Fix Lightcast skills integration - Software Developers only has 1 skill
+
+**CRITICAL BLOCKER:** 
+- Jobs only have O*NET skills (generic ones removed = 1 skill left)
+- Need to connect Lightcast's 32K+ skills to jobs
+- Simulator can't test properly with only 1 skill
 
 ---
 
