@@ -71,17 +71,17 @@ async function fetchONetSkills(socCode: string): Promise<ONetSkill[]> {
   const baseUrl = 'https://services.onetcenter.org/ws/online/occupations'
 
   try {
-    // Fetch Knowledge, Skills, and Abilities
+    // Fetch Knowledge, Skills, and Abilities using /summary/ endpoints
     const [knowledge, skills, abilities] = await Promise.all([
-      fetch(`${baseUrl}/${socCode}/knowledge`, {
+      fetch(`${baseUrl}/${socCode}/summary/knowledge`, {
         headers: { 'Authorization': `Basic ${auth}`, 'Accept': 'application/json' }
       }).then(r => r.ok ? r.json() : { element: [] }),
       
-      fetch(`${baseUrl}/${socCode}/skills`, {
+      fetch(`${baseUrl}/${socCode}/summary/skills`, {
         headers: { 'Authorization': `Basic ${auth}`, 'Accept': 'application/json' }
       }).then(r => r.ok ? r.json() : { element: [] }),
       
-      fetch(`${baseUrl}/${socCode}/abilities`, {
+      fetch(`${baseUrl}/${socCode}/summary/abilities`, {
         headers: { 'Authorization': `Basic ${auth}`, 'Accept': 'application/json' }
       }).then(r => r.ok ? r.json() : { element: [] })
     ])
@@ -89,45 +89,40 @@ async function fetchONetSkills(socCode: string): Promise<ONetSkill[]> {
     const allSkills: ONetSkill[] = []
 
     // Process Knowledge (highest priority - domain-specific)
+    // Summary endpoint doesn't have importance values, so we assign defaults
     knowledge.element?.forEach((item: any) => {
-      if (item.scale?.id === 'IM' && item.value >= 3.0) { // Importance >= 3
-        allSkills.push({
-          id: item.id,
-          name: item.name,
-          description: item.description || '',
-          importance: item.value,
-          level: 0,
-          category: 'knowledge'
-        })
-      }
+      allSkills.push({
+        id: item.id,
+        name: item.name,
+        description: item.description || '',
+        importance: 4.0, // Default high importance for knowledge
+        level: 0,
+        category: 'knowledge'
+      })
     })
 
     // Process Skills (medium priority - professional skills)
     skills.element?.forEach((item: any) => {
-      if (item.scale?.id === 'IM' && item.value >= 3.5) { // Importance >= 3.5
-        allSkills.push({
-          id: item.id,
-          name: item.name,
-          description: item.description || '',
-          importance: item.value,
-          level: 0,
-          category: 'skill'
-        })
-      }
+      allSkills.push({
+        id: item.id,
+        name: item.name,
+        description: item.description || '',
+        importance: 3.5, // Default medium-high importance for skills
+        level: 0,
+        category: 'skill'
+      })
     })
 
-    // Process Abilities (low priority - only if importance >= 4.0)
+    // Process Abilities (lower priority)
     abilities.element?.forEach((item: any) => {
-      if (item.scale?.id === 'IM' && item.value >= 4.0) {
-        allSkills.push({
-          id: item.id,
-          name: item.name,
-          description: item.description || '',
-          importance: item.value,
-          level: 0,
-          category: 'ability'
-        })
-      }
+      allSkills.push({
+        id: item.id,
+        name: item.name,
+        description: item.description || '',
+        importance: 3.0, // Default medium importance for abilities
+        level: 0,
+        category: 'ability'
+      })
     })
 
     return allSkills
