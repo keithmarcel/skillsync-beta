@@ -42,6 +42,6 @@ CREATE POLICY "Admins can manage program-job associations"
     EXISTS (
       SELECT 1 FROM public.profiles
       WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
+      AND profiles.admin_role IS NOT NULL
     )
   );
