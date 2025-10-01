@@ -13,11 +13,12 @@ This document provides comprehensive technical documentation for the SkillSync a
 5. [State Management](#state-management)
 6. [Authentication & Authorization](#authentication--authorization)
 7. [Skills Taxonomy & O*NET Integration](#skills-taxonomy--onet-integration)
-8. [API Ecosystem Integration](#api-ecosystem-integration)
-9. [Intelligent Caching System](#intelligent-caching-system)
-10. [Admin Tools Architecture](#admin-tools-architecture)
-11. [Common Issues & Solutions](#common-issues--solutions)
-12. [Development Workflow](#development-workflow)
+8. [Assessment Weighting System](#assessment-weighting-system)
+9. [API Ecosystem Integration](#api-ecosystem-integration)
+10. [Intelligent Caching System](#intelligent-caching-system)
+11. [Admin Tools Architecture](#admin-tools-architecture)
+12. [Common Issues & Solutions](#common-issues--solutions)
+13. [Development Workflow](#development-workflow)
 
 ## Architecture Overview
 
@@ -337,6 +338,99 @@ if (job.job_kind === 'featured_role') {
 // Occupations: No company, use database category
 return job.category || 'General';
 ```
+
+## Assessment Weighting System
+
+### Overview
+
+The Assessment Weighting System implements three-layer weighted scoring to ensure assessments accurately reflect job requirements and market demand. This prevents the "teamwork vs algorithms" problem where generic soft skills are weighted equally with critical technical competencies.
+
+### Three-Layer Architecture
+
+**Layer 1: Question-Level Weighting**
+- Each question assigned importance score (1.0-5.0)
+- Based on skill criticality and difficulty
+- Critical skills: 5.0, Important: 4.0, Helpful: 3.0
+- Difficulty adjustment: Expert +0.5, Beginner -0.5
+
+**Layer 2: Skill-Level Weighting**
+- Company-specific importance (for featured roles)
+- O*NET importance ratings (for occupations)
+- Proficiency thresholds per skill
+
+**Layer 3: Market Demand Multipliers** (Future)
+- Critical skills (high growth): 1.25x
+- Declining skills: 0.7x
+- Based on O*NET + BLS data
+
+### Database Schema
+
+**Skills Table:**
+```sql
+ALTER TABLE skills
+ADD COLUMN onet_importance DECIMAL(3,1) DEFAULT NULL,
+ADD COLUMN is_assessable BOOLEAN DEFAULT true;
+```
+
+**Quiz Questions Table:**
+```sql
+ALTER TABLE quiz_questions
+ADD COLUMN importance DECIMAL(3,1) DEFAULT 3.0;
+```
+
+### Weighted Scoring Calculation
+
+**Question Score:**
+```typescript
+questionScore = isCorrect ? 100 : 0
+weightedQuestionScore = questionScore × questionImportance × difficultyMultiplier
+
+// Difficulty multipliers
+easy/beginner: 0.8
+medium/intermediate: 1.0
+hard/expert: 1.3
+```
+
+**Skill Score:**
+```typescript
+totalWeightedScore = Σ(weightedQuestionScore)
+totalPossibleWeight = Σ(100 × importance × difficulty)
+skillScore = (totalWeightedScore / totalPossibleWeight) × 100
+```
+
+**Overall Readiness:**
+```typescript
+overallProficiency = Σ(skillScore × skillImportance) / Σ(skillImportance)
+```
+
+### Implementation Files
+
+- `src/lib/services/assessment-engine.ts` - Core weighted scoring
+- `src/lib/services/quiz-generation.ts` - Question importance assignment
+- `src/app/api/assessments/analyze/route.ts` - API integration
+- `src/lib/services/skills-taxonomy-mapper.ts` - Generic skill filtering
+
+### Skills Taxonomy Cleanup
+
+**Generic Skills Excluded:**
+- Physical abilities (Near Vision, Manual Dexterity)
+- Basic communication (English Language, Speaking, Writing)
+- Cognitive abilities (Oral Comprehension, Deductive Reasoning)
+- Soft skills (Customer Service, Active Listening)
+
+**Result:** 69 generic skills removed, 79 domain-specific skills retained
+
+### Testing Strategy
+
+**Simulator Scenarios:**
+- Building Proficiency: Target 70% (mix of proficient/developing)
+- Needs Development: Target 45% (mostly gaps)
+- Role Ready: Target 90%+ (all proficient)
+
+**Validation:**
+- Critical technical skills weighted higher than soft skills
+- Expert questions worth more than beginner questions
+- Overall scores reflect true job readiness
 
 ## API Ecosystem Integration
 
