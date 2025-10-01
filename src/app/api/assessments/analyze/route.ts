@@ -155,8 +155,8 @@ export async function POST(request: NextRequest) {
     const skillResults = skillScores.map((score) => ({
       assessment_id: assessmentId,
       skill_id: score.skillId,
-      score_pct: score.rawScore, // Use raw score instead of AI-weighted score for accuracy
-      band: getBand(score.rawScore, thresholdMap.get(score.skillId))
+      score_pct: score.weightedScore, // Use weighted score for question-level importance
+      band: getBand(score.weightedScore, thresholdMap.get(score.skillId))
     }));
 
     console.log('Attempting to save skill results:', skillResults.length);
