@@ -2,8 +2,10 @@
 
 import { AdminTable } from '@/components/admin/AdminTable';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import Link from 'next/link';
 import { useAdminTableData } from '@/hooks/useAdminTableData';
+import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase/client';
 import type { School } from '@/lib/database/queries';
 import { Plus } from 'lucide-react';
@@ -11,6 +13,7 @@ import { Plus } from 'lucide-react';
 export default function ProvidersPage() {
   const selectQuery = `*`;
   const { data: providers, isLoading, error, refreshData } = useAdminTableData<School>('schools', selectQuery);
+  const { toast } = useToast();
 
   const columns = [
     { key: 'name', header: 'Provider Name', sortable: true },
@@ -23,6 +26,43 @@ export default function ProvidersPage() {
       key: 'about_url',
       header: 'Website',
       render: (school: School) => school?.about_url ? <a href={school.about_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a> : '-'
+    },
+    {
+      key: 'is_published',
+      header: 'Status',
+      render: (value: any, school: School) => (
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={school.is_published ?? true}
+            className="data-[state=checked]:bg-[#0694A2]"
+            onCheckedChange={async (isChecked) => {
+              const { error } = await supabase
+                .from('schools')
+                .update({ is_published: isChecked })
+                .eq('id', school.id);
+              if (error) {
+                console.error('Error updating provider status:', error);
+                toast({
+                  title: "Error",
+                  description: error.message.includes('is_published')
+                    ? "Database migration needed. Run migration: 20250930000007_add_schools_published_status.sql"
+                    : "Failed to update provider status. Please try again.",
+                  variant: "destructive",
+                });
+              } else {
+                refreshData();
+                toast({
+                  title: "Success",
+                  description: `Provider ${isChecked ? 'published' : 'unpublished'}. All programs from this provider are now ${isChecked ? 'visible' : 'hidden'}.`,
+                });
+              }
+            }}
+          />
+          <span className="capitalize text-sm">
+            {school.is_published ?? true ? 'Published' : 'Unpublished'}
+          </span>
+        </div>
+      )
     }
   ];
 
