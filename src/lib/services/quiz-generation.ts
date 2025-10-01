@@ -152,16 +152,30 @@ async function generateQuestionBatch({
       jobZone: { education: 'Post-secondary', experience: 'Moderate' }
     },
     marketData,
-    companyData,
     sessionId
   )
 
   const prompt = `${enhancedPrompt}
 
-Generate ${count} multiple-choice questions with exactly 4 options (A, B, C, D).
-Avoid these existing question stems: ${existingStems.slice(0, 5).join(', ')}
+Generate ${count} multiple-choice questions to assess "${skillName}" at ${skillWeighting.difficultyLevel} level.
 
-IMPORTANT: Randomize which option (A, B, C, or D) is correct for each question.
+Context:
+- Job: ${jobTitle}
+- Skill Category: ${skillCategory}
+- Importance: ${skillWeighting.importance}/5
+- Target Level: ${skillWeighting.difficultyLevel}
+
+Requirements:
+- Questions should test practical application, not just theory
+- Difficulty should match ${skillWeighting.difficultyLevel} level
+- Include realistic scenarios from the occupation
+- Each question should have 4 options (A, B, C, D)
+- Only ONE correct answer per question
+- Provide brief explanation for the correct answer
+- AVOID repetitive questions - each question must test a different aspect of the skill
+- Focus on INDIVIDUAL CONTRIBUTOR work, NOT management/supervisory scenarios
+- Questions should be relevant to entry-level to mid-level professionals
+
 Do NOT make all correct answers "A". Vary the correct answer across questions.
 
 Return in this exact JSON format:
@@ -182,27 +196,31 @@ Remember: Vary correct_answer between A, B, C, and D across the ${count} questio
     max_tokens: 2000
   })
 
-  const content = response.choices[0]?.message?.content
+  const content = response.choices[0].message.content
   if (!content) {
-    throw new Error('No response from OpenAI')
+    throw new Error('No content in OpenAI response')
   }
 
-  try {
-    // Strip markdown code fences if present (```json ... ```)
-    let cleanedContent = content.trim()
-    if (cleanedContent.startsWith('```')) {
-      // Remove opening fence (```json or ```)
-      cleanedContent = cleanedContent.replace(/^```(?:json)?\n?/, '')
-      // Remove closing fence (```)
-      cleanedContent = cleanedContent.replace(/\n?```$/, '')
-    }
+  // Parse JSON from response
+  const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+  const questions: GeneratedQuestion[] = JSON.parse(cleanContent)
+
+  // FORCE randomize answer keys to prevent AI bias (all B's issue)
+  const answerKeys = ['A', 'B', 'C', 'D']
+  questions.forEach((q, index) => {
+    const currentCorrect = q.correct_answer
+    const targetKey = answerKeys[index % 4] // Cycle through A, B, C, D
     
-    const questions = JSON.parse(cleanedContent)
-    return questions
-  } catch (error) {
-    console.error('Failed to parse OpenAI response:', content)
-    throw new Error('Invalid response format from OpenAI')
-  }
+    if (currentCorrect !== targetKey) {
+      // Swap the correct answer with target position
+      const temp = q.choices[targetKey]
+      q.choices[targetKey] = q.choices[currentCorrect]
+      q.choices[currentCorrect] = temp
+      q.correct_answer = targetKey
+    }
+  })
+
+  return questions
 }
 
 /**
