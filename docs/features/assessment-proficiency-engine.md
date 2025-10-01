@@ -646,11 +646,24 @@ CREATE TABLE prequalification_cache (
 
 ## 🚀 **IMPLEMENTATION ROADMAP**
 
-### **Phase 1: Core Assessment Engine (Week 1-2)**
+### **Phase 1: Database Schema & Skills Taxonomy (COMPLETED)**
+- [x] Add importance columns to skills and quiz_questions tables
+- [x] Create skills taxonomy mapper to filter generic skills
+- [x] Remove 69 generic O*NET skills (Near Vision, English Language, etc.)
+- [x] Keep 79 domain-specific assessable skills
+- [x] Add is_assessable flag to skills table
+
+### **Phase 2: O*NET Integration (IN PROGRESS)**
+- [x] Create script to populate O*NET importance scores
+- [ ] Run population script to fetch importance ratings from O*NET API
+- [ ] Verify importance scores are correctly mapped
+- [ ] Update skills with O*NET IDs for future reference
+
+### **Phase 3: Question-Level Weighting (PENDING)**
 - [ ] Weighted scoring calculation service
-- [ ] AI proficiency evaluation service
-- [ ] Basic role readiness calculation
-- [ ] Database schema implementation
+- [ ] Update quiz generation to assign question importance
+- [ ] Modify assessment engine to use question weights
+- [ ] Test weighted scoring with simulator
 
 ### **Phase 2: Job Seeker Experience (Week 3)**
 - [ ] Role readiness dashboard component
