@@ -12,12 +12,19 @@
 - ✅ Reusable admin components (DestructiveDialog, toast patterns)
 - ✅ My Assessments page with real user data
 
-**Current Focus:** Fix Lightcast skills integration - Software Developers only has 1 skill
+**Current Focus:** Two-track skills mapping complete, ready for O*NET testing
 
-**CRITICAL BLOCKER:** 
-- Jobs only have O*NET skills (generic ones removed = 1 skill left)
-- Need to connect Lightcast's 32K+ skills to jobs
-- Simulator can't test properly with only 1 skill
+**COMPLETED TODAY:**
+- ✅ Three-layer weighting system (question + skill + market demand)
+- ✅ Hybrid skills mapper (O*NET + Lightcast + AI)
+- ✅ Two-track approach (standard vs featured roles)
+- ✅ Documentation consolidated and updated
+- ✅ Admin tools with reusable patterns
+
+**BLOCKER IDENTIFIED:**
+- Lightcast database has quality issues (irrelevant skills)
+- Solution: Use O*NET API for standard occupations
+- O*NET mapper implemented, needs credentials to test
 
 ---
 
