@@ -70,13 +70,50 @@ export async function fetchLightcastSkillsData(): Promise<LightcastSkill[]> {
 
 /**
  * Filter Lightcast skills by SOC code relevance
+ * Uses skills already in database instead of fetching from GitHub
  */
 export async function getSkillsBySocCode(
   socCode: string,
   maxResults: number = 30
 ): Promise<LightcastSkill[]> {
   
-  const allSkills = await fetchLightcastSkillsData()
+  // Use database skills instead of fetching from GitHub
+  const { createClient } = await import('@supabase/supabase-js')
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  
+  const { data: dbSkills } = await supabase
+    .from('skills')
+    .select('id, name, description, category')
+    .eq('source', 'LIGHTCAST')
+    .limit(1000) // Get a large sample
+  
+  if (!dbSkills || dbSkills.length === 0) {
+    console.warn('No Lightcast skills in database, falling back to GitHub')
+    const allSkills = await fetchLightcastSkillsData()
+    return filterSkillsBySoc(allSkills, socCode, maxResults)
+  }
+  
+  // Convert database skills to LightcastSkill format
+  const allSkills: LightcastSkill[] = dbSkills.map(s => ({
+    id: s.id,
+    name: s.name,
+    description: s.description || '',
+    type: { name: s.category || 'General', id: s.category || 'general' },
+    infoUrl: '',
+    tags: []
+  }))
+  
+  return filterSkillsBySoc(allSkills, socCode, maxResults)
+}
+
+function filterSkillsBySoc(
+  allSkills: LightcastSkill[],
+  socCode: string,
+  maxResults: number
+): LightcastSkill[] {
   
   // Filter skills relevant to SOC code
   const relevantSkills = allSkills.filter(skill => {
