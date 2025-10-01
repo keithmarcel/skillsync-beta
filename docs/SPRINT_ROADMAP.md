@@ -1,12 +1,17 @@
-# 2-Day Sprint to Demo
+# SkillSync Sprint Roadmap
 
-**TODAY:** Monday Night (Jan 29, 11:53 PM)  
-**DEADLINE:** Wednesday 11:50 PM - App ready for QA  
-**THURSDAY:** QA, Polish, Deck Creation  
-**FRIDAY:** DEMO DAY 🎯
+**Updated:** September 30, 2025  
+**Current Sprint:** Programs + Assessment + Admin Features  
+**Status:** Programs foundation complete, working on Assessment Results
 
-**Current:** Phases 1-5 Complete ✅  
-**Remaining:** Programs + Assessment + Admin Dashboards + RFI (48 hours!)
+**Recent Completion (Sept 30):**
+- ✅ Skills taxonomy architecture fixed (Lightcast + O*NET)
+- ✅ 223 programs imported with CIP codes
+- ✅ CIP-SOC crosswalk (5,903 mappings)
+- ✅ Skills extraction pipeline built
+- 🔄 Lightcast import running (34,796 skills)
+
+**Current Focus:** Assessment Results Page while skills import completes
 
 ---
 
@@ -17,15 +22,15 @@
 **Time:** 12-14 hours (FULL DAY)
 
 #### Morning (6-7 hours) **CRITICAL PATH**
-- [ ] **Programs Catalog - COMPLETE** (6-7 hours)
-  - CIP-to-SOC crosswalk service (1 hour)
-  - Import BISC Amplified Portfolio CSV - 200+ programs (2 hours)
-  - Map to SOC codes via CIP (1 hour)
-  - Skills-to-programs matching engine (2 hours)
-  - Test program recommendations (1 hour)
+- [x] **Programs Catalog - FOUNDATION COMPLETE** (6-7 hours)
+  - [x] CIP-to-SOC crosswalk service (1 hour) ✅
+  - [x] Import programs - 223 from HubSpot (2 hours) ✅
+  - [x] Map to SOC codes via CIP (1 hour) ✅
+  - [ ] Skills-to-programs matching engine (2 hours) - Waiting for skills import
+  - [ ] Test program recommendations (1 hour) - Pending
 
 #### Afternoon (6-7 hours)
-- [ ] **Assessment Results Page** (4-5 hours) **CRITICAL**
+- [ ] **Assessment Results Page** (4-5 hours) **CRITICAL** ⬅️ CURRENT FOCUS
   - Create results page component
   - Display score + skills breakdown
   - Conditional logic (Submit to Company / Programs / Congrats)
