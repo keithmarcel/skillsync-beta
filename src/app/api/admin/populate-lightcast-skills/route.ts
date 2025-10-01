@@ -1,6 +1,6 @@
-// API endpoint to populate job skills from Lightcast Open Skills
+// API endpoint to populate job skills using hybrid O*NET + Lightcast + AI approach
 import { NextRequest, NextResponse } from 'next/server'
-import { getSkillsBySocCode, validateSkillsWithONET } from '@/lib/services/lightcast-skills'
+import { getHybridSkillsForJob, saveSkillsToJob } from '@/lib/services/hybrid-skills-mapper'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -9,20 +9,23 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 /**
  * POST /api/admin/populate-lightcast-skills
- * Populates job skills using Lightcast Open Skills taxonomy
+ * Populates job skills using hybrid approach:
+ * - O*NET (government validated)
+ * - Lightcast (industry current)
+ * - AI semantic matching (gpt-4o-mini)
  * 
- * Body: { socCode?: string, forceRefresh?: boolean, maxSkills?: number }
+ * Body: { socCode?: string, forceRefresh?: boolean }
  */
 export async function POST(request: NextRequest) {
   try {
-    const { socCode, forceRefresh = false, maxSkills = 20 } = await request.json()
+    const { socCode, forceRefresh = false } = await request.json()
 
-    console.log('Populating Lightcast skills:', { socCode, forceRefresh, maxSkills })
+    console.log('Hybrid skills population:', { socCode, forceRefresh })
 
     // Get jobs to populate
     let jobsQuery = supabase
       .from('jobs')
-      .select('id, soc_code, title')
+      .select('id, soc_code, title, long_desc')
       .not('soc_code', 'is', null)
 
     if (socCode) {
@@ -44,8 +47,6 @@ export async function POST(request: NextRequest) {
 
     for (const job of jobs) {
       try {
-        console.log(`\nProcessing: ${job.title} (${job.soc_code})`)
-
         // Check if job already has skills
         if (!forceRefresh) {
           const { data: existing } = await supabase
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
             .limit(1)
 
           if (existing && existing.length > 0) {
-            console.log('  ⏭️  Skipping - already has skills')
+            console.log(`⏭️  Skipping ${job.title} - already has skills`)
             results.push({
               jobId: job.id,
               title: job.title,
@@ -67,95 +68,29 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Step 1: Fetch Lightcast skills for SOC code
-        const lightcastSkills = await getSkillsBySocCode(job.soc_code, maxSkills)
-        console.log(`  Found ${lightcastSkills.length} Lightcast skills`)
+        // Use hybrid skills mapper
+        const skillMatches = await getHybridSkillsForJob(job)
 
-        if (lightcastSkills.length === 0) {
+        if (skillMatches.length === 0) {
           results.push({
             jobId: job.id,
             title: job.title,
             socCode: job.soc_code,
             success: false,
-            error: 'No Lightcast skills found'
+            error: 'No skills matched'
           })
           continue
         }
 
-        // Step 2: Validate with O*NET
-        const validatedSkills = await validateSkillsWithONET(lightcastSkills, job.soc_code)
-        console.log(`  Validated ${validatedSkills.length} skills with O*NET`)
-
-        // Step 3: Create/get skills in database and link to job
-        let skillsAdded = 0
-
-        for (const skillData of validatedSkills) {
-          // Check if skill exists in our database
-          let { data: existingSkill } = await supabase
-            .from('skills')
-            .select('id')
-            .eq('name', skillData.skill.name)
-            .eq('source', 'LIGHTCAST')
-            .single()
-
-          let skillId: string
-
-          if (existingSkill) {
-            skillId = existingSkill.id
-          } else {
-            // Create new skill
-            const { data: newSkill, error: skillError } = await supabase
-              .from('skills')
-              .insert({
-                name: skillData.skill.name,
-                description: skillData.skill.description,
-                category: skillData.skill.type?.name || 'General',
-                source: 'LIGHTCAST',
-                lightcast_id: skillData.skill.id
-              })
-              .select('id')
-              .single()
-
-            if (skillError) {
-              console.error(`  Error creating skill ${skillData.skill.name}:`, skillError)
-              continue
-            }
-
-            skillId = newSkill.id
-          }
-
-          // Link skill to job
-          const { error: linkError } = await supabase
-            .from('job_skills')
-            .upsert({
-              job_id: job.id,
-              skill_id: skillId,
-              importance_level: skillData.marketDemand === 'critical' ? 'critical' : 
-                               skillData.marketDemand === 'high' ? 'important' : 'helpful',
-              proficiency_threshold: 70,
-              weight: skillData.relevanceScore / 100,
-              onet_data_source: {
-                category: 'lightcast',
-                importance: Math.round(skillData.relevanceScore / 20), // 1-5 scale
-                validated: skillData.onetValidation
-              }
-            }, {
-              onConflict: 'job_id,skill_id'
-            })
-
-          if (!linkError) {
-            skillsAdded++
-          }
-        }
-
-        console.log(`  ✅ Added ${skillsAdded} skills to job`)
+        // Save skills to job
+        const saveResult = await saveSkillsToJob(job.id, skillMatches)
 
         results.push({
           jobId: job.id,
           title: job.title,
           socCode: job.soc_code,
-          success: true,
-          skillsAdded
+          success: saveResult.success,
+          skillsAdded: saveResult.count
         })
 
       } catch (error) {
@@ -175,7 +110,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Populated ${totalSkills} skills across ${successCount} jobs`,
+      message: `Populated ${totalSkills} skills across ${successCount} jobs using hybrid O*NET + Lightcast + AI`,
       jobsProcessed: jobs.length,
       successCount,
       totalSkills,
