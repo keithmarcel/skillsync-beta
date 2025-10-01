@@ -161,14 +161,19 @@ async function generateQuestionBatch({
 Generate ${count} multiple-choice questions with exactly 4 options (A, B, C, D).
 Avoid these existing question stems: ${existingStems.slice(0, 5).join(', ')}
 
+IMPORTANT: Randomize which option (A, B, C, or D) is correct for each question.
+Do NOT make all correct answers "A". Vary the correct answer across questions.
+
 Return in this exact JSON format:
 [{
   "stem": "Question text here?",
   "choices": {"A": "Option A", "B": "Option B", "C": "Option C", "D": "Option D"},
-  "correct_answer": "A",
+  "correct_answer": "B",
   "explanation": "Brief explanation of why this is correct",
   "difficulty": "${skillWeighting.difficultyLevel}"
-}]`
+}]
+
+Remember: Vary correct_answer between A, B, C, and D across the ${count} questions.`
 
   const response = await openai.chat.completions.create({
     model: process.env.OPENAI_MODEL_EXTRACTOR || 'gpt-4o-mini',
@@ -299,9 +304,13 @@ export async function createSocQuiz(socCode: string, companyId?: string, session
   const { data: quiz, error: quizError } = await supabase
     .from('quizzes')
     .insert({
-      job_id: jobData.id, // Use job_id instead of soc_code
+      job_id: jobData.id,
+      soc_code: socCode, // Add SOC code for reference
       estimated_minutes: 15,
-      version: 1
+      version: 1,
+      is_ai_generated: true, // Mark as AI generated
+      company_id: companyId || null,
+      is_standard: !companyId // Standard quiz if no company
     })
     .select()
     .single()
@@ -400,13 +409,14 @@ export async function createSocQuiz(socCode: string, companyId?: string, session
   }
 
   // Update quiz with total question count and publish it - remove if columns don't exist
-  // await supabase
-  //   .from('quizzes')
-  //   .update({
-  //     total_questions: totalQuestions,
-  //     status: 'published'
-  //   })
-  //   .eq('id', quiz.id)
+  // Update quiz with total question count
+  await supabase
+    .from('quizzes')
+    .update({
+      total_questions: totalQuestions,
+      status: 'published'
+    })
+    .eq('id', quiz.id)
 
   console.log(`Quiz creation completed successfully with ${totalQuestions} total questions`)
   return quiz.id
