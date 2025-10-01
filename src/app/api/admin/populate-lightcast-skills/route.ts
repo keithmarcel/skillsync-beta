@@ -1,6 +1,9 @@
-// API endpoint to populate job skills using hybrid O*NET + Lightcast + AI approach
+// API endpoint to populate job skills
+// - Standard occupations (SOC): Use O*NET (broad, universal skills)
+// - Featured roles: Use Hybrid (Lightcast + AI + job description)
 import { NextRequest, NextResponse } from 'next/server'
 import { getHybridSkillsForJob, saveSkillsToJob } from '@/lib/services/hybrid-skills-mapper'
+import { getONetSkillsForOccupation, saveONetSkillsToJob } from '@/lib/services/onet-skills-mapper'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -68,29 +71,54 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Use hybrid skills mapper
-        const skillMatches = await getHybridSkillsForJob(job)
+        // Determine if this is a standard occupation or featured role
+        const isStandardOccupation = !job.long_desc || job.long_desc.length < 100
+        
+        let saveResult
 
-        if (skillMatches.length === 0) {
-          results.push({
-            jobId: job.id,
-            title: job.title,
-            socCode: job.soc_code,
-            success: false,
-            error: 'No skills matched'
-          })
-          continue
+        if (isStandardOccupation) {
+          // Use O*NET for standard occupations (broad, universal skills)
+          console.log(`  📚 Using O*NET for standard occupation`)
+          const onetSkills = await getONetSkillsForOccupation(job.soc_code)
+          
+          if (onetSkills.length === 0) {
+            results.push({
+              jobId: job.id,
+              title: job.title,
+              socCode: job.soc_code,
+              success: false,
+              error: 'No O*NET skills found'
+            })
+            continue
+          }
+
+          saveResult = await saveONetSkillsToJob(job.id, onetSkills)
+        } else {
+          // Use hybrid for featured roles (specific to job description)
+          console.log(`  🎯 Using Hybrid for featured role`)
+          const skillMatches = await getHybridSkillsForJob(job)
+
+          if (skillMatches.length === 0) {
+            results.push({
+              jobId: job.id,
+              title: job.title,
+              socCode: job.soc_code,
+              success: false,
+              error: 'No skills matched'
+            })
+            continue
+          }
+
+          saveResult = await saveSkillsToJob(job.id, skillMatches)
         }
-
-        // Save skills to job
-        const saveResult = await saveSkillsToJob(job.id, skillMatches)
 
         results.push({
           jobId: job.id,
           title: job.title,
           socCode: job.soc_code,
           success: saveResult.success,
-          skillsAdded: saveResult.count
+          skillsAdded: saveResult.count,
+          method: isStandardOccupation ? 'ONET' : 'Hybrid'
         })
 
       } catch (error) {

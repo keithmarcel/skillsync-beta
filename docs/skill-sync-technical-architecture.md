@@ -409,16 +409,47 @@ overallProficiency = Σ(skillScore × skillImportance) / Σ(skillImportance)
 - `src/lib/services/quiz-generation.ts` - Question importance assignment
 - `src/app/api/assessments/analyze/route.ts` - API integration
 - `src/lib/services/skills-taxonomy-mapper.ts` - Generic skill filtering
+- `src/lib/services/hybrid-skills-mapper.ts` - Two-track skills mapping
+
+### Two-Track Skills Mapping Strategy
+
+**Track 1: Standard Occupations (SOC Codes)**
+- **Source:** O*NET API (government validated)
+- **Scope:** Broad, universal skills applicable across companies
+- **Filtering:** Remove only truly generic abilities (Near Vision, English Language)
+- **Keep:** Domain knowledge (Economics, Programming, Engineering)
+- **Use Case:** HDO quizzes for general job seekers
+- **Example:** Software Developers → Python, Java, SQL, Algorithms, Data Structures
+
+**Track 2: Featured Roles (Company-Specific)**
+- **Source:** Lightcast + AI + Job Description parsing
+- **Scope:** Hyper-specific to company's tech stack and requirements
+- **Filtering:** Minimal - include vendor-specific if relevant
+- **Use Case:** Corporate pre-qualification assessments
+- **Example:** "Senior React Developer at Acme Corp" → React, TypeScript, AWS, GraphQL, Jest
+
+**Track 3: Education Programs (CIP Codes)**
+- **Source:** Inherit from target SOC codes + program course descriptions
+- **Scope:** Skills taught in program curriculum
+- **Matching:** CIP → SOC → Skills + Course keyword matching
+- **Use Case:** Program recommendations based on skill gaps
+- **Example:** "Computer Science BS" → Skills from SOC 15-1252.00 + "Data Structures" course
 
 ### Skills Taxonomy Cleanup
 
-**Generic Skills Excluded:**
-- Physical abilities (Near Vision, Manual Dexterity)
-- Basic communication (English Language, Speaking, Writing)
+**Generic Skills Excluded (for Standard Occupations):**
+- Physical abilities (Near Vision, Manual Dexterity, Far Vision)
+- Basic communication (English Language, Speaking, Writing, Speech Clarity)
 - Cognitive abilities (Oral Comprehension, Deductive Reasoning)
-- Soft skills (Customer Service, Active Listening)
+- Generic soft skills (Customer Service, Active Listening)
+- Vendor-specific products (Amazon S3, Microsoft Azure) - reserved for featured roles
 
-**Result:** 69 generic skills removed, 79 domain-specific skills retained
+**Domain Skills Retained:**
+- Technical knowledge (Programming, Databases, Cloud Computing)
+- Professional skills (Project Management, Financial Analysis)
+- Industry-specific (Healthcare Procedures, Legal Research)
+
+**Result:** Universal, assessable skills for standard occupations; customizable for featured roles
 
 ### Testing Strategy
 
