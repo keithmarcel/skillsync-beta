@@ -394,24 +394,32 @@ function MarketIntelligencePanel({ skills }: { skills: SkillWeightingData[] }) {
         <CardContent>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium mb-2">High-Demand Skills (Critical for Friday Pitch)</h4>
+              <h4 className="font-medium mb-2">High-Demand Skills</h4>
               <div className="flex flex-wrap gap-2">
-                {highDemandSkills.map(skill => (
-                  <Badge key={skill.id} variant="outline" className="bg-red-50">
-                    {skill.name} ({skill.marketDemand})
-                  </Badge>
-                ))}
+                {highDemandSkills.length > 0 ? (
+                  highDemandSkills.map(skill => (
+                    <Badge key={skill.id} variant="outline" className="bg-red-50">
+                      {skill.name} ({skill.marketDemand})
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">No high-demand skills identified</p>
+                )}
               </div>
             </div>
 
             <div>
               <h4 className="font-medium mb-2">Trending Skills</h4>
               <div className="flex flex-wrap gap-2">
-                {risingSkills.map(skill => (
-                  <Badge key={skill.id} variant="outline" className="bg-green-50">
-                    {skill.name} <TrendingUp className="h-3 w-3 ml-1" />
-                  </Badge>
-                ))}
+                {risingSkills.length > 0 ? (
+                  risingSkills.map(skill => (
+                    <Badge key={skill.id} variant="outline" className="bg-green-50">
+                      {skill.name} <TrendingUp className="h-3 w-3 ml-1" />
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">No trending skills identified</p>
+                )}
               </div>
             </div>
           </div>
