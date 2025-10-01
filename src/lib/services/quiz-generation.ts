@@ -305,12 +305,8 @@ export async function createSocQuiz(socCode: string, companyId?: string, session
     .from('quizzes')
     .insert({
       job_id: jobData.id,
-      soc_code: socCode, // Add SOC code for reference
       estimated_minutes: 15,
-      version: 1,
-      is_ai_generated: true, // Mark as AI generated
-      company_id: companyId || null,
-      is_standard: !companyId // Standard quiz if no company
+      version: 1
     })
     .select()
     .single()
@@ -409,14 +405,8 @@ export async function createSocQuiz(socCode: string, companyId?: string, session
   }
 
   // Update quiz with total question count and publish it - remove if columns don't exist
-  // Update quiz with total question count
-  await supabase
-    .from('quizzes')
-    .update({
-      total_questions: totalQuestions,
-      status: 'published'
-    })
-    .eq('id', quiz.id)
+  // Quiz creation complete - total_questions column doesn't exist in current schema
+  // Questions are counted via sections relationship
 
   console.log(`Quiz creation completed successfully with ${totalQuestions} total questions`)
   return quiz.id

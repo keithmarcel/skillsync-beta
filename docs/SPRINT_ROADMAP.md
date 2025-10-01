@@ -1,17 +1,18 @@
 # SkillSync Sprint Roadmap
 
-**Updated:** September 30, 2025  
-**Current Sprint:** Programs + Assessment + Admin Features  
-**Status:** Programs foundation complete, working on Assessment Results
+**Updated:** October 1, 2025  
+**Current Sprint:** Assessment Weighting System + Beta Readiness  
+**Status:** Three-layer weighting system complete, ready for testing
 
-**Recent Completion (Sept 30):**
-- ✅ Skills taxonomy architecture fixed (Lightcast + O*NET)
-- ✅ 223 programs imported with CIP codes
-- ✅ CIP-SOC crosswalk (5,903 mappings)
-- ✅ Skills extraction pipeline built
-- 🔄 Lightcast import running (34,796 skills)
+**Recent Completion (Oct 1):**
+- ✅ Three-layer assessment weighting system implemented
+- ✅ Skills taxonomy cleanup (69 generic skills removed)
+- ✅ Question-level importance weighting (1.0-5.0)
+- ✅ Quiz generation fixes (metadata, answer randomization)
+- ✅ Reusable admin components (DestructiveDialog, toast patterns)
+- ✅ My Assessments page with real user data
 
-**Current Focus:** Assessment Results Page while skills import completes
+**Current Focus:** Testing weighted scoring with simulator, then Admin CMS tools
 
 ---
 
