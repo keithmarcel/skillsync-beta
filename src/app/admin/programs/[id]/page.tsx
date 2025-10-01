@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
 import { useAdminEntity } from '@/hooks/useAdminEntity';
 import { useSchoolsList } from '@/hooks/useSchoolsList';
@@ -19,9 +20,24 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
 
   const { schools, isLoading: isLoadingSchools } = useSchoolsList();
   const { cipCodes, isLoading: isLoadingCipCodes } = useCipCodesList();
-
+  
   const isNew = params.id === 'new';
   const isLoading = isLoadingProgram || isLoadingSchools || isLoadingCipCodes;
+  
+  // Fetch program skills
+  const [programSkills, setProgramSkills] = useState<any[]>([]);
+  const [isLoadingSkills, setIsLoadingSkills] = useState(false);
+  
+  useEffect(() => {
+    if (program?.id && !isNew) {
+      setIsLoadingSkills(true);
+      fetch(`/api/admin/programs/${program.id}/skills`)
+        .then(res => res.json())
+        .then(data => setProgramSkills(data.skills || []))
+        .catch(err => console.error('Error loading skills:', err))
+        .finally(() => setIsLoadingSkills(false));
+    }
+  }, [program?.id, isNew]);
 
   const defaultProgram: Partial<Program> = {
     id: '',
@@ -208,7 +224,41 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           label: 'Skills Count',
           type: EntityFieldType.TEXT,
           readOnly: true,
-          helpText: 'Auto-updated when skills are linked to this program'
+          helpText: `${programSkills.length} skills extracted via CIP→SOC→Skills pipeline`
+        },
+        {
+          key: 'skills_list',
+          label: 'Extracted Skills',
+          type: EntityFieldType.CUSTOM,
+          render: () => (
+            <div className="space-y-2">
+              {isLoadingSkills ? (
+                <p className="text-sm text-muted-foreground">Loading skills...</p>
+              ) : programSkills.length === 0 ? (
+                <div className="text-sm text-muted-foreground">
+                  <p>No skills extracted yet.</p>
+                  <p className="mt-1">Skills are extracted from the CIP code via the CIP→SOC→Skills pipeline.</p>
+                  {program?.cip_code && (
+                    <p className="mt-1">CIP Code: <span className="font-mono">{program.cip_code}</span></p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {programSkills.map((skill: any, index: number) => (
+                    <div key={skill.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <div>
+                        <span className="font-medium">{index + 1}. {skill.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">({skill.source})</span>
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        Weight: {(skill.weight * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
         }
       ]
     },
