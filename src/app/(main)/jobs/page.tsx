@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import StickyTabs from '@/components/ui/sticky-tabs'
@@ -151,6 +151,41 @@ export default function JobsPage() {
     }))
   }
 
+  // Apply search, sort, and filter to high-demand jobs
+  const filteredAndSortedJobs = React.useMemo(() => {
+    let result = [...highDemandJobs]
+
+    // Apply search
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase()
+      result = result.filter(job => 
+        job.title?.toLowerCase().includes(searchLower) ||
+        job.soc_code?.toLowerCase().includes(searchLower) ||
+        job.category?.toLowerCase().includes(searchLower)
+      )
+    }
+
+    // Apply filters
+    Object.entries(filters).forEach(([column, value]) => {
+      if (value) {
+        result = result.filter(job => job[column] === value)
+      }
+    })
+
+    // Apply sort
+    if (sortBy) {
+      result.sort((a, b) => {
+        const aVal = a[sortBy]
+        const bVal = b[sortBy]
+        if (aVal === bVal) return 0
+        const comparison = aVal > bVal ? 1 : -1
+        return sortOrder === 'asc' ? comparison : -comparison
+      })
+    }
+
+    return result
+  }, [highDemandJobs, searchTerm, filters, sortBy, sortOrder])
+
   const tabs = [
     { id: 'featured-roles', label: 'Featured Roles', isActive: activeTab === 'featured-roles' },
     { id: 'high-demand', label: 'High-Demand Occupations', isActive: activeTab === 'high-demand' },
@@ -273,7 +308,7 @@ export default function JobsPage() {
                   {/* Table - 20px from search/filters */}
                   <div className="mt-5">
                     <DataTable
-                      data={highDemandJobs}
+                      data={filteredAndSortedJobs}
                       columns={occupationsTableColumns}
                       tableType="occupations"
                       showSearchSortFilter={false}
@@ -287,7 +322,7 @@ export default function JobsPage() {
                             window.location.href = `/assessments/resume/${row.id}`
                             break
                           case 'assessment':
-                            window.location.href = `/assessments/quiz/${row.id}`
+                            window.location.href = `/assessments/${row.id}/intro`
                             break
                           case 'favorite':
                             await addFavorite('job', row.id)

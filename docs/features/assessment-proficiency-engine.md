@@ -34,39 +34,230 @@ Layer 3: PRECISION MATCHING ALGORITHMS
 
 ## 🎯 **COMPONENT 1: WEIGHTED SCORING ENGINE**
 
+### **Why Sophisticated Weighting Matters:**
+
+**The Core Problem:** Traditional assessments treat all questions equally. A software developer who scores 70% might look qualified, but if they got "Can you write a sorting algorithm?" wrong and "Do you work well with others?" right, they're not actually qualified for the role.
+
+**SkillSync's Solution:** Multi-dimensional weighting that reflects what employers actually value and what the market actually demands.
+
+**Real-World Example:**
+```
+Traditional Assessment (Linear):
+- Algorithm Design: Wrong (0 points)
+- Teamwork: Right (1 point)
+- Code Review: Right (1 point)
+Score: 2/3 = 67% ❌ Looks borderline qualified
+
+SkillSync Weighted Assessment:
+- Algorithm Design: Wrong (0 × 5.0 importance × 1.25 market demand = 0)
+- Teamwork: Right (1 × 3.0 importance × 1.0 market demand = 3)
+- Code Review: Right (1 × 4.0 importance × 1.15 market demand = 4.6)
+Score: 7.6/14.375 = 53% ✅ Accurately shows skill gap
+```
+
 ### **Multi-Dimensional Weighting System:**
 
 ```typescript
 interface AssessmentWeighting {
-  // From Quiz Generation Engine
+  // LAYER 1: Question-Level Weighting (from Quiz Generation Engine)
   questionImportance: number        // 1.0-5.0 (critical questions weighted higher)
   difficultyLevel: string          // 'entry'|'mid'|'senior'|'executive'
+  difficultyMultiplier: number     // 0.8-1.3 (harder questions worth more)
   
-  // From Skills Weighting Display  
+  // LAYER 2: Skill-Level Weighting (from Skills Weighting Display)  
   skillImportance: number          // 1.0-5.0 (company-specific importance)
   proficiencyThreshold: number     // 50-100% (company requirement)
   
-  // From Enhanced AI Context
-  marketDemand: number             // 1.0-3.0 (market demand multiplier)
-  regionalWeight: number           // 0.8-1.2 (Tampa Bay specific)
+  // LAYER 3: Market Intelligence (from O*NET/BLS - Free APIs)
+  marketDemand: 'critical' | 'high' | 'moderate' | 'low' | 'declining'
+  marketMultiplier: number         // 1.25 (critical) to 0.7 (declining)
+  employmentGrowth: number         // BLS 10-year projection (-20% to +50%)
+  medianWage: number              // BLS wage data for context
   
-  // Assessment-Specific
+  // LAYER 4: AI Evaluation (Optional, for complex scenarios only)
   responseQuality: number          // 0.0-1.0 (AI-evaluated response quality)
-  contextualAccuracy: number       // 0.0-1.0 (real-world application)
+  partialCreditBonus: number       // 0-15% max (prevents grade inflation)
 }
 ```
 
-### **Weighted Score Calculation:**
-```
-Raw Score = (Correct Answers / Total Questions) * 100
+### **Weighted Score Calculation (Beta Implementation):**
 
-Weighted Score = Σ(
-  (Response Quality × Question Importance × Skill Importance × Market Demand) 
-  / Total Possible Weighted Points
-) × 100
+```typescript
+// STEP 1: Calculate Question-Level Weighted Score
+function calculateQuestionScore(
+  isCorrect: boolean,
+  questionImportance: number,    // 1.0-5.0
+  difficultyMultiplier: number   // 0.8-1.3
+): number {
+  const baseScore = isCorrect ? 100 : 0
+  return baseScore * questionImportance * difficultyMultiplier
+}
 
-Final Proficiency = Weighted Score × Difficulty Multiplier × Regional Adjustment
+// STEP 2: Calculate Skill-Level Weighted Score
+function calculateSkillScore(
+  questionScores: number[],
+  skillImportance: number,       // 1.0-5.0
+  marketMultiplier: number       // 0.7-1.25
+): number {
+  const totalQuestionWeight = questionScores.reduce((sum, score) => sum + score, 0)
+  const maxPossibleWeight = questionScores.length * 100 * 5.0 * 1.3 // Max possible
+  
+  const rawSkillScore = (totalQuestionWeight / maxPossibleWeight) * 100
+  return rawSkillScore * skillImportance * marketMultiplier
+}
+
+// STEP 3: Calculate Overall Role Readiness
+function calculateOverallReadiness(
+  skillScores: Array<{skillId: string, weightedScore: number, importance: number, marketMultiplier: number}>
+): number {
+  const totalWeight = skillScores.reduce((sum, skill) => 
+    sum + (skill.importance * skill.marketMultiplier), 0
+  )
+  
+  const weightedSum = skillScores.reduce((sum, skill) => 
+    sum + (skill.weightedScore * skill.importance * skill.marketMultiplier), 0
+  )
+  
+  return weightedSum / totalWeight
+}
 ```
+
+### **Market Demand Multipliers (Free API Sources):**
+
+**Primary: O*NET Importance Ratings (Free)**
+- Already integrated via `onet-api.ts`
+- Provides skill importance scores (1.0-5.0)
+- Updated quarterly by Department of Labor
+
+**Secondary: BLS Employment Projections (Free)**
+- 10-year growth projections by occupation
+- Wage data by skill/occupation
+- Regional employment statistics
+
+**Multiplier Mapping:**
+```typescript
+const marketMultipliers = {
+  critical: 1.25,    // High growth (>20%), high demand (50K+ jobs)
+  high: 1.15,        // Growing (10-20%), many openings (20K+ jobs)
+  moderate: 1.0,     // Stable (0-10%), steady demand
+  low: 0.85,         // Declining (-5-0%), limited openings
+  declining: 0.7     // Shrinking (<-5%), obsolete skills
+}
+
+// Determine market demand from BLS + O*NET data
+function getMarketDemand(
+  onetImportance: number,      // 1.0-5.0 from O*NET
+  blsGrowthRate: number,       // -20% to +50% from BLS
+  currentOpenings: number      // Job postings count
+): 'critical' | 'high' | 'moderate' | 'low' | 'declining' {
+  if (onetImportance >= 4.0 && blsGrowthRate > 20) return 'critical'
+  if (onetImportance >= 3.5 && blsGrowthRate > 10) return 'high'
+  if (blsGrowthRate > 0) return 'moderate'
+  if (blsGrowthRate > -5) return 'low'
+  return 'declining'
+}
+```
+
+### **Why This Prevents the "Teamwork vs Algorithms" Problem:**
+
+**Scenario:** Software Developer Assessment
+- 10 questions total
+- 5 algorithm questions (importance: 5.0, market: critical 1.25x)
+- 3 code review questions (importance: 4.0, market: high 1.15x)
+- 2 teamwork questions (importance: 3.0, market: moderate 1.0x)
+
+**Candidate A: Gets algorithms wrong, teamwork right**
+```
+Algorithms: 0% × 5.0 × 1.25 = 0
+Code Review: 67% × 4.0 × 1.15 = 3.08
+Teamwork: 100% × 3.0 × 1.0 = 3.0
+Overall: 6.08 / 12.55 = 48% ❌ Not qualified
+```
+
+**Candidate B: Gets algorithms right, teamwork wrong**
+```
+Algorithms: 100% × 5.0 × 1.25 = 6.25
+Code Review: 67% × 4.0 × 1.15 = 3.08
+Teamwork: 0% × 3.0 × 1.0 = 0
+Overall: 9.33 / 12.55 = 74% ✅ Qualified (can learn teamwork)
+```
+
+**Result:** Employer gets accurate signal about technical capability. Job seeker gets honest feedback about where to focus.
+
+### **Skill Value Visualization (Results Page):**
+
+**Purpose:** Show job seekers which skills are most valuable in the current market, guiding their development focus.
+
+**Implementation on Assessment Results Page:**
+
+```tsx
+// Skill-by-Skill Results with Market Value Indicators
+<div className="space-y-4">
+  {skillResults.map((result) => {
+    const marketDemand = getMarketDemand(result.skill)
+    const demandIndicator = {
+      critical: { icon: '⭐', color: 'text-green-600', label: 'High Demand' },
+      high: { icon: '📈', color: 'text-blue-600', label: 'Growing' },
+      moderate: { icon: '📊', color: 'text-gray-600', label: 'Stable' },
+      low: { icon: '⚠️', color: 'text-orange-600', label: 'Declining' },
+      declining: { icon: '📉', color: 'text-red-600', label: 'Obsolete' }
+    }[marketDemand]
+    
+    return (
+      <div key={result.skill_id} className="border-b pb-4">
+        {/* Skill Name with Market Indicator */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{result.skill.name}</span>
+            <span className={`text-sm ${demandIndicator.color} flex items-center gap-1`}>
+              {demandIndicator.icon} {demandIndicator.label}
+            </span>
+          </div>
+          <span className="text-sm font-semibold">{result.score_pct}%</span>
+        </div>
+        
+        {/* Progress Bar */}
+        <Progress value={result.score_pct} className="h-2 mb-1" />
+        
+        {/* Market Context */}
+        <p className="text-xs text-gray-600">
+          {marketDemand === 'critical' && `Critical skill - ${result.jobCount}+ open positions nationally`}
+          {marketDemand === 'high' && `Growing demand - ${result.growthRate}% projected growth`}
+          {marketDemand === 'moderate' && `Stable market demand`}
+          {marketDemand === 'low' && `Limited market demand - consider modern alternatives`}
+          {marketDemand === 'declining' && `Declining skill - focus on emerging technologies`}
+        </p>
+        
+        {/* Gap Indicator */}
+        {result.gap_pct > 20 && (
+          <p className="text-xs text-orange-600 mt-1">
+            Gap: {result.gap_pct}% to reach proficiency
+            {marketDemand === 'critical' && ' - High priority for development'}
+          </p>
+        )}
+      </div>
+    )
+  })}
+</div>
+```
+
+**Visual Design:**
+- **⭐ High Demand** (Green) - Critical skills worth developing
+- **📈 Growing** (Blue) - Good investment of learning time
+- **📊 Stable** (Gray) - Solid foundation skills
+- **⚠️ Declining** (Orange) - Maintain but don't prioritize
+- **📉 Obsolete** (Red) - Consider alternatives
+
+**Data Sources:**
+- Job count: O*NET employment data + BLS statistics
+- Growth rate: BLS 10-year projections
+- Market context: Combination of O*NET importance + BLS trends
+
+**User Value:**
+- **Prioritization:** Focus development on high-demand skills
+- **Career Planning:** See which skills lead to more opportunities
+- **Reality Check:** Understand if their current skills are marketable
+- **Motivation:** High scores on critical skills = strong validation
 
 ## 🤖 **COMPONENT 2: AI PROFICIENCY EVALUATOR**
 

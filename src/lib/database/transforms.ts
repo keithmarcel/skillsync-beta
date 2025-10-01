@@ -129,7 +129,7 @@ export function transformAssessmentToCard(assessment: Assessment) {
   const job = assessment.job
   const skillResults = assessment.skill_results || []
   const totalSkills = skillResults.length
-  const skillsGapsIdentified = skillResults.filter(sr => sr.band === 'developing').length
+  const skillsGapsIdentified = skillResults.filter(sr => sr.band === 'needs_dev' || sr.band === 'building').length
   
   return {
     id: assessment.id,
@@ -144,7 +144,7 @@ export function transformAssessmentToCard(assessment: Assessment) {
     
     // Skills gaps details
     skillsGaps: skillResults
-      .filter(sr => sr.band === 'developing')
+      .filter(sr => sr.band === 'needs_dev' || sr.band === 'building')
       .map(sr => sr.skill?.name || '')
       .filter(Boolean)
   }

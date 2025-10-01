@@ -320,7 +320,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </p>
           </div>
           <Button asChild className="bg-[#114B5F] hover:bg-[#0F3A47] text-[#FAFAFA] px-3 py-2 rounded-lg flex-shrink-0 shadow-sm w-[215px] h-10 gap-2 font-normal text-base">
-            <Link href={`/assessments/quiz/${job.soc_code}`} className="flex items-center justify-center gap-2">
+            <Link href={`/assessments/${job.id}/intro`} className="flex items-center justify-center gap-2">
               Start Your Assessment
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M9 5l7 7-7 7"/>

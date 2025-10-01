@@ -28,6 +28,11 @@ import Link from 'next/link'
 interface QuizWithStats extends Quiz {
   total_assessments?: number
   avg_readiness?: number
+  job?: {
+    id: string
+    title: string
+    soc_code: string
+  }
 }
 
 export default function AdminAssessmentsPage() {
@@ -55,18 +60,19 @@ export default function AdminAssessmentsPage() {
 
   const loadQuizzes = async () => {
     try {
-      // Get all quizzes from database
+      // Get all quizzes from database with job details
       const { data, error } = await supabase
         .from('quizzes')
         .select(`
           *,
-          company:companies(name)
+          company:companies(name),
+          job:jobs!job_id(id, title, soc_code)
         `)
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
-      // For each quiz, get assessment stats
+      // For each quiz, get assessment stats and question count
       const quizzesWithStats = await Promise.all(
         (data || []).map(async (quiz) => {
           // Get assessment count and average readiness for this quiz
@@ -81,10 +87,26 @@ export default function AdminAssessmentsPage() {
             ? assessmentData!.reduce((sum, a) => sum + (a.readiness_pct || 0), 0) / totalAssessments
             : 0
 
+          // Get question count
+          const { data: sections } = await supabase
+            .from('quiz_sections')
+            .select('id')
+            .eq('quiz_id', quiz.id)
+
+          let totalQuestions = 0
+          if (sections && sections.length > 0) {
+            const { count } = await supabase
+              .from('quiz_questions')
+              .select('*', { count: 'exact', head: true })
+              .in('section_id', sections.map(s => s.id))
+            totalQuestions = count || 0
+          }
+
           return {
             ...quiz,
             total_assessments: totalAssessments,
-            avg_readiness: Math.round(avgReadiness * 100) / 100
+            avg_readiness: Math.round(avgReadiness * 100) / 100,
+            total_questions: totalQuestions
           }
         })
       )
@@ -115,8 +137,9 @@ export default function AdminAssessmentsPage() {
   }
 
   const filteredQuizzes = quizzes.filter(quiz => {
-    const matchesSearch = quiz.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         quiz.soc_code?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = quiz.job?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         quiz.job?.soc_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         searchTerm === ''
     const matchesStatus = statusFilter === 'all' || quiz.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -285,8 +308,8 @@ export default function AdminAssessmentsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Job Title</TableHead>
                     <TableHead>SOC Code</TableHead>
-                    <TableHead>Title</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Questions</TableHead>
@@ -298,8 +321,8 @@ export default function AdminAssessmentsPage() {
                 <TableBody>
                   {filteredQuizzes.map((quiz) => (
                     <TableRow key={quiz.id}>
-                      <TableCell className="font-mono text-sm">{quiz.soc_code}</TableCell>
-                      <TableCell>{quiz.title || `${quiz.soc_code} Assessment`}</TableCell>
+                      <TableCell className="font-medium">{quiz.job?.title || 'Unknown Job'}</TableCell>
+                      <TableCell className="font-mono text-sm">{quiz.job?.soc_code || quiz.soc_code}</TableCell>
                       <TableCell>{getStatusBadge(quiz.status || 'draft')}</TableCell>
                       <TableCell>
                         {quiz.is_standard ? (

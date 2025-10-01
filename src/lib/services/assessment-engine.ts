@@ -370,11 +370,11 @@ export async function calculateRoleReadiness(
     return {
       skillId: score.skillId,
       skillName: skill?.name || 'Unknown Skill',
-      currentLevel: score.weightedScore,
+      currentLevel: score.rawScore, // Use raw score for accurate proficiency
       requiredLevel,
-      gap: Math.max(0, requiredLevel - score.weightedScore),
+      gap: Math.max(0, requiredLevel - score.rawScore),
       importance: weight?.importance || 3.0,
-      status: getSkillStatus(score.weightedScore, requiredLevel)
+      status: getSkillStatus(score.rawScore, requiredLevel)
     }
   })
 

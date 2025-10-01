@@ -23,6 +23,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 })
 
 // Initialize OpenAI client
+console.log('🔑 OpenAI API Key loaded:', process.env.OPENAI_API_KEY ? 'YES (length: ' + process.env.OPENAI_API_KEY.length + ')' : 'NO - MISSING!');
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!
 })
@@ -181,7 +183,16 @@ Return in this exact JSON format:
   }
 
   try {
-    const questions = JSON.parse(content)
+    // Strip markdown code fences if present (```json ... ```)
+    let cleanedContent = content.trim()
+    if (cleanedContent.startsWith('```')) {
+      // Remove opening fence (```json or ```)
+      cleanedContent = cleanedContent.replace(/^```(?:json)?\n?/, '')
+      // Remove closing fence (```)
+      cleanedContent = cleanedContent.replace(/\n?```$/, '')
+    }
+    
+    const questions = JSON.parse(cleanedContent)
     return questions
   } catch (error) {
     console.error('Failed to parse OpenAI response:', content)

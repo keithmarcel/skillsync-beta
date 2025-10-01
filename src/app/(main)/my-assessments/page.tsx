@@ -1,65 +1,138 @@
 'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import PageHeader from '@/components/ui/page-header'
-import { AssessmentCard } from '@/components/ui/assessment-card'
-import { TitleHero } from '@/components/ui/title-hero'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { EmptyState } from '@/components/ui/empty-state'
 import Link from 'next/link'
-import { routes } from '@/lib/routes'
-import { getStatusTagLabel, getStatusTagColor } from '@/lib/readiness'
+import Image from 'next/image'
+import { Search, Target, FileText, Upload } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { getUserAssessments, type Assessment } from '@/lib/database/queries'
+import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase/client'
+
+type Assessment = {
+  id: string
+  user_id: string
+  job_id: string
+  quiz_id: string | null
+  method: 'quiz' | 'resume'
+  readiness_pct: number | null
+  status_tag: string | null
+  analyzed_at: string | null
+  created_at: string
+  job: {
+    id: string
+    title: string
+    soc_code: string
+    company: {
+      name: string
+    } | null
+  } | null
+  skill_results: Array<{
+    band: string
+  }> | null
+}
 
 export default function MyAssessmentsPage() {
+  const { user } = useAuth()
   const [assessments, setAssessments] = useState<Assessment[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('readiness')
 
   useEffect(() => {
-    async function loadAssessments() {
-      try {
-        setLoading(true)
-        // For demo purposes, using a mock user ID since we don't have auth yet
-        const mockUserId = 'demo-user-id'
-        const data = await getUserAssessments(mockUserId)
-        setAssessments(data)
-      } catch (error) {
-        console.error('Error loading assessments:', error)
-      } finally {
-        setLoading(false)
-      }
+    if (user) {
+      loadAssessments()
     }
+  }, [user])
 
-    loadAssessments()
-  }, [])
+  async function loadAssessments() {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('assessments')
+        .select(`
+          *,
+          job:jobs(id, title, soc_code, company:companies(name)),
+          skill_results:assessment_skill_results(band)
+        `)
+        .eq('user_id', user?.id)
+        .not('analyzed_at', 'is', null)
+        .order('analyzed_at', { ascending: false })
+
+      if (error) throw error
+      setAssessments(data || [])
+    } catch (error) {
+      console.error('Error loading assessments:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Filter and sort assessments
+  const filteredAssessments = assessments.filter(a => 
+    a.job?.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    a.job?.soc_code.includes(searchQuery)
+  )
+
+  const sortedAssessments = [...filteredAssessments].sort((a, b) => {
+    if (sortBy === 'readiness') {
+      return (b.readiness_pct || 0) - (a.readiness_pct || 0)
+    }
+    return new Date(b.analyzed_at || b.created_at).getTime() - new Date(a.analyzed_at || a.created_at).getTime()
+  })
+
+  const getStatusBadge = (readiness: number, status: string) => {
+    if (status === 'role_ready' || readiness >= 80) {
+      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">{readiness}% → Role Ready</Badge>
+    } else if (status === 'close_gaps' || readiness >= 60) {
+      return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">{readiness}% → Close Gaps</Badge>
+    }
+    return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Needs Development</Badge>
+  }
 
   const hasAssessments = assessments.length > 0
 
-  return (
-    <div className="min-h-screen bg-gray-50 pb-12">
-      <PageHeader 
-        title="My Assessments"
-        subtitle="Track your skills progress and career readiness over time."
-        variant="split"
-      />
-      
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        <TitleHero 
-          heroImage="/assets/hero_my-assessments.jpg"
-          title="My Assessments"
-          showHeroOnly={true}
-        />
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Please sign in to view your assessments</p>
+          <Button onClick={() => window.location.href = '/auth/login'}>Sign In</Button>
+        </div>
       </div>
-      
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section with Title Overlay */}
+      <div className="relative h-[280px] bg-[#114B5F]">
+        <Image
+          src="/assets/hero_my-assessments.jpg"
+          alt="My Assessments"
+          fill
+          className="object-cover opacity-40"
+          priority
+        />
+        <div className="absolute inset-0 flex items-center">
+          <div className="max-w-[1280px] mx-auto px-6 w-full">
+            <h1 className="text-4xl font-bold text-white mb-2">My Assessments</h1>
+            <p className="text-white/90">Review your past SkillSync assessments and explore next steps to grow your skills.</p>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
-        <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-[1280px] mx-auto px-6 py-12">
           <div className="text-center py-8">Loading your assessments...</div>
-        </main>
+        </div>
       ) : !hasAssessments ? (
-        <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-[1280px] mx-auto px-6 py-12">
           <EmptyState
             title="Your Assessment Journey"
             description="No assessments completed yet. Start exploring jobs and take your first skills assessment to begin your career journey!"
@@ -68,80 +141,89 @@ export default function MyAssessmentsPage() {
             onPrimaryClick={() => window.location.href = '/jobs'}
             onSecondaryClick={() => window.location.href = '/jobs'}
           />
-        </main>
+        </div>
       ) : (
-        /* Main Content */
-        <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold text-green-600">
-                {assessments.filter((a: Assessment) => a.status_tag === 'role_ready').length}
-              </CardTitle>
-              <CardDescription>Roles Ready</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">You're qualified for these positions</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold text-blue-600">
-                {assessments.length > 0 ? Math.round(assessments.reduce((sum: number, a: Assessment) => sum + (a.readiness_pct || 0), 0) / assessments.length) : 0}%
-              </CardTitle>
-              <CardDescription>Average Readiness</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">Across all your assessments</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold text-purple-600">
-                {assessments.length}
-              </CardTitle>
-              <CardDescription>Total Assessments</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">Completed evaluations</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Assessments List */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Your Assessments</h2>
-            <Button asChild>
-              <Link href={routes.jobs}>Take New Assessment</Link>
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {assessments.map((assessment: Assessment) => (
-              <AssessmentCard
-                key={assessment.id}
-                id={assessment.id}
-                jobTitle={assessment.job?.title || 'Unknown Job'}
-                jobType={assessment.job?.job_kind === 'featured_role' ? 'Featured Role' : 'High Demand Occupation'}
-                readinessScore={assessment.readiness_pct || 0}
-                status={assessment.status_tag as 'role_ready' | 'close_gaps' | 'needs_development'}
-                assessmentMethod={assessment.method === 'resume' ? 'Resume Upload' : 'Skills Assessment'}
-                analyzedDate={assessment.analyzed_at || new Date().toISOString()}
-                skillsGapsIdentified={assessment.skill_results?.filter(sr => sr.band === 'developing').length || 0}
-                totalSkills={assessment.skill_results?.length || 8}
-                specificGaps={assessment.status_tag === 'close_gaps' ? ['Process Improvement', 'Strategic Planning'] : undefined}
-                reportHref={routes.assessment(assessment.id)}
+        <div className="max-w-[1280px] mx-auto px-6 py-8">
+          {/* Search and Sort */}
+          <div className="flex items-center gap-4 mb-8">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search by keyword, category, or SOC code"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
               />
-            ))}
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="readiness">Readiness</SelectItem>
+                <SelectItem value="date">Date</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
+          {/* Assessment Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedAssessments.map((assessment) => {
+              const skillsGaps = assessment.skill_results?.filter(sr => sr.band === 'needs_dev' || sr.band === 'building').length || 0
+              const totalSkills = assessment.skill_results?.length || 0
+              
+              return (
+                <Card key={assessment.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    {/* Job Title */}
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      {assessment.job?.title || 'Unknown Job'}
+                    </h3>
+                    
+                    {/* SOC Code */}
+                    <p className="text-sm text-gray-600 mb-3">
+                      {assessment.job?.soc_code || 'N/A'} • {assessment.job?.company?.name || 'High-Demand Occupation'}
+                    </p>
+
+                    {/* Status Badge */}
+                    <div className="mb-4">
+                      {getStatusBadge(assessment.readiness_pct || 0, assessment.status_tag || '')}
+                    </div>
+
+                    {/* Assessment Info */}
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                      <div className="flex items-center gap-1">
+                        {assessment.method === 'quiz' ? <Target className="h-4 w-4" /> : <Upload className="h-4 w-4" />}
+                        <span>{assessment.method === 'quiz' ? 'Skills Assessment' : 'Resume Upload'}</span>
+                      </div>
+                      <span>•</span>
+                      <span>Analyzed on {new Date(assessment.analyzed_at || assessment.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    </div>
+
+                    {/* Skills Gaps Progress */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between text-sm mb-2">
+                        <span className="text-gray-600">Skills Gaps Identified</span>
+                        <span className="font-medium">{skillsGaps}/{totalSkills}</span>
+                      </div>
+                      <Progress value={totalSkills > 0 ? ((totalSkills - skillsGaps) / totalSkills) * 100 : 0} className="h-2" />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <Button asChild variant="outline" size="sm" className="flex-1">
+                        <Link href={`/assessments/${assessment.id}/results`}>View Report</Link>
+                      </Button>
+                      <Button asChild variant="outline" size="sm" className="flex-1">
+                        <Link href="#">Retake Quiz</Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
         </div>
-        </main>
       )}
     </div>
   )

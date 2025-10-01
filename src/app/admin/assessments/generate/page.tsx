@@ -27,6 +27,9 @@ export default function GenerateAssessmentPage() {
   const [generating, setGenerating] = useState(false)
   const [socCode, setSocCode] = useState('')
   const [companyId, setCompanyId] = useState('')
+  const [progressMessage, setProgressMessage] = useState('')
+  const [progressStep, setProgressStep] = useState(0)
+  const [totalSteps, setTotalSteps] = useState(5)
 
   useEffect(() => {
     loadAvailableSocCodes()
@@ -98,7 +101,27 @@ export default function GenerateAssessmentPage() {
     }
 
     setGenerating(true)
+    setProgressStep(1)
+    setProgressMessage('Starting quiz generation...')
+    
     try {
+      // Simulate progress updates while waiting for API
+      const progressInterval = setInterval(() => {
+        setProgressStep(prev => {
+          if (prev < totalSteps - 1) {
+            const messages = [
+              'Validating SOC code and job skills...',
+              'Creating quiz structure...',
+              'Generating AI-powered questions...',
+              'Finalizing assessment...'
+            ];
+            setProgressMessage(messages[Math.min(prev, messages.length - 1)]);
+            return prev + 1;
+          }
+          return prev;
+        });
+      }, 3000); // Update every 3 seconds
+
       const response = await fetch('/api/quizzes/create', {
         method: 'POST',
         headers: {
@@ -110,20 +133,28 @@ export default function GenerateAssessmentPage() {
         }),
       })
 
+      clearInterval(progressInterval);
+      
       const result = await response.json()
 
       if (!response.ok) {
         throw new Error(result.details || result.error || 'Failed to generate quiz')
       }
 
+      setProgressStep(totalSteps);
+      setProgressMessage('Quiz generated successfully!');
       toast.success(`Quiz generated successfully!`)
       
-      // Redirect to the quiz detail page
-      router.push(`/admin/assessments/${result.quizId}/quiz`)
+      // Brief delay to show completion
+      setTimeout(() => {
+        router.push(`/admin/assessments/${result.quizId}/quiz`)
+      }, 1000);
       
     } catch (err) {
       console.error('Error generating quiz:', err)
       toast.error(err instanceof Error ? err.message : 'Failed to generate quiz')
+      setProgressMessage('');
+      setProgressStep(0);
     } finally {
       setGenerating(false)
     }
@@ -162,6 +193,37 @@ export default function GenerateAssessmentPage() {
           This ensures assessments are based on real occupational requirements, not generic questions.
         </AlertDescription>
       </Alert>
+
+      {/* Progress Display */}
+      {generating && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="pt-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  <div>
+                    <p className="font-medium text-blue-900">Generating Quiz...</p>
+                    <p className="text-sm text-blue-700">{progressMessage}</p>
+                  </div>
+                </div>
+                <span className="text-sm font-medium text-blue-600">
+                  Step {progressStep} of {totalSteps}
+                </span>
+              </div>
+              <div className="w-full bg-blue-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${(progressStep / totalSteps) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-blue-600">
+                This may take 2-3 minutes as AI generates questions...
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

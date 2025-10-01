@@ -111,7 +111,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Quiz created successfully'
+      message: 'Quiz created successfully',
+      quizId: quizId
     })
 
   } catch (error) {
