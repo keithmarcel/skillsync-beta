@@ -20,10 +20,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { getQuizBySocCode, getQuizById, type Quiz, type Assessment } from '@/lib/database/queries'
 import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { DestructiveDialog } from '@/components/ui/destructive-dialog'
+import { useToastActions } from '@/hooks/use-toast-actions'
 
 interface QuizWithStats extends Quiz {
   total_assessments?: number
@@ -42,6 +45,7 @@ export default function AdminAssessmentsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [readinessFilter, setReadinessFilter] = useState<string>('all')
+  const toastActions = useToastActions()
 
   useEffect(() => {
     loadAllData()
@@ -184,9 +188,61 @@ export default function AdminAssessmentsPage() {
 
       if (error) throw error
       await loadQuizzes()
+      toastActions.updateSuccess('Quiz status')
     } catch (error) {
       console.error('Error updating quiz status:', error)
+      toastActions.updateError('Quiz status')
     }
+  }
+
+  const handleDeleteQuiz = async (quizId: string) => {
+    // Delete quiz sections and questions (cascade should handle this)
+    const { error: sectionsError } = await supabase
+      .from('quiz_sections')
+      .delete()
+      .eq('quiz_id', quizId)
+
+    if (sectionsError) throw sectionsError
+
+    // Delete the quiz
+    const { error: quizError } = await supabase
+      .from('quizzes')
+      .delete()
+      .eq('id', quizId)
+
+    if (quizError) throw quizError
+
+    // Reload data
+    await loadQuizzes()
+  }
+
+  const handleDeleteAssessment = async (assessmentId: string) => {
+    // Delete assessment skill results
+    const { error: resultsError } = await supabase
+      .from('assessment_skill_results')
+      .delete()
+      .eq('assessment_id', assessmentId)
+
+    if (resultsError) throw resultsError
+
+    // Delete quiz responses
+    const { error: responsesError } = await supabase
+      .from('quiz_responses')
+      .delete()
+      .eq('assessment_id', assessmentId)
+
+    if (responsesError) throw responsesError
+
+    // Delete the assessment
+    const { error: assessmentError } = await supabase
+      .from('assessments')
+      .delete()
+      .eq('id', assessmentId)
+
+    if (assessmentError) throw assessmentError
+
+    // Reload data
+    await loadAssessments()
   }
 
   if (loading) {
@@ -374,6 +430,20 @@ export default function AdminAssessmentsPage() {
                                 Unpublish Quiz
                               </DropdownMenuItem>
                             )}
+                            <DropdownMenuSeparator />
+                            <DestructiveDialog
+                              title="Delete Quiz"
+                              description={`Are you sure you want to delete "${quiz.job?.title}" quiz? This will permanently delete all questions and cannot be undone.`}
+                              actionLabel="Delete Quiz"
+                              onConfirm={() => handleDeleteQuiz(quiz.id)}
+                              onSuccess={() => toastActions.deleteSuccess('Quiz')}
+                              onError={(error) => toastActions.deleteError('Quiz', error.message)}
+                            >
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <Trash2 className="h-4 w-4 mr-2 text-red-600" />
+                                <span className="text-red-600">Delete Quiz</span>
+                              </DropdownMenuItem>
+                            </DestructiveDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -527,6 +597,20 @@ export default function AdminAssessmentsPage() {
                                 Edit Assessment
                               </Link>
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DestructiveDialog
+                              title="Delete Assessment"
+                              description="Are you sure you want to delete this assessment? This will permanently delete all results and responses and cannot be undone."
+                              actionLabel="Delete Assessment"
+                              onConfirm={() => handleDeleteAssessment(assessment.id)}
+                              onSuccess={() => toastActions.deleteSuccess('Assessment')}
+                              onError={(error) => toastActions.deleteError('Assessment', error.message)}
+                            >
+                              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                <Trash2 className="h-4 w-4 mr-2 text-red-600" />
+                                <span className="text-red-600">Delete Assessment</span>
+                              </DropdownMenuItem>
+                            </DestructiveDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
