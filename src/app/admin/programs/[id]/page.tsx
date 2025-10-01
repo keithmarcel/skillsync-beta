@@ -6,6 +6,7 @@ import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDeta
 import { useAdminEntity } from '@/hooks/useAdminEntity';
 import { useSchoolsList } from '@/hooks/useSchoolsList';
 import { useCipCodesList } from '@/hooks/useCipCodesList';
+import { ProgramJobsManager } from '@/components/admin/ProgramJobsManager';
 import type { Program } from '@/lib/database/queries';
 
 export default function ProgramDetailPage({ params }: { params: { id: string } }) {
@@ -212,6 +213,23 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
           type: EntityFieldType.TEXT,
           placeholder: '/assets/programs/program-hero.jpg',
           helpText: 'Hero image for program detail pages (required if featured)'
+        }
+      ]
+    },
+    {
+      id: 'jobs',
+      label: 'Job Associations',
+      fields: [
+        {
+          key: 'job_associations',
+          label: 'Related Jobs',
+          type: EntityFieldType.CUSTOM,
+          render: () => (
+            <ProgramJobsManager 
+              programId={program?.id || ''} 
+              cipCode={program?.cip_code || undefined}
+            />
+          )
         }
       ]
     },
