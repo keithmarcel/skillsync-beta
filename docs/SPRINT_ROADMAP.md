@@ -21,10 +21,17 @@
 - ✅ Documentation consolidated and updated
 - ✅ Admin tools with reusable patterns
 
-**BLOCKER IDENTIFIED:**
-- Lightcast database has quality issues (irrelevant skills)
-- Solution: Use O*NET API for standard occupations
-- O*NET mapper implemented, needs credentials to test
+**RESOLVED:**
+- ✅ O*NET mapper working with /summary/ endpoints
+- ✅ Answer key randomization fixed (no more all-B quizzes)
+- ✅ Question repetition and manager-focus addressed
+- ✅ Old skills purged, ready for O*NET pipeline
+
+**TODO:**
+- 📋 Apply O*NET pipeline to all 37 occupations
+- 📋 Refine AI prompts for better question quality (roadmap item)
+- 📋 Fix simulator display issue
+- 📋 Test weighted scoring with proper skills
 
 ---
 
