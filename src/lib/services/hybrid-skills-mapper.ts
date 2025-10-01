@@ -89,39 +89,54 @@ async function getONETSkills(socCode: string): Promise<Skill[]> {
 }
 
 /**
- * Step 2: Get Lightcast skills by category and keywords
+ * Vendor-specific skills to exclude for standard occupations
+ * These are too specific and not universally applicable
+ */
+const VENDOR_SPECIFIC_PATTERNS = [
+  'Amazon', 'AWS', 'Microsoft', 'Google', 'Oracle', 'SAP',
+  'Salesforce', 'Adobe', 'IBM', 'Cisco', 'VMware',
+  'ServiceNow', 'Workday', 'Tableau', 'PowerBI'
+]
+
+/**
+ * Step 2: Get Lightcast skills by category (broad, universal skills only)
  */
 async function getLightcastSkills(job: Job): Promise<Skill[]> {
   const socPrefix = job.soc_code.substring(0, 2)
   const categories = SOC_TO_CATEGORIES[socPrefix] || ['Specialized Skill']
   
-  // Extract keywords from job title
-  const keywords = job.title
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(word => word.length > 3) // Filter short words
-    .slice(0, 5) // Top 5 keywords
-
-  // Build query
-  let query = supabase
+  // Get skills by category
+  const { data } = await supabase
     .from('skills')
     .select('id, name, category, source, description')
     .eq('source', 'LIGHTCAST')
     .eq('is_assessable', true)
-
-  // Match by category OR keywords
-  const categoryFilter = categories.map(c => `category.eq.${c}`).join(',')
-  const keywordFilter = keywords.map(k => `name.ilike.%${k}%`).join(',')
+    .in('category', categories)
+    .limit(100) // Get more to filter from
   
-  if (categoryFilter && keywordFilter) {
-    query = query.or(`${categoryFilter},${keywordFilter}`)
-  } else if (categoryFilter) {
-    query = query.in('category', categories)
-  }
-
-  const { data } = await query.limit(25)
+  if (!data) return []
   
-  return (data || []) as Skill[]
+  // Filter OUT vendor-specific skills for standard occupations
+  const broadSkills = data.filter(skill => {
+    const skillName = skill.name.toLowerCase()
+    
+    // Exclude vendor-specific
+    if (VENDOR_SPECIFIC_PATTERNS.some(vendor => 
+      skillName.includes(vendor.toLowerCase())
+    )) {
+      return false
+    }
+    
+    // Exclude overly specific product names (contains version numbers)
+    if (/\d+\.\d+/.test(skillName)) {
+      return false
+    }
+    
+    // Keep broad, universal skills
+    return true
+  })
+  
+  return broadSkills.slice(0, 25) as Skill[]
 }
 
 /**
@@ -158,8 +173,10 @@ Return ONLY valid JSON array (no markdown):
 Rules:
 - Select exactly 15 skills (or fewer if less available)
 - importanceLevel must be: "critical", "important", or "helpful"
-- Prefer specific technical skills over generic soft skills
-- Balance O*NET (validated) and LIGHTCAST (current) sources`
+- Prefer BROAD, UNIVERSAL skills (Python, JavaScript, SQL) over vendor-specific (Amazon S3, Microsoft Azure)
+- Avoid company-specific products unless absolutely core to the occupation
+- Balance O*NET (validated) and LIGHTCAST (current) sources
+- For standard occupations, choose skills applicable across most companies`
 
   try {
     const response = await openai.chat.completions.create({

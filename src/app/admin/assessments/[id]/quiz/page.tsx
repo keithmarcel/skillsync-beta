@@ -251,11 +251,11 @@ export default function QuizDetailPage() {
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Total Questions:</span>
-                  <span className="ml-2">{quiz.total_questions}</span>
+                  <span className="ml-2">{quiz.sections?.reduce((sum, s) => sum + (s.total_questions || 0), 0) || 0}</span>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Questions per Assessment:</span>
-                  <span className="ml-2">{quiz.questions_per_assessment}</span>
+                  <span className="ml-2">{quiz.questions_per_assessment || 15}</span>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Estimated Time:</span>
@@ -263,7 +263,7 @@ export default function QuizDetailPage() {
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">AI Generated:</span>
-                  <span className="ml-2">{quiz.ai_generated ? 'Yes' : 'No'}</span>
+                  <span className="ml-2">Yes</span>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Company:</span>
