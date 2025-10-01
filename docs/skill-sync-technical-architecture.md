@@ -451,6 +451,59 @@ overallProficiency = Σ(skillScore × skillImportance) / Σ(skillImportance)
 
 **Result:** Universal, assessable skills for standard occupations; customizable for featured roles
 
+### Question Bank System
+
+**Purpose:** Enable dynamic assessment assembly with anti-cheating features
+
+**Architecture:**
+```
+Phase 1: Build Question Bank (Admin)
+├─ Generate 10-15 questions per skill
+├─ Store with is_bank_question = true
+└─ Result: 100-150 questions per occupation
+
+Phase 2: Dynamic Assembly (User)
+├─ Select top 5-7 critical/important skills
+├─ Random sample 3-4 questions per skill
+├─ Total: 20-25 questions
+└─ Different questions each time
+```
+
+**Database Schema:**
+```sql
+-- Question bank metadata
+ALTER TABLE quiz_questions
+ADD COLUMN is_bank_question BOOLEAN DEFAULT false,
+ADD COLUMN times_used INTEGER DEFAULT 0,
+ADD COLUMN last_used_at TIMESTAMP;
+
+-- User question history (anti-repeat)
+CREATE TABLE user_question_history (
+  user_id UUID REFERENCES auth.users(id),
+  question_id UUID REFERENCES quiz_questions(id),
+  assessment_id UUID REFERENCES assessments(id),
+  seen_at TIMESTAMP DEFAULT NOW(),
+  was_correct BOOLEAN,
+  PRIMARY KEY (user_id, question_id, assessment_id)
+);
+```
+
+**Key Functions:**
+- `generateQuestionBank(jobId)` - Create comprehensive question pool
+- `selectTopSkills(jobId, maxSkills)` - Pick critical/important skills only
+- `getRandomQuestionsForSkill(skillId, count, userId)` - Sample with anti-repeat
+- `assembleDynamicAssessment(jobId, userId)` - Build unique assessment
+- `recordQuestionHistory(userId, assessmentId, questionIds)` - Track usage
+
+**Benefits:**
+- ✅ Large question pool (100-150 per occupation)
+- ✅ Short assessments (20-25 questions, 15-20 minutes)
+- ✅ Anti-cheating (different questions each time)
+- ✅ Focused testing (critical/important skills only)
+- ✅ Weighted scoring (still accurate with fewer questions)
+
+**Testing:** Run `node scripts/test-question-bank.js` to validate
+
 ### Testing Strategy
 
 **Simulator Scenarios:**
