@@ -51,8 +51,11 @@ async function fetchAllSkills() {
   const token = await authenticate();
   
   console.log('📥 Fetching all skills from Lightcast...');
+  console.log('Note: This may take a few minutes for 30k+ skills\n');
   
-  const response = await fetch(`${LIGHTCAST_API_BASE}/versions/latest/skills`, {
+  // Lightcast API may paginate or return all at once
+  // Try fetching with limit parameter
+  const response = await fetch(`${LIGHTCAST_API_BASE}/versions/latest/skills?limit=50000`, {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -60,10 +63,16 @@ async function fetchAllSkills() {
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch skills: ${response.statusText}`);
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch skills: ${response.status} ${response.statusText}\n${errorText}`);
   }
 
   const data = await response.json();
+  
+  if (!data.data || data.data.length === 0) {
+    throw new Error('No skills returned from Lightcast API. Check credentials and API access.');
+  }
+  
   console.log(`✅ Fetched ${data.data.length} skills\n`);
   
   return data.data;
