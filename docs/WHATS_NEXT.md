@@ -9,10 +9,18 @@
 
 ### Day 2: CIP Assignment & Admin Polish
 - ✅ All 223 programs have CIP codes
-- ✅ AI-generated short descriptions (13-15 words)
+- ✅ AI-generated short descriptions (13-15 words, improved quality)
 - ✅ Admin UI improvements (CIP column, helpText, Select fixes)
 - ✅ Featured programs filter fixed
 - ✅ Global OpenAI configuration (gpt-4o-mini)
+
+### Day 3: Skills Extraction & Manual Curation
+- ✅ Built CIP→SOC→Skills extraction pipeline
+- ✅ Extracted skills for 113 programs (757 total skills)
+- ✅ Admin UI shows extracted skills with weights
+- ✅ Created program_jobs junction table
+- ✅ Built manual job association manager
+- ✅ Admins can supplement crosswalk with manual matches
 
 ---
 
