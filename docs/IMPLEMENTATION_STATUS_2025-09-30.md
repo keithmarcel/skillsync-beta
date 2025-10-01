@@ -68,7 +68,20 @@
 **Duration:** ~3-4 hours (223 programs × multiple SOCs × 3 sec/call)
 **Result:** All 223 programs will have 5-10 skills
 
-### 2. (Optional) Re-enrich Job Skills
+### 2. Enhance Lightcast with O*NET Descriptions
+**When:** After Lightcast import completes
+**Command:** `node scripts/enhance-lightcast-with-onet.js`
+**Duration:** ~5-10 minutes
+**Result:** Lightcast skills get O*NET descriptions where names match
+
+**How it works:**
+- Exact match by name (case-insensitive)
+- Fuzzy match with 70% similarity (word overlap)
+- Copies O*NET descriptions to matching Lightcast skills
+- Also links `onet_id` for validation
+- Expected: 500-1,000 Lightcast skills get descriptions
+
+### 3. (Optional) Re-enrich Job Skills
 **When:** After Lightcast import completes
 **Command:** Uncomment code in `scripts/enrich-job-skills.js` and run
 **Duration:** ~1 hour (38 jobs)
