@@ -150,40 +150,41 @@ function getPriority(importance: number, gapSize: number): 'Critical' | 'Importa
   if (importance >= 3.0 && gapSize >= 15) return 'Important'
   return 'Helpful'
 }
-
 // ============================================================================
 // PROGRAM MATCHING
 // ============================================================================
 
 async function getAvailablePrograms(gaps: SkillGap[]): Promise<EducationProgram[]> {
-  
-  const skillIds = gaps.map(g => g.skillId)
-  
-  const { data: programs } = await supabase
-    .from('education_programs')
+  // Fetch all available education programs with their skills
+  const { data: programsData } = await supabase
+    .from('programs')
     .select(`
       *,
-      program_skills:program_skill_mappings(
+      school:schools(name),
+      program_skills(
         skill_id,
-        skill:skills(name)
+        weight,
+        skill:skills(id, name)
       )
     `)
-    .eq('status', 'active')
-    .overlaps('skill_ids', skillIds)
-  
-  return programs?.map(p => ({
+    .eq('status', 'published')
+    .eq('school.is_published', true)
+
+  const programs: EducationProgram[] = programsData?.map((p: any) => ({
     id: p.id,
     name: p.name,
-    provider: p.provider_name,
-    description: p.description,
-    duration: p.duration,
-    format: p.format,
-    cost: p.cost || 0,
-    startDate: p.next_start_date,
+    provider: p.school?.name || 'Unknown',
+    description: p.short_desc || p.long_desc || '',
+    duration: p.duration_text || 'Varies',
+    format: p.format || 'Online',
+    cost: 0, // Cost not tracked yet
+    startDate: 'Rolling admission',
     skills: p.program_skills?.map((ps: any) => ps.skill_id) || [],
-    difficulty: p.difficulty_level,
-    outcomes: p.learning_outcomes || []
+    difficulty: 'Intermediate', // Default for now
+    outcomes: [] // Not tracked yet
   })) || []
+  
+  return programs
 }
 
 async function matchProgramsToGaps(
