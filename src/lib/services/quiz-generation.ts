@@ -358,13 +358,26 @@ export async function createSocQuiz(socCode: string, companyId?: string, session
     console.log(`Successfully generated ${questions.length} questions`)
 
     // Insert questions - match actual schema
-    const questionInserts = questions.map((q, idx) => ({
-      section_id: section.id,
-      stem: q.stem,
-      choices: q.choices,
-      answer_key: q.correct_answer, // Use answer_key instead of correct_answer
-      difficulty: q.difficulty
-    }))
+    // Assign importance based on skill importance and question difficulty
+    const skillImportance = jobSkill.importance_level === 'critical' ? 5.0 :
+                           jobSkill.importance_level === 'important' ? 4.0 : 3.0
+    
+    const questionInserts = questions.map((q, idx) => {
+      // Vary importance slightly based on difficulty
+      // Expert questions get +0.5, beginner get -0.5 from base skill importance
+      const difficultyAdjustment = q.difficulty === 'expert' ? 0.5 :
+                                   q.difficulty === 'beginner' ? -0.5 : 0
+      const questionImportance = Math.max(1.0, Math.min(5.0, skillImportance + difficultyAdjustment))
+      
+      return {
+        section_id: section.id,
+        stem: q.stem,
+        choices: q.choices,
+        answer_key: q.correct_answer, // Use answer_key instead of correct_answer
+        difficulty: q.difficulty,
+        importance: questionImportance // NEW: Question-level importance for weighting
+      }
+    })
 
     const { error: questionsError } = await supabase
       .from('quiz_questions')
