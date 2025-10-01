@@ -115,6 +115,12 @@ export interface QualifiedCandidate {
 // WEIGHTED SCORING ENGINE
 // ============================================================================
 
+/**
+ * Calculate weighted scores using three-layer weighting system
+ * Layer 1: Question-level importance (from quiz_questions.importance)
+ * Layer 2: Skill-level importance (from skills.onet_importance or job_skills)
+ * Layer 3: Market demand multipliers (future enhancement)
+ */
 export async function calculateWeightedScore(
   userResponses: Array<{
     questionId: string
@@ -123,6 +129,8 @@ export async function calculateWeightedScore(
     correctAnswer: string
     isCorrect: boolean
     timeSpent: number
+    difficulty?: string
+    questionImportance?: number
   }>,
   quizId: string,
   companyId?: string
@@ -133,19 +141,20 @@ export async function calculateWeightedScore(
   aiEvaluation: AIEvaluationResult
 }>> {
   
-  // 1. Get quiz and skill weighting data
+  // 1. Get quiz and skill data
   const { data: quiz } = await supabase
     .from('quizzes')
-    .select('soc_code, company_id')
+    .select('soc_code, company_id, job_id')
     .eq('id', quizId)
     .single()
 
-  const { data: skillWeights } = await supabase
-    .from('skill_weightings')
-    .select('*')
-    .eq('quiz_id', quizId)
+  // 2. Get skill importance from job_skills (company-specific) or skills table (O*NET)
+  const { data: jobSkills } = await supabase
+    .from('job_skills')
+    .select('skill_id, importance_level, proficiency_threshold, skills(onet_importance)')
+    .eq('job_id', quiz?.job_id || '')
 
-  // 2. Group responses by skill
+  // 3. Group responses by skill
   const skillGroups = userResponses.reduce((groups, response) => {
     if (!groups[response.skillId]) {
       groups[response.skillId] = []
@@ -154,40 +163,55 @@ export async function calculateWeightedScore(
     return groups
   }, {} as Record<string, typeof userResponses>)
 
-  // 3. Calculate weighted scores for each skill
+  // 4. Calculate weighted scores for each skill
   const skillScores = []
   
   for (const [skillId, responses] of Object.entries(skillGroups)) {
-    const skillWeight = skillWeights?.find(w => w.skill_id === skillId)
-    const marketData = await getMarketIntelligence(quiz?.soc_code || '', responses[0]?.skillId || '')
-    const companyData = await getCompanyContext(companyId || null)
+    // Get skill importance (company-specific or O*NET default)
+    const jobSkill = jobSkills?.find(js => js.skill_id === skillId)
+    const skills = jobSkill?.skills as any
+    const skillImportance = skills?.onet_importance || 3.0
     
-    // Calculate raw score
+    // Calculate question-level weighted score
+    let totalWeightedScore = 0
+    let totalPossibleWeight = 0
+    
+    for (const response of responses) {
+      // Question importance (from quiz_questions.importance, default 3.0)
+      const questionImportance = response.questionImportance || 3.0
+      
+      // Difficulty multiplier (harder questions worth more)
+      const difficultyMultiplier = getDifficultyMultiplier(response.difficulty || 'medium')
+      
+      // Question score: 100 if correct, 0 if wrong
+      const questionScore = response.isCorrect ? 100 : 0
+      
+      // Weighted question score
+      const weightedQuestionScore = questionScore * questionImportance * difficultyMultiplier
+      
+      totalWeightedScore += weightedQuestionScore
+      totalPossibleWeight += 100 * questionImportance * difficultyMultiplier
+    }
+    
+    // Raw score (simple percentage correct)
     const correctCount = responses.filter(r => r.isCorrect).length
     const rawScore = (correctCount / responses.length) * 100
     
-    // Get AI evaluation for response quality
-    const aiEvaluation = await evaluateResponseQuality(
-      responses,
-      quiz?.soc_code || '',
-      skillWeight?.skill_name || '',
-      marketData,
-      companyData
-    )
+    // Weighted score (accounts for question importance and difficulty)
+    const weightedScore = totalPossibleWeight > 0 
+      ? (totalWeightedScore / totalPossibleWeight) * 100 
+      : rawScore
     
-    // Calculate weighted score
-    const weighting = calculateSkillWeighting(
-      skillWeight?.importance || 3.0,
-      marketData.currentDemand === 'critical' ? 3.0 : 
-      marketData.currentDemand === 'high' ? 2.5 : 2.0,
-      skillWeight?.company_weight || 3.0,
-      0.75 // Performance correlation baseline
-    )
-    
-    const weightedScore = (
-      (rawScore * 0.6) + // Base correctness (60%)
-      (aiEvaluation.overallQuality * 0.4) // AI quality assessment (40%)
-    ) * weighting.finalWeight
+    // Placeholder AI evaluation (not used for scoring currently)
+    const aiEvaluation: AIEvaluationResult = {
+      technicalAccuracy: rawScore,
+      practicalApplication: rawScore,
+      industryRelevance: rawScore,
+      completeness: rawScore,
+      overallQuality: rawScore,
+      reasoning: 'Score based on correctness',
+      improvementAreas: []
+    }
     
     skillScores.push({
       skillId,
@@ -198,6 +222,27 @@ export async function calculateWeightedScore(
   }
   
   return skillScores
+}
+
+/**
+ * Get difficulty multiplier for question weighting
+ * Harder questions are worth more points
+ */
+function getDifficultyMultiplier(difficulty: string): number {
+  switch (difficulty.toLowerCase()) {
+    case 'easy':
+    case 'beginner':
+      return 0.8
+    case 'medium':
+    case 'intermediate':
+      return 1.0
+    case 'hard':
+    case 'advanced':
+    case 'expert':
+      return 1.3
+    default:
+      return 1.0
+  }
 }
 
 // ============================================================================

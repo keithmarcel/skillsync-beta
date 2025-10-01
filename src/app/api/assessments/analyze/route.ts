@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Get quiz responses with question details and skill info through sections
+    // 3. Get quiz responses with question details (including importance for weighting)
     const { data: responses, error: responsesError } = await supabase
       .from('quiz_responses')
       .select(`
@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
           stem,
           answer_key,
           difficulty,
+          importance,
           section_id,
           section:quiz_sections(
             skill_id
@@ -60,7 +61,6 @@ export async function POST(request: NextRequest) {
     if (responsesError || !responses || responses.length === 0) {
       return NextResponse.json(
         { success: false, error: 'No quiz responses found' },
-        { status: 404 }
       );
     }
 
@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
       isCorrect: r.is_correct || false,
       timeSpent: 30, // Default, could track actual time
       difficulty: r.question?.difficulty || 'medium',
+      questionImportance: r.question?.importance || 3.0, // NEW: Question-level importance for weighting
       questionStem: r.question?.stem || ''
     }));
 
