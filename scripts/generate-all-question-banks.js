@@ -6,15 +6,34 @@
  */
 
 const { createClient } = require('@supabase/supabase-js');
-const OpenAI = require('openai');
 require('dotenv').config({ path: '.env.local' });
+
+// Validate environment
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  console.error('❌ NEXT_PUBLIC_SUPABASE_URL not set');
+  process.exit(1);
+}
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('❌ SUPABASE_SERVICE_ROLE_KEY not set');
+  process.exit(1);
+}
+if (!process.env.OPENAI_API_KEY) {
+  console.error('❌ OPENAI_API_KEY not set');
+  process.exit(1);
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Use dynamic import for OpenAI (ESM module)
+let openai;
+async function initOpenAI() {
+  const { default: OpenAI } = await import('openai');
+  openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return openai;
+}
 
 // Configuration
 const QUESTIONS_PER_SKILL = 12; // Generate 12 questions per skill
@@ -52,6 +71,10 @@ Return ONLY valid JSON array (no markdown):
 }]`;
 
   try {
+    if (!openai) {
+      throw new Error('OpenAI not initialized');
+    }
+
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -67,7 +90,14 @@ Return ONLY valid JSON array (no markdown):
 
     const content = response.choices[0].message.content || '[]';
     const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const questions = JSON.parse(cleanContent);
+    
+    let questions;
+    try {
+      questions = JSON.parse(cleanContent);
+    } catch (parseError) {
+      console.error('JSON parse error:', cleanContent.substring(0, 200));
+      throw parseError;
+    }
 
     // Force randomize answer keys
     const answerKeys = ['A', 'B', 'C', 'D'];
@@ -240,8 +270,17 @@ async function generateAllQuestionBanks() {
   console.log('═══════════════════════════════════════════════════\n');
 }
 
-// Run with error handling
-generateAllQuestionBanks().catch(error => {
-  console.error('\n❌ Fatal error:', error);
-  process.exit(1);
-});
+// Run with proper initialization and error handling
+(async () => {
+  try {
+    console.log('🔧 Initializing OpenAI...');
+    await initOpenAI();
+    console.log('✅ OpenAI initialized\n');
+    
+    await generateAllQuestionBanks();
+  } catch (error) {
+    console.error('\n❌ Fatal error:', error);
+    console.error('Stack trace:', error.stack);
+    process.exit(1);
+  }
+})();
