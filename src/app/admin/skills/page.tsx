@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,13 @@ export default function SkillsPage() {
   const selectQuery = `*`;
   const { toast } = useToast();
   const { data: skills, isLoading, error, refreshData } = useAdminTableData<Skill>('skills', selectQuery);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(50);
+  
+  const totalSkills = skills?.length || 0;
+  const totalPages = Math.ceil(totalSkills / pageSize);
 
   const columns = [
     { key: 'name', header: 'Skill Name', sortable: true },
@@ -107,31 +115,37 @@ export default function SkillsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Skills Taxonomy</h1>
-          <p className="text-gray-600">
-            Manage skills from Lightcast and O*NET sources
+          <h1 className="text-3xl font-bold tracking-tight">Skills</h1>
+          <p className="text-muted-foreground">
+            Manage skills taxonomy and metadata ({totalSkills.toLocaleString()} total)
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Database className="w-4 h-4 mr-2" />
-            Import O*NET
+        <Link href="/admin/skills/new">
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Skill
           </Button>
-          <Button variant="outline">
-            <Globe className="w-4 h-4 mr-2" />
-            Sync Lightcast
-          </Button>
-        </div>
+        </Link>
       </div>
 
       <AdminTable
         data={skills || []}
-        columns={columns as any}
+        columns={columns}
         actions={actions}
         loading={isLoading}
         error={error}
-        searchPlaceholder="Search skills..."
-        emptyMessage="No skills found"
+        keyField="id"
+        searchPlaceholder="Search skills by name, category, or source..."
+        pagination={{
+          page: currentPage,
+          pageSize: pageSize,
+          total: totalSkills,
+          onPageChange: setCurrentPage,
+          onPageSizeChange: (size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }
+        }}
       />
     </div>
   );
