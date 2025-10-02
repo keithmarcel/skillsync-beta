@@ -6,6 +6,89 @@
 
 ---
 
+## 🏗️ Component Library Stack
+
+### Primary Component Library: shadcn/ui
+**Website:** https://ui.shadcn.com/
+
+**Why shadcn/ui:**
+- Built on Radix UI primitives (accessibility built-in)
+- Fully customizable (copy components into project)
+- Tailwind CSS based (consistent with our styling)
+- TypeScript support
+- Not a dependency - you own the code
+
+### Base Styling: Tailwind CSS
+**Website:** https://tailwindcss.com/
+
+**Configuration:** `/tailwind.config.js`
+- Custom teal colors defined
+- Geist Sans font family
+- Extended with shadcn theme variables
+
+### Component Philosophy
+
+**✅ DO:**
+- Use shadcn/ui components as starting point
+- Customize shadcn components with brand colors
+- Install new shadcn components via CLI: `npx shadcn-ui@latest add [component]`
+- Extend shadcn components with additional props/variants
+- Use Tailwind utility classes for styling
+
+**❌ DON'T:**
+- Build buttons, inputs, cards from scratch
+- Use other component libraries (Material-UI, Chakra, etc.)
+- Create custom components when shadcn has equivalent
+- Ignore shadcn's accessibility features
+
+### Installing shadcn Components
+
+```bash
+# Install a new component
+npx shadcn-ui@latest add button
+npx shadcn-ui@latest add card
+npx shadcn-ui@latest add input
+
+# Components are added to /src/components/ui/
+```
+
+### Customizing shadcn Components
+
+**After installing, ALWAYS customize colors:**
+
+```tsx
+// ❌ DON'T use default (black/white theme)
+import { Button } from "@/components/ui/button"
+<Button>Click Me</Button>
+
+// ✅ DO customize with brand colors
+import { Button } from "@/components/ui/button"
+<Button className="bg-[#0694A2] hover:bg-[#0694A2]/90 text-white">
+  Click Me
+</Button>
+```
+
+**Create brand-specific variants:**
+
+```tsx
+// /src/components/ui/button.tsx
+const buttonVariants = cva(
+  "base-classes",
+  {
+    variants: {
+      variant: {
+        default: "bg-[#0694A2] hover:bg-[#0694A2]/90 text-white",
+        outline: "border border-gray-300 bg-white hover:bg-gray-50",
+        ghost: "hover:bg-gray-50",
+        destructive: "bg-red-600 hover:bg-red-700 text-white",
+      }
+    }
+  }
+)
+```
+
+---
+
 ## 🎨 Brand Identity
 
 ### Primary Brand Color
@@ -677,16 +760,43 @@ import { SpinnerInfinity } from 'spinners-react';
 ### When to Create New Components
 
 **DO Create Components For:**
-- Reusable UI patterns (buttons, cards, inputs)
-- Complex interactions (modals, dropdowns, tabs)
-- Repeated layouts (page headers, tables)
-- Shared business logic (data tables, forms)
+- Business logic components (UserProfileCard, JobListingCard)
+- Complex feature-specific patterns (AssessmentStepper, SkillsRadarChart)
+- Repeated layouts (PageHeader, BreadcrumbLayout)
+- Composed shadcn components (DataTable using Table + Input + Select)
 
 **DON'T Create Components For:**
+- Basic UI elements (use shadcn: Button, Input, Card, Badge)
 - One-off layouts
 - Simple div wrappers
 - Overly specific use cases
-- Premature abstraction
+
+**Component Decision Tree:**
+```
+Need a component?
+  ├─ Is it a basic UI element? (button, input, card, etc.)
+  │  └─ ✅ Use shadcn/ui component + customize colors
+  │
+  ├─ Does shadcn have it? (dialog, dropdown, tabs, etc.)
+  │  └─ ✅ Install from shadcn + customize
+  │
+  ├─ Is it business logic or feature-specific?
+  │  └─ ✅ Create custom component (compose shadcn components)
+  │
+  └─ Is it a one-off layout?
+     └─ ❌ Just write JSX inline
+```
+
+**Available shadcn Components:**
+- Layout: Card, Separator, Tabs, Sheet
+- Forms: Input, Select, Checkbox, Radio, Switch, Textarea, Label
+- Buttons: Button, Toggle
+- Overlays: Dialog, Dropdown Menu, Popover, Tooltip, Alert Dialog
+- Data: Table, Badge, Avatar
+- Feedback: Alert, Toast, Progress, Skeleton
+- Navigation: Breadcrumb, Command, Navigation Menu
+
+**Before creating a custom component, check:** https://ui.shadcn.com/docs/components
 
 ### Component File Structure
 
