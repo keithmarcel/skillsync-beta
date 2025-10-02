@@ -101,6 +101,7 @@ export const getRecentActivity = async (limit = 10) => {
   const { data: activities, error: activitiesError } = await supabase
     .from('admin_audit_logs')
     .select('*')
+    .neq('action', 'viewed') // Exclude "viewed" actions - only show changes
     .order('created_at', { ascending: false })
     .limit(limit);
 

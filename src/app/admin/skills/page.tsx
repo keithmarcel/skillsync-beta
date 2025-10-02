@@ -116,7 +116,7 @@ export default function SkillsPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Skills</h1>
@@ -132,8 +132,9 @@ export default function SkillsPage() {
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
-        <AdminTable
+      <div className="overflow-x-auto w-full">
+        <div className="min-w-full inline-block align-middle">
+          <AdminTable
           data={skills || []}
           columns={columns}
           actions={actions}
@@ -152,6 +153,7 @@ export default function SkillsPage() {
             }
           }}
         />
+        </div>
       </div>
     </div>
   );
