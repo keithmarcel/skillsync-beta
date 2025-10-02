@@ -1,9 +1,13 @@
 # Admin Tools Issues - October 2, 2025
 
-## Root Cause Analysis
+## ✅ FIXED: Roles & Occupations Pages
 
-**All queries work with service role key but fail in client.**
-**Issue:** RLS (Row Level Security) policies blocking admin users from accessing data through client.
+**Issue:** "Failed to load jobs" error
+**Root Cause:** Hardcoded `.order('name')` but jobs table has `title` column
+**Fix:** Dynamic column selection based on table name
+**Status:** RESOLVED
+
+## Remaining Issues
 
 ### Verified Working (Service Role):
 - ✅ Featured roles query returns 5 results
@@ -11,11 +15,9 @@
 - ✅ Admin audit logs table exists with 5 records
 - ✅ Skills table has all 34,863 records
 
-### Failing (Client/Browser):
-- ❌ /admin/roles - "Failed to load jobs"
-- ❌ /admin/occupations - "Failed to load jobs"
-- ❌ Dashboard recent activity - No data shown
-- ⚠️ /admin/skills - Shows only 50 items (pagination issue)
+### Still To Check:
+- ⚠️ Dashboard recent activity - May need testing
+- ⚠️ /admin/skills - Pagination (shows 50 items per page, which is correct)
 
 ## Issues Found
 
