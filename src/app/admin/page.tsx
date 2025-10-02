@@ -165,12 +165,6 @@ const AdminDashboard = () => {
               <BarChart3 className="mr-2 h-4 w-4" />
               View Reports
             </Button>
-            <Button asChild className="bg-teal-600 hover:bg-teal-700">
-              <Link href="/admin/settings">
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Link>
-            </Button>
           </div>
         </div>
 
