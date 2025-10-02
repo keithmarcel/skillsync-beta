@@ -51,8 +51,18 @@ export function useAdminTableData<T>(
         }
       }
 
-      // Add ordering for consistent results
-      query = query.order('name', { ascending: true });
+      // Add ordering for consistent results (different tables have different primary text columns)
+      const orderColumn = tableName === 'jobs' ? 'title' : 
+                         tableName === 'users' ? 'email' :
+                         tableName === 'assessments' ? 'created_at' :
+                         'name'; // default for most tables (skills, programs, companies, etc.)
+      
+      try {
+        query = query.order(orderColumn, { ascending: true });
+      } catch (orderError) {
+        // If ordering fails, continue without it
+        console.warn(`Could not order by ${orderColumn} for ${tableName}`);
+      }
 
       // Remove default limit for large tables like skills
       // Supabase default is 1000 rows - we need all of them
