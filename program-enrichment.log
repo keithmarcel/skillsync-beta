@@ -1,0 +1,2059 @@
+[dotenv@17.2.1] injecting env (19) from .env.local -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+
+🚀 BATCH PROGRAM ENRICHMENT
+
+═══════════════════════════════════════════════════
+
+Found 222 total programs
+
+Programs needing enrichment: 109
+
+[1/109]
+
+📚 Advanced Master Certificate in Integrated Supply Chain Management
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[2/109]
+
+📚 Advanced Master Certificate in Supply Chain Management and Procurement
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[3/109]
+
+📚 Artificial Intelligence Bundle - Logistics
+  CIP: 11.0801
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[4/109]
+
+📚 Assisted Living Technician Certification Program with Externship
+  CIP: 51.2602
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[5/109]
+
+📚 BA in Communication
+  CIP: 09.0101
+  ⚠️  No SOC mapping for CIP 09.0101
+[6/109]
+
+📚 BA in Communication/Strategic Communication
+  CIP: 09.0101
+  ⚠️  No SOC mapping for CIP 09.0101
+[7/109]
+
+📚 Bachelor of Arts Psychology
+  CIP: 42.0101
+  Related SOCs: 29-1141.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 11 skills added
+[8/109]
+
+📚 Blockchain Bundle - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[9/109]
+
+📚 Blockchain Bundle - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[10/109]
+
+📚 BS in Business Administration/Supply Chain Management
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[11/109]
+
+📚 BS in Cybersecurity/Computer Science
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[12/109]
+
+📚 BS in Cybersecurity/IST
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[13/109]
+
+📚 BS in Information Systems and Technology
+  CIP: 11.0101
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[14/109]
+
+📚 Certified Information Systems Security Professional (CISSP)
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[15/109]
+
+📚 Clinical Medical Assistant
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[16/109]
+
+📚 Clinical Medical Assistant Certification Program with Externship
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[17/109]
+
+📚 Clinical Medical Assistant Master Certification Program with Externship
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[18/109]
+
+📚 Clinical Medical Assistant w/ OBGYN Certification Program with Externship
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[19/109]
+
+📚 Clinical Medical Assistant w/ Pediatrics Certification Program with Externship
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[20/109]
+
+📚 Clinical Medical Assistant with RMA + 160-Hour Externship
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[21/109]
+
+📚 Clinical Nurse Aide Certification Program with Externship
+  CIP: 51.3902
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[22/109]
+
+📚 Cloud Bundle - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[23/109]
+
+📚 Cloud Bundle - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[24/109]
+
+📚 CompTIA A+
+  CIP: 11.1001
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[25/109]
+
+📚 CompTIA Cloud+
+  CIP: 11.1001
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[26/109]
+
+📚 CompTIA CyberSecurity Analyst
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[27/109]
+
+📚 CompTIA Linux+
+  CIP: 11.1001
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[28/109]
+
+📚 CompTIA N+
+  CIP: 11.0901
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[29/109]
+
+📚 CompTIA PenTest+
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[30/109]
+
+📚 CompTIA S+
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[31/109]
+
+📚 CompTIA Server+
+  CIP: 11.1002
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[32/109]
+
+📚 Computer Security Tech (CompTIA Security+ & Network+) + Externship
+  CIP: 11.1001
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[33/109]
+
+📚 Computer Security Technician (CompTIA Security+ and Network+) Certification Program with Externship
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[34/109]
+
+📚 Computer Support Specialist (CompTIA A+ & Network+) + Externship
+  CIP: 11.1002
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[35/109]
+
+📚 Construction Management A.S.
+  CIP: 52.2001
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[36/109]
+
+📚 Cryptography Bundle - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[37/109]
+
+📚 Cryptography Bundle - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[38/109]
+
+📚 Cybersecurity Workforce Program - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[39/109]
+
+📚 Cybersecurity Workforce Program - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[40/109]
+
+📚 Database Bundle - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[41/109]
+
+📚 Database Bundle - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[42/109]
+
+📚 Dental Assistant
+  CIP: 51.0601
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[43/109]
+
+📚 Dental Assisting Certification Program with Clinical Externship
+  CIP: 51.0601
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[44/109]
+
+📚 Dental Office Assistant
+  CIP: 51.0601
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[45/109]
+
+📚 EKG Technician
+  CIP: 51.0904
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[46/109]
+
+📚 EKG Technician
+  CIP: 51.0904
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[47/109]
+
+📚 EKG Technician Certification Program with Externship
+  CIP: 51.0904
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[48/109]
+
+📚 Electronic Health Records Management
+  CIP: 51.0707
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[49/109]
+
+📚 Electronic Health Records Management Certificate Program with Externship
+  CIP: 51.0707
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[50/109]
+
+📚 Essential Skills for Work & Life
+  CIP: 24.0102
+  ⚠️  No SOC mapping for CIP 24.0102
+[51/109]
+
+📚 Explorer - Healthcare
+  CIP: 11.1001
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[52/109]
+
+📚 Explorer - Logistics
+  CIP: 11.1001
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[53/109]
+
+📚 GED Academy
+  CIP: 24.0102
+  ⚠️  No SOC mapping for CIP 24.0102
+[54/109]
+
+📚 Graduate Certificate in Health Informatics
+  CIP: 51.2706
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[55/109]
+
+📚 Graduate Certificate in Healthcare Analytics
+  CIP: 51.2706
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[56/109]
+
+📚 Health & Early Childhood Development
+  CIP: 19.0708
+  ⚠️  No SOC mapping for CIP 19.0708
+[57/109]
+
+📚 High School Equivalency
+  CIP: 24.0102
+  ⚠️  No SOC mapping for CIP 24.0102
+[58/109]
+
+📚 Internet of Things Bundle - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[59/109]
+
+📚 Internet of Things Bundle - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[60/109]
+
+📚 Learn a Language
+  CIP: 16.0102
+  ⚠️  No SOC mapping for CIP 16.0102
+[61/109]
+
+📚 Leveraging AI for Business Success
+  CIP: 52.1201
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[62/109]
+
+📚 Master Certificate in Advanced Procurement Management - Global Supply Chain
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[63/109]
+
+📚 Master Certificate in Global Supply Chain Management
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[64/109]
+
+📚 Master Certificate in Integrated Supply Chain Management
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[65/109]
+
+📚 Master Certificate in Supply Chain Management & Logistics
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[66/109]
+
+📚 Master Certificate in Supply Chain Management & Operations
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[67/109]
+
+📚 Master Certificate in Supply Chain Management & Procurement
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[68/109]
+
+📚 Master of Arts in Arts and Nonprofit Leadership
+  CIP: 50.1001
+  Related SOCs: 27-1024.00
+  ⚠️  No skills found for SOCs
+[69/109]
+
+📚 Master of Arts in Creative Technology
+  CIP: 50.0401
+  Related SOCs: 27-1024.00
+  ⚠️  No skills found for SOCs
+[70/109]
+
+📚 Master of Library and Information Science
+  CIP: 25.0301
+  ⚠️  No SOC mapping for CIP 25.0301
+[71/109]
+
+📚 Medical Administrative Assistant
+  CIP: 51.0713
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[72/109]
+
+📚 Medical Administrative Assistant Certification Program with Externship
+  CIP: 51.0710
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[73/109]
+
+📚 Medical Assistant
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[74/109]
+
+📚 Medical Billing & Coding Certification Program with Externship
+  CIP: 51.0710
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[75/109]
+
+📚 Medical Billing & Coding w/ MAA Certification Program with Clinical Externship
+  CIP: 51.0710
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[76/109]
+
+📚 MS in Cybersecurity/Computer Science
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[77/109]
+
+📚 MS in Cybersecurity/IST
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[78/109]
+
+📚 MS in Health Informatics
+  CIP: 51.2706
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[79/109]
+
+📚 MS in Information Systems and Technology
+  CIP: 11.0101
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[80/109]
+
+📚 MS Special Education
+  CIP: 13.1001
+  Related SOCs: 25-2021.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 12 skills added
+[81/109]
+
+📚 MS Supply Chain Management- Integrated SC
+  CIP: 52.0203
+  Related SOCs: 13-2011.00, 11-3031.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 19 skills added
+[82/109]
+
+📚 MSHI Healthcare Analytics
+  CIP: 51.2706
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[83/109]
+
+📚 Network Bundle - Healthcare
+  CIP: 11.0901
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[84/109]
+
+📚 Network Bundle - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[85/109]
+
+📚 Network Technician (CompTIA Network+) Certification Program with Externship
+  CIP: 11.0901
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[86/109]
+
+📚 Nursing Assistant Specialist Certification Program with Externship
+  CIP: 51.3902
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[87/109]
+
+📚 Personal Care Assistant Certification Program with Externship
+  CIP: 51.2601
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[88/109]
+
+📚 Personal Fitness Trainer Expert
+  CIP: 31.0505
+  ⚠️  No SOC mapping for CIP 31.0505
+[89/109]
+
+📚 Personal Fitness Trainer Specialist
+  CIP: 31.0501
+  ⚠️  No SOC mapping for CIP 31.0501
+[90/109]
+
+📚 Personal Fitness Trainer Specialist Certificate Program
+  CIP: 31.0505
+  ⚠️  No SOC mapping for CIP 31.0505
+[91/109]
+
+📚 Pharmacy Technician
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[92/109]
+
+📚 Phlebotomy Technician
+  CIP: 51.1009
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[93/109]
+
+📚 Phlebotomy Technician Certification Program with Externship
+  CIP: 51.1009
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[94/109]
+
+📚 Physical Therapist Assistant Bachelor’s Completion
+  CIP: 51.0806
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[95/109]
+
+📚 Physician's Office Assistant w/ EHRM Certification Program with Externship
+  CIP: 51.0710
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[96/109]
+
+📚 Practitioner - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[97/109]
+
+📚 Practitioner - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[98/109]
+
+📚 Professional - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[99/109]
+
+📚 Professional - Logistics
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[100/109]
+
+📚 Professional Writing Certificate
+  CIP: 23.1301
+  Related SOCs: 25-2021.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 12 skills added
+[101/109]
+
+📚 Security Bundle - Healthcare
+  CIP: 11.1003
+  Related SOCs: 15-1252.00, 15-1232.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 15 skills added
+[102/109]
+
+📚 Security Bundle - Logistics
+  CIP: 43.0401
+  Related SOCs: 23-2011.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 17 skills added
+[103/109]
+
+📚 Sports Health & Personal Fitness Specialist
+  CIP: 31.0501
+  ⚠️  No SOC mapping for CIP 31.0501
+[104/109]
+
+📚 Sterile Processing & Surgical Technologist Certification Program with Externship
+  CIP: 51.0904
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[105/109]
+
+📚 Sterile Processing Technician
+  CIP: 51.0904
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[106/109]
+
+📚 Sterile Processing Technician Certification Program with Externship
+  CIP: 51.0904
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[107/109]
+
+📚 Surgical Technologist
+  CIP: 51.0904
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[108/109]
+
+📚 Surgical Technologist Certification Program with Externship
+  CIP: 51.0904
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+[109/109]
+
+📚 Veterinary Assistant
+  CIP: 51.0801
+  Related SOCs: 29-1141.00, 29-2061.00
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+    Error: Could not find the 'confidence' column of 'program_skills' in the schema cache
+  ✅ 13 skills added
+
+═══════════════════════════════════════════════════
+✅ ENRICHMENT COMPLETE
+═══════════════════════════════════════════════════
+Programs processed: 109
+Successful: 95
+Skipped (already had skills): 0
+Failed: 14
+Total skills added: 1389
+Average per program: 15
+Time taken: 148 seconds
+═══════════════════════════════════════════════════
+
+📊 Final Status:
+
+Programs with skills: 113/222
+Completion: 51%
+
