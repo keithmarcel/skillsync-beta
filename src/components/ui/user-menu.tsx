@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, Settings, Heart, LogOut, FileText, Shield } from 'lucide-react'
+import { Settings, LogOut, FileText, Shield } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
 interface UserMenuProps {
@@ -28,46 +28,53 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase()
     : 'U'
 
+  // Add cache-busting timestamp to avatar URL
+  const avatarUrl = user?.avatar 
+    ? `${user.avatar}?t=${Date.now()}` 
+    : undefined
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          className="w-8 h-8 p-0 rounded-full hover:bg-gray-50 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-        >
-          <Avatar className="w-8 h-8">
-            <AvatarImage src={user?.avatar} alt={user?.name || 'User'} />
-            <AvatarFallback className="text-xs bg-teal-100 text-teal-700 font-medium">
+        <button className="!w-10 !h-10 p-0 m-0 rounded-full hover:opacity-90 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-opacity flex items-center justify-center overflow-hidden">
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={avatarUrl} alt={user?.name || 'User'} />
+            <AvatarFallback className="text-sm bg-teal-100 text-teal-700 font-medium">
               {initials}
             </AvatarFallback>
           </Avatar>
-        </Button>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-56 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg"
+        className="w-auto min-w-56 max-w-xs mt-2 bg-white border border-gray-200 rounded-lg shadow-lg"
         sideOffset={8}
       >
         {user && (
           <>
             <div className="flex items-center gap-3 px-3 py-3 border-b border-gray-100">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={user.avatar} alt={user.name || 'User'} />
+              <Avatar className="w-8 h-8 flex-shrink-0">
+                <AvatarImage src={avatarUrl} alt={user.name || 'User'} />
                 <AvatarFallback className="text-xs bg-teal-100 text-teal-700 font-medium">
                   {initials}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex flex-col">
-                <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
+              <div className="flex flex-col min-w-0 flex-1">
+                <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
               </div>
             </div>
           </>
         )}
         
-        <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
-          <Settings className="w-4 h-4" />
-          Account Settings
+        <DropdownMenuItem asChild>
+          <Link 
+            href="/account-settings" 
+            className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+          >
+            <Settings className="w-4 h-4" />
+            Account Settings
+          </Link>
         </DropdownMenuItem>
         
         <DropdownMenuItem asChild>
@@ -78,11 +85,6 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
             <FileText className="w-4 h-4" />
             My Assessments
           </Link>
-        </DropdownMenuItem>
-        
-        <DropdownMenuItem className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer">
-          <Heart className="w-4 h-4" />
-          Favorites
         </DropdownMenuItem>
 
         {isAdmin && (

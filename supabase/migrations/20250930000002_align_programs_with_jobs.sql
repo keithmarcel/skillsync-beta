@@ -56,16 +56,24 @@ SET skills_count = (
 
 -- Step 6: Add comments for documentation
 COMMENT ON COLUMN public.programs.is_featured IS 'Whether this program should appear in Featured Programs tab (true) or only All Programs tab (false)';
-COMMENT ON COLUMN public.programs.featured_image_url IS 'Hero image URL for program detail pages';
 COMMENT ON COLUMN public.programs.skills_count IS 'Cached count of skills associated with this program (auto-updated via trigger)';
 COMMENT ON COLUMN public.programs.created_at IS 'Timestamp when program was created';
 COMMENT ON COLUMN public.programs.updated_at IS 'Timestamp when program was last updated (auto-updated via trigger)';
 
 -- Step 7: Add constraint to ensure featured programs have required fields
+-- First, drop the constraint if it exists
+ALTER TABLE public.programs DROP CONSTRAINT IF EXISTS chk_featured_program_has_image;
+
+-- Update any featured programs without images to have a placeholder
+UPDATE public.programs 
+SET featured_image_url = '/assets/program-placeholder.jpg'
+WHERE is_featured = true AND featured_image_url IS NULL;
+
+-- Now add the constraint
 ALTER TABLE public.programs
-ADD CONSTRAINT chk_featured_program_has_image 
+ADD CONSTRAINT chk_featured_program_has_image
 CHECK (
-  (is_featured = false) OR 
+  (is_featured = false) OR
   (is_featured = true AND featured_image_url IS NOT NULL)
 );
 

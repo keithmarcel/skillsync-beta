@@ -5,16 +5,33 @@ import { useState, useEffect, createContext, useContext } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
-interface Profile {
+export interface Profile {
   id: string
   email: string
-  role: string
+  role: 'super_admin' | 'provider_admin' | 'employer_admin' | 'user'
   first_name?: string
   last_name?: string
   zip_code?: string
-  admin_role?: 'super_admin' | 'company_admin' | 'provider_admin' | null
+  avatar_url?: string
+  linkedin_url?: string
+  bio?: string
   company_id?: string | null
   school_id?: string | null
+  max_programs?: number
+  max_featured_programs?: number
+  max_featured_roles?: number
+  is_mock_user?: boolean
+  agreed_to_terms?: boolean
+  visible_to_employers?: boolean
+  notif_in_app_invites?: boolean
+  notif_in_app_new_roles?: boolean
+  notif_email_new_roles?: boolean
+  notif_email_invites?: boolean
+  notif_email_marketing?: boolean
+  notif_email_security?: boolean
+  notif_all_disabled?: boolean
+  created_at?: string
+  updated_at?: string
 }
 
 interface AuthContextType {
@@ -23,7 +40,7 @@ interface AuthContextType {
   loading: boolean
   isAdmin: boolean
   isSuperAdmin: boolean
-  isCompanyAdmin: boolean
+  isEmployerAdmin: boolean
   isProviderAdmin: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (data: any) => Promise<void>
@@ -128,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .insert({
           id: authData.user.id,
           email: data.email,
-          role: data.role || 'basic_user',
+          role: data.role || 'user', // Default to 'user' role
           first_name: data.firstName,
           last_name: data.lastName,
           zip_code: data.zipCode,
@@ -161,7 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading: true,
         isAdmin: false,
         isSuperAdmin: false,
-        isCompanyAdmin: false,
+        isEmployerAdmin: false,
         isProviderAdmin: false,
         signIn,
         signUp,
@@ -171,15 +188,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, children);
   }
 
-  // Computed admin role properties
+  // Computed admin role properties based on new role system
   const value = {
     user,
     profile,
     loading,
-    isAdmin: !!profile?.admin_role,
-    isSuperAdmin: profile?.admin_role === 'super_admin',
-    isCompanyAdmin: profile?.admin_role === 'company_admin',
-    isProviderAdmin: profile?.admin_role === 'provider_admin',
+    isAdmin: profile?.role === 'super_admin' || profile?.role === 'employer_admin' || profile?.role === 'provider_admin',
+    isSuperAdmin: profile?.role === 'super_admin',
+    isEmployerAdmin: profile?.role === 'employer_admin',
+    isProviderAdmin: profile?.role === 'provider_admin',
     signIn,
     signUp,
     signOut,

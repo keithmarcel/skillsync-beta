@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS user_question_history (
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_user_questions ON user_question_history(user_id, question_id);
 CREATE INDEX IF NOT EXISTS idx_question_last_used ON quiz_questions(last_used_at) WHERE is_bank_question = true;
-CREATE INDEX IF NOT EXISTS idx_bank_questions ON quiz_questions(skill_id, is_bank_question) WHERE is_bank_question = true;
+CREATE INDEX IF NOT EXISTS idx_bank_questions ON quiz_questions(section_id, is_bank_question) WHERE is_bank_question = true;
 
 -- Comments for documentation
 COMMENT ON COLUMN quiz_questions.is_bank_question IS 'True if question is part of question bank (not tied to specific assessment)';

@@ -16,6 +16,10 @@ CREATE TABLE IF NOT EXISTS public.admin_audit_logs (
 ALTER TABLE public.admin_audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Policies for admin_audit_logs
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Super Admins can view all audit logs" ON public.admin_audit_logs;
+DROP POLICY IF EXISTS "Admins can insert their own audit logs" ON public.admin_audit_logs;
+
 -- Super Admins can see all logs
 CREATE POLICY "Super Admins can view all audit logs" 
 ON public.admin_audit_logs

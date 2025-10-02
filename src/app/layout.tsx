@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Source_Sans_3 } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +8,12 @@ import { AuthProvider } from "@/hooks/useAuth";
 const inter = Inter({ 
   subsets: ["latin"],
   variable: "--font-inter",
+});
+
+const sourceSansPro = Source_Sans_3({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-source-sans-pro",
 });
 
 export const metadata: Metadata = {
@@ -22,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${GeistSans.className} antialiased bg-gray-50`}>
+      <body className={`${GeistSans.className} ${sourceSansPro.variable} antialiased bg-gray-50`}>
         <AuthProvider>
           {children}
           <Toaster />

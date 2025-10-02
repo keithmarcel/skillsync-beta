@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, Heart, BookOpen, User, Home, Briefcase, GraduationCap, FileText, MessageSquare, LogIn, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -26,7 +27,7 @@ const quickActions = [
 export function Navbar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
-  const { user, loading, signOut } = useAuth()
+  const { user, profile, loading, signOut } = useAuth()
 
   // Hide navbar on authentication pages
   const isAuthPage = pathname?.startsWith('/auth/')
@@ -42,7 +43,7 @@ export function Navbar() {
           <div className="flex flex-col justify-center items-start gap-2">
             <Link href="/" className="flex items-center">
               <img 
-                src="/logo_skillsync_hirestpeteway_lockup.svg" 
+                src="/app/logo_skillsync-powered-by-bisk-amplified.svg" 
                 alt="SkillSync - Powered by Bisk Amplified" 
                 className="h-10 sm:h-12 w-auto"
               />
@@ -69,14 +70,31 @@ export function Navbar() {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-4 ml-auto">
-            {user && (
-              <div className="hidden sm:block">
-                <GiveFeedbackDialog />
-              </div>
-            )}
-            
-            {/* Authentication buttons for non-authenticated users */}
-            {!loading && !user && (
+            {loading ? (
+              // Skeleton loaders to prevent layout shift
+              <>
+                <Skeleton className="hidden sm:block h-10 w-[132px] rounded-lg" />
+                <Skeleton className="hidden md:block h-10 w-10 rounded-full" />
+              </>
+            ) : user ? (
+              <>
+                <div className="hidden sm:block">
+                  <GiveFeedbackDialog />
+                </div>
+                <div className="hidden md:block">
+                  <UserMenu 
+                    user={{
+                      name: profile?.first_name && profile?.last_name 
+                        ? `${profile.first_name} ${profile.last_name}`
+                        : user.email || 'User',
+                      email: user.email || '',
+                      avatar: profile?.avatar_url
+                    }}
+                    onSignOut={signOut}
+                  />
+                </div>
+              </>
+            ) : (
               <div className="flex items-center gap-2">
                 <Link href="/auth/signin">
                   <Button variant="ghost" size="sm" className="text-gray-700 hover:text-gray-900">
@@ -247,19 +265,6 @@ export function Navbar() {
                 </SheetContent>
               </Sheet>
             </div>
-            
-            {/* Desktop User menu */}
-            {user && (
-              <div className="hidden md:block">
-                <UserMenu 
-                  user={{
-                    name: user.email || 'User',
-                    email: user.email || ''
-                  }}
-                  onSignOut={signOut}
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -1,0 +1,91 @@
+feat: Complete account settings system with profile, notifications, and feedback
+
+## Features Implemented
+
+### Profile Settings
+- Avatar upload with validation (2MB max, 335x335 min, JPG/PNG/WebP)
+- Profile fields: first name, last name, LinkedIn URL, bio
+- "Allow employers to invite you to apply" checkbox with conditional validation
+- Cache-busting for immediate avatar updates
+- LinkedIn URL format validation
+
+### Account Management
+- Email display with change email dialog (Supabase auth integration)
+- ZIP code field for future location-based features
+- Delete account with destructive confirmation (type "DELETE" to confirm)
+- Danger Zone section with proper warnings
+
+### Notification Preferences
+- In-app notifications (2 settings)
+- Email notifications (4 settings: roles, invites, marketing, security)
+- "Turn off all notifications" master toggle
+- All preferences persist to database
+
+### Give Feedback System
+- 3 emoji sentiment options (😟 Negative, 😍 Positive, 😐 Neutral)
+- Optional feedback message field
+- User authentication and timestamping
+- Admin dashboard can view all feedback
+
+## Technical Implementation
+
+### API Endpoints Created
+- POST /api/user/avatar - Avatar upload to Supabase Storage
+- PATCH /api/user/profile - Profile updates
+- PATCH /api/user/account - Account settings
+- PATCH /api/user/notifications - Notification preferences
+- DELETE /api/user/delete-account - Account deletion with cascade
+- POST /api/feedback - Feedback submission
+
+### Database Changes
+- Created feedback table with RLS policies
+- Added avatar_url to profiles table
+- Notification preference columns already existed
+
+### UI/UX Enhancements
+- Skeleton loaders prevent navbar layout shift during auth load
+- Tab state persists in URL (/account-settings?tab=profile)
+- Browser back/forward navigation works correctly
+- Mobile-responsive with proper padding (px-4 sm:px-6 lg:px-8)
+- Centered content layout (max-width: 672px)
+- Consistent teal theme with #114B5F hover states
+- Save icons on all update buttons
+- White backgrounds for input-like containers
+
+### Components Created/Modified
+- ProfileTab, AccountTab, NotificationsTab
+- ChangeEmailDialog, DeleteAccountDialog
+- GiveFeedbackDialog (enhanced with user auth)
+- Navbar (skeleton loaders)
+- UserMenu (cache-busting)
+- Skeleton component (variants added)
+
+### Security
+- All routes require authentication
+- RLS policies on feedback table
+- Avatar uploads use service role key
+- Email changes require confirmation
+- Account deletion requires type-to-confirm
+- Cascade deletion for user data
+
+## Testing
+- ✅ Avatar upload and display
+- ✅ Profile updates persist
+- ✅ Email change flow (confirmation sent)
+- ✅ Notification preferences save
+- ✅ Feedback submission works
+- ✅ Tab navigation and URL routing
+- ✅ Mobile responsiveness
+- ✅ Skeleton loaders prevent layout shift
+
+## Documentation
+- Created /docs/features/ACCOUNT_SETTINGS.md
+- Updated /docs/SPRINT_ROADMAP.md
+- Updated /src/lib/card-styles.ts with hover color
+
+## Files Modified: 25+
+## Lines Changed: ~2,500+
+## Migration Files: 1
+
+Closes account settings requirements from Sprint 1
+Ready for production deployment

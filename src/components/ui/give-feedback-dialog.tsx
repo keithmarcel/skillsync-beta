@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/useAuth'
 import {
   Dialog,
   DialogContent,
@@ -28,14 +29,34 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
   const [message, setMessage] = useState('')
   const [submissionState, setSubmissionState] = useState<SubmissionState>('idle')
 
+  const { user } = useAuth()
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (!selectedSentiment) {
+      return
+    }
+
     setSubmissionState('submitting')
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sentiment: selectedSentiment,
+          message: message.trim() || null,
+          user_id: user?.id,
+          user_email: user?.email
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('API Error:', errorData)
+        throw new Error(errorData.error || 'Failed to submit feedback')
+      }
       
       setSubmissionState('success')
       
@@ -48,6 +69,7 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
       }, 2000)
       
     } catch (error) {
+      console.error('Feedback submission error:', error)
       setSubmissionState('error')
       
       // Reset error state after 3 seconds
@@ -67,7 +89,7 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
         {children || (
           <Button 
             variant="outline" 
-            className={`flex px-3 py-2 justify-center items-center gap-2 text-gray-900 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 ${triggerClassName}`}
+            className={`flex h-10 px-3 justify-center items-center gap-2 text-gray-900 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 ${triggerClassName}`}
           >
             Give Feedback
           </Button>
@@ -98,6 +120,18 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
             <div className="flex justify-center gap-2 sm:gap-4">
               <button
                 type="button"
+                onClick={() => setSelectedSentiment('negative')}
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2 sm:p-3 transition-all ${
+                  selectedSentiment === 'negative' 
+                    ? 'bg-teal-300' 
+                    : 'bg-gray-100 hover:bg-gray-100 hover:ring-2 hover:ring-teal-300'
+                }`}
+                style={{ fontSize: '48px', lineHeight: '48px' }}
+              >
+                😟
+              </button>
+              <button
+                type="button"
                 onClick={() => setSelectedSentiment('positive')}
                 className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2 sm:p-3 transition-all ${
                   selectedSentiment === 'positive' 
@@ -119,18 +153,6 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
                 style={{ fontSize: '48px', lineHeight: '48px' }}
               >
                 😐
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedSentiment('negative')}
-                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center p-2 sm:p-3 transition-all ${
-                  selectedSentiment === 'negative' 
-                    ? 'bg-teal-300' 
-                    : 'bg-gray-100 hover:bg-gray-100 hover:ring-2 hover:ring-teal-300'
-                }`}
-                style={{ fontSize: '48px', lineHeight: '48px' }}
-              >
-                😟
               </button>
             </div>
 
