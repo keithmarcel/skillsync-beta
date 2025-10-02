@@ -33,6 +33,10 @@ export default function SkillsPage() {
   
   const totalSkills = skills?.length || 0;
   const totalPages = Math.ceil(totalSkills / pageSize);
+  
+  // Note: Supabase has a 1000 row limit even with .limit(50000)
+  // Showing actual count available, not total in database
+  const displayCount = totalSkills >= 1000 ? '1,000+' : totalSkills.toLocaleString();
 
   const columns = [
     { key: 'name', header: 'Skill Name', sortable: true },
@@ -117,7 +121,7 @@ export default function SkillsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Skills</h1>
           <p className="text-muted-foreground">
-            Manage skills taxonomy and metadata ({totalSkills.toLocaleString()} total)
+            Manage skills taxonomy and metadata ({displayCount} skills)
           </p>
         </div>
         <Link href="/admin/skills/new">

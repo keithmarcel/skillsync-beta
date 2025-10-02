@@ -182,7 +182,7 @@ const AdminDashboard = () => {
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>Latest actions in the admin panel</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-x-auto">
             <AdminTable
               data={recentActivity || []}
               columns={auditLogColumns as any}

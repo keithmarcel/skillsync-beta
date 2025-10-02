@@ -65,12 +65,6 @@ const navigation = [
     icon: Database,
     roles: ['super_admin'],
   },
-  {
-    name: 'Settings',
-    href: '/admin/settings',
-    icon: Settings,
-    roles: ['super_admin', 'company_admin', 'provider_admin'],
-  },
 ];
 
 export function AdminSidebar() {
