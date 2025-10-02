@@ -15,23 +15,29 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// CIP to SOC mapping (expand as needed)
+// CIP to SOC mapping (using only SOCs we have in database)
 const CIP_TO_SOC_MAPPING = {
-  '11': ['15-1252.00', '15-1232.00'], // Computer Science → Software Dev, IT Support
-  '52': ['13-2011.00', '11-3031.00'], // Business → Accountants, Financial Managers
-  '51': ['29-1141.00', '29-2061.00'], // Health → Nurses, LPNs
-  '43': ['23-2011.00'], // Legal → Paralegals
-  '47': ['47-2111.00', '47-2031.00'], // Construction → Electricians, Carpenters
-  '13': ['25-2021.00'], // Education → Teachers
-  '45': ['13-1111.00'], // Social Sciences → Management Analysts
-  '50': ['27-1024.00'], // Visual/Performing Arts → Graphic Designers
-  '54': ['11-1021.00'], // History → General Managers
-  '23': ['25-2021.00'], // English → Teachers
-  '26': ['15-2051.00'], // Biology → Data Scientists
-  '27': ['15-2051.00'], // Mathematics → Data Scientists
-  '40': ['19-3051.00'], // Physical Sciences → Urban Planners
+  '09': ['11-1021.00', '13-1082.00'], // Communication → General Managers, Project Managers
+  '11': ['15-1252.00'], // Computer Science → Software Developers
+  '13': ['11-1021.00'], // Education → General Managers
+  '16': ['11-1021.00'], // Foreign Languages → General Managers
+  '19': ['29-1141.00', '29-2061.00'], // Human Development → Nurses, LPNs
+  '23': ['11-1021.00'], // English → General Managers
+  '24': ['11-1021.00'], // Liberal Arts → General Managers
+  '25': ['11-1021.00', '13-1082.00'], // Library Science → General Managers, Project Managers
+  '26': ['15-1252.00'], // Biology → Software Developers (data science)
+  '27': ['15-1252.00'], // Mathematics → Software Developers (data science)
+  '30': ['11-1021.00', '13-1082.00'], // Multi/Interdisciplinary → General Managers, Project Managers
+  '31': ['29-1141.00', '29-2061.00'], // Fitness → Healthcare (wellness)
+  '40': ['15-1252.00'], // Physical Sciences → Software Developers
   '42': ['29-1141.00'], // Psychology → Nurses (counseling)
-  '30': ['13-1111.00'], // Multi/Interdisciplinary → Management Analysts
+  '43': ['43-3031.00'], // Legal → Bookkeeping (administrative)
+  '45': ['11-1021.00', '13-1082.00'], // Social Sciences → General Managers, Project Managers
+  '47': ['47-2111.00'], // Construction → Electricians
+  '50': ['11-1021.00', '13-1082.00'], // Visual/Performing Arts → General Managers, Project Managers
+  '51': ['29-1141.00', '29-2061.00'], // Health → Nurses, LPNs
+  '52': ['13-2011.00', '11-1021.00'], // Business → Accountants, General Managers
+  '54': ['11-1021.00'], // History → General Managers
 };
 
 /**
