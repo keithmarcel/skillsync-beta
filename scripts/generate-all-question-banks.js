@@ -175,21 +175,27 @@ async function generateQuestionBankForJob(job) {
       }
 
       // Save to database
-      const questionRecords = questions.map(q => ({
-        skill_id: skill.id,
-        stem: q.stem,
-        choices: q.choices,
-        answer_key: q.correct_answer,
-        difficulty: q.difficulty,
-        importance: jobSkill.importance_level === 'critical' ? 5.0 :
-                   jobSkill.importance_level === 'important' ? 4.0 : 3.0,
-        is_bank_question: true,
-        times_used: 0
-      }));
+      // Note: Using individual inserts to avoid schema cache issues
+      let inserted = 0;
+      for (const q of questions) {
+        const { error: insertError } = await supabase
+          .from('quiz_questions')
+          .insert({
+            skill_id: skill.id,
+            stem: q.stem,
+            choices: q.choices,
+            answer_key: q.correct_answer,
+            difficulty: q.difficulty,
+            importance: jobSkill.importance_level === 'critical' ? 5.0 :
+                       jobSkill.importance_level === 'important' ? 4.0 : 3.0,
+            is_bank_question: true,
+            times_used: 0
+          });
+        
+        if (!insertError) inserted++;
+      }
 
-      const { error } = await supabase
-        .from('quiz_questions')
-        .insert(questionRecords);
+      const error = inserted === 0 ? new Error('No questions inserted') : null;
 
       if (error) {
         console.log(`❌ ${error.message}`);

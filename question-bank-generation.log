@@ -14,4 +14,18 @@ Found 30 standard occupations
   Found 10 skills
   Mathematics... ❌ Could not find the 'is_bank_question' column of 'quiz_questions' in the schema cache
   Economics and Accounting... ❌ Could not find the 'is_bank_question' column of 'quiz_questions' in the schema cache
-  Administration and Management... 
+  Administration and Management... [dotenv@17.2.1] injecting env (19) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+🔧 Initializing OpenAI...
+✅ OpenAI initialized
+
+
+🚀 AUTOMATED QUESTION BANK GENERATION
+═══════════════════════════════════════════════════
+
+Found 30 standard occupations
+
+[1/30]
+
+📚 Accountants and Auditors (13-2011.00)
+  Found 10 skills
+  Mathematics... 
