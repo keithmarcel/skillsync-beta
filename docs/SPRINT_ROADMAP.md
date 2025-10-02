@@ -30,7 +30,149 @@
 
 ---
 
-## 📅 DAY-BY-DAY ROADMAP
+## 🚀 NEXT PHASE: Multi-Stakeholder Platform (3-4 Weeks)
+
+**Objective:** Transform SkillSync into three-sided marketplace before assessment UI work
+
+**Stakeholders:**
+1. Job Seekers (existing)
+2. Employers (new - invite qualified candidates)
+3. Education Providers (new - manage programs, receive RFIs)
+
+**See:** `docs/features/PRE_ASSESSMENT_FEATURES.md` for complete specifications
+
+### Sprint 1: Foundation (Week 1) - 5-6 days
+**Branch:** `feature/multi-role-user-auth` + `feature/user-account-settings`
+
+**Multi-Role User Management (Days 1-4):**
+- [ ] Database schema updates (profiles, roles, invitations)
+- [ ] Super Admin invitation system
+- [ ] Provider Admin dashboard (programs CRUD)
+- [ ] Employer Admin dashboard (roles CRUD, candidates view)
+- [ ] RLS policies for role-based access
+- [ ] Account limits enforcement (max programs, max roles)
+
+**User Account Settings (Days 5-6):**
+- [ ] Settings page (`/settings`)
+- [ ] Profile management (name, LinkedIn - required for invitations)
+- [ ] Avatar upload system (2MB max, JPG/PNG/WebP)
+- [ ] Notification preferences
+- [ ] Change email/password flows
+
+**Mockups Required:**
+- Provider Admin dashboard layout
+- Employer Admin dashboard layout
+- Admin invitation form
+- User settings page (all sections)
+- Avatar upload component
+
+**Deliverable:** Provider/Employer admins can be invited and manage their content
+
+---
+
+### Sprint 2: Core Features (Week 2) - 5-6 days
+**Branch:** `feature/employer-invitations` + `feature/notification-center`
+
+**Employer Invitation System (Days 1-4):**
+- [ ] Proficiency threshold per role (default 85%)
+- [ ] Qualified candidates view (employer dashboard)
+- [ ] Send invitation flow (application URL + message)
+- [ ] Assessment visibility logic (auto-visible if >= threshold)
+- [ ] Privacy setting: "Visible to employers" (default: ON)
+- [ ] Invitation tracking and status
+
+**Notification Center (Days 5-6):**
+- [ ] Header notification icon with unread badge
+- [ ] Dropdown: Recent 5 invitations
+- [ ] Full invitations page (`/invitations`)
+- [ ] Tabs: Active, Archived
+- [ ] Actions: View Application, Decline, Archive
+- [ ] Mark as read functionality
+
+**Mockups Required:**
+- Employer qualified candidates table
+- Send invitation modal
+- User notification dropdown
+- User invitations page (tabs, cards)
+- Invitation card component
+
+**Deliverable:** Complete employer-to-candidate invitation workflow
+
+**Decision Needed:**
+- Proficiency threshold: Single (85%) or Dual (display 90%, visible 85%)?
+- Recommendation: Single threshold (simpler)
+
+---
+
+### Sprint 3: Enhancements (Week 3) - 5-6 days
+**Branch:** `feature/company-profile-management` + `feature/program-details-page` + `feature/homepage-snapshot-redesign`
+
+**Company Profile Management (Days 1-2):**
+- [ ] Provider settings page (`/provider/settings`)
+- [ ] Employer settings page (`/employer/settings`)
+- [ ] Logo upload (companies & schools)
+- [ ] Meta information (headquarters, size, founded, website, social)
+- [ ] Branding settings
+
+**Program Details Page (Days 3-4):**
+- [ ] Program details page (`/programs/[id]`)
+- [ ] Skills taught display (from program_skills)
+- [ ] Related occupations (via CIP→SOC)
+- [ ] RFI form (name, email, phone, message)
+- [ ] Email notifications to provider
+- [ ] Skills overlap visualization
+
+**Homepage Snapshot Redesign (Days 5-6):**
+- [ ] Redesigned snapshot section
+- [ ] Interactive graphs (skill radar, progress timeline)
+- [ ] Dark theme sections
+- [ ] Data aggregation (assessments, invitations, programs)
+- [ ] Quick actions (retake, browse, view invitations)
+
+**Mockups Required:**
+- Provider/Employer settings pages
+- Program details page layout
+- RFI form design
+- Homepage snapshot complete redesign
+- Graph specifications (what data, what type)
+
+**Deliverable:** Complete user experience with all touchpoints
+
+---
+
+### Sprint 4: Polish & Demo Prep (Week 4) - 3-4 days
+**Branch:** `feature/assessment-ui-redesign` + `feature/mock-user-generation`
+
+**Assessment UI Update (Days 1-2):**
+- [ ] Polish assessment taking experience
+- [ ] Improved question navigation
+- [ ] Better progress indicators
+- [ ] Review screen before submit
+- [ ] Mobile responsive improvements
+
+**Mock User Generation (Day 3):**
+- [ ] Script: `scripts/generate-mock-users.js`
+- [ ] 20-30 realistic users with avatars
+- [ ] Varied assessment scores (60-95%)
+- [ ] Different occupations
+- [ ] Flag: `is_mock_user = true`
+- [ ] Easy purge capability
+
+**Integration Testing (Day 4):**
+- [ ] End-to-end testing all flows
+- [ ] Bug fixes
+- [ ] Performance optimization
+- [ ] Final polish
+
+**Mockups Required:**
+- Assessment page redesign
+- Navigation and progress UI
+
+**Deliverable:** Demo-ready application with mock data
+
+---
+
+## 📅 DAY-BY-DAY ROADMAP (ARCHIVED)
 
 ### **TUESDAY (Jan 30) - Programs Catalog + Assessment Foundation**
 **Goal:** Programs Complete + Start Assessment Experience  
