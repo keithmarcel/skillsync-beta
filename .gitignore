@@ -41,3 +41,11 @@ next-env.d.ts
 .temp
 .vscode
 supabase/.temp
+
+
+# Proprietary planning and reference docs (keep local only)
+docs/reference/
+docs/strategic/
+*.log
+question-bank-*.log
+program-enrichment.log
