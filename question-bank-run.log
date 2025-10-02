@@ -21,4 +21,537 @@ Found 30 standard occupations
   Judgment and Decision Making... ✅ 12
   Reading Comprehension... ✅ 12
   Active Listening... ✅ 12
-  Critical Thinking... 
+  Critical Thinking... ✅ 12
+  Total: 118 questions
+[2/30]
+
+📚 Bookkeeping, Accounting, and Auditing Clerks (43-3031.00)
+  Found 10 skills
+  Economics and Accounting... ✅ 12 (exists)
+  Mathematics... ✅ 12
+  Administrative... ✅ 12
+  Customer and Personal Service... ✅ 12 (exists)
+  Mathematical Reasoning... JSON parse error: [
+  {
+    "stem": "A client wants to order 150 widgets at $2.50 each and 75 gadgets at $4.00 each. What will be the total cost for the order?",
+    "choices": {"A": "$375.00", "B": "$525.00", "C": "$4
+Error generating questions: Expected ',' or '}' after property value in JSON at position 2786 (line 53 column 24)
+❌
+  Reading Comprehension... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Mathematics... ✅ 12
+  Total: 108 questions
+[3/30]
+
+📚 Business Operations Specialists, All Other (13-1198.00)
+  Found 10 skills
+  Administration and Management... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Education and Training... ✅ 12
+  Problem Sensitivity... ✅ 12
+  Critical Thinking... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Complex Problem Solving... ✅ 12
+  Judgment and Decision Making... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Total: 131 questions
+[4/30]
+
+📚 Carpenters (47-2031.00)
+  Found 14 skills
+  Mathematics... ✅ 23 (exists)
+  Design... ✅ 12
+  Engineering and Technology... ✅ 12
+  Building and Construction... ✅ 12
+  Administration and Management... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Finger Dexterity... ✅ 12
+  Visualization... ✅ 12
+  Manual Dexterity... ✅ 11
+  Coordination... ✅ 12
+  Monitoring... ✅ 12
+  Quality Control Analysis... ✅ 12
+  Active Listening... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Total: 178 questions
+[5/30]
+
+📚 Claims Adjusters, Examiners, and Investigators (13-1031.00)
+  Found 17 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  English Language... ✅ 12
+  Administrative... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Computers and Electronics... ✅ 12
+  Psychology... ✅ 12
+  Speech Clarity... ✅ 12
+  Far Vision... ✅ 12
+  Inductive Reasoning... ✅ 12
+  Speech Recognition... ✅ 12
+  Near Vision... ✅ 12
+  Judgment and Decision Making... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Education and Training... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Total: 215 questions
+[6/30]
+
+📚 Computer User Support Specialists (15-1232.00)
+  Found 9 skills
+  Education and Training... ✅ 12 (exists)
+  Telecommunications... ✅ 12
+  Computers and Electronics... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Complex Problem Solving... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Total: 108 questions
+[7/30]
+
+📚 Electricians (47-2111.00)
+  Found 13 skills
+  Design... ✅ 12 (exists)
+  Building and Construction... ✅ 12 (exists)
+  Mechanical... ✅ 12
+  Mathematics... ✅ 23 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Finger Dexterity... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Inductive Reasoning... ✅ 23 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Troubleshooting... ✅ 12
+  Repairing... ✅ 12
+  Active Listening... ✅ 12 (exists)
+  Total: 178 questions
+[8/30]
+
+📚 Elementary School Teachers, Except Special Education (25-2021.00)
+  Found 12 skills
+  Education and Training... ✅ 12 (exists)
+  Psychology... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Inductive Reasoning... ✅ 23 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Oral Expression... ✅ 12
+  Learning Strategies... ✅ 12
+  Active Listening... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Instructing... ✅ 12
+  Total: 166 questions
+[9/30]
+
+📚 Financial Managers (11-3031.00)
+  Found 17 skills
+  Education and Training... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Economics and Accounting... ✅ 12 (exists)
+  Far Vision... ✅ 12 (exists)
+  Psychology... ✅ 12 (exists)
+  Speech Recognition... ✅ 12 (exists)
+  Speech Clarity... ✅ 12 (exists)
+  Monitoring... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  English Language... ✅ 12 (exists)
+  Near Vision... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Total: 215 questions
+[10/30]
+
+📚 First-Line Supervisors of Construction Trades and Extraction Workers (47-1011.00)
+  Found 12 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Building and Construction... ✅ 12 (exists)
+  Mechanical... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Information Ordering... ✅ 12
+  Oral Expression... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Management of Personnel Resources... ✅ 12
+  Critical Thinking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Coordination... ✅ 12 (exists)
+  Total: 144 questions
+[11/30]
+
+📚 First-Line Supervisors of Office and Administrative Support Workers (43-1011.00)
+  Found 10 skills
+  Computers and Electronics... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Oral Expression... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Monitoring... ✅ 12 (exists)
+  Social Perceptiveness... ✅ 12
+  Coordination... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Total: 120 questions
+[12/30]
+
+📚 First-Line Supervisors of Retail Sales Workers (41-1011.00)
+  Found 10 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Sales and Marketing... ✅ 12
+  Education and Training... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Service Orientation... ✅ 12
+  Speaking... ✅ 12 (exists)
+  Coordination... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Total: 120 questions
+[13/30]
+
+📚 General and Operations Managers (11-1021.00)
+  Found 17 skills
+  Production and Processing... ✅ 12
+  Administration and Management... ✅ 12 (exists)
+  English Language... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Far Vision... ✅ 12 (exists)
+  Psychology... ✅ 12 (exists)
+  Speech Recognition... ✅ 12 (exists)
+  Near Vision... ✅ 12 (exists)
+  Speech Clarity... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Education and Training... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Monitoring... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Coordination... ✅ 12 (exists)
+  Total: 215 questions
+[14/30]
+
+📚 Heavy and Tractor-Trailer Truck Drivers (53-3032.00)
+  Found 13 skills
+  Transportation... ✅ 12
+  Public Safety and Security... ✅ 12
+  Customer and Personal Service... ✅ 12 (exists)
+  Law and Government... ✅ 12
+  Multilimb Coordination... ✅ 12
+  Rate Control... ✅ 12
+  Response Orientation... ✅ 12
+  Control Precision... ✅ 12
+  Operations Monitoring... ✅ 12
+  Operation and Control... ✅ 12
+  Monitoring... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Total: 156 questions
+[15/30]
+
+📚 Human Resources Specialists (13-1071.00)
+  Found 18 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Administration and Management... ✅ 12 (exists)
+  English Language... ✅ 12 (exists)
+  Personnel and Human Resources... ✅ 12
+  Far Vision... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Speech Recognition... ✅ 12 (exists)
+  Speech Clarity... ✅ 12 (exists)
+  Near Vision... ✅ 12 (exists)
+  Education and Training... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Writing... ✅ 12
+  Psychology... ✅ 12 (exists)
+  Total: 227 questions
+[16/30]
+
+📚 Insurance Sales Agents (41-3021.00)
+  Found 9 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  Sales and Marketing... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Law and Government... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Persuasion... ✅ 12
+  Total: 119 questions
+[17/30]
+
+📚 Licensed Practical and Licensed Vocational Nurses (29-2061.00)
+  Found 10 skills
+  Medicine and Dentistry... ✅ 12
+  Psychology... ✅ 12 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Monitoring... ✅ 12 (exists)
+  Coordination... ✅ 12 (exists)
+  Service Orientation... ✅ 12 (exists)
+  Social Perceptiveness... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Total: 120 questions
+[18/30]
+
+📚 Management Analysts (13-1111.00)
+  Found 17 skills
+  Education and Training... ✅ 12 (exists)
+  English Language... ✅ 12 (exists)
+  Speech Clarity... ✅ 12 (exists)
+  Far Vision... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Complex Problem Solving... ✅ 12 (exists)
+  Judgment and Decision Making... ✅ 12 (exists)
+  Near Vision... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Psychology... ✅ 12 (exists)
+  Speech Recognition... ✅ 12 (exists)
+  Total: 215 questions
+[19/30]
+
+📚 Managers, All Other (11-9199.00)
+  Found 9 skills
+  Administration and Management... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Production and Processing... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Active Listening... ✅ 12 (exists)
+  Monitoring... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Coordination... ✅ 12 (exists)
+  Total: 119 questions
+[20/30]
+
+📚 Market Research Analysts and Marketing Specialists (13-1161.00)
+  Found 11 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  Sales and Marketing... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Fluency of Ideas... ✅ 12
+  Inductive Reasoning... ✅ 23 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Writing... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Complex Problem Solving... ✅ 12 (exists)
+  Total: 154 questions
+[21/30]
+
+📚 Medical and Health Services Managers (11-9111.00)
+  Found 18 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  English Language... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Education and Training... ✅ 12 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Personnel and Human Resources... ✅ 12 (exists)
+  Near Vision... ✅ 12 (exists)
+  Speech Recognition... ✅ 12 (exists)
+  Speech Clarity... ✅ 12 (exists)
+  Far Vision... ✅ 12 (exists)
+  Inductive Reasoning... ✅ 23 (exists)
+  Psychology... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Judgment and Decision Making... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Complex Problem Solving... ✅ 12 (exists)
+  Total: 238 questions
+[22/30]
+
+📚 Paralegals and Legal Assistants (23-2011.00)
+  Found 17 skills
+  English Language... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Law and Government... ✅ 12 (exists)
+  Computers and Electronics... ✅ 12 (exists)
+  Speech Recognition... ✅ 12 (exists)
+  Speech Clarity... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Psychology... ✅ 12 (exists)
+  Far Vision... ✅ 12 (exists)
+  Education and Training... ✅ 12 (exists)
+  Near Vision... ✅ 12 (exists)
+  Writing... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Total: 215 questions
+[23/30]
+
+📚 Project Management Specialists (13-1082.00)
+  Found 17 skills
+  Education and Training... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Near Vision... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Economics and Accounting... ✅ 12 (exists)
+  Speech Clarity... ✅ 12 (exists)
+  Far Vision... ✅ 12 (exists)
+  Psychology... ✅ 12 (exists)
+  English Language... ✅ 12 (exists)
+  Speech Recognition... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Monitoring... ✅ 12 (exists)
+  Total: 215 questions
+[24/30]
+
+📚 Property, Real Estate, and Community Association Managers (11-9141.00)
+  Found 19 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  English Language... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Administration and Management... ✅ 12 (exists)
+  Economics and Accounting... ✅ 12 (exists)
+  Law and Government... ✅ 12 (exists)
+  Psychology... ✅ 12 (exists)
+  Speech Recognition... ✅ 12 (exists)
+  Speech Clarity... ✅ 12 (exists)
+  Near Vision... ✅ 12 (exists)
+  Far Vision... ✅ 12 (exists)
+  Inductive Reasoning... ✅ 23 (exists)
+  Education and Training... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Reading Comprehension... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Coordination... ✅ 12 (exists)
+  Writing... ✅ 12 (exists)
+  Total: 250 questions
+[25/30]
+
+📚 Real Estate Sales Agents (41-9022.00)
+  Found 9 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  Sales and Marketing... ✅ 12 (exists)
+  Law and Government... ✅ 12 (exists)
+  Administrative... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Coordination... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Negotiation... JSON parse error: [
+  {
+    "stem": "You are negotiating a salary for a new job offer. The employer offers $50,000, but you believe your skills warrant $55,000. What is the best initial response?",
+    "choices": {
+   
+Error generating questions: Expected double-quoted property name in JSON at position 1769 (line 33 column 5)
+❌
+  Social Perceptiveness... ✅ 12 (exists)
+  Total: 96 questions
+[26/30]
+
+📚 Registered Nurses (29-1141.00)
+  Found 11 skills
+  Administrative... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Medicine and Dentistry... ✅ 12 (exists)
+  Psychology... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Inductive Reasoning... ✅ 23 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Coordination... ✅ 12 (exists)
+  Service Orientation... ✅ 12 (exists)
+  Social Perceptiveness... ✅ 12 (exists)
+  Total: 143 questions
+[27/30]
+
+📚 Sales Representatives of Services, Except Advertising, Insurance, Financial Services, and Travel (41-3091.00)
+  Found 9 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  Sales and Marketing... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Transportation... ✅ 12 (exists)
+  Social Perceptiveness... ✅ 12 (exists)
+  Persuasion... ✅ 12 (exists)
+  Negotiation... ✅ 12
+  Active Listening... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Total: 119 questions
+[28/30]
+
+📚 Sales Representatives, Wholesale and Manufacturing, Except Technical and Scientific Products (41-4012.00)
+  Found 9 skills
+  Mathematics... ✅ 23 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Transportation... ✅ 12 (exists)
+  Sales and Marketing... ✅ 12 (exists)
+  Speaking... ✅ 12 (exists)
+  Social Perceptiveness... ✅ 12 (exists)
+  Persuasion... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Negotiation... ✅ 12 (exists)
+  Total: 119 questions
+[29/30]
+
+📚 Securities, Commodities, and Financial Services Sales Agents (41-3031.00)
+  Found 9 skills
+  Customer and Personal Service... ✅ 12 (exists)
+  Mathematics... ✅ 23 (exists)
+  Economics and Accounting... ✅ 12 (exists)
+  Sales and Marketing... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Judgment and Decision Making... ✅ 12 (exists)
+  Active Learning... ✅ 12
+  Monitoring... ✅ 12 (exists)
+  Active Listening... ✅ 12 (exists)
+  Total: 119 questions
+[30/30]
+
+📚 Software Developers (15-1252.00)
+  Found 10 skills
+  Mathematics... ✅ 23 (exists)
+  Computers and Electronics... ✅ 12 (exists)
+  Customer and Personal Service... ✅ 12 (exists)
+  Oral Expression... ✅ 12 (exists)
+  Problem Sensitivity... ✅ 12 (exists)
+  Judgment and Decision Making... ✅ 12 (exists)
+  Programming... ✅ 12
+  Reading Comprehension... ✅ 12 (exists)
+  Critical Thinking... ✅ 12 (exists)
+  Active Learning... ✅ 12 (exists)
+  Total: 131 questions
+
+═══════════════════════════════════════════════════
+✅ GENERATION COMPLETE
+═══════════════════════════════════════════════════
+Occupations processed: 30/30
+Total questions generated: 4771
+Average per occupation: 159
+Time taken: 57 minutes
+═══════════════════════════════════════════════════
+
