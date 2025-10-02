@@ -31,7 +31,7 @@ export function useAdminTableData<T>(
     setError(null);
 
     try {
-      let query = supabase.from(tableName).select(selectQuery);
+      let query = supabase.from(tableName).select(selectQuery, { count: 'exact' });
 
       // Apply initial static filters
       if (options.initialFilter) {
@@ -50,6 +50,13 @@ export function useAdminTableData<T>(
           if (tableName === 'programs') query = query.eq('school_id', profile.school_id);
         }
       }
+
+      // Add ordering for consistent results
+      query = query.order('name', { ascending: true });
+
+      // Remove default limit for large tables like skills
+      // Supabase default is 1000 rows - we need all of them
+      query = query.limit(50000);
 
       const { data: result, error: queryError } = await query;
 
