@@ -1,0 +1,17 @@
+[dotenv@17.2.1] injecting env (19) from .env.local -- tip: ⚙️  enable debug logging with { debug: true }
+🔧 Initializing OpenAI...
+✅ OpenAI initialized
+
+
+🚀 AUTOMATED QUESTION BANK GENERATION
+═══════════════════════════════════════════════════
+
+Found 30 standard occupations
+
+[1/30]
+
+📚 Accountants and Auditors (13-2011.00)
+  Found 10 skills
+  Mathematics... ✅ 11
+  Economics and Accounting... ✅ 12
+  Administration and Management... 
