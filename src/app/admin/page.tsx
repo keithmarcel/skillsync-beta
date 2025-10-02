@@ -68,7 +68,7 @@ const AdminDashboard = () => {
     {
       key: 'user',
       header: 'User',
-      render: (log: AdminAuditLog) => {
+      render: (value: any, log: AdminAuditLog) => {
         if (!log || !log.profiles) return 'System';
         if (log.profiles.first_name) {
           return `${log.profiles.first_name} ${log.profiles.last_name || ''}`.trim();
@@ -79,7 +79,7 @@ const AdminDashboard = () => {
     {
       key: 'action',
       header: 'Action',
-      render: (log: AdminAuditLog) => {
+      render: (value: any, log: AdminAuditLog) => {
         if (!log || !log.action || !log.entity_type) return '—';
         return `${log.action} ${log.entity_type}`;
       },
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
     {
       key: 'status',
       header: 'Status',
-      render: (log: AdminAuditLog) => {
+      render: (value: any, log: AdminAuditLog) => {
         if (!log || !log.status) return <Badge variant="default">—</Badge>;
         return <Badge variant={log.status === 'error' ? 'destructive' : 'default'}>{log.status}</Badge>;
       },
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
     {
       key: 'created_at',
       header: 'Date',
-      render: (log: AdminAuditLog) => {
+      render: (value: any, log: AdminAuditLog) => {
         if (!log || !log.created_at) return '—';
         try {
           return formatDistanceToNow(new Date(log.created_at), { addSuffix: true });

@@ -132,25 +132,27 @@ export default function SkillsPage() {
         </Link>
       </div>
 
-      <AdminTable
-        data={skills || []}
-        columns={columns}
-        actions={actions}
-        loading={isLoading}
-        error={error}
-        keyField="id"
-        searchPlaceholder="Search skills by name, category, or source..."
-        pagination={{
-          page: currentPage,
-          pageSize: pageSize,
-          total: totalSkills,
-          onPageChange: setCurrentPage,
-          onPageSizeChange: (size) => {
-            setPageSize(size);
-            setCurrentPage(1);
-          }
-        }}
-      />
+      <div className="overflow-x-auto">
+        <AdminTable
+          data={skills || []}
+          columns={columns}
+          actions={actions}
+          loading={isLoading}
+          error={error}
+          keyField="id"
+          searchPlaceholder="Search skills by name, category, or source..."
+          pagination={{
+            page: currentPage,
+            pageSize: pageSize,
+            total: totalSkills,
+            onPageChange: setCurrentPage,
+            onPageSizeChange: (size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }
+          }}
+        />
+      </div>
     </div>
   );
 }
