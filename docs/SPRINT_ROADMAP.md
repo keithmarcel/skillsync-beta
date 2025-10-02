@@ -98,9 +98,10 @@
 
 **Deliverable:** Complete employer-to-candidate invitation workflow
 
-**Decision Needed:**
-- Proficiency threshold: Single (85%) or Dual (display 90%, visible 85%)?
-- Recommendation: Single threshold (simpler)
+**✅ Decisions Approved:**
+- Flow: Option B - Auto-visible with opt-out
+- Threshold: Dual (display 90%, visibility 85%)
+- Privacy: User setting to opt-out (default: ON)
 
 ---
 
@@ -169,6 +170,23 @@
 - Navigation and progress UI
 
 **Deliverable:** Demo-ready application with mock data
+
+---
+
+### UI Polish Tasks (Throughout All Sprints)
+
+**Custom Spinner Component:**
+- [ ] Install: `spinners-react` package
+- [ ] Replace all loading spinners with SpinnerInfinity or SpinnerDiamond
+- [ ] Use teal color (#0694A2) to match brand
+- [ ] Consistent sizing across app
+- [ ] Reference: `docs/features/ui-nice-to-haves.md`
+
+**Homepage Dashboard CTA Cards:**
+- [ ] Add images above card content (per new mockup)
+- [ ] Update card layout to accommodate images
+- [ ] Ensure responsive on mobile
+- [ ] Mockup required before implementation
 
 ---
 

@@ -125,40 +125,33 @@ CREATE TABLE admin_invitations (
 
 **Branch:** `feature/employer-invitations`
 
+### ✅ Approved Decisions
+
+**Flow:** Option B - Auto-visible with opt-out  
+**Threshold:** Dual (Display 90%, Visibility 85%)  
+**Privacy:** User setting to opt-out (default: ON)
+
 ### Overview
 
-Allow employers to invite qualified candidates to apply for roles. Two possible flows to decide:
+Allow employers to invite qualified candidates to apply for roles.
 
-**Option A: User-Initiated Submission**
+**Approved Flow:**
 1. User completes assessment
-2. If score meets threshold, "Submit to Employer" button appears
-3. User submits assessment
-4. Employer sees submission in dashboard
-5. Employer sends invitation to apply
-6. User receives invitation notification
-
-**Option B: Employer-Initiated (Recommended)**
-1. User completes assessment
-2. If score meets proficiency threshold (e.g., 85%+), automatically visible to employer
-3. Employer browses qualified candidates
-4. Employer sends invitation to apply
+2. If score >= 85% (visibility threshold), automatically visible to employer
+3. Employer browses qualified candidates in dashboard
+4. Employer sends invitation to apply (with application URL)
 5. User receives invitation notification
 
-### Proficiency Threshold
+**Dual Threshold System:**
+- **Display Threshold: 90%** - User sees "Role Ready" badge
+- **Visibility Threshold: 85%** - Employer can see candidate
+- Gives employers larger pool (85-89% "Building Proficiency" + 90%+ "Role Ready")
+- Both thresholds configurable per role by employer
 
-**Question:** Single threshold or dual threshold?
-
-**Option 1: Single Threshold (Simpler)**
-- Employer sets one threshold (e.g., 85%)
-- User sees "Role Ready" if >= 85%
-- User shows in employer dashboard if >= 85%
-
-**Option 2: Dual Threshold (More Nuanced)**
-- Display threshold: 90% (user sees "Role Ready")
-- Visibility threshold: 85% (employer can see candidate)
-- Allows employers to see "close" candidates
-
-**Recommendation Needed:** Which approach?
+**Privacy Control:**
+- User setting: "Make my assessments visible to employers" (default: ON)
+- User can opt-out in account settings
+- Clear messaging during assessment about visibility
 
 ### Database Schema
 
@@ -179,9 +172,10 @@ CREATE TABLE employer_invitations (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Add proficiency threshold to jobs
+-- Add dual proficiency thresholds to jobs
 ALTER TABLE jobs
-ADD COLUMN IF NOT EXISTS proficiency_threshold INTEGER DEFAULT 90;
+ADD COLUMN IF NOT EXISTS display_threshold INTEGER DEFAULT 90,
+ADD COLUMN IF NOT EXISTS visibility_threshold INTEGER DEFAULT 85;
 
 -- Track user assessment submissions (if using Option A)
 CREATE TABLE assessment_submissions (

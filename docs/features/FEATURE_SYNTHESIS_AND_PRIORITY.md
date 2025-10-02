@@ -225,39 +225,31 @@ The features transform SkillSync from a single-user assessment tool into a **thr
 
 ## 🔑 Key Decisions Needed
 
-### 1. Employer Invitation Flow
-**Question:** User-initiated submission or auto-visibility?
+### 1. Employer Invitation Flow ✅ APPROVED
+**Decision:** **Option B - Auto-Visible with Opt-Out**
 
-**Option A: User Submits Assessment**
-- Pros: User control, explicit consent
-- Cons: Extra step, users might not submit
-
-**Option B: Auto-Visible to Employers**
-- Pros: Simpler, more candidates visible
-- Cons: Privacy concerns, user might not want visibility
-
-**Recommendation:** **Option B with opt-out**
-- Users auto-visible if meet threshold
+**Approved Flow:**
+- Users automatically visible to employers if score >= 85%
 - Privacy setting: "Make my assessments visible to employers" (default: ON)
-- Best of both worlds
+- User can opt-out in settings
+- Clear privacy messaging throughout
 
-### 2. Proficiency Threshold
-**Question:** Single or dual threshold?
+### 2. Proficiency Threshold ✅ APPROVED
+**Decision:** **Dual Threshold System**
 
-**Option A: Single Threshold (85%)**
-- User sees "Role Ready" at 85%
+**Display Threshold: 90%**
+- User sees "Role Ready" badge at 90%
+- Clear achievement milestone
+
+**Visibility Threshold: 85%**
 - Employer sees candidate at 85%
-- Simple, clear
+- Larger candidate pool for employers
+- Allows evaluation of "close" candidates (85-89%)
 
-**Option B: Dual Threshold**
-- Display: 90% (user sees "Role Ready")
-- Visibility: 85% (employer sees candidate)
-- More nuanced
-
-**Recommendation:** **Single threshold (85%)**
-- Simpler for users to understand
-- Employers can set their own threshold per role
-- Less confusion
+**User Experience:**
+- Score 85-89%: "Building Proficiency" (visible to employers)
+- Score 90%+: "Role Ready" (visible to employers)
+- Score <85%: "Keep Learning" (not visible)
 
 ### 3. Notification System
 **Question:** Supabase or SendGrid?

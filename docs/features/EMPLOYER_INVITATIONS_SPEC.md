@@ -14,75 +14,60 @@ Enable employers to discover qualified candidates and invite them to apply for r
 
 ---
 
-## Flow Decision Required
+## ✅ Flow Decision: Option B - Auto-Visible with Opt-Out
 
-### Option A: User-Initiated Submission
-**Flow:**
+**APPROVED FLOW:**
 1. User completes assessment
-2. If score >= threshold, "Submit to Employer" button appears
-3. User clicks to submit assessment to employer
-4. Employer sees submission in dashboard
-5. Employer reviews and sends invitation
-6. User receives invitation notification
-
-**Pros:**
-- User has explicit control
-- Clear consent
-- User chooses which assessments to share
-
-**Cons:**
-- Extra friction (user must take action)
-- Fewer candidates visible to employers
-- Users might not know to submit
-
----
-
-### Option B: Auto-Visible with Opt-Out (RECOMMENDED)
-**Flow:**
-1. User completes assessment
-2. If score >= threshold, automatically visible to employer
+2. If score >= visibility threshold (85%), automatically visible to employer
 3. Employer browses qualified candidates
 4. Employer sends invitation directly
 5. User receives invitation notification
 
-**With Privacy Control:**
+**Privacy Control:**
 - User setting: "Make my assessments visible to employers" (default: ON)
-- User can opt-out globally or per-assessment
+- User can opt-out globally in settings
 - Clear privacy messaging during assessment
+- Transparent about when results are visible
 
-**Pros:**
-- Simpler user experience
-- More candidates visible to employers
-- Better marketplace liquidity
-- User still has control via settings
-
-**Cons:**
-- Requires clear privacy messaging
-- Need opt-out mechanism
-
-**RECOMMENDATION:** Option B with privacy settings
+**Benefits:**
+- ✅ Simpler user experience
+- ✅ More candidates visible to employers
+- ✅ Better marketplace liquidity
+- ✅ User still has control via settings
 
 ---
 
-## Proficiency Threshold Decision
+## ✅ Proficiency Threshold: Dual Threshold System
 
-### Option 1: Single Threshold (RECOMMENDED)
-**Example:** 85%
+**APPROVED APPROACH:**
 
-- User sees "Role Ready" if score >= 85%
+**Display Threshold:** 90%
+- User sees "Role Ready" badge if score >= 90%
+- Shown in assessment results
+- Clear achievement milestone
+
+**Visibility Threshold:** 85%
 - Employer sees candidate if score >= 85%
-- Employer sets threshold per role
-- Simple, clear, no confusion
+- Gives employers more candidates to choose from
+- Allows discovery of "close" candidates (85-89%)
 
-### Option 2: Dual Threshold
-**Example:** Display 90%, Visibility 85%
+**Benefits:**
+- ✅ Employers get larger candidate pool
+- ✅ Users have clear goal (90% = Role Ready)
+- ✅ Flexibility for employers to evaluate near-qualified candidates
+- ✅ Both thresholds configurable per role by employer
 
-- User sees "Role Ready" if score >= 90%
-- Employer sees candidate if score >= 85%
-- Allows employers to see "close" candidates
-- More complex, potentially confusing
+**Implementation:**
+```sql
+ALTER TABLE jobs
+ADD COLUMN IF NOT EXISTS display_threshold INTEGER DEFAULT 90,
+ADD COLUMN IF NOT EXISTS visibility_threshold INTEGER DEFAULT 85;
+```
 
-**RECOMMENDATION:** Single threshold (85% default, employer configurable)
+**User Experience:**
+- Score 85-89%: "Building Proficiency" (visible to employers)
+- Score 90%+: "Role Ready" (visible to employers)
+- Score <85%: "Keep Learning" (not visible to employers)
 
 ---
 
@@ -122,9 +107,14 @@ WHERE status NOT IN ('declined', 'archived');
 ### Jobs Table Updates
 
 ```sql
--- Add proficiency threshold to jobs
+-- Add dual proficiency thresholds to jobs
 ALTER TABLE jobs
-ADD COLUMN IF NOT EXISTS proficiency_threshold INTEGER DEFAULT 85 CHECK (proficiency_threshold BETWEEN 0 AND 100);
+ADD COLUMN IF NOT EXISTS display_threshold INTEGER DEFAULT 90 CHECK (display_threshold BETWEEN 0 AND 100),
+ADD COLUMN IF NOT EXISTS visibility_threshold INTEGER DEFAULT 85 CHECK (visibility_threshold BETWEEN 0 AND 100);
+
+-- Ensure visibility <= display
+ALTER TABLE jobs
+ADD CONSTRAINT visibility_lte_display CHECK (visibility_threshold <= display_threshold);
 ```
 
 ### Profiles Table Updates
