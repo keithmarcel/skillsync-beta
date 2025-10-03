@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { UserMenu } from '@/components/ui/user-menu'
 import { GiveFeedbackDialog } from '@/components/ui/give-feedback-dialog'
+import { NotificationDropdown } from '@/components/ui/notification-dropdown'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, Heart, BookOpen, User, Home, Briefcase, GraduationCap, FileText, MessageSquare, LogIn, Settings, LogOut } from 'lucide-react'
@@ -74,12 +75,16 @@ export function Navbar() {
               // Skeleton loaders to prevent layout shift
               <>
                 <Skeleton className="hidden sm:block h-10 w-[132px] rounded-lg" />
+                <Skeleton className="hidden sm:block h-10 w-10 rounded-full" />
                 <Skeleton className="hidden md:block h-10 w-10 rounded-full" />
               </>
             ) : user ? (
               <>
                 <div className="hidden sm:block">
                   <GiveFeedbackDialog />
+                </div>
+                <div className="hidden sm:block">
+                  <NotificationDropdown />
                 </div>
                 <div className="hidden md:block">
                   <UserMenu 
