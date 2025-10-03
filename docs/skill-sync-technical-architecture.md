@@ -12,13 +12,14 @@ This document provides comprehensive technical documentation for the SkillSync a
 4. [Component Architecture](#component-architecture)
 5. [State Management](#state-management)
 6. [Authentication & Authorization](#authentication--authorization)
-7. [Skills Taxonomy & O*NET Integration](#skills-taxonomy--onet-integration)
-8. [Assessment Weighting System](#assessment-weighting-system)
-9. [API Ecosystem Integration](#api-ecosystem-integration)
-10. [Intelligent Caching System](#intelligent-caching-system)
-11. [Admin Tools Architecture](#admin-tools-architecture)
-12. [Common Issues & Solutions](#common-issues--solutions)
-13. [Development Workflow](#development-workflow)
+7. [Employer Invitations System](#employer-invitations-system)
+8. [Skills Taxonomy & O*NET Integration](#skills-taxonomy--onet-integration)
+9. [Assessment Weighting System](#assessment-weighting-system)
+10. [API Ecosystem Integration](#api-ecosystem-integration)
+11. [Intelligent Caching System](#intelligent-caching-system)
+12. [Admin Tools Architecture](#admin-tools-architecture)
+13. [Common Issues & Solutions](#common-issues--solutions)
+14. [Development Workflow](#development-workflow)
 
 ## Architecture Overview
 
@@ -291,6 +292,336 @@ CREATE POLICY "Users can insert own favorites"
 ON favorites FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 ```
+
+## Employer Invitations System
+
+### Overview
+
+The Employer Invitations System is a comprehensive two-way invitation platform enabling employers to invite qualified candidates to apply for featured roles, and candidates to manage their invitations. This system includes automatic candidate discovery, role-based access control, and comprehensive status tracking.
+
+**Status:** ✅ Candidate UI Complete | ⏸️ Employer UI On Hold
+
+### Architecture Components
+
+#### 1. Database Schema
+
+**employer_invitations Table:**
+```sql
+CREATE TABLE employer_invitations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  company_id UUID REFERENCES companies(id) NOT NULL,
+  job_id UUID REFERENCES jobs(id) NOT NULL,
+  assessment_id UUID REFERENCES assessments(id) NOT NULL,
+  proficiency_pct NUMERIC NOT NULL,
+  application_url TEXT NOT NULL,
+  message TEXT,
+  status VARCHAR(50) DEFAULT 'pending',
+  is_read BOOLEAN DEFAULT false,
+  invited_at TIMESTAMP WITH TIME ZONE,
+  viewed_at TIMESTAMP WITH TIME ZONE,
+  responded_at TIMESTAMP WITH TIME ZONE,
+  archived_at TIMESTAMP WITH TIME ZONE,
+  archived_by VARCHAR(20) CHECK (archived_by IN ('employer', 'candidate')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, job_id)
+);
+```
+
+**Jobs Table Extensions:**
+```sql
+ALTER TABLE jobs
+ADD COLUMN required_proficiency_pct NUMERIC DEFAULT 90,
+ADD COLUMN visibility_threshold_pct NUMERIC DEFAULT 85,
+ADD COLUMN application_url TEXT;
+```
+
+#### 2. Auto-Population System
+
+**Trigger:** Automatically populates qualified candidates when assessments are completed
+
+```sql
+CREATE OR REPLACE FUNCTION auto_populate_employer_candidates()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Check if assessment has readiness_pct and job_id
+  IF NEW.readiness_pct IS NOT NULL AND NEW.job_id IS NOT NULL THEN
+    -- Get job details
+    SELECT company_id, visibility_threshold_pct, application_url
+    INTO job_company, threshold, app_url
+    FROM jobs WHERE id = NEW.job_id AND job_kind = 'featured_role';
+    
+    -- If candidate meets threshold, create invitation
+    IF NEW.readiness_pct >= threshold THEN
+      INSERT INTO employer_invitations (
+        user_id, company_id, job_id, assessment_id,
+        proficiency_pct, application_url, status
+      ) VALUES (
+        NEW.user_id, job_company, NEW.job_id, NEW.id,
+        NEW.readiness_pct, app_url, 'pending'
+      )
+      ON CONFLICT (user_id, job_id) 
+      DO UPDATE SET proficiency_pct = EXCLUDED.proficiency_pct
+      WHERE employer_invitations.proficiency_pct < EXCLUDED.proficiency_pct;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+#### 3. Status Flow
+
+**Candidate View:**
+- `sent` → "View Application" button (pending action)
+- `applied` → "Applied" badge (marked as applied)
+- `declined` → "Declined" badge (declined invitation)
+- `archived` → Moved to Archived tab
+
+**Employer View (Ready for Implementation):**
+- `pending` → "Invite to Apply" button (qualified, not invited)
+- `sent` → "Invite Sent" badge (awaiting response)
+- `applied` → "Candidate Applied" badge
+- `declined` → "Declined" badge
+- `hired` → "Hired" badge
+- `unqualified` → "Unqualified" badge
+- `archived` → Moved to Archived tab
+
+#### 4. RLS Policies
+
+**Candidates:**
+```sql
+CREATE POLICY "Users can view own invitations"
+ON employer_invitations FOR SELECT
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own invitations"
+ON employer_invitations FOR UPDATE
+USING (auth.uid() = user_id);
+```
+
+**Employer Admins:**
+```sql
+CREATE POLICY "Employers can view their company invitations"
+ON employer_invitations FOR SELECT
+USING (
+  company_id IN (
+    SELECT company_id FROM profiles WHERE id = auth.uid()
+  )
+);
+
+CREATE POLICY "Employers can create invitations"
+ON employer_invitations FOR INSERT
+WITH CHECK (
+  company_id IN (
+    SELECT company_id FROM profiles WHERE id = auth.uid()
+  )
+);
+```
+
+### Service Layer
+
+**Location:** `src/lib/services/employer-invitations.ts`
+
+**Key Functions:**
+
+```typescript
+// Candidate Side
+export async function getUserInvitations(): Promise<EmployerInvitation[]>
+export async function getUserArchivedInvitations(): Promise<EmployerInvitation[]>
+export async function markInvitationAsViewed(invitationId: string): Promise<void>
+export async function markInvitationAsApplied(invitationId: string): Promise<void>
+export async function markInvitationAsDeclined(invitationId: string): Promise<void>
+export async function archiveInvitation(invitationId: string): Promise<void>
+export async function reopenInvitation(invitationId: string): Promise<void>
+
+// Notification Functions
+export async function getRecentInvitations(limit: number): Promise<EmployerInvitation[]>
+export async function getUnreadInvitationCount(): Promise<number>
+export async function markAllInvitationsAsRead(): Promise<void>
+
+// Employer Side (Ready for UI)
+export async function getQualifiedCandidates(filters?: object): Promise<EmployerInvitation[]>
+export async function sendInvitation(invitationId: string, message?: string): Promise<void>
+export async function markCandidateAsHired(invitationId: string): Promise<void>
+export async function markCandidateAsUnqualified(invitationId: string): Promise<void>
+```
+
+### UI Components
+
+#### 1. Invitations Page (`/invitations`)
+
+**Features:**
+- Active and Archived tabs with URL routing
+- Search by company name or role title
+- Filter by readiness (Ready, Building Skills) and status
+- Bulk actions with multi-select
+- Company logos (96px × 96px) in dedicated column
+- Consistent status badge sizing
+
+**Component Structure:**
+```
+src/app/(main)/invitations/
+└── page.tsx
+
+src/components/invitations/
+├── invitations-table.tsx
+├── invitation-row.tsx
+├── invitation-filters.tsx
+└── bulk-actions-dropdown.tsx
+```
+
+#### 2. Notification Dropdown (Navbar)
+
+**Features:**
+- Bell icon with unread count badge
+- Shows recent 5 invitations
+- Figma-matched design (472px width, exact spacing/colors)
+- Light gray hover states
+- Mark all as read functionality
+- Auto-refresh every 30 seconds
+
+**Component Structure:**
+```
+src/components/ui/
+├── notification-dropdown.tsx
+└── notification-item.tsx
+```
+
+**Design Specifications:**
+- Width: 472px
+- Padding: 4px with 8px gap
+- Border: #E5E5E5
+- Header: 16px normal weight, #111928
+- Items: 14px semibold title, 14px normal message
+- Button: 31px height, 10px font, #036672 border/text
+- Footer buttons: 34px height, 12px font
+
+#### 3. Actions Menu
+
+**Available Actions:**
+- View Application (opens in new tab, marks as viewed)
+- Mark as Applied
+- Mark as Declined
+- Role Details (navigates to `/jobs/{job_id}`)
+- Assessment Results (navigates to `/assessments?id={assessment_id}`)
+- Archive Invite
+
+**Menu Dividers:**
+- After "View Application"
+- After "Mark as Declined" (when status is 'sent')
+- After "Assessment Results"
+
+### API Endpoints
+
+#### Candidate Endpoints
+```
+GET    /api/invitations              # Get user invitations
+GET    /api/invitations/archived     # Get archived invitations
+PATCH  /api/invitations/[id]         # Update invitation status
+POST   /api/invitations/bulk         # Bulk actions
+GET    /api/invitations/notifications # Recent notifications
+```
+
+#### Employer Endpoints (Ready for UI)
+```
+GET    /api/employer/candidates           # Get candidate pool
+GET    /api/employer/candidates/archived  # Get archived candidates
+PATCH  /api/employer/candidates/[id]      # Update candidate status
+POST   /api/employer/candidates/bulk      # Bulk actions
+```
+
+### Key Features
+
+#### Auto-Population
+- Trigger: `trigger_auto_populate_employer_candidates`
+- Automatically adds qualified candidates to employer pool
+- Threshold: 85% proficiency (visibility_threshold_pct)
+- Creates `pending` status invitations
+
+#### Role Readiness Badges
+- **90%+** → "Ready" (green)
+- **85-89%** → "Building Skills" (orange)
+- **<85%** → Not shown to employers
+
+#### Search & Filters
+- Fuzzy search on company name and role title
+- Filter by readiness (All, Ready, Building Skills)
+- Filter by status (All, Pending, Applied, Declined)
+- Combine multiple filters
+
+#### Bulk Actions
+- Multi-select with checkboxes
+- Archive multiple invitations at once
+- Clear selection after action
+- Visual feedback during processing
+
+### Integration Points
+
+#### 1. Assessment System
+- Auto-population trigger on assessment completion
+- Proficiency scores determine visibility
+- Assessment results linked to invitations
+
+#### 2. Jobs System
+- Featured roles have proficiency thresholds
+- Application URLs copied to invitations
+- Job details accessible from invitations
+
+#### 3. Companies System
+- Company logos displayed in invitations table
+- Company data joined in invitation queries
+- Employer admin access scoped by company
+
+#### 4. User Profiles
+- User data required for invitations
+- Profile completeness affects invitation quality
+- LinkedIn and bio fields used in employer view
+
+### Performance Considerations
+
+- **Caching:** Notification count cached for 30 seconds
+- **Pagination:** Large invitation lists paginated
+- **Indexes:** Composite indexes on (user_id, status), (company_id, status)
+- **RLS Optimization:** Policies use indexed columns
+
+### Security Features
+
+- **RLS Policies:** Strict row-level security for all operations
+- **Role-Based Access:** Candidates and employers have separate permissions
+- **Data Validation:** Status enum validation, unique constraints
+- **Audit Trail:** Timestamps for all status changes
+
+### Testing
+
+**Database Tests:** `scripts/test-invitations-db.js`
+- Table access and joins
+- RLS policy enforcement
+- Unique constraints
+- Status enum validation
+- Count queries
+
+**Test Data:** `scripts/seed-invitation-test-data.js`
+- 14 test invitations
+- 5 mock candidates
+- 3 mock companies
+- Various proficiency levels
+
+### Future Enhancements
+
+1. **Email Notifications:** Send emails when invitations are sent
+2. **Real-time Updates:** WebSockets/Supabase Realtime for live updates
+3. **Employer Dashboard:** Complete employer UI implementation
+4. **Enhanced Analytics:** Invitation metrics and reporting
+5. **Mobile App Integration:** Native mobile support
+
+### Documentation
+
+- **Implementation Guide:** `docs/features/EMPLOYER_INVITATIONS_IMPLEMENTATION.md`
+- **Testing Guide:** `docs/features/INVITATIONS_TESTING_GUIDE.md`
+- **Feature Summary:** `docs/features/INVITATIONS_FEATURE_SUMMARY.md`
+- **Commit Checklist:** `COMMIT_CHECKLIST.md`
 
 ## Favoriting System Implementation
 
@@ -2015,7 +2346,120 @@ recommendations = programs.filter(score >= 60%).sort(desc)
 
 ---
 
-## Production Status (October 2, 2025)
+## Homepage Dashboard Architecture
+
+### SkillSync Snapshot Component
+
+**Location:** `/src/components/ui/skillsync-snapshot.tsx`
+
+**Purpose:** Personalized career dashboard showing user progress, skills breakdown, and key metrics.
+
+**Data Sources:**
+- `useSnapshotData()` - Aggregates assessment metrics and skill proficiency data
+- `useFavorites()` - Saved jobs and programs
+- `useDashboardData()` - Recent assessment activity
+
+**Key Features:**
+
+1. **Metric Cards** (4 cards in 2x2 grid)
+   - Roles You're Ready For
+   - Assessments Completed
+   - Pending Invitations
+   - Skill Mastery percentage
+
+2. **Interactive Donut Chart**
+   - Recharts PieChart with inner/outer radius
+   - Three proficiency levels: Proficient, Building, Developing
+   - Native tooltips with descriptions
+   - Center label showing total skills
+   - Color-coded legend with percentages
+
+3. **Dynamic Messaging**
+   - Encouraging copy adapts to proficiency distribution
+   - 4 message variants based on proficiency percentage
+   - Personalized skill counts and recommendations
+
+4. **Dark Gradient Theme**
+   - Background: `linear-gradient(180deg, #002E3E 0%, #111928 100%)`
+   - White text with gray-300 secondary text
+   - Teal accent color (#0694A2)
+
+**Data Flow:**
+```typescript
+getUserAssessments()
+  ↓
+assessment_skill_results (with RLS)
+  ↓
+Aggregate by skill_band (proficient, building, needs_dev)
+  ↓
+Calculate percentages and metrics
+  ↓
+Render chart + dynamic messaging
+```
+
+**RLS Requirements:**
+- User must own assessments
+- `assessment_skill_results` joined via assessment_id
+- Policy: `asr_sel_owner` allows SELECT where user owns assessment
+
+### ListCard Component
+
+**Location:** `/src/components/ui/list-card.tsx`
+
+**Purpose:** Reusable card for displaying saved jobs and programs.
+
+**Props:**
+- `title` - Card heading
+- `subtitle` - Description text
+- `items` - Array of jobs or programs
+- `emptyMessage` - Text when no items
+- `linkHref` - "View All" link destination
+
+**Features:**
+- Displays up to 3 items
+- Shows title and metadata (company/school, location)
+- "View All" link to full list
+- Empty state handling
+
+### Footer Component
+
+**Location:** `/src/components/ui/footer.tsx`
+
+**Purpose:** Global footer with branding and legal links.
+
+**Content:**
+- Copyright with dynamic year
+- "Powered by Bisk Amplified" branding
+- Privacy Policy link (external)
+- Terms and Conditions link (external)
+
+**Styling:**
+- 64px padding above, 24px below
+- Centered text
+- Gray-600 text with hover states
+
+### Skeleton Loading States
+
+**Location:** `/src/app/(main)/page.tsx`
+
+**Purpose:** Prevent layout shift during data loading.
+
+**Components:**
+- Page header skeleton (teal background)
+- 3 action card skeletons
+- 4 metric card skeletons
+- Dark graph section skeleton
+- 2 saved items card skeletons
+
+**Implementation:**
+- Matches exact layout dimensions
+- Uses `animate-pulse` for animation
+- Gray-200/300 colors for light sections
+- Gray-700/800 for dark sections
+
+---
+
+## Production Status (October 3, 2025)
 
 ### ✅ Complete Systems
 
@@ -2035,22 +2479,30 @@ recommendations = programs.filter(score >= 60%).sort(desc)
 - **Integration Tests:** All passing
 - **CIP→SOC→Skills:** Validated with 222 programs
 
-### Next Phase: UI Integration
+### Recent Updates (October 3, 2025)
+
+**Homepage Redesign Complete:**
+- ✅ SkillSync Snapshot with interactive charts
+- ✅ Dynamic user messaging based on proficiency
+- ✅ Comprehensive skeleton loading states
+- ✅ Footer component with branding
+- ✅ RLS policy fixes for assessment_skill_results
+
+**Next Phase: Provider/Employer Dashboards**
 
 **Pending Tasks:**
-1. Extract program card component from `/programs`
-2. Add program recommendations to assessment results page
-3. Display match scores and skills covered
-4. Wire up `getProgramRecommendations()` API
-5. Add skill gap visualization
-6. Learning path component (optional)
+1. Program details page with skills taught
+2. Company profile management
+3. Provider/Employer admin dashboards
+4. RFI form and email notifications
+5. Assessment UI polish
 
 **Documentation:**
-- See `docs/COMPLETE_SYSTEM_STATUS.md` for comprehensive status
-- See `docs/SPRINT_ROADMAP.md` for current priorities
-- See `docs/reference/planning-oct1-2/` for implementation details
+- See `docs/PROJECT_STATUS.md` for current status
+- See `docs/SPRINT_ROADMAP.md` for sprint progress
+- See `docs/STYLE_GUIDE.md` for UI patterns
 
 ---
 
-*Last Updated: October 2, 2025 - 3:10 AM*
-*Status: All backend systems operational and production-ready*
+*Last Updated: October 3, 2025 - 1:55 AM*
+*Status: Homepage complete, all core systems operational and production-ready*

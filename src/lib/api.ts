@@ -97,15 +97,25 @@ export async function getUserAssessments() {
   
   if (!user) throw new Error('User not authenticated')
 
+  console.log('🔐 Fetching assessments for user:', user.id);
+
   const { data, error } = await supabase
     .from('assessments')
     .select(`
       *,
-      jobs(title, job_kind, category)
+      jobs(title, job_kind, category),
+      skill_results:assessment_skill_results(
+        skill_id,
+        score_pct,
+        band
+      )
     `)
     .eq('user_id', user.id)
     .order('analyzed_at', { ascending: false })
 
+  console.log('🔐 Query error:', error);
+  console.log('🔐 First assessment skill_results:', data?.[0]?.skill_results);
+  
   if (error) throw error
   return data
 }

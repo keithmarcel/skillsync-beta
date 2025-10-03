@@ -28,7 +28,7 @@ export function ListCard({
     <Card className={className}>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-xl font-semibold">{title}</CardTitle>
           <Button variant="ghost" size="sm" asChild>
             <Link href={viewAllHref} className="text-teal-600 hover:text-teal-700" onClick={() => window.scrollTo(0, 0)}>
               View All →

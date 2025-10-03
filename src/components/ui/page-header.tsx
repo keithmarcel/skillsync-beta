@@ -72,6 +72,11 @@ export default function PageHeader({
       return jobInfo.title
     }
     
+    // Use userName if provided
+    if (userName) {
+      return `Welcome, ${userName}!`
+    }
+    
     return title || "Welcome!"
   }
   

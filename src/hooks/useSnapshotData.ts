@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { getUserAssessments } from '@/lib/api';
+import { getUnreadInvitationCount } from '@/lib/services/employer-invitations';
 import type { Assessment, AssessmentSkillResult } from '@/lib/database/queries';
 
 interface SnapshotMetrics {
@@ -10,6 +11,8 @@ interface SnapshotMetrics {
   overallRoleReadiness: number;
   skillsIdentified: number;
   gapsHighlighted: number;
+  pendingInvitations: number;
+  assessmentsCompleted: number;
 }
 
 interface SkillData {
@@ -18,9 +21,16 @@ interface SkillData {
   needsDevelopment: number;
 }
 
+interface AssessmentProgress {
+  date: string;
+  score: number;
+  role: string;
+}
+
 interface UseSnapshotDataReturn {
   metrics: SnapshotMetrics | null;
   skillData: SkillData | null;
+  assessmentProgress: AssessmentProgress[];
   loading: boolean;
   hasAssessments: boolean;
 }
@@ -29,6 +39,7 @@ export function useSnapshotData(): UseSnapshotDataReturn {
   const { user, loading: authLoading } = useAuth();
   const [metrics, setMetrics] = useState<SnapshotMetrics | null>(null);
   const [skillData, setSkillData] = useState<SkillData | null>(null);
+  const [assessmentProgress, setAssessmentProgress] = useState<AssessmentProgress[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasAssessments, setHasAssessments] = useState(false);
 
@@ -36,11 +47,26 @@ export function useSnapshotData(): UseSnapshotDataReturn {
     async function loadSnapshotData(userId: string) {
       setLoading(true);
       try {
-        const assessments = await getUserAssessments();
+        const [assessments, invitationCount] = await Promise.all([
+          getUserAssessments(),
+          getUnreadInvitationCount().catch(() => 0) // Graceful fallback
+        ]);
+        
+        console.log('📊 Assessments loaded:', assessments.length);
+        assessments.forEach((a, idx) => {
+          console.log(`📊 Assessment ${idx + 1}:`, {
+            id: a.id.substring(0, 8),
+            method: a.method,
+            skill_results_count: a.skill_results?.length || 0,
+            has_skill_results: !!a.skill_results,
+            skill_results_sample: a.skill_results?.slice(0, 2)
+          });
+        });
+        
         setHasAssessments(assessments.length > 0);
 
         if (assessments.length > 0) {
-          // This is a simplified calculation. A real implementation would be more complex.
+          // Calculate metrics
           const rolesReadyFor = assessments.filter(a => a.status_tag === 'role_ready').length;
           const overallRoleReadiness = assessments.reduce((acc, a) => acc + (a.readiness_pct || 0), 0) / assessments.length;
           
@@ -51,8 +77,8 @@ export function useSnapshotData(): UseSnapshotDataReturn {
             a.skill_results?.forEach((sr: AssessmentSkillResult) => {
               allSkills.add(sr.skill_id);
               if (sr.band === 'proficient') proficient++;
-              else if (sr.band === 'developing') developing++;
-              else needsDevelopment++; // This assumes any other value is 'needs_development'
+              else if (sr.band === 'building') developing++;
+              else if (sr.band === 'needs_dev') needsDevelopment++;
             });
           });
 
@@ -61,13 +87,31 @@ export function useSnapshotData(): UseSnapshotDataReturn {
             overallRoleReadiness: Math.round(overallRoleReadiness),
             skillsIdentified: allSkills.size,
             gapsHighlighted: developing + needsDevelopment,
+            pendingInvitations: invitationCount,
+            assessmentsCompleted: assessments.length,
           });
 
+          console.log('📊 Skill counts:', { proficient, building: developing, needsDevelopment });
+          console.log('📊 Total skills:', proficient + developing + needsDevelopment);
+          
           setSkillData({
             proficient,
-            building: developing, // Map 'developing' to the 'building' property for the chart
+            building: developing,
             needsDevelopment,
           });
+
+          // Build progress timeline (last 5 assessments)
+          const progress = assessments
+            .sort((a, b) => new Date(b.analyzed_at || 0).getTime() - new Date(a.analyzed_at || 0).getTime())
+            .slice(0, 5)
+            .map(a => ({
+              date: new Date(a.analyzed_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+              score: a.readiness_pct || 0,
+              role: a.job?.title || 'Unknown Role'
+            }))
+            .reverse(); // Show oldest to newest for timeline
+
+          setAssessmentProgress(progress);
         }
       } catch (error) {
         console.error('Failed to load snapshot data:', error);
@@ -84,9 +128,10 @@ export function useSnapshotData(): UseSnapshotDataReturn {
         setHasAssessments(false);
         setMetrics(null);
         setSkillData(null);
+        setAssessmentProgress([]);
       }
     }
   }, [user, authLoading]);
 
-  return { metrics, skillData, loading, hasAssessments };
+  return { metrics, skillData, assessmentProgress, loading, hasAssessments };
 }

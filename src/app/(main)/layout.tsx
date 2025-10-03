@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { Navbar } from "@/components/navbar";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { Footer } from "@/components/ui/footer";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -27,6 +28,7 @@ export default function MainLayout({
           {children}
         </ErrorBoundary>
       </main>
+      <Footer />
     </>
   );
 }

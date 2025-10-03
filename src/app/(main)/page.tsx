@@ -24,15 +24,95 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { recentAssessments, loading: dashboardLoading } = useDashboardData();
   const { favoriteJobs, favoritePrograms, loading: favoritesLoading } = useFavorites();
-  const { metrics, skillData, hasAssessments, loading: snapshotLoading } = useSnapshotData();
+  const { metrics, skillData, assessmentProgress, hasAssessments, loading: snapshotLoading } = useSnapshotData();
 
   // The loading state is now derived from all data hooks, ensuring a smooth experience.
   const isLoading = !mounted || dashboardLoading || favoritesLoading || snapshotLoading;
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <LoadingState variant="skeleton" count={3} size="lg" />
+      <div className="space-y-0">
+        {/* Page Header Skeleton */}
+        <div className="bg-[#EDFAFA] py-12 mt-4">
+          <div className="max-w-[1280px] mx-auto px-6">
+            <div className="animate-pulse">
+              <div className="h-9 bg-gray-300 rounded w-48 mb-2"></div>
+              <div className="h-6 bg-gray-200 rounded w-96"></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ marginTop: '16px' }}>
+          {/* Action Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="rounded-xl overflow-hidden">
+                  <div className="h-[11.5rem] bg-gray-200"></div>
+                  <div className="bg-gray-100 p-6">
+                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full mb-4"></div>
+                    <div className="h-9 bg-gray-300 rounded w-32"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="h-px bg-gray-200 my-10"></div>
+
+          {/* Snapshot Skeleton */}
+          <div className="space-y-6">
+            <div className="h-7 bg-gray-200 rounded w-64 animate-pulse"></div>
+            
+            {/* Metrics Cards Skeleton */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="border rounded-lg p-6">
+                    <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                    <div className="h-9 bg-gray-300 rounded w-16 mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-24"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Graph Skeleton */}
+            <div className="animate-pulse">
+              <div className="rounded-[10px] border border-[#E5E5E5] p-6" style={{
+                background: 'linear-gradient(180deg, #002E3E 0%, #111928 100%)'
+              }}>
+                <div className="h-6 bg-gray-700 rounded w-48 mb-6"></div>
+                <div className="h-[300px] bg-gray-800 rounded"></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-px bg-gray-200 my-10"></div>
+
+          {/* Saved Jobs/Programs Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {[1, 2].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="border rounded-lg p-6">
+                  <div className="h-6 bg-gray-200 rounded w-32 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-48 mb-4"></div>
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((j) => (
+                      <div key={j} className="flex justify-between">
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 mb-1"></div>
+                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -57,29 +137,32 @@ export default function Dashboard() {
         }}
       />
 
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-10">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8" style={{ marginTop: '16px' }}>
 
       {/* Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <ActionCard
-          title="Explore Top Occupations"
-          description="Discover high-demand roles in your region, view job descriptions, and learn more."
-          buttonText="Explore Jobs"
+          title="Discover Open Positions in Your Area"
+          description="Browse featured roles from local employers and take assessments to see if you're ready."
+          buttonText="View Open Roles"
           href="/jobs"
+          imageUrl="/assets/heroimagehome_01.png"
+        />
+        
+        <ActionCard
+          title="Explore High-Demand Occupations"
+          description="See which careers are growing in your region and assess your proficiency for in-demand roles."
+          buttonText="Explore Occupations"
+          href="/jobs?tab=high-demand"
+          imageUrl="/assets/heroimagehome_02.png"
         />
         
         <ActionCard
           title="Browse Education Programs"
-          description="Find trusted education programs aligned to the skills employers want most."
+          description="Find certificate programs, degrees, and training aligned to your skill gaps and career goals."
           buttonText="Browse Programs"
           href="/programs"
-        />
-        
-        <ActionCard
-          title="Review Your Proficiency"
-          description="Review your readiness scores and see your assessment summary."
-          buttonText="Review Assessments"
-          href="/assessments"
+          imageUrl="/assets/heroimagehome_03.png"
         />
       </div>
 
@@ -92,6 +175,7 @@ export default function Dashboard() {
         hasAssessments={hasAssessments}
         metrics={metrics || undefined}
         skillData={skillData || undefined}
+        assessmentProgress={assessmentProgress}
       />
 
       <div className="py-10">

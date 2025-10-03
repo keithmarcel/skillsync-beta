@@ -1,21 +1,34 @@
-# SkillSync MVP
+# SkillSync
 
-A skills assessment and job matching platform for Pinellas County, FL.
+A comprehensive skills assessment and career development platform connecting job seekers, employers, and education providers in Pinellas County, FL.
 
-## Features
+## 🎯 Features
 
-- Skills assessments via resume upload or quiz
-- Job matching (Featured Roles + High-Demand Occupations)
-- Educational program recommendations based on skill gaps
-- Readiness scoring with proficiency bands
+### For Job Seekers
+- **Skills Assessments** - Resume upload or interactive quiz (4,771 questions)
+- **Job Matching** - Featured roles + high-demand occupations (30 occupations)
+- **Program Recommendations** - 222 educational programs matched to skill gaps
+- **Employer Invitations** - Auto-populated based on proficiency threshold
+- **Career Dashboard** - Personalized snapshot with interactive charts
 
-## Tech Stack
+### For Employers
+- **Qualified Candidates** - Auto-discover candidates meeting proficiency threshold
+- **Invitation System** - Direct outreach to pre-qualified talent
+- **Skills Validation** - O*NET-compliant assessment results
 
-- Next.js 14 + TypeScript
-- Tailwind CSS + shadcn/ui components
-- MUI X Charts for data visualization
-- Supabase (Postgres + Auth + Edge Functions)
-- OpenAI for skills extraction and summaries
+### For Education Providers
+- **Targeted Enrollment** - Match programs to actual skill gaps
+- **RFI Management** - Receive inquiries from qualified candidates
+- **Partnership Opportunities** - Integration with workforce development
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js 14 + TypeScript + Tailwind CSS
+- **UI Components:** Radix UI + shadcn/ui
+- **Charts:** Recharts for data visualization
+- **Database:** Supabase (PostgreSQL + Auth + Storage)
+- **AI:** OpenAI for skills extraction and content generation
+- **APIs:** O*NET, BLS, CareerOneStop, Lightcast
 
 ## Getting Started
 
@@ -42,10 +55,42 @@ A skills assessment and job matching platform for Pinellas County, FL.
 2. Import seed data CSVs (when available)
 3. Deploy Edge Functions for LLM operations
 
-## Architecture
+## 🏗️ Architecture
 
-- Unified jobs table with `job_kind` enum (featured_role/occupation)
-- Skills backbone with O*NET alignment
-- CIP↔SOC crosswalk for programs→occupations mapping
-- Assessment system with deterministic quiz scoring
-- Program matching based on skill gaps
+### Key Components
+- **Unified Jobs Table** - `job_kind` enum (featured_role/occupation)
+- **Skills Taxonomy** - 34,863 skills (62 O*NET + 34,796 Lightcast)
+- **Question Bank** - 4,771 AI-generated questions with 3-layer weighting
+- **CIP↔SOC Crosswalk** - Programs→occupations mapping
+- **Assessment System** - Deterministic scoring with proficiency bands
+- **Program Matching** - 60%+ threshold for quality recommendations
+
+### Data Pipelines
+1. **O*NET → Skills** - Standard occupation skills
+2. **CIP → SOC → Skills** - Program enrichment
+3. **Assessment → Gap → Programs** - Personalized recommendations
+4. **Proficiency → Invitations** - Auto-populate employer opportunities
+
+## 📊 Current Status
+
+**Version:** 1.0.0-beta  
+**Status:** 🚀 Production Ready
+
+- ✅ All core features implemented
+- ✅ 100% data population (30 occupations, 222 programs)
+- ✅ Multi-role authentication (job seekers, employers, providers, admins)
+- ✅ Homepage redesign with interactive charts
+- ✅ Comprehensive testing and documentation
+
+See `/docs/PROJECT_STATUS.md` for detailed status.
+
+## 📚 Documentation
+
+- **Project Status:** `/docs/PROJECT_STATUS.md`
+- **Technical Architecture:** `/docs/skill-sync-technical-architecture.md`
+- **Sprint Roadmap:** `/docs/SPRINT_ROADMAP.md`
+- **Style Guide:** `/docs/STYLE_GUIDE.md`
+
+## 🤝 Contributing
+
+This is a private project for Hire St. Pete/Clearwater. For questions or access, contact the development team.

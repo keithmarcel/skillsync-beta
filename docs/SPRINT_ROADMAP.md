@@ -1,8 +1,8 @@
 # SkillSync Sprint Roadmap
 
-**Updated:** October 2, 2025 - 7:00 PM  
-**Current Sprint:** Multi-Stakeholder Platform - Sprint 1 In Progress  
-**Status:** 🎉 Backend Complete + Account Settings Complete
+**Updated:** October 3, 2025 - 1:55 AM  
+**Current Sprint:** Multi-Stakeholder Platform - Sprint 3 In Progress  
+**Status:** 🎉 Backend Complete + Account Settings Complete + Invitations Complete + Homepage Redesign Complete
 
 ## 🎯 **MAJOR MILESTONE: Backend Complete**
 
@@ -41,16 +41,17 @@
 
 **See:** `docs/features/PRE_ASSESSMENT_FEATURES.md` for complete specifications
 
-### Sprint 1: Foundation (Week 1) - 5-6 days
-**Branch:** `feature/multi-role-user-auth` + `feature/user-account-settings`
+### Sprint 1: Foundation (Week 1) - 5-6 days ✅ **COMPLETE**
+**Branch:** `main` (merged)
 
-**Multi-Role User Management (Days 1-4):**
-- [ ] Database schema updates (profiles, roles, invitations)
-- [ ] Super Admin invitation system
-- [ ] Provider Admin dashboard (programs CRUD)
-- [ ] Employer Admin dashboard (roles CRUD, candidates view)
-- [ ] RLS policies for role-based access
-- [ ] Account limits enforcement (max programs, max roles)
+**Multi-Role User Management (Days 1-4):** ✅ **COMPLETE**
+- [x] Database schema updates (profiles, roles, invitations)
+- [x] Multi-role authentication (provider_admin, employer_admin, user)
+- [x] RLS policies for role-based access
+- [ ] Super Admin invitation system (deferred)
+- [ ] Provider Admin dashboard (deferred to Sprint 3)
+- [ ] Employer Admin dashboard (deferred to Sprint 3)
+- [ ] Account limits enforcement (deferred)
 
 **User Account Settings (Days 5-6):** ✅ **COMPLETE**
 - [x] Settings page (`/account-settings`)
@@ -72,33 +73,38 @@
 
 ---
 
-### Sprint 2: Core Features (Week 2) - 5-6 days
-**Branch:** `feature/employer-invitations` + `feature/notification-center`
+### Sprint 2: Core Features (Week 2) - 5-6 days ✅ **COMPLETE**
+**Branch:** `main` (merged from `feature/employer-invitations`)
 
-**Employer Invitation System (Days 1-4):**
-- [ ] Proficiency threshold per role (default 85%)
-- [ ] Qualified candidates view (employer dashboard)
-- [ ] Send invitation flow (application URL + message)
-- [ ] Assessment visibility logic (auto-visible if >= threshold)
-- [ ] Privacy setting: "Visible to employers" (default: ON)
-- [ ] Invitation tracking and status
+**Employer Invitation System (Days 1-4):** ✅ **COMPLETE**
+- [x] Proficiency threshold per role (default 85%)
+- [x] Multi-role authentication schema
+- [x] Employer invitations table with auto-population
+- [x] Assessment visibility logic (auto-visible if >= threshold)
+- [x] RLS policies for candidates and employers
+- [x] Invitation tracking and status flow
+- [x] API endpoints (candidate + employer ready)
 
-**Notification Center (Days 5-6):**
-- [ ] Header notification icon with unread badge
-- [ ] Dropdown: Recent 5 invitations
-- [ ] Full invitations page (`/invitations`)
-- [ ] Tabs: Active, Archived
-- [ ] Actions: View Application, Decline, Archive
-- [ ] Mark as read functionality
+**Notification Center (Days 5-6):** ✅ **COMPLETE**
+- [x] Header notification icon with unread badge
+- [x] Dropdown: Recent 5 invitations (Figma-matched design)
+- [x] Full invitations page (`/invitations`)
+- [x] Tabs: Active, Archived (with URL routing)
+- [x] Actions: View Application, Mark Applied/Declined, Archive
+- [x] Mark as read functionality
+- [x] Search, filter, and bulk actions
+- [x] Wired navigation to role details and assessments
 
-**Mockups Required:**
-- Employer qualified candidates table
-- Send invitation modal
-- User notification dropdown
-- User invitations page (tabs, cards)
-- Invitation card component
+**UI Refinements:**
+- [x] Notification dropdown (472px, exact Figma specs)
+- [x] Company logos (96px × 96px) in dedicated column
+- [x] Consistent status badge sizing
+- [x] Menu dividers after key actions
+- [x] Light gray hover states
 
-**Deliverable:** Complete employer-to-candidate invitation workflow
+**Deliverable:** ✅ Complete candidate invitation management system
+
+**Note:** Employer UI intentionally on hold pending larger employer admin dashboard
 
 **✅ Decisions Approved:**
 - Flow: Option B - Auto-visible with opt-out
@@ -107,30 +113,34 @@
 
 ---
 
-### Sprint 3: Enhancements (Week 3) - 5-6 days
-**Branch:** `feature/company-profile-management` + `feature/program-details-page` + `feature/homepage-snapshot-redesign`
+### Sprint 3: Enhancements (Week 3) - 5-6 days ✅ **HOMEPAGE COMPLETE**
+**Branch:** `main` (merged from `feature/homepage-snapshot-redesign`)
 
 **Company Profile Management (Days 1-2):**
-- [ ] Provider settings page (`/provider/settings`)
-- [ ] Employer settings page (`/employer/settings`)
-- [ ] Logo upload (companies & schools)
-- [ ] Meta information (headquarters, size, founded, website, social)
-- [ ] Branding settings
+- [ ] Provider settings page (`/provider/settings`) - Deferred
+- [ ] Employer settings page (`/employer/settings`) - Deferred
+- [ ] Logo upload (companies & schools) - Deferred
+- [ ] Meta information (headquarters, size, founded, website, social) - Deferred
+- [ ] Branding settings - Deferred
 
 **Program Details Page (Days 3-4):**
-- [ ] Program details page (`/programs/[id]`)
-- [ ] Skills taught display (from program_skills)
-- [ ] Related occupations (via CIP→SOC)
-- [ ] RFI form (name, email, phone, message)
-- [ ] Email notifications to provider
-- [ ] Skills overlap visualization
+- [ ] Program details page (`/programs/[id]`) - Deferred
+- [ ] Skills taught display (from program_skills) - Deferred
+- [ ] Related occupations (via CIP→SOC) - Deferred
+- [ ] RFI form (name, email, phone, message) - Deferred
+- [ ] Email notifications to provider - Deferred
+- [ ] Skills overlap visualization - Deferred
 
-**Homepage Snapshot Redesign (Days 5-6):**
-- [ ] Redesigned snapshot section
-- [ ] Interactive graphs (skill radar, progress timeline)
-- [ ] Dark theme sections
-- [ ] Data aggregation (assessments, invitations, programs)
-- [ ] Quick actions (retake, browse, view invitations)
+**Homepage Snapshot Redesign (Days 5-6):** ✅ **COMPLETE**
+- [x] Redesigned snapshot section with dark gradient theme
+- [x] Interactive donut chart with native Recharts tooltips
+- [x] Dynamic encouraging copy based on skill proficiency
+- [x] 4 key metric cards (Roles Ready, Assessments, Invitations, Skill Mastery)
+- [x] Data aggregation from assessments, invitations, programs
+- [x] Comprehensive skeleton loading states
+- [x] Footer component with Bisk Amplified branding
+- [x] Fixed RLS policies for assessment_skill_results
+- [x] Mock data generation scripts for testing
 
 **Mockups Required:**
 - Provider/Employer settings pages
