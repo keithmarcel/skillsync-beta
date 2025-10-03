@@ -9,7 +9,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { NotificationItem } from './notification-item'
+import { NotificationItem } from '@/components/ui/notification-item'
 import { 
   getRecentInvitations, 
   getUnreadInvitationCount,
@@ -88,7 +88,8 @@ export function NotificationDropdown() {
       
       <DropdownMenuContent 
         align="end" 
-        className="w-96 p-0"
+        className="w-96 p-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg"
+        sideOffset={8}
         data-testid="notification-dropdown"
       >
         {/* Header */}
