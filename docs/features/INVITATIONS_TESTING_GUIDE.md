@@ -1,8 +1,8 @@
 # Invitations System - Testing Guide
 
-**Branch:** `feature/employer-invitations-ui`  
-**Status:** Ready for Testing  
-**Date:** October 2, 2025
+**Branch:** `main`  
+**Status:** ✅ Complete - Candidate UI Implemented  
+**Date:** October 2, 2025 (Updated)
 
 ---
 
@@ -207,8 +207,9 @@
 3. **Real-time updates:** 30-second polling only
    - Not true real-time (would need WebSockets)
 
-4. **Role Details / Assessment Results:** Menu items not yet implemented
-   - Placeholders in dropdown menu
+4. **Role Details / Assessment Results:** ✅ Now wired up
+   - Role Details navigates to `/jobs/{job_id}` or searches by SOC code
+   - Assessment Results navigates to `/assessments?id={assessment_id}` or `/assessments`
 
 ---
 
@@ -286,14 +287,30 @@ npm run dev
 
 ---
 
-## 🎬 Next Steps After Testing
+## 🎬 Next Steps
 
-1. **Fix any bugs found**
-2. **Implement Role Details page** (link from menu)
-3. **Implement Assessment Results view** (link from menu)
-4. **Add email notifications** (when invitation sent)
-5. **Build employer dashboard** (send invitations)
-6. **Add real-time updates** (WebSockets/Supabase Realtime)
+1. ✅ **Candidate UI Complete** - All features implemented and tested
+2. **Employer Dashboard** - Part of larger employer admin dashboard (on hold)
+3. **Email Notifications** - Send emails when invitations are sent
+4. **Real-time Updates** - WebSockets/Supabase Realtime for live updates
+5. **Enhanced Filtering** - Additional filter options based on user feedback
+
+## ✅ Completed in This Session
+
+### UI Refinements
+- Notification dropdown matches exact Figma specifications
+- 472px width, precise spacing and colors
+- Light gray hover states on notification cards
+- Bold role names in invitation details
+- Proper dropdown positioning aligned with avatar menu
+
+### Invitations Table Improvements
+- Dedicated logo column (96px × 96px logos)
+- "Company Name" column header
+- Bold role names, regular proficiency text
+- Consistent status badge sizing (no layout shift)
+- Menu dividers after key actions
+- Wired up "Role Details" and "Assessment Results" navigation
 
 ---
 

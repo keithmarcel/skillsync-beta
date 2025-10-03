@@ -30,24 +30,24 @@ export function NotificationItem({ invitation, onClick }: NotificationItemProps)
 
   return (
     <div 
-      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
+      className="bg-white border border-[#E5E7EB] rounded-lg p-4 w-full hover:bg-gray-50 transition-colors cursor-pointer"
       data-testid="notification-item"
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <h4 className="text-base font-bold text-gray-900 mb-2">
+          <h4 className="text-sm font-semibold text-[#111928] leading-[150%] mb-1">
             New Invite from {invitation.company?.name || 'Unknown Company'}
           </h4>
-          <p className="text-sm text-gray-600 leading-relaxed">
+          <p className="text-sm font-normal text-[#4B5563] leading-[150%]">
             You've been invited to apply to the{' '}
-            <span className="font-normal">{invitation.job?.title || 'Unknown Role'}</span> role.
+            <span className="font-semibold">{invitation.job?.title || 'Unknown Role'}</span> role.
           </p>
         </div>
         <Button
           variant="outline"
           onClick={handleViewApplication}
           disabled={loading}
-          className="border-teal-600 text-teal-600 hover:bg-teal-50 flex-shrink-0 h-10 px-6"
+          className="border-[#036672] text-[#036672] hover:bg-[#036672]/5 flex-shrink-0 h-[31px] px-4 text-[11px] font-medium leading-[150%]"
         >
           View Application
         </Button>

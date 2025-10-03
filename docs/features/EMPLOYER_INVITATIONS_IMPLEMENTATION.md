@@ -177,25 +177,29 @@ employer_invitations:
 - [x] Created `employer-invitations.ts` service with full CRUD operations
 - [x] API endpoints for candidate invitation management
 - [x] API endpoints for employer candidate management
-- [ ] Update `useAuth` hook for new roles
+- [x] Update `useAuth` hook for new roles
 
-### Phase 2: Candidate UI
-- [ ] Invitations page with Active/Archived tabs
-- [ ] Notification dropdown component
-- [ ] Actions menu with all options
-- [ ] Integration with assessment results
+### Phase 2: Candidate UI ✅ COMPLETE
+- [x] Invitations page with Active/Archived tabs
+- [x] Notification dropdown component (Figma-matched design)
+- [x] Actions menu with all options
+- [x] Integration with role details and assessment results
+- [x] Search and filter functionality
+- [x] Bulk actions with multi-select
+- [x] Tab state persistence with URL routing
 
-### Phase 3: Employer UI
-- [ ] Employer dashboard layout
+### Phase 3: Employer UI ⏸️ ON HOLD
+- [ ] Employer dashboard layout (part of larger employer admin dashboard)
 - [ ] Candidates table with filters
 - [ ] Send invitation flow
 - [ ] Bulk actions implementation
 
-### Phase 4: Testing
-- [ ] Test auto-population trigger
-- [ ] Test RLS policies with multiple roles
-- [ ] Test notification badge logic
-- [ ] End-to-end invitation flow
+### Phase 4: Testing ✅ COMPLETE
+- [x] Test auto-population trigger
+- [x] Test RLS policies with multiple roles
+- [x] Test notification badge logic
+- [x] End-to-end invitation flow
+- [x] Database tests (150+ test cases)
 
 ---
 

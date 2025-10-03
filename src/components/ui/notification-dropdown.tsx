@@ -88,19 +88,19 @@ export function NotificationDropdown() {
       
       <DropdownMenuContent 
         align="end" 
-        className="w-96 p-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg"
-        sideOffset={8}
+        className="w-[472px] p-1 bg-white border border-[#E5E5E5] rounded-lg shadow-md"
+        sideOffset={20}
         data-testid="notification-dropdown"
       >
         {/* Header */}
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h3 className="text-xl font-bold text-gray-900">
-            Invite Notifications
+        <div className="px-4 py-2 border-b border-[#E5E5E5]">
+          <h3 className="text-base font-normal text-[#111928]">
+            Recent Invite Notifications
           </h3>
         </div>
 
         {/* Notifications List */}
-        <div className="max-h-[500px] overflow-y-auto p-4">
+        <div className="max-h-[494px] overflow-y-auto px-2 py-2 space-y-2">
           {loading ? (
             <div className="py-8 text-center text-sm text-gray-500">
               Loading notifications...
@@ -113,7 +113,7 @@ export function NotificationDropdown() {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <>
               {invitations.map((invitation) => (
                 <NotificationItem
                   key={invitation.id}
@@ -121,24 +121,24 @@ export function NotificationDropdown() {
                   onClick={handleInvitationClick}
                 />
               ))}
-            </div>
+            </>
           )}
         </div>
 
         {/* Footer Actions */}
         {invitations.length > 0 && (
-          <div className="border-t border-gray-200 px-6 py-4 flex gap-3">
+          <div className="px-4 py-6 flex gap-3">
             <Button
               variant="outline"
               onClick={handleMarkAllAsRead}
-              className="flex-1 h-11 text-base"
+              className="flex-1 h-[34px] text-xs font-medium border-[#E5E7EB] text-[#111928] hover:bg-gray-50"
               disabled={unreadCount === 0}
             >
               Mark All As Read
             </Button>
             <Button
               onClick={handleViewAll}
-              className="flex-1 h-11 text-base bg-teal-600 hover:bg-teal-700 text-white"
+              className="flex-1 h-[34px] text-xs font-medium bg-[#0694A2] hover:bg-[#0694A2]/90 text-white"
             >
               View All Invites
             </Button>

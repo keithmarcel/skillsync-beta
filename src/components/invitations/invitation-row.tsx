@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { MoreHorizontal, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { 
@@ -27,6 +29,7 @@ interface InvitationRowProps {
 }
 
 export function InvitationRow({ invitation, isSelected, onSelect, isArchived, onUpdate }: InvitationRowProps) {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   const handleViewApplication = async () => {
@@ -90,6 +93,25 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
     }
   }
 
+  const handleViewRoleDetails = () => {
+    // Use job_id from the invitation to navigate to role details
+    if (invitation.job_id) {
+      router.push(`/jobs/${invitation.job_id}`)
+    } else if (invitation.job?.soc_code) {
+      // Fallback to SOC code if job_id not available
+      router.push(`/jobs?search=${encodeURIComponent(invitation.job.soc_code)}`)
+    }
+  }
+
+  const handleViewAssessmentResults = () => {
+    // Navigate to assessments page - could be enhanced to filter by assessment_id
+    if (invitation.assessment_id) {
+      router.push(`/assessments?id=${invitation.assessment_id}`)
+    } else {
+      router.push('/assessments')
+    }
+  }
+
   const getReadinessBadge = () => {
     if (invitation.proficiency_pct >= 90) {
       return (
@@ -110,7 +132,7 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
   const getStatusBadge = () => {
     if (isArchived) {
       return (
-        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-200 text-gray-700">
+        <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-gray-200 text-gray-700 min-w-[120px]">
           Archived
         </span>
       )
@@ -124,20 +146,20 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
             size="sm"
             onClick={handleViewApplication}
             disabled={loading}
-            className="bg-teal-600 hover:bg-[#114B5F] text-white"
+            className="bg-teal-600 hover:bg-[#114B5F] text-white min-w-[120px]"
           >
             View Application
           </Button>
         )
       case 'applied':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-200 text-gray-700">
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-gray-200 text-gray-700 min-w-[120px]">
             Applied
           </span>
         )
       case 'declined':
         return (
-          <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-800">
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-red-100 text-red-800 min-w-[120px]">
             Declined
           </span>
         )
@@ -157,26 +179,26 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
         />
       </td>
       <td className="px-4 py-4">
-        <div className="flex items-center gap-3">
-          {invitation.company?.logo_url && (
-            <img
-              src={invitation.company.logo_url}
-              alt={invitation.company.name || ''}
-              className="w-10 h-10 object-contain"
-            />
-          )}
-          <span className="text-sm font-semibold text-gray-900">
-            {invitation.company?.name || 'Unknown Company'}
-          </span>
-        </div>
+        {invitation.company?.logo_url && (
+          <img
+            src={invitation.company.logo_url}
+            alt={invitation.company.name || ''}
+            className="w-24 h-24 object-contain"
+          />
+        )}
       </td>
       <td className="px-4 py-4">
-        <span className="text-sm text-gray-700">
+        <span className="text-sm font-semibold text-gray-900">
+          {invitation.company?.name || 'Unknown Company'}
+        </span>
+      </td>
+      <td className="px-4 py-4">
+        <span className="text-sm font-semibold text-gray-900">
           {invitation.job?.title || 'Unknown Role'}
         </span>
       </td>
       <td className="px-4 py-4">
-        <span className="text-sm font-medium text-gray-900">
+        <span className="text-sm text-gray-700">
           {invitation.proficiency_pct}%
         </span>
       </td>
@@ -200,6 +222,7 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
                   <ExternalLink className="w-4 h-4 mr-2" />
                   View Application
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 {invitation.status === 'sent' && (
                   <>
                     <DropdownMenuItem onClick={handleMarkAsApplied}>
@@ -208,14 +231,16 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
                     <DropdownMenuItem onClick={handleMarkAsDeclined}>
                       Mark as Declined
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                   </>
                 )}
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleViewRoleDetails}>
                   Role Details
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleViewAssessmentResults}>
                   Assessment Results
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleArchive}>
                   Archive Invite
                 </DropdownMenuItem>
@@ -223,10 +248,10 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
             )}
             {isArchived && (
               <>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleViewRoleDetails}>
                   Role Details
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleViewAssessmentResults}>
                   Assessment Results
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleRestore}>
