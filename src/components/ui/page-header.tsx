@@ -72,6 +72,11 @@ export default function PageHeader({
       return jobInfo.title
     }
     
+    // Use userName if provided
+    if (userName) {
+      return `Welcome, ${userName}!`
+    }
+    
     return title || "Welcome!"
   }
   
@@ -110,14 +115,14 @@ export default function PageHeader({
   
   if (variant === 'split') {
     return (
-      <div className="bg-[#114B5F] py-12 mt-4">
+      <div className="bg-[#EDFAFA] py-12 mt-4">
         <div className="max-w-[1280px] mx-auto px-6 flex justify-between items-center">
           <div className="flex flex-col gap-2">
-            <h1 className="text-white font-bold text-[30px] leading-[36px]">
+            <h1 className="text-[#114B5F] font-bold text-[36px] leading-[32px] tracking-[-1px] font-source-sans-pro">
               {dynamicTitle}
             </h1>
             {dynamicSubtitle && (
-              <p className="text-teal-50 text-base font-normal">
+              <p className="text-[#114B5F] text-[16px] leading-[24px] font-normal">
                 {dynamicSubtitle}
               </p>
             )}
@@ -174,8 +179,8 @@ export default function PageHeader({
   }
 
   const containerClasses = variant === 'centered' 
-    ? "flex justify-center items-center bg-[#114B5F] py-8"
-    : "bg-[#114B5F] py-8"
+    ? "flex justify-center items-center bg-[#EDFAFA] py-8"
+    : "bg-[#EDFAFA] py-8"
 
   const contentClasses = variant === 'centered'
     ? "flex flex-col items-center gap-6 max-w-[1280px] px-6 text-center"
@@ -184,11 +189,11 @@ export default function PageHeader({
   return (
     <div className={containerClasses}>
       <div className={contentClasses}>
-        <h1 className="text-white font-bold text-[30px] leading-[36px]">
+        <h1 className="text-[#114B5F] font-bold text-[36px] leading-[32px] tracking-[-1px] font-source-sans-pro">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-teal-50 text-base font-normal">
+          <p className="text-[#114B5F] text-[16px] leading-[24px] font-normal">
             {subtitle}
           </p>
         )}

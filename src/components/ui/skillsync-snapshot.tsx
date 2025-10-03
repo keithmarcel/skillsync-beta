@@ -1,17 +1,16 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Label, Pie, PieChart } from "recharts"
+import { Label, Pie, PieChart, Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts"
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { ThumbsUp, BarChartHorizontal, Layers3, SquareSplitHorizontal } from "lucide-react"
+import { ThumbsUp, Mail, RefreshCw, Target, TrendingUp, Award, Zap } from "lucide-react"
 import Link from "next/link"
 
 interface SnapshotMetrics {
@@ -19,6 +18,8 @@ interface SnapshotMetrics {
   overallRoleReadiness: number
   skillsIdentified: number
   gapsHighlighted: number
+  pendingInvitations: number
+  assessmentsCompleted: number
 }
 
 interface SkillData {
@@ -27,13 +28,20 @@ interface SkillData {
   needsDevelopment: number
 }
 
+interface AssessmentProgress {
+  date: string
+  score: number
+  role: string
+}
+
 interface SkillSyncSnapshotProps {
   hasAssessments: boolean
   metrics?: SnapshotMetrics
   skillData?: SkillData
+  assessmentProgress?: AssessmentProgress[]
 }
 
-export function SkillSyncSnapshot({ hasAssessments, metrics, skillData }: SkillSyncSnapshotProps) {
+export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessmentProgress }: SkillSyncSnapshotProps) {
   if (!hasAssessments) {
     return (
       <div className="space-y-6">
@@ -63,7 +71,9 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData }: SkillS
     rolesReadyFor: 0,
     overallRoleReadiness: 0,
     skillsIdentified: 0,
-    gapsHighlighted: 0
+    gapsHighlighted: 0,
+    pendingInvitations: 0,
+    assessmentsCompleted: 0
   }
 
   const defaultSkillData: SkillData = {
@@ -75,37 +85,40 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData }: SkillS
   const finalMetrics = metrics || defaultMetrics
   const finalSkillData = skillData || defaultSkillData
 
-  const chartData = [
-    { skill: "proficient", count: finalSkillData.proficient, fill: "#10B981" },
-    { skill: "building", count: finalSkillData.building, fill: "#F59E0B" },
-    { skill: "needsDevelopment", count: finalSkillData.needsDevelopment, fill: "#EF4444" }
+  // Calculate skill mastery percentage
+  const totalSkills = finalSkillData.proficient + finalSkillData.building + finalSkillData.needsDevelopment
+  const masteryPercentage = totalSkills > 0 ? Math.round((finalSkillData.proficient / totalSkills) * 100) : 0
+
+  // Skill breakdown data for horizontal bar chart
+  const skillBreakdownData = [
+    { 
+      category: "Proficient", 
+      count: finalSkillData.proficient,
+      fill: "#10B981" // Green
+    },
+    { 
+      category: "Building", 
+      count: finalSkillData.building,
+      fill: "#F59E0B" // Orange
+    },
+    { 
+      category: "Developing", 
+      count: finalSkillData.needsDevelopment,
+      fill: "#0694A2" // Teal
+    }
   ]
 
   const chartConfig = {
     count: {
       label: "Skills",
     },
-    proficient: {
-      label: "Proficient",
-      color: "#10B981",
-    },
-    building: {
-      label: "Building Proficiency", 
-      color: "#F59E0B",
-    },
-    needsDevelopment: {
-      label: "Needs Development",
-      color: "#EF4444",
-    },
   } satisfies ChartConfig
-
-  const totalSkills = finalSkillData.proficient + finalSkillData.building + finalSkillData.needsDevelopment
 
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-900">Your SkillSync Snapshot</h2>
       
-      {/* Metrics Cards */}
+      {/* Metrics Cards - 4 Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="flex flex-col p-6">
@@ -113,70 +126,74 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData }: SkillS
               <p className="text-sm font-medium">Roles You're Ready For</p>
               <ThumbsUp className="w-4 h-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold mb-1">{finalMetrics.rolesReadyFor}</div>
-            <p className="text-xs text-muted-foreground">Jobs you've shown proficiency in</p>
+            <div className="text-3xl font-bold mb-1">{finalMetrics.rolesReadyFor}</div>
+            <p className="text-xs text-muted-foreground">Jobs matching your skills</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="flex flex-col p-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium">Overall Role Readiness %</p>
-              <BarChartHorizontal className="w-4 h-4 text-muted-foreground" />
+              <p className="text-sm font-medium">Assessments Completed</p>
+              <Award className="w-4 h-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold mb-1">{finalMetrics.overallRoleReadiness}%</div>
-            <p className="text-xs text-muted-foreground">Avg across roles you've assessed</p>
+            <div className="text-3xl font-bold mb-1">{finalMetrics.assessmentsCompleted}</div>
+            <p className="text-xs text-muted-foreground">Roles you've evaluated</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="flex flex-col p-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium">Skills Identified</p>
-              <Layers3 className="w-4 h-4 text-muted-foreground" />
+              <p className="text-sm font-medium">Pending Invitations</p>
+              <Mail className="w-4 h-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold mb-1">{finalMetrics.skillsIdentified}</div>
-            <p className="text-xs text-muted-foreground">Strengths we've mapped to you</p>
+            <div className="text-3xl font-bold mb-1">{finalMetrics.pendingInvitations}</div>
+            <p className="text-xs text-muted-foreground">Employer opportunities</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="flex flex-col p-6">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-medium">Gaps Highlighted</p>
-              <SquareSplitHorizontal className="w-4 h-4 text-muted-foreground" />
+              <p className="text-sm font-medium">Skill Mastery</p>
+              <Target className="w-4 h-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold mb-1">{finalMetrics.gapsHighlighted}</div>
-            <p className="text-xs text-muted-foreground">Opportunities to grow</p>
+            <div className="text-3xl font-bold mb-1">{masteryPercentage}%</div>
+            <p className="text-xs text-muted-foreground">Skills at proficiency</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Skill Proficiency Breakdown */}
-      <div className="flex flex-col gap-4 p-6 rounded-[10px] border border-[#E5E5E5] shadow-sm" style={{
+      {/* Interactive Skill Proficiency Chart - Dark Theme */}
+      <div className="rounded-[10px] border border-[#E5E5E5] shadow-sm overflow-hidden" style={{
         background: 'linear-gradient(180deg, #002E3E 0%, #111928 100%)'
       }}>
-        <div className="flex justify-center">
-          <div className="flex gap-3">
-            {/* Pie Chart Column */}
-            <div className="flex flex-col items-center">
-              {totalSkills > 0 ? (
-                <ChartContainer
-                  config={chartConfig}
-                  className="mx-auto aspect-square max-h-[300px] w-[300px]"
-                >
+        <div className="p-6">
+          <h3 className="flex items-center gap-2 text-white font-semibold text-lg mb-6">
+            <TrendingUp className="w-5 h-5 text-teal-400" />
+            Your Skill Proficiency
+          </h3>
+          
+          {totalSkills > 0 ? (
+            <div className="flex items-center max-w-5xl mx-auto">
+              {/* Pie Chart */}
+              <div className="w-[380px] h-[320px] flex-shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent hideLabel />}
-                    />
                     <Pie
-                      data={chartData}
+                      data={skillBreakdownData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={85}
+                      outerRadius={130}
                       dataKey="count"
-                      nameKey="skill"
-                      innerRadius={60}
-                      strokeWidth={5}
+                      nameKey="category"
+                      paddingAngle={2}
                     >
+                      {skillBreakdownData.map((entry, index) => (
+                        <rect key={`cell-${index}`} fill={entry.fill} />
+                      ))}
                       <Label
                         content={({ viewBox }) => {
                           if (viewBox && "cx" in viewBox && "cy" in viewBox) {
@@ -185,21 +202,23 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData }: SkillS
                                 x={viewBox.cx}
                                 y={viewBox.cy}
                                 textAnchor="middle"
-                                dominantBaseline="middle"
+                                dominantBaseline="central"
                               >
                                 <tspan
                                   x={viewBox.cx}
-                                  y={viewBox.cy}
+                                  y={(viewBox.cy || 0) - 12}
                                   className="fill-white text-3xl font-bold"
+                                  textAnchor="middle"
                                 >
-                                  {totalSkills.toLocaleString()}
+                                  {totalSkills}
                                 </tspan>
                                 <tspan
                                   x={viewBox.cx}
-                                  y={(viewBox.cy || 0) + 24}
+                                  y={(viewBox.cy || 0) + 16}
                                   className="fill-gray-300 text-sm"
+                                  textAnchor="middle"
                                 >
-                                  Skills Assessed
+                                  Total Skills
                                 </tspan>
                               </text>
                             )
@@ -207,51 +226,96 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData }: SkillS
                         }}
                       />
                     </Pie>
+                    <ChartTooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          const percentage = Math.round((data.count / totalSkills) * 100);
+                          const descriptions = {
+                            'Proficient': 'You meet or exceed expectations. Ready to apply for roles requiring these skills.',
+                            'Building': 'Foundational knowledge present. Consider training or hands-on experience.',
+                            'Developing': 'Early stage skills. Focus on courses or mentorship in these areas.'
+                          };
+                          
+                          return (
+                            <div className="bg-gray-800 p-4 border border-gray-600 rounded-lg shadow-xl max-w-xs opacity-100 transition-opacity duration-200">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.fill }}></div>
+                                <span className="font-semibold text-white">{data.category}</span>
+                              </div>
+                              <p className="text-white text-lg font-bold mb-1">
+                                {data.count} skills ({percentage}% of total)
+                              </p>
+                              <p className="text-xs text-gray-300 leading-relaxed">
+                                {descriptions[data.category as keyof typeof descriptions]}
+                              </p>
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                      animationDuration={200}
+                    />
                   </PieChart>
-                </ChartContainer>
-              ) : (
-                <div className="w-[300px] h-[300px] flex items-center justify-center bg-gray-800 rounded-lg">
-                  <p className="text-gray-300">No skill data available</p>
-                </div>
-              )}
-            </div>
-
-            {/* Content Column */}
-            <div className="flex flex-col">
-              {/* Copy */}
-              <div>
-                <h4 className="font-bold text-white text-sm leading-5 mb-1">Keep building momentum.</h4>
-                <p className="text-white text-sm font-medium leading-5">
-                  You already meet expectations in several core areas and a few more could push you to the next level.
-                </p>
+                </ResponsiveContainer>
               </div>
               
-              {/* Alert Cards with 24px gap from copy */}
-              <div className="mt-6 space-y-2">
-                <Alert className="border-gray-600 bg-transparent">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <AlertTitle className="text-white font-medium text-sm">Your Strongest Skill Area</AlertTitle>
-                  <AlertDescription className="text-gray-300 text-sm">Strategic Planning • 90%</AlertDescription>
-                </Alert>
+              {/* Right Column: Heading, Summary, and Legend */}
+              <div className="flex flex-col justify-center flex-1">
+                {/* Heading */}
+                <h4 className="text-white font-semibold text-xl mb-3">
+                  Your {totalSkills} Skills by Proficiency Level
+                </h4>
                 
-                <Alert className="border-gray-600 bg-transparent">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <AlertTitle className="text-white font-medium text-sm">Skill Nearest to Proficiency</AlertTitle>
-                  <AlertDescription className="text-gray-300 text-sm">Data Analysis • 65%</AlertDescription>
-                </Alert>
-              </div>
-              
-              {/* Buttons */}
-              <div className="flex gap-2 mt-4">
-                <Button variant="outline" size="sm" className="border-gray-400 text-gray-300 hover:bg-gray-700 bg-transparent">
-                  View jobs with this skill
-                </Button>
-                <Button variant="outline" size="sm" className="border-gray-400 text-gray-300 hover:bg-gray-700 bg-transparent">
-                  View program matches
-                </Button>
+                {/* Encouraging summary - Dynamic based on data */}
+                <p className="text-gray-300 text-base leading-relaxed mb-6">
+                  {(() => {
+                    const proficientCount = skillBreakdownData.find(s => s.category === 'Proficient')?.count || 0;
+                    const buildingCount = skillBreakdownData.find(s => s.category === 'Building')?.count || 0;
+                    const developingCount = skillBreakdownData.find(s => s.category === 'Developing')?.count || 0;
+                    const proficientPct = Math.round((proficientCount / totalSkills) * 100);
+                    
+                    if (proficientPct >= 60) {
+                      return `Excellent work! You're proficient in ${proficientCount} skills (${proficientPct}% of total). You're well-positioned for roles requiring these competencies.`;
+                    } else if (proficientPct >= 40) {
+                      return `You're showing strong proficiency in ${proficientCount} skills! Keep building on your strengths while developing the remaining ${buildingCount + developingCount} areas to unlock even more opportunities.`;
+                    } else if (buildingCount > 0) {
+                      return `You're making solid progress with ${buildingCount} skills in development. Focus on moving these to proficiency to significantly expand your career options.`;
+                    } else {
+                      return `You're at the beginning of your skill journey! Focus on building proficiency in your developing skills to open up more career opportunities.`;
+                    }
+                  })()}
+                </p>
+                
+                {/* Legend - Inline */}
+                <div className="flex flex-wrap gap-x-8 gap-y-2">
+                  {skillBreakdownData.map((item) => {
+                    const percentage = Math.round((item.count / totalSkills) * 100);
+                    return (
+                      <div key={item.category} className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
+                        <span className="text-sm text-gray-300">{item.category}</span>
+                        <span className="text-sm font-semibold text-white">{item.count} ({percentage}%)</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                <TrendingUp className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-white mb-2">No skill data yet</h3>
+              <p className="text-gray-300 text-center mb-6 max-w-md">
+                Complete an assessment to see your skill breakdown and proficiency levels.
+              </p>
+              <Button className="text-white hover:opacity-90" style={{ backgroundColor: '#114B5F' }} asChild>
+                <Link href="/jobs">Take an Assessment</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

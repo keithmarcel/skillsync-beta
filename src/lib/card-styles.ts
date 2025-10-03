@@ -78,13 +78,12 @@ export const badgeStyles = {
   sizes: {
     sm: 'px-2 py-0.5 text-xs',
     md: 'px-2 py-1 text-xs',
-    lg: 'px-3 py-1 text-sm',
   },
 } as const
 
 // Button styles for cards
 export const cardButtonStyles = {
-  primary: 'bg-teal-600 hover:bg-teal-700 text-white font-medium',
+  primary: 'bg-teal-600 hover:bg-[#114B5F] text-white font-medium',
   secondary: 'border-gray-200 hover:bg-gray-50',
   outline: 'border border-gray-200 hover:bg-gray-50',
   ghost: 'hover:bg-gray-50',
@@ -94,7 +93,6 @@ export const cardButtonStyles = {
     md: 'px-4 py-2 text-sm',
     lg: 'px-6 py-3 text-base',
   },
-  
   layouts: {
     full: 'w-full',
     flex: 'flex-1',

@@ -20,6 +20,7 @@ module.exports = {
   	extend: {
   		fontFamily: {
   			sans: ['Geist', 'Inter', 'sans-serif'],
+  			'source-sans-pro': ['var(--font-source-sans-pro)', 'Geist', 'sans-serif'],
   		},
   		colors: {
   			teal: {

@@ -29,12 +29,14 @@ COMMENT ON COLUMN public.program_jobs.notes IS 'Admin notes explaining manual ma
 ALTER TABLE public.program_jobs ENABLE ROW LEVEL SECURITY;
 
 -- Policy: Anyone can read program-job associations
+DROP POLICY IF EXISTS "Anyone can view program-job associations" ON public.program_jobs;
 CREATE POLICY "Anyone can view program-job associations"
   ON public.program_jobs
   FOR SELECT
   USING (true);
 
 -- Policy: Only admins can insert/update/delete
+DROP POLICY IF EXISTS "Admins can manage program-job associations" ON public.program_jobs;
 CREATE POLICY "Admins can manage program-job associations"
   ON public.program_jobs
   FOR ALL

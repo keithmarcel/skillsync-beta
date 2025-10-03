@@ -240,6 +240,18 @@ ALTER TABLE cos_programs_cache ENABLE ROW LEVEL SECURITY;
 ALTER TABLE cos_certifications_cache ENABLE ROW LEVEL SECURITY;
 ALTER TABLE occupation_enrichment_status ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Allow read access to BLS wage data" ON bls_wage_data;
+DROP POLICY IF EXISTS "Allow read access to BLS employment projections" ON bls_employment_projections;
+DROP POLICY IF EXISTS "Allow read access to CareerOneStop programs" ON cos_programs_cache;
+DROP POLICY IF EXISTS "Allow read access to CareerOneStop certifications" ON cos_certifications_cache;
+DROP POLICY IF EXISTS "Allow read access to enrichment status" ON occupation_enrichment_status;
+DROP POLICY IF EXISTS "Allow admin operations on BLS wage data" ON bls_wage_data;
+DROP POLICY IF EXISTS "Allow admin operations on BLS employment projections" ON bls_employment_projections;
+DROP POLICY IF EXISTS "Allow admin operations on CareerOneStop programs" ON cos_programs_cache;
+DROP POLICY IF EXISTS "Allow admin operations on CareerOneStop certifications" ON cos_certifications_cache;
+DROP POLICY IF EXISTS "Allow admin operations on enrichment status" ON occupation_enrichment_status;
+
 -- RLS Policies (allow read access to all authenticated users)
 CREATE POLICY "Allow read access to BLS wage data" ON bls_wage_data FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Allow read access to BLS employment projections" ON bls_employment_projections FOR SELECT TO authenticated USING (true);
