@@ -93,27 +93,27 @@ export function NotificationDropdown() {
         data-testid="notification-dropdown"
       >
         {/* Header */}
-        <div className="border-b border-gray-200 px-4 py-3">
-          <h3 className="text-base font-semibold text-gray-900">
+        <div className="border-b border-gray-200 px-6 py-4">
+          <h3 className="text-xl font-bold text-gray-900">
             Invite Notifications
           </h3>
         </div>
 
         {/* Notifications List */}
-        <div className="max-h-[400px] overflow-y-auto">
+        <div className="max-h-[500px] overflow-y-auto p-4">
           {loading ? (
-            <div className="px-4 py-8 text-center text-sm text-gray-500">
+            <div className="py-8 text-center text-sm text-gray-500">
               Loading notifications...
             </div>
           ) : invitations.length === 0 ? (
-            <div className="px-4 py-8 text-center">
+            <div className="py-8 text-center">
               <p className="text-sm text-gray-500">No new invitations</p>
               <p className="text-xs text-gray-400 mt-1">
                 Complete assessments to receive invitations from employers
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="space-y-3">
               {invitations.map((invitation) => (
                 <NotificationItem
                   key={invitation.id}
@@ -127,20 +127,18 @@ export function NotificationDropdown() {
 
         {/* Footer Actions */}
         {invitations.length > 0 && (
-          <div className="border-t border-gray-200 px-4 py-3 flex gap-2">
+          <div className="border-t border-gray-200 px-6 py-4 flex gap-3">
             <Button
               variant="outline"
-              size="sm"
               onClick={handleMarkAllAsRead}
-              className="flex-1"
+              className="flex-1 h-11 text-base"
               disabled={unreadCount === 0}
             >
               Mark All As Read
             </Button>
             <Button
-              size="sm"
               onClick={handleViewAll}
-              className="flex-1 bg-teal-600 hover:bg-[#114B5F] text-white"
+              className="flex-1 h-11 text-base bg-teal-600 hover:bg-teal-700 text-white"
             >
               View All Invites
             </Button>

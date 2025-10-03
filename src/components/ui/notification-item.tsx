@@ -30,36 +30,28 @@ export function NotificationItem({ invitation, onClick }: NotificationItemProps)
 
   return (
     <div 
-      className={`px-4 py-3 hover:bg-gray-50 transition-colors ${
-        !invitation.is_read ? 'bg-blue-50' : ''
-      }`}
+      className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
       data-testid="notification-item"
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
-          <h4 className="text-sm font-semibold text-gray-900 mb-1">
+          <h4 className="text-base font-bold text-gray-900 mb-2">
             New Invite from {invitation.company?.name || 'Unknown Company'}
           </h4>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 leading-relaxed">
             You've been invited to apply to the{' '}
-            <span className="font-medium">{invitation.job?.title || 'Unknown Role'}</span> role.
+            <span className="font-normal">{invitation.job?.title || 'Unknown Role'}</span> role.
           </p>
         </div>
         <Button
-          size="sm"
           variant="outline"
           onClick={handleViewApplication}
           disabled={loading}
-          className="border-teal-600 text-teal-600 hover:bg-teal-50 flex-shrink-0"
+          className="border-teal-600 text-teal-600 hover:bg-teal-50 flex-shrink-0 h-10 px-6"
         >
           View Application
         </Button>
       </div>
-      
-      {/* Unread indicator */}
-      {!invitation.is_read && (
-        <div className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full" />
-      )}
     </div>
   )
 }
