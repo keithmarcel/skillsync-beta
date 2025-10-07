@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { LayoutDashboard, Building2, Briefcase, GraduationCap, FileText, Settings, LogOut, Home, User, Users, Menu, X, Database } from 'lucide-react';
 import { NAVIGATION_STYLES, BUTTON_STYLES } from '@/lib/design-system';
+import { ViewAsSwitcher } from '@/components/admin/ViewAsSwitcher';
 
 
 const navigation = [
@@ -205,8 +206,11 @@ export function AdminSidebar() {
               })}
             </nav>
           </div>
-          <div className="mt-auto p-4 border-t">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="mt-auto p-4 border-t space-y-4">
+            {/* View As Switcher - Only for Super Admins */}
+            <ViewAsSwitcher />
+            
+            <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
                 <User className="h-5 w-5 text-muted-foreground" />
               </div>
