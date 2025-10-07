@@ -325,6 +325,16 @@ export const programsTableColumns = [
     label: 'School',
     sortable: true,
     width: 'medium' as const,
+    render: (value: string, row: any) => {
+      const schoolLogo = row.school?.logo
+      return schoolLogo 
+        ? React.createElement('img', {
+            src: schoolLogo,
+            alt: value || 'School logo',
+            className: 'h-16 w-auto max-w-[200px] object-contain'
+          })
+        : React.createElement('span', { className: 'text-sm text-gray-900' }, value)
+    },
   },
   {
     key: 'actions',
