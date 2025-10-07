@@ -331,7 +331,7 @@ export const programsTableColumns = [
         ? React.createElement('img', {
             src: schoolLogo,
             alt: value || 'School logo',
-            className: 'h-16 w-auto max-w-[200px] object-contain'
+            className: 'h-10 w-auto max-w-[140px] object-contain'
           })
         : React.createElement('span', { className: 'text-sm text-gray-900' }, value)
     },
