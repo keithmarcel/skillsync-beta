@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, Sparkles, AlertCircle, CheckCircle, Search } from 'lucide-react'
+import { Sparkles, AlertCircle, CheckCircle, Search } from 'lucide-react'
+import { PageLoader, InlineSpinner } from '@/components/ui/loading-spinner'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
@@ -167,7 +168,7 @@ export default function GenerateAssessmentPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <PageLoader text="Loading assessment generator..." />
       </div>
     )
   }
@@ -201,7 +202,7 @@ export default function GenerateAssessmentPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  <InlineSpinner size={20} />
                   <div>
                     <p className="font-medium text-blue-900">Generating Quiz...</p>
                     <p className="text-sm text-blue-700">{progressMessage}</p>
@@ -252,7 +253,7 @@ export default function GenerateAssessmentPage() {
               >
                 {generating ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <InlineSpinner size={16} />
                     Generating Assessment...
                   </>
                 ) : (

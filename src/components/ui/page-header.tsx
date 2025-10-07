@@ -118,7 +118,7 @@ export default function PageHeader({
       <div className="bg-[#EDFAFA] py-12 mt-4">
         <div className="max-w-[1280px] mx-auto px-6 flex justify-between items-center">
           <div className="flex flex-col gap-2">
-            <h1 className="text-[#114B5F] font-bold text-[36px] leading-[32px] tracking-[-1px] font-source-sans-pro">
+            <h1 className="text-[#114B5F] font-bold text-[36px] leading-[40px] tracking-[-1px] font-source-sans-pro">
               {dynamicTitle}
             </h1>
             {dynamicSubtitle && (
@@ -135,7 +135,7 @@ export default function PageHeader({
                     <Button 
                       asChild
                       variant="outline"
-                      className="flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white"
+                      className="flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border border-[#00A6AE] bg-transparent text-[#00A6AE] hover:bg-[#00A6AE] hover:text-white"
                     >
                       <Link href={primaryAction.href}>{primaryAction.label}</Link>
                     </Button>
@@ -151,13 +151,13 @@ export default function PageHeader({
                       }}
                       className={`group flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border ${
                         primaryAction.variant === 'favorite'
-                          ? 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:border-[#D5F5F6] hover:text-[#D5F5F6] hover:bg-transparent'
-                          : 'border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white'
+                          ? 'border-[#00A6AE] bg-transparent text-[#00A6AE] hover:border-[#00A6AE] hover:text-[#00A6AE] hover:bg-transparent'
+                          : 'border-[#00A6AE] bg-transparent text-[#00A6AE] hover:bg-[#00A6AE] hover:text-white'
                       }`}
                     >
                       {primaryAction.label}
                       {primaryAction.variant === 'favorite' && (
-                        <Heart className={`w-4 h-4 transition-colors ${primaryAction.isFavorited ? 'fill-[#0694A2] text-[#0694A2]' : 'group-hover:fill-[#0694A2] group-hover:text-[#0694A2]'}`} />
+                        <Heart className={`w-4 h-4 transition-colors ${primaryAction.isFavorited ? 'fill-[#0694A2] text-[#0694A2]' : 'text-[#00A6AE] group-hover:fill-[#00A6AE] group-hover:text-[#00A6AE]'}`} />
                       )}
                     </Button>
                   )}
@@ -166,7 +166,7 @@ export default function PageHeader({
               {secondaryAction && showSecondaryAction && (
                 <Button 
                   variant="outline"
-                  className="flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border border-[#D5F5F6] bg-transparent text-[#D5F5F6] hover:bg-teal-500 hover:text-white"
+                  className="flex h-9 px-3 py-2 justify-center items-center gap-2 rounded-lg border border-[#00A6AE] bg-transparent text-[#00A6AE] hover:bg-[#00A6AE] hover:text-white"
                 >
                   {secondaryAction.label}
                 </Button>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { PageLoader } from '@/components/ui/loading-spinner';
 import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
 import { useAdminEntity } from '@/hooks/useAdminEntity';
 import type { School } from '@/lib/database/queries';
@@ -88,7 +89,11 @@ export default function ProviderDetailPage({ params }: { params: { id: string } 
   };
   
   if (isLoading) {
-    return <div>Loading Provider...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <PageLoader text="Loading Provider..." />
+      </div>
+    );
   }
 
   if (error) {

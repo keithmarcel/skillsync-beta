@@ -8,7 +8,8 @@ import type { User } from '@supabase/supabase-js'
 export interface Profile {
   id: string
   email: string
-  role: 'super_admin' | 'provider_admin' | 'employer_admin' | 'user'
+  role: 'super_admin' | 'provider_admin' | 'employer_admin' | 'partner_admin' | 'org_user' | 'user' | 'basic_user'
+  admin_role?: 'super_admin' | 'company_admin' | 'provider_admin' | null
   first_name?: string
   last_name?: string
   zip_code?: string
@@ -42,6 +43,7 @@ interface AuthContextType {
   isSuperAdmin: boolean
   isEmployerAdmin: boolean
   isProviderAdmin: boolean
+  isCompanyAdmin?: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (data: any) => Promise<void>
   signOut: () => Promise<void>
@@ -180,6 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isSuperAdmin: false,
         isEmployerAdmin: false,
         isProviderAdmin: false,
+        isCompanyAdmin: false,
         signIn,
         signUp,
         signOut,
@@ -188,15 +191,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, children);
   }
 
-  // Computed admin role properties based on new role system
+  // Computed admin role properties based on admin_role field
   const value = {
     user,
     profile,
     loading,
-    isAdmin: profile?.role === 'super_admin' || profile?.role === 'employer_admin' || profile?.role === 'provider_admin',
-    isSuperAdmin: profile?.role === 'super_admin',
-    isEmployerAdmin: profile?.role === 'employer_admin',
-    isProviderAdmin: profile?.role === 'provider_admin',
+    isAdmin: profile?.admin_role !== null && profile?.admin_role !== undefined,
+    isSuperAdmin: profile?.admin_role === 'super_admin',
+    isEmployerAdmin: profile?.role === 'employer_admin' || profile?.admin_role === 'company_admin',
+    isProviderAdmin: profile?.role === 'provider_admin' || profile?.admin_role === 'provider_admin',
+    isCompanyAdmin: profile?.admin_role === 'company_admin',
     signIn,
     signUp,
     signOut,

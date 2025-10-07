@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, ArrowLeft, Save, AlertCircle, CheckCircle, Edit, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Save, AlertCircle, CheckCircle, Edit, Plus, Trash2 } from 'lucide-react'
+import { PageLoader, InlineSpinner } from '@/components/ui/loading-spinner'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import Breadcrumb from '@/components/ui/breadcrumb'
@@ -183,7 +184,7 @@ export default function EditQuizPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <PageLoader text="Loading quiz editor..." />
       </div>
     )
   }
@@ -416,8 +417,8 @@ export default function EditQuizPage() {
           >
             {saving ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving...
+                <InlineSpinner size={16} />
+                <span className="ml-2">Saving...</span>
               </>
             ) : (
               <>

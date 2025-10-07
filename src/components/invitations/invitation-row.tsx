@@ -179,18 +179,15 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
         />
       </td>
       <td className="px-4 py-4">
-        {invitation.company?.logo_url && (
-          <img
-            src={invitation.company.logo_url}
-            alt={invitation.company.name || ''}
-            className="w-24 h-24 object-contain"
-          />
-        )}
-      </td>
-      <td className="px-4 py-4">
-        <span className="text-sm font-semibold text-gray-900">
-          {invitation.company?.name || 'Unknown Company'}
-        </span>
+        <div className="flex items-center gap-3">
+          {invitation.company?.logo_url && (
+            <img
+              src={invitation.company.logo_url}
+              alt={invitation.company.name || ''}
+              className="w-24 h-24 object-contain flex-shrink-0"
+            />
+          )}
+        </div>
       </td>
       <td className="px-4 py-4">
         <span className="text-sm font-semibold text-gray-900">

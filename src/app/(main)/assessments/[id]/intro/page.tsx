@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
 import { Clock, CheckCircle2, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AssessmentSimulator } from '@/components/admin/AssessmentSimulator';
 import { supabase } from '@/lib/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast'
+import { PageLoader } from '@/components/ui/loading-spinner';
 import Image from 'next/image';
 
 export default function AssessmentIntroPage() {
@@ -71,7 +71,7 @@ export default function AssessmentIntroPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+        <PageLoader text="Loading assessment..." />
       </div>
     );
   }

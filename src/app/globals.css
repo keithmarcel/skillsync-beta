@@ -67,3 +67,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .backface-visibility-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  .transform-gpu {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+}

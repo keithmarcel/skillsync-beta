@@ -2,13 +2,20 @@
 
 import { useState } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
 import { X } from 'lucide-react'
 import Link from 'next/link'
+import { PageLoader } from '@/components/ui/loading-spinner'
 
-interface JobItem {
+interface Job {
   id: string
   title: string
-  type: 'occupation' | 'role'
+  job_kind: 'featured_role' | 'occupation'
+  soc_code?: string
+  company?: {
+    name: string
+    logo_url?: string
+  }
 }
 
 interface RelatedJobsDialogProps {
@@ -22,16 +29,18 @@ interface RelatedJobsDialogProps {
     }
     relatedJobsCount: number
   }
-  occupations: JobItem[]
-  roles: JobItem[]
+  jobs: Job[]
+  loading?: boolean
 }
 
-function JobListItem({ job }: { job: JobItem }) {
+function JobListItem({ job }: { job: Job }) {
   const [isHovered, setIsHovered] = useState(false)
+  const isFeaturedRole = job.job_kind === 'featured_role'
   
   return (
-    <div 
-      className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-200 ${
+    <Link 
+      href={`/jobs/${job.id}`}
+      className={`flex items-center justify-between gap-3 p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
         isHovered 
           ? 'bg-[#F0F5FF] border-[#CDDBFE]' 
           : 'bg-[#F3F4F6] border-[#F9FAFB]'
@@ -39,20 +48,32 @@ function JobListItem({ job }: { job: JobItem }) {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <span className={`text-sm transition-all duration-200 ${
-        isHovered ? 'font-bold text-[#262626]' : 'font-medium text-[#262626]'
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <span className={`text-sm transition-all duration-200 truncate ${
+          isHovered ? 'font-bold text-[#262626] scale-105' : 'font-medium text-[#262626]'
+        } inline-block origin-left`}>
+          {job.title}
+        </span>
+        {isFeaturedRole && (
+          <Badge 
+            style={{
+              backgroundColor: '#ECFDF5',
+              color: '#065F46',
+              borderRadius: '10px',
+              boxShadow: 'none'
+            }}
+            className="font-medium border-0 text-xs shrink-0"
+          >
+            Hiring Now
+          </Badge>
+        )}
+      </div>
+      <span className={`flex items-center justify-center px-2.5 py-1 bg-white rounded-md text-xs font-medium text-[#1C64F2] border border-[#CDDBFE] shrink-0 transition-opacity duration-200 ${
+        isHovered ? 'opacity-100' : 'opacity-0'
       }`}>
-        {job.title}
+        Explore →
       </span>
-      {isHovered && (
-        <Link 
-          href={`/${job.type === 'occupation' ? 'occupations' : 'jobs'}/${job.id}`}
-          className="flex items-center justify-center px-2.5 py-0.5 bg-[#F9FAFB] rounded-md text-xs font-medium text-[#1C64F2] hover:bg-gray-100 transition-colors"
-        >
-          Explore
-        </Link>
-      )}
-    </div>
+    </Link>
   )
 }
 
@@ -60,12 +81,12 @@ export function RelatedJobsDialog({
   isOpen,
   onClose,
   program,
-  occupations,
-  roles
+  jobs,
+  loading = false
 }: RelatedJobsDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl p-0 gap-0" hideCloseButton={true}>
+      <DialogContent className="max-w-3xl p-0 gap-0 max-h-[90vh] overflow-hidden" hideCloseButton={true}>
         {/* Custom header without DialogHeader to avoid double close buttons */}
         <div className="flex items-start justify-between p-6 pb-6">
           <div className="flex flex-col gap-3">
@@ -102,40 +123,40 @@ export function RelatedJobsDialog({
           </button>
         </div>
 
-        <div className="px-6 pb-6 space-y-6">
+        <div className="px-6 pb-6 space-y-6 overflow-y-auto">
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm text-gray-700">
-              This program provides skills for <strong>{program.relatedJobsCount} high demand occupations and roles.</strong>
+              This program provides skills for <strong>{program.relatedJobsCount} jobs</strong> with overlapping skill requirements.
             </p>
           </div>
 
-          <div className="border border-gray-200 rounded-lg p-4 space-y-6">
-            {occupations.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Occupations</h3>
-                <div className="space-y-2">
-                  {occupations.map((occupation) => (
-                    <JobListItem key={occupation.id} job={occupation} />
-                  ))}
-                </div>
+          {loading ? (
+            <div className="py-8">
+              <PageLoader text="Loading related jobs..." />
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="border border-gray-200 rounded-lg p-8 text-center">
+              <p className="text-sm text-gray-600">No related jobs found.</p>
+            </div>
+          ) : (
+            <div className="border border-gray-200 rounded-lg p-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Related Jobs ({jobs.length})</h3>
+              <div className="space-y-2 max-h-[400px] overflow-y-auto overflow-x-hidden pr-2">
+                {jobs
+                  .sort((a, b) => {
+                    // Featured roles first, then high-demand occupations
+                    if (a.job_kind === 'featured_role' && b.job_kind !== 'featured_role') return -1
+                    if (a.job_kind !== 'featured_role' && b.job_kind === 'featured_role') return 1
+                    // Within same type, sort alphabetically by title
+                    return a.title.localeCompare(b.title)
+                  })
+                  .map((job) => (
+                    <JobListItem key={job.id} job={job} />
+                  ))
+                }
               </div>
-            )}
-
-            {occupations.length > 0 && roles.length > 0 && (
-              <hr className="border-gray-200" />
-            )}
-
-            {roles.length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Roles</h3>
-                <div className="space-y-2">
-                  {roles.map((role) => (
-                    <JobListItem key={role.id} job={role} />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -125,25 +125,23 @@ export function NotificationDropdown() {
           )}
         </div>
 
-        {/* Footer Actions */}
-        {invitations.length > 0 && (
-          <div className="px-4 py-6 flex gap-3">
-            <Button
-              variant="outline"
-              onClick={handleMarkAllAsRead}
-              className="flex-1 h-[34px] text-xs font-medium border-[#E5E7EB] text-[#111928] hover:bg-gray-50"
-              disabled={unreadCount === 0}
-            >
-              Mark All As Read
-            </Button>
-            <Button
-              onClick={handleViewAll}
-              className="flex-1 h-[34px] text-xs font-medium bg-[#0694A2] hover:bg-[#0694A2]/90 text-white"
-            >
-              View All Invites
-            </Button>
-          </div>
-        )}
+        {/* Footer Actions - Always visible for easy access to invitations page */}
+        <div className="px-4 py-6 flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleMarkAllAsRead}
+            className="flex-1 h-[34px] text-xs font-medium border-[#E5E7EB] text-[#111928] hover:bg-gray-50"
+            disabled={unreadCount === 0}
+          >
+            Mark All As Read
+          </Button>
+          <Button
+            onClick={handleViewAll}
+            className="flex-1 h-[34px] text-xs font-medium bg-[#0694A2] hover:bg-[#0694A2]/90 text-white"
+          >
+            View All Invites
+          </Button>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   )

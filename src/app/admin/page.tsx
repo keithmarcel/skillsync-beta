@@ -121,31 +121,53 @@ const AdminDashboard = () => {
   if (isLoading || !stats) {
     return (
       <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+        {/* Header Skeleton */}
         <div className="flex justify-between items-center">
-          <div>
-            <Skeleton className="h-9 w-64 mb-2" />
-            <Skeleton className="h-4 w-48" />
+          <div className="animate-pulse">
+            <div className="h-9 bg-gray-200 rounded w-64 mb-2"></div>
+            <div className="h-4 bg-gray-200 rounded w-48"></div>
           </div>
-          <div className="flex gap-2">
-            <Skeleton className="h-9 w-32" />
-            <Skeleton className="h-9 w-24" />
+          <div className="flex gap-2 animate-pulse">
+            <div className="h-9 bg-gray-200 rounded w-32"></div>
+            <div className="h-9 bg-gray-200 rounded w-24"></div>
           </div>
         </div>
         
+        {/* Stats Cards Skeleton */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
+            <Card key={i} className="animate-pulse">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-4" />
+                <div className="h-4 bg-gray-200 rounded w-24"></div>
+                <div className="h-4 w-4 bg-gray-200 rounded"></div>
               </CardHeader>
               <CardContent>
-                <Skeleton className="h-6 w-16 mb-2" />
-                <Skeleton className="h-3 w-24" />
+                <div className="h-6 bg-gray-200 rounded w-16 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-24"></div>
               </CardContent>
             </Card>
           ))}
         </div>
+
+        {/* Recent Activity Skeleton */}
+        <Card className="animate-pulse">
+          <CardHeader>
+            <div className="h-6 bg-gray-200 rounded w-48"></div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="flex items-center justify-between py-3 border-b">
+                  <div className="space-y-2 flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                  <div className="h-6 bg-gray-200 rounded w-16"></div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

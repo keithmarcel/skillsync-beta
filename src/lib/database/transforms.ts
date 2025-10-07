@@ -80,6 +80,15 @@ export function transformJobToHighDemand(job: Job) {
     return categoryMap[title] || 'Business'
   }
 
+  // Use AI-generated short_desc if available, otherwise truncate long_desc
+  const shortDesc = job.short_desc 
+    ? job.short_desc
+    : job.long_desc 
+      ? job.long_desc.length > 150 
+        ? job.long_desc.substring(0, 150).trim() + '...'
+        : job.long_desc
+      : ''
+
   return {
     id: job.id,
     title: job.title,
@@ -90,8 +99,9 @@ export function transformJobToHighDemand(job: Job) {
     projectedOpenings: Math.floor(Math.random() * 5000) + 1000, // Mock data for now
     educationRequired: 'Bachelor\'s degree', // Mock data for now
     medianSalary: job.median_wage_usd || 0,
+    median_wage_usd: job.median_wage_usd || 0, // Add this for table column compatibility
     jobGrowthOutlook: 'Faster than average', // Mock data for now
-    description: job.long_desc || '',
+    description: shortDesc, // Use AI-generated or truncated short description for table
     featuredImage: job.featured_image_url || '/assets/hero_featured-roles.jpg',
     readiness: 'assess skills', // Will be overridden by actual assessment data in component
     skillsRequired: job.skills_count || 0,
@@ -175,7 +185,8 @@ export function transformProgramToTable(program: Program) {
     format: program.format || 'On-campus',
     duration_text: program.duration_text || 'Duration varies',
     school: {
-      name: program.school?.name || 'Unknown School'
+      name: program.school?.name || 'Unknown School',
+      logo: program.school?.logo_url || null
     },
     skills_provided: program.skills?.length || 0
   }

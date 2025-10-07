@@ -33,7 +33,7 @@ export default function StickyTabs({ tabs, onTabChange, className = '' }: Sticky
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`py-2 px-1 border-b-2 font-medium text-base ${
                 tab.isActive
                   ? 'border-[#0694A2] text-[#0694A2]'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'

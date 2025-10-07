@@ -11,8 +11,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { Loader2, Save, X, ArrowLeft, ExternalLink } from 'lucide-react'
+import { Save, X, ArrowLeft, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { ImageUpload } from './ImageUpload'
+import { PageLoader, InlineSpinner } from '@/components/ui/loading-spinner'
 
 export const EntityFieldType = {
   TEXT: 'text',
@@ -424,6 +426,43 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
+      
+      case 'image':
+        return (
+          <ImageUpload
+            value={value as string | null}
+            onChange={(url) => handleChange(field.key, url, field)}
+            label={field.label}
+            disabled={field.disabled}
+            error={error}
+            entityType={entityType}
+            entityId={formData.id}
+          />
+        )
+      
+      case 'rich_text':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={fieldId} className={error ? 'text-destructive' : ''}>
+              {field.label}
+              {field.required && <span className="text-destructive ml-1">*</span>}
+            </Label>
+            <Textarea
+              id={fieldId}
+              value={value !== null && value !== undefined ? String(value) : ''}
+              onChange={(e) => handleChange(field.key, e.target.value, field)}
+              placeholder={field.placeholder}
+              disabled={field.disabled}
+              className={error ? 'border-destructive font-mono text-sm' : 'font-mono text-sm'}
+              rows={12}
+            />
+            <p className="text-xs text-muted-foreground">
+              Supports HTML: Use &lt;p&gt; for paragraphs, &lt;strong&gt; for bold, &lt;em&gt; for italic
+            </p>
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
+          </div>
+        )
         
       default:
         return (
@@ -476,7 +515,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <PageLoader text="Loading..." />
       </div>
     )
   }
@@ -527,7 +566,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               disabled={isDeleting}
             >
               {isDeleting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <InlineSpinner size={16} />
               ) : (
                 <X className="mr-2 h-4 w-4" />
               )}
@@ -543,7 +582,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               disabled={isFeaturing}
             >
               {isFeaturing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <InlineSpinner size={16} />
               ) : formData.is_featured ? (
                 'Unfeature'
               ) : (
@@ -560,14 +599,17 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               disabled={isPublishing}
             >
               {isPublishing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <InlineSpinner size={16} />
               ) : (
-                'Publish'
+                formData.status === 'draft' ? (
+                  'Publish'
+                ) : (
+                  'Update'
+                )
               )}
             </Button>
           )}
-          
-          {onUnpublish && formData.status === 'published' && (
+          {!isNew && onUnpublish && formData.status === 'published' && (
             <Button
               variant="outline"
               size="sm"
@@ -575,20 +617,19 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               disabled={isPublishing}
             >
               {isPublishing ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <InlineSpinner size={16} />
               ) : (
                 'Unpublish'
               )}
             </Button>
           )}
-          
           <Button
             size="sm"
             onClick={handleSave}
             disabled={isSaving || !isDirty}
           >
             {isSaving ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <InlineSpinner size={16} />
             ) : (
               <Save className="mr-2 h-4 w-4" />
             )}

@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Target, Award, Clock, Calendar, RefreshCw, Lightbulb } from 'lucide-react'
+import { supabase } from '@/lib/supabase/client'
+import { PageLoader } from '@/components/ui/loading-spinner'
+import { Award, Clock, Calendar, RefreshCw, Lightbulb, ArrowLeft, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 
 export default function AssessmentResultsPage() {
@@ -78,7 +79,7 @@ export default function AssessmentResultsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0694A2]"></div>
+        <PageLoader text="Loading your results..." />
       </div>
     )
   }

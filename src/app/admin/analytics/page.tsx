@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AdminTable } from '@/components/admin/AdminTable';
 import { supabase } from '@/lib/supabase/client';
+import { PageLoader } from '@/components/ui/loading-spinner';
 
 interface AnalyticsStats {
   totalUsers: number;
@@ -168,10 +169,7 @@ export default function AdminAnalyticsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="text-lg font-medium">Loading analytics...</div>
-          <div className="text-sm text-muted-foreground mt-2">Fetching dashboard data</div>
-        </div>
+        <PageLoader text="Loading analytics..." />
       </div>
     );
   }

@@ -5,9 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import StickyTabs from '@/components/ui/sticky-tabs'
 import { TitleHero } from '@/components/ui/title-hero'
+import { IllustrationHero } from '@/components/ui/illustration-hero'
 import SearchFilterControls from '@/components/ui/search-filter-controls'
 import DataTable from '@/components/ui/data-table'
 import { FeaturedRoleCard } from '@/components/ui/featured-role-card'
+import { FeaturedJobCardV2 } from '@/components/ui/featured-job-card-v2'
+import { EmptyState } from '@/components/ui/empty-state'
 import PageHeader from '@/components/ui/page-header'
 import { occupationsTableColumns, occupationsSearchFields } from '@/lib/table-configs'
 import { getFeaturedRoles, getHighDemandOccupations } from '@/lib/database/queries'
@@ -15,6 +18,7 @@ import { useFavorites } from '@/hooks/useFavorites'
 import { useAuth } from '@/hooks/useAuth'
 import { transformJobToFeaturedRole, transformJobToHighDemand } from '@/lib/database/transforms'
 import { getUserAssessments } from '@/lib/database/queries'
+import { PageLoader } from '@/components/ui/loading-spinner'
 
 
 // Force dynamic rendering to avoid prerendering issues with Supabase
@@ -74,11 +78,15 @@ export default function JobsPage() {
   const [userAssessments, setUserAssessments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   
-  // Search/Sort/Filter state for high-demand tab
+  // Search/Sort/Filter state for both tabs
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState('')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
-  const [filters, setFilters] = useState<Record<string, string>>({})
+  const [filters, setFilters] = useState<Record<string, string[]>>({})
+  
+  // Featured roles specific filters
+  const [featuredSearchTerm, setFeaturedSearchTerm] = useState('')
+  const [featuredFilters, setFeaturedFilters] = useState<Record<string, string[]>>({})
 
   // Update activeTab when URL changes
   useEffect(() => {
@@ -144,12 +152,42 @@ export default function JobsPage() {
     }
   }
 
-  const handleFilter = (column: string, value: string) => {
+  const handleFilter = (column: string, values: string[]) => {
     setFilters(prev => ({
       ...prev,
-      [column]: value === 'all' ? '' : value
+      [column]: values
     }))
   }
+
+  // Apply search and filter to featured roles
+  const filteredFeaturedRoles = React.useMemo(() => {
+    let result = [...featuredRoles]
+
+    // Apply search
+    if (featuredSearchTerm) {
+      const searchLower = featuredSearchTerm.toLowerCase()
+      result = result.filter(role => 
+        role.title?.toLowerCase().includes(searchLower) ||
+        role.company?.name?.toLowerCase().includes(searchLower) ||
+        role.category?.toLowerCase().includes(searchLower)
+      )
+    }
+
+    // Apply filters
+    Object.entries(featuredFilters).forEach(([column, values]) => {
+      if (values && values.length > 0) {
+        if (column === 'category') {
+          result = result.filter(role => values.includes(role.category))
+        } else if (column === 'jobType') {
+          result = result.filter(role => values.includes(role.jobType))
+        } else if (column === 'company') {
+          result = result.filter(role => role.company?.name && values.includes(role.company.name))
+        }
+      }
+    })
+
+    return result
+  }, [featuredRoles, featuredSearchTerm, featuredFilters])
 
   // Apply search, sort, and filter to high-demand jobs
   const filteredAndSortedJobs = React.useMemo(() => {
@@ -166,9 +204,9 @@ export default function JobsPage() {
     }
 
     // Apply filters
-    Object.entries(filters).forEach(([column, value]) => {
-      if (value) {
-        result = result.filter(job => job[column] === value)
+    Object.entries(filters).forEach(([column, values]) => {
+      if (values && values.length > 0) {
+        result = result.filter(job => values.includes(job[column]))
       }
     })
 
@@ -187,16 +225,44 @@ export default function JobsPage() {
   }, [highDemandJobs, searchTerm, filters, sortBy, sortOrder])
 
   const tabs = [
-    { id: 'featured-roles', label: 'Featured Roles', isActive: activeTab === 'featured-roles' },
+    { id: 'featured-roles', label: 'Hiring Now', isActive: activeTab === 'featured-roles' },
     { id: 'high-demand', label: 'High-Demand Occupations', isActive: activeTab === 'high-demand' },
     { id: 'favorites', label: 'Favorites', isActive: activeTab === 'favorites' }
   ]
 
+  // Dynamic page header based on active tab
+  const getPageHeaderContent = () => {
+    switch (activeTab) {
+      case 'featured-roles':
+        return {
+          title: 'Connect with Top Employers in Pinellas County',
+          subtitle: 'Explore exclusive opportunities from our trusted employer partners actively hiring now.'
+        }
+      case 'high-demand':
+        return {
+          title: 'Find Your Path in High-Growth Careers',
+          subtitle: 'Discover occupations with strong demand and excellent career prospects in your region.'
+        }
+      case 'favorites':
+        return {
+          title: 'Your Saved Opportunities',
+          subtitle: 'Review and manage the jobs you\'ve bookmarked for future reference.'
+        }
+      default:
+        return {
+          title: 'Explore Career Opportunities',
+          subtitle: 'Browse job-based opportunities from our trusted employer partners.'
+        }
+    }
+  }
+
+  const headerContent = getPageHeaderContent()
+
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <PageHeader 
-        title="Explore Top Companies Hiring in Pinellas"
-        subtitle="Browse job-based opportunities from our trusted employer partners."
+        title={headerContent.title}
+        subtitle={headerContent.subtitle}
         variant="split"
       />
       
@@ -210,27 +276,36 @@ export default function JobsPage() {
           {/* Tab Content */}
           {activeTab === 'featured-roles' && (
             <div>
-              <TitleHero 
-                title="Featured Roles"
-                heroImage="/assets/hero_featured-roles.jpg"
+              <IllustrationHero 
+                imageSrc="/assets/heroimage_featured-roles.svg"
+                imageAlt="See Who's Hiring Now"
+                title="See Who's Hiring Now"
               />
               
               <div className="mt-8">
                 <SearchFilterControls
-                  searchTerm=""
-                  onSearchChange={() => {}}
-                  searchPlaceholder="Search by keyword, category, or SOC code"
+                  searchTerm={featuredSearchTerm}
+                  onSearchChange={setFeaturedSearchTerm}
+                  searchPlaceholder="Search by company, role, or category"
                   sortBy=""
                   sortOrder="asc"
                   onSortChange={() => {}}
-                  filters={{}}
-                  onFilterChange={() => {}}
+                  filters={featuredFilters}
+                  onFilterChange={(column, values) => {
+                    setFeaturedFilters(prev => ({
+                      ...prev,
+                      [column]: values
+                    }))
+                  }}
                   columns={[
-                    { key: 'company', label: 'Company', sortable: true },
-                    { key: 'jobType', label: 'Role Type', sortable: true },
-                    { key: 'medianSalary', label: 'Salary', sortable: true },
-                    { key: 'skillsCount', label: 'Skills Count', sortable: true },
-                    { key: 'category', label: 'Category', filterable: true, filterOptions: ['All Roles', 'Skilled Trades', 'Business', 'Health & Education'] }
+                    { key: 'category', label: 'Category', filterable: true, filterOptions: ['Skilled Trades', 'Business', 'Health & Education', 'Technology'] },
+                    { key: 'jobType', label: 'Job Type', filterable: true, filterOptions: ['Full-Time', 'Part-Time', 'Contract'] },
+                    { 
+                      key: 'company', 
+                      label: 'Company', 
+                      filterable: true, 
+                      filterOptions: Array.from(new Set(featuredRoles.map(role => role.company?.name).filter(Boolean))).sort()
+                    }
                   ]}
                 />
               </div>
@@ -238,12 +313,11 @@ export default function JobsPage() {
               <div className="mt-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
-                  <div className="col-span-full flex flex-col items-center justify-center py-16">
-                    <div className="w-8 h-8 border-4 border-gray-200 border-t-[#0694A2] rounded-full animate-spin mb-4"></div>
-                    <p className="text-sm text-gray-600 font-normal">Loading Featured Roles</p>
+                  <div className="col-span-full">
+                    <PageLoader text="Loading Featured Roles" />
                   </div>
-                ) : featuredRoles.length > 0 ? (
-                  featuredRoles.map((role) => (
+                ) : filteredFeaturedRoles.length > 0 ? (
+                  filteredFeaturedRoles.map((role) => (
                     <FeaturedRoleCard
                       key={role.id}
                       id={role.id}
@@ -265,18 +339,26 @@ export default function JobsPage() {
                     />
                   ))
                 ) : (
-                  <div className="col-span-full text-center py-8">No featured roles available</div>
+                  <EmptyState
+                    variant="inline"
+                    title="No Saved Jobs"
+                    description="You haven't saved any jobs yet. Browse jobs and click the heart icon to save them here."
+                    primaryButtonText="Browse Featured Roles"
+                    primaryButtonHref="/jobs?tab=featured-roles"
+                    secondaryButtonText="Browse High-Demand Jobs"
+                    secondaryButtonHref="/jobs?tab=high-demand"
+                  />
                 )}
                 </div>
               </div>
             </div>
           )}
-          
           {activeTab === 'high-demand' && (
             <div>
-              <TitleHero 
-                title="High-Demand Occupations"
-                heroImage="/assets/hero_occupations.jpg"
+              <IllustrationHero 
+                imageSrc="/assets/heroimage_featured-roles.svg"
+                imageAlt="Explore High-Demand Occupations"
+                title="Explore High-Demand Occupations"
               />
               
               {loading ? (
@@ -390,7 +472,7 @@ export default function JobsPage() {
                       return {
                         id: job.id,
                         title: job.title,
-                        description: job.long_desc || '',
+                        description: job.short_desc || '',
                         category: getProperCategory(job),
                         median_wage_usd: job.median_wage_usd || 0,
                         readiness: determineRoleReadiness(job.id, userAssessments),

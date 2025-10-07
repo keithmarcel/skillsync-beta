@@ -6,8 +6,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { GeistSans } from 'geist/font/sans';
+import { PageLoader } from '@/components/ui/loading-spinner';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -37,7 +37,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   if (!isMounted || loading || !user) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <PageLoader text="Loading Admin..." />
       </div>
     );
   }

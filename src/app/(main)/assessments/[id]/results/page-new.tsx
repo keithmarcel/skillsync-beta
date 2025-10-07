@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { RoleReadinessWidget } from '@/components/results/RoleReadinessWidget';
 import { SkillsGapChart } from '@/components/results/SkillsGapChart';
 import { ProgramMatchesCTA } from '@/components/results/ProgramMatchesCTA';
-import { StrengthsAndGrowth } from '@/components/results/StrengthsAndGrowth';
 import {
   getAssessmentById,
   type Assessment,
   type AssessmentSkillResult
 } from '@/lib/database/queries';
-import { supabase } from '@/lib/supabase/client';
+import { useToast } from '@/hooks/use-toast'
+import { PageLoader } from '@/components/ui/loading-spinner'
+
 import Link from 'next/link';
 
 interface SkillGap {
@@ -159,10 +160,7 @@ export default function AssessmentResultsPageNew() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your results...</p>
-        </div>
+        <PageLoader text="Loading your results..." />
       </div>
     );
   }

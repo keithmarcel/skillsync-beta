@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { TablePagination } from '@/components/ui/table-pagination'
+import { PageLoader } from '@/components/ui/loading-spinner'
 
 interface Column {
   key: string
@@ -29,7 +30,7 @@ interface Column {
   sortable?: boolean
   filterable?: boolean
   filterOptions?: string[]
-  render?: (value: any, row: any, isOnFavoritesTab?: boolean) => React.ReactNode
+  render?: (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => React.ReactNode
 }
 
 interface DataTableProps {
@@ -259,12 +260,26 @@ export default function DataTable({
                       }}
                     >
                       {colIndex === 0 ? (
-                        <Link 
-                          href={`/${tableType}/${row.id}`}
-                          className="text-inherit group-hover:text-[#0694A2] group-hover:underline transition-colors font-medium"
-                        >
-                          {column.render ? column.render(value, row, isOnFavoritesTab) : value}
-                        </Link>
+                        tableType === 'programs' && column.render ? (
+                          // Programs table with custom render (includes badge below title)
+                          <div className="flex flex-col gap-1.5">
+                            <Link 
+                              href={`/${tableType}/${row.id}`}
+                              className="text-inherit group-hover:text-[#0694A2] group-hover:underline transition-colors font-semibold text-base w-fit font-source-sans-pro"
+                            >
+                              {value}
+                            </Link>
+                            {column.render(value, row, isOnFavoritesTab, onRowAction)}
+                          </div>
+                        ) : (
+                          // Jobs and other tables (render function handles everything)
+                          <Link 
+                            href={`/${tableType}/${row.id}`}
+                            className="text-inherit group-hover:text-[#0694A2] group-hover:underline transition-colors font-semibold text-base w-fit font-source-sans-pro"
+                          >
+                            {column.render ? column.render(value, row, isOnFavoritesTab, onRowAction) : value}
+                          </Link>
+                        )
                       ) : colIndex === columns.length - 1 ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -312,7 +327,7 @@ export default function DataTable({
                           </DropdownMenuContent>
                         </DropdownMenu>
                       ) : (
-                        column.render ? column.render(value, row, isOnFavoritesTab) : value
+                        column.render ? column.render(value, row, isOnFavoritesTab, onRowAction) : value
                       )}
                     </td>
                   )
@@ -323,19 +338,13 @@ export default function DataTable({
         </table>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-8 h-8 border-4 border-gray-200 border-t-[#0694A2] rounded-full animate-spin mb-4"></div>
-            <p className="text-sm text-gray-600 font-normal">
-              {loadingText || 'Loading'}
-            </p>
-          </div>
+          <PageLoader text={loadingText || 'Loading'} />
         ) : processedData.length === 0 ? (
           <div className="flex items-center justify-center py-12 text-gray-500">
             No results found
           </div>
         ) : null}
       </div>
-      
       {showPagination && (
         <TablePagination
           currentPage={currentPage}

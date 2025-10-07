@@ -28,17 +28,16 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase()
     : 'U'
 
-  // Add cache-busting timestamp to avatar URL
-  const avatarUrl = user?.avatar 
-    ? `${user.avatar}?t=${Date.now()}` 
-    : undefined
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="!w-10 !h-10 p-0 m-0 rounded-full hover:opacity-90 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-opacity flex items-center justify-center overflow-hidden">
           <Avatar className="w-10 h-10">
-            <AvatarImage src={avatarUrl} alt={user?.name || 'User'} />
+            <AvatarImage 
+              src={user?.avatar} 
+              alt={user?.name || 'User'}
+              loading="eager"
+            />
             <AvatarFallback className="text-sm bg-teal-100 text-teal-700 font-medium">
               {initials}
             </AvatarFallback>
@@ -54,7 +53,11 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
           <>
             <div className="flex items-center gap-3 px-3 py-3 border-b border-gray-100">
               <Avatar className="w-8 h-8 flex-shrink-0">
-                <AvatarImage src={avatarUrl} alt={user.name || 'User'} />
+                <AvatarImage 
+                  src={user.avatar} 
+                  alt={user.name || 'User'}
+                  loading="eager"
+                />
                 <AvatarFallback className="text-xs bg-teal-100 text-teal-700 font-medium">
                   {initials}
                 </AvatarFallback>
@@ -79,7 +82,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
         
         <DropdownMenuItem asChild>
           <Link 
-            href="/assessments" 
+            href="/my-assessments" 
             className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
           >
             <FileText className="w-4 h-4" />

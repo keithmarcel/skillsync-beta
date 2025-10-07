@@ -151,11 +151,8 @@ export function InvitationsTable({ invitations, loading, isArchived, onUpdate }:
                     className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                   />
                 </th>
-                <th className="w-28 px-4 py-3">
-                  {/* Logo column - no label */}
-                </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Company Name
+                  Company
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Role

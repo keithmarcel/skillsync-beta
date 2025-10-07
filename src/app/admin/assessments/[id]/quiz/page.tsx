@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Loader2, ArrowLeft, Edit, AlertCircle, Eye, ChevronDown, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Edit, AlertCircle, Eye, ChevronDown, ChevronRight } from 'lucide-react'
+import { PageLoader } from '@/components/ui/loading-spinner'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import Breadcrumb from '@/components/ui/breadcrumb'
@@ -170,7 +171,7 @@ export default function QuizDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <PageLoader text="Loading quiz..." />
       </div>
     )
   }
@@ -433,7 +434,7 @@ export default function QuizDetailPage() {
         <TabsContent value="weighting">
           {weightingLoading ? (
             <div className="flex items-center justify-center min-h-[400px]">
-              <Loader2 className="h-8 w-8 animate-spin" />
+              <PageLoader text="Loading skill weighting..." />
             </div>
           ) : (
             <SkillWeightingDisplay 

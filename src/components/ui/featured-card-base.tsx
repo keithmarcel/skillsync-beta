@@ -52,7 +52,7 @@ export function FeaturedCardBase({ className, children }: FeaturedCardBaseProps)
 // Header section with consistent padding
 export function FeaturedCardHeader({ children, className }: FeaturedCardHeaderProps) {
   return (
-    <div className={cn("p-5 pb-0", className)}>
+    <div className={cn("p-7 pb-0", className)}>
       {children}
     </div>
   )
@@ -61,7 +61,7 @@ export function FeaturedCardHeader({ children, className }: FeaturedCardHeaderPr
 // Content section for description and other content
 export function FeaturedCardContent({ children, className }: FeaturedCardContentProps) {
   return (
-    <div className={cn("p-5 pb-0", className)}>
+    <div className={cn("p-7 pb-0", className)}>
       {children}
     </div>
   )
@@ -70,7 +70,7 @@ export function FeaturedCardContent({ children, className }: FeaturedCardContent
 // Footer section for actions
 export function FeaturedCardFooter({ children, className }: FeaturedCardFooterProps) {
   return (
-    <div className={cn("p-5 pt-4 flex items-center justify-center gap-3", className)}>
+    <div className={cn("px-7 pt-4 pb-0 flex items-center justify-center gap-3", className)}>
       {children}
     </div>
   )
@@ -132,8 +132,43 @@ export function AssessmentRecommendationBadge({
   )
 }
 
+// Category colors matching high-demand occupations palette
+const categoryColors: Record<string, { bg: string; text: string }> = {
+  'Health & Education': { bg: '#F6F5FF', text: '#1E429F' },
+  'Logistics': { bg: '#EDFAFA', text: '#014451' },
+  'Hospitality': { bg: '#FCE8F3', text: '#633112' },
+  'Finance & Legal': { bg: '#E5EDFF', text: '#42389D' },
+  'Public Services': { bg: '#FFF8F1', text: '#8A2C0D' },
+  'Tech & Services': { bg: '#EDEBFE', text: '#5521B5' },
+  'Skilled Trades': { bg: '#FCE8F3', text: '#99154B' },
+  'Business': { bg: '#E1EFFE', text: '#1E429F' },
+  'Technology': { bg: '#EDEBFE', text: '#5521B5' }, // Alias for Tech & Services
+}
+
 // Meta pill component matching Figma specs
 export function MetaPill({ label, className }: MetaPillProps) {
+  // Check if this is a category badge
+  const categoryColor = categoryColors[label]
+  
+  if (categoryColor) {
+    return (
+      <span
+        className={cn(
+          "inline-flex h-[22px] items-center rounded-full",
+          "px-3 text-xs font-medium",
+          className
+        )}
+        style={{
+          backgroundColor: categoryColor.bg,
+          color: categoryColor.text
+        }}
+      >
+        {label}
+      </span>
+    )
+  }
+  
+  // Default gray pill for non-category badges
   return (
     <span
       className={cn(

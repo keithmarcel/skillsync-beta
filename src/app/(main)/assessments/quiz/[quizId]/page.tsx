@@ -5,13 +5,13 @@ import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import PageHeader from '@/components/ui/page-header'
 import BreadcrumbLayout from '@/components/ui/breadcrumb-layout'
 import AssessmentStepper from '@/components/ui/assessment-stepper'
 import { supabase } from '@/lib/supabase/client'
-import { useAuth } from '@/hooks/useAuth'
+import { useToast } from '@/hooks/use-toast'
+import { PageLoader } from '@/components/ui/loading-spinner'
 import { Clock, CheckCircle } from 'lucide-react'
 
 type QuizState = 'loading' | 'intro' | 'in-progress' | 'submitting'
@@ -184,7 +184,7 @@ export default function QuizPage() {
   if (quizState === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+        <PageLoader text="Loading quiz..." />
       </div>
     )
   }
@@ -346,8 +346,7 @@ export default function QuizPage() {
 
         {quizState === 'submitting' && (
           <div className="max-w-3xl mx-auto text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0694A2] mx-auto mb-4"></div>
-            <p className="text-gray-600">Submitting your assessment...</p>
+            <PageLoader text="Submitting your assessment..." />
           </div>
         )}
       </BreadcrumbLayout>

@@ -38,7 +38,40 @@ export const renderCategoryBadge = (category: string) => {
   }, titleCaseCategory)
 }
 
-// Helper function to render neutral badges (for program types)
+// Helper function to shorten program type names
+const shortenProgramType = (programType: string): string => {
+  const typeMap: Record<string, string> = {
+    "Associate's": "Associate",
+    "Associate's Degree": "Associate",
+    "Bachelor Degree": "Bachelor",
+    "Bachelor's": "Bachelor",
+    "Bachelor's Degree": "Bachelor",
+    "Master's": "Master",
+    "Master's Degree": "Master",
+    "Masters": "Master",
+    "Certificate": "Certificate",
+    "Apprenticeship": "Apprenticeship",
+    "Bootcamp": "Bootcamp"
+  }
+  return typeMap[programType] || programType
+}
+
+// Helper function to render program type badges (shortened)
+export const renderProgramTypeBadge = (value: string) => {
+  const shortened = shortenProgramType(value)
+  
+  return React.createElement(Badge, {
+    style: { 
+      backgroundColor: '#F3F4F6', 
+      color: '#374151',
+      borderRadius: '10px',
+      boxShadow: 'none'
+    },
+    className: "font-medium border-0"
+  }, shortened)
+}
+
+// Helper function to render neutral badges (for other types)
 export const renderNeutralBadge = (value: string) => {
   const titleCaseValue = value.split(' ').map(word => 
     word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -83,7 +116,7 @@ export const renderHiringNowBadge = () => {
       borderRadius: '10px',
       boxShadow: 'none'
     },
-    className: "font-medium border-0 text-xs"
+    className: "font-medium border-0 text-xs w-fit"
   }, 'Hiring Now')
 }
 
@@ -96,12 +129,12 @@ export const renderJobTitleWithBadges = (item: any, isOnFavoritesTab: boolean = 
     return title
   }
   
-  // Only featured roles get "Hiring Now" badge in Job Title column
+  // Only featured roles get "Hiring Now" badge in Job Title column below the title
   // Occupations show just the title with no badges
   if (jobKind === 'featured_role') {
-    return React.createElement('div', { className: 'space-y-1' }, [
-      React.createElement('div', { key: 'title', className: 'font-medium' }, title),
-      React.createElement('div', { key: 'hiring-badge' }, renderHiringNowBadge())
+    return React.createElement('div', { className: 'flex flex-col gap-1.5' }, [
+      React.createElement('span', { key: 'title' }, title),
+      renderHiringNowBadge()
     ])
   }
   
@@ -228,9 +261,41 @@ export const occupationsTableColumns = [
 export const programsTableColumns = [
   {
     key: 'name',
-    label: 'Name',
+    label: 'Program Name',
     sortable: true,
     width: 'large' as const,
+    render: (value: string, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
+      const relatedJobsCount = row.related_jobs_count || 0
+      // Only return the badge, the value is rendered separately in the Link
+      return relatedJobsCount > 0 ? React.createElement(Badge, {
+        style: {
+          backgroundColor: '#EFF6FF',
+          color: '#1E40AF',
+          borderRadius: '10px',
+          boxShadow: 'none',
+          cursor: 'pointer'
+        },
+        className: 'font-medium border-0 text-xs shrink-0 w-fit transition-all duration-200',
+        onClick: (e: any) => {
+          e.preventDefault()
+          e.stopPropagation()
+          if (onRowAction) {
+            onRowAction('tertiary', row)
+          }
+        },
+        onMouseDown: (e: any) => {
+          e.preventDefault()
+        },
+        onMouseEnter: (e: any) => {
+          e.currentTarget.style.backgroundColor = '#DBEAFE'
+          e.currentTarget.style.boxShadow = '0 1px 2px 0 rgb(0 0 0 / 0.05)'
+        },
+        onMouseLeave: (e: any) => {
+          e.currentTarget.style.backgroundColor = '#EFF6FF'
+          e.currentTarget.style.boxShadow = 'none'
+        }
+      }, `Provides Skills for ${relatedJobsCount} ${relatedJobsCount === 1 ? 'Job' : 'Jobs'}`) : null
+    },
   },
   {
     key: 'short_desc',
@@ -244,7 +309,7 @@ export const programsTableColumns = [
     sortable: true,
     filterable: true,
     filterOptions: ['Certificate', "Associate's", 'Bachelor Degree', 'Apprenticeship', 'Bootcamp'],
-    render: (value: string) => renderNeutralBadge(value),
+    render: (value: string) => renderProgramTypeBadge(value),
     width: 'small' as const,
   },
   {

@@ -12,6 +12,7 @@ export interface Job {
   location_city: string | null;
   location_state: string | null;
   median_wage_usd: number | null;
+  short_desc: string | null;
   long_desc: string | null;
   featured_image_url: string | null;
   skills_count: number;
@@ -303,13 +304,11 @@ export async function getFeaturedPrograms(): Promise<Program[]> {
     .from('programs')
     .select(`
       *,
-      school:schools(*),
-      skills:program_skills(
-        weight,
-        skill:skills(*)
-      )
+      school:schools!inner(*)
     `)
     .eq('is_featured', true)
+    .eq('status', 'published')
+    .eq('school.is_published', true)
     .limit(6)
     .order('name')
 
@@ -326,12 +325,10 @@ export async function getAllPrograms(): Promise<Program[]> {
     .from('programs')
     .select(`
       *,
-      school:schools(*),
-      skills:program_skills(
-        weight,
-        skill:skills(*)
-      )
+      school:schools!inner(*)
     `)
+    .eq('status', 'published')
+    .eq('school.is_published', true)
     .order('name')
 
   if (error) {
@@ -626,8 +623,7 @@ export async function getProgramSkills(programId: string): Promise<ProgramSkill[
       skill:skills(*)
     `)
     .eq('program_id', programId)
-    .order('coverage_level', { ascending: false })
-    .order('weight', { ascending: false })
+    .order('weight', { ascending: false})
 
   if (error) {
     console.error('Error fetching program skills:', error)
@@ -637,21 +633,103 @@ export async function getProgramSkills(programId: string): Promise<ProgramSkill[
   return data || []
 }
 
-export async function getSkillsForSocCode(socCode: string): Promise<JobSkill[]> {
-  // Find jobs with this SOC code and get their skills
-  const { data: jobs, error: jobsError } = await supabase
-    .from('jobs')
-    .select('id')
-    .eq('soc_code', socCode)
+// Get count of jobs that share skills with a program
+export async function getRelatedJobsCountForProgram(programId: string): Promise<number> {
+  try {
+    // First, get the program's skills
+    const { data: programSkills, error: skillsError } = await supabase
+      .from('program_skills')
+      .select('skill_id')
+      .eq('program_id', programId)
 
-  if (jobsError || !jobs || jobs.length === 0) {
-    console.error('Error finding jobs for SOC code:', jobsError)
+    if (skillsError || !programSkills || programSkills.length === 0) {
+      return 0
+    }
+
+    const skillIds = programSkills.map(ps => ps.skill_id)
+
+    // Then, find unique jobs that have those skills
+    const { data: jobSkills, error: jobSkillsError } = await supabase
+      .from('job_skills')
+      .select('job_id')
+      .in('skill_id', skillIds)
+
+    if (jobSkillsError || !jobSkills) {
+      return 0
+    }
+
+    // Count unique jobs
+    const uniqueJobIds = new Set(jobSkills.map(js => js.job_id))
+    return uniqueJobIds.size
+  } catch (error) {
+    console.error('Error counting related jobs:', error)
+    return 0
+  }
+}
+
+// Get jobs that share skills with a program
+export async function getRelatedJobsForProgram(programId: string): Promise<Job[]> {
+  try {
+    // First, get the program's skills
+    const { data: programSkills, error: skillsError } = await supabase
+      .from('program_skills')
+      .select('skill_id')
+      .eq('program_id', programId)
+
+    if (skillsError || !programSkills || programSkills.length === 0) {
+      return []
+    }
+
+    const skillIds = programSkills.map(ps => ps.skill_id)
+
+    // Then, find jobs that have those skills
+    const { data: jobSkills, error: jobSkillsError } = await supabase
+      .from('job_skills')
+      .select(`
+        job_id,
+        jobs!inner(
+          id,
+          title,
+          job_kind,
+          soc_code,
+          company_id,
+          category,
+          median_wage_usd,
+          is_featured,
+          company:companies(id, name, logo_url)
+        )
+      `)
+      .in('skill_id', skillIds)
+      .eq('jobs.status', 'published')
+
+    if (jobSkillsError || !jobSkills) {
+      return []
+    }
+
+    // Deduplicate jobs and count skill overlaps
+    const jobMap = new Map<string, { job: any; skillCount: number }>()
+    
+    jobSkills.forEach(js => {
+      const job = js.jobs
+      if (job && job.id) {
+        if (jobMap.has(job.id)) {
+          jobMap.get(job.id)!.skillCount++
+        } else {
+          jobMap.set(job.id, { job, skillCount: 1 })
+        }
+      }
+    })
+
+    // Sort by skill overlap count (most relevant first) and return all jobs
+    const sortedJobs = Array.from(jobMap.values())
+      .sort((a, b) => b.skillCount - a.skillCount)
+      .map(item => item.job)
+
+    return sortedJobs
+  } catch (error) {
+    console.error('Error fetching related jobs:', error)
     return []
   }
-
-  // Get skills for the first job with this SOC code
-  // (assuming all jobs with same SOC code should have same skills)
-  return getJobSkills(jobs[0].id)
 }
 
 export async function createSkill(skillData: {

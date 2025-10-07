@@ -5,6 +5,7 @@ import { FeaturedCardBase, FeaturedCardHeader, FeaturedCardContent, FeaturedCard
 import { CompanyModal } from './company-modal'
 import { FeaturedCardActions } from './featured-card-actions'
 import { transformCompanyProfile } from '@/lib/database/transforms'
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './tooltip'
 
 interface FeaturedRoleCardProps {
   id: string
@@ -61,11 +62,11 @@ export function FeaturedRoleCard({
     window.location.href = href
   }
   const companyLogo = company.logo ? (
-    <div className="h-12 flex items-center">
+    <div className="h-12 w-[140px] flex items-center justify-center">
       <img 
         src={company.logo.startsWith('/') ? company.logo : `/companies/${company.logo}`} 
         alt={`${company.name} logo`} 
-        className="h-8 w-auto max-w-[140px] object-contain" 
+        className="max-h-8 max-w-[140px] w-auto h-auto object-contain" 
         onError={(e) => {
           console.log('Logo failed to load:', company.logo)
           e.currentTarget.style.display = 'none'
@@ -73,7 +74,7 @@ export function FeaturedRoleCard({
       />
     </div>
   ) : (
-    <div className="h-12 flex items-center">
+    <div className="h-12 w-[140px] flex items-center justify-center">
       <div className="h-8 w-8 bg-gray-200 rounded flex items-center justify-center">
         <span className="text-xs font-medium text-gray-600">
           {company.name[0]}
@@ -90,47 +91,101 @@ export function FeaturedRoleCard({
   ]
 
   return (
-    <FeaturedCardBase className={className}>
+    <FeaturedCardBase className={`${className} transition-all duration-300 ease-in-out hover:shadow-md will-change-transform`}>
       <FeaturedCardHeader>
-        <FeaturedCardHeaderLayout
-          logo={companyLogo}
-          title={title}
-          actionsMenu={
-            onAddFavorite && onRemoveFavorite ? (
-              <FeaturedCardActions
-                entityType="job"
-                entityId={id}
-                entityTitle={title}
-                isFavorited={isFavorited}
-                onAddFavorite={onAddFavorite}
-                onRemoveFavorite={onRemoveFavorite}
-                onViewDetails={handleViewDetails}
-              />
-            ) : undefined
-          }
-        />
+        <div className="flex items-start justify-between gap-2">
+          {/* Fixed height container for title + company - accommodates 1-2 line titles */}
+          <div className="flex-1 h-[72px] flex flex-col justify-center">
+            <a href={href} className="hover:text-teal-700 transition-colors duration-300 ease-in-out">
+              <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2 hover:text-teal-700 transition-colors duration-300 ease-in-out">
+                {title}
+              </h3>
+            </a>
+            <p className="text-sm text-gray-500 mt-1">{company.name}</p>
+          </div>
+          {onAddFavorite && onRemoveFavorite && (
+            <FeaturedCardActions
+              entityType="job"
+              entityId={id}
+              entityTitle={title}
+              isFavorited={isFavorited}
+              onAddFavorite={onAddFavorite}
+              onRemoveFavorite={onRemoveFavorite}
+              onViewDetails={handleViewDetails}
+              onAboutCompany={handleAboutCompany}
+            />
+          )}
+        </div>
         <div className="mt-4">
           <MetaPillsRow pills={pills} />
         </div>
         <FeaturedCardDivider />
-        <FeaturedCardDescription>
-          {description}
-        </FeaturedCardDescription>
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <FeaturedCardDescription>
+                  {description}
+                </FeaturedCardDescription>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              <p>{description}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </FeaturedCardHeader>
 
       <FeaturedCardContent>
         <StatsGrid stats={stats} />
-        <FeaturedCardDivider />
       </FeaturedCardContent>
-
-      <FeaturedCardFooter>
-        <ActionButton variant="secondary" onClick={handleAboutCompany}>
-          About the Company
-        </ActionButton>
-        <ActionButton variant="primary" href={href}>
-          Job Details
-        </ActionButton>
-      </FeaturedCardFooter>
+      
+      {/* Company Logo and Button at Bottom */}
+      <div className="px-7 pb-6 flex flex-col items-center">
+        <div className="w-full max-w-[352px] border-t border-dashed border-gray-300 mt-6 mb-4" />
+        <div className="w-full flex items-center justify-between gap-4">
+          {/* Clickable Company Logo - Opens About Company Modal */}
+          <button 
+            onClick={handleAboutCompany}
+            className="h-12 w-[140px] flex items-center justify-center hover:opacity-70 transition-all duration-300 ease-in-out cursor-pointer hover:scale-105 transform-gpu backface-visibility-hidden"
+          >
+            {company.logo ? (
+              <img 
+                src={company.logo.startsWith('/') ? company.logo : `/companies/${company.logo}`} 
+                alt={`${company.name} logo`} 
+                className="max-h-8 max-w-[140px] w-auto h-auto object-contain"
+                style={{
+                  // Reduce Power Design logo by 15% for better visual balance
+                  transform: company.name.toLowerCase().includes('power design') ? 'scale(0.85)' : 'none'
+                }}
+                onError={(e) => {
+                  console.log('Logo failed to load:', company.logo)
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+            ) : (
+              <div className="h-8 w-8 bg-gray-200 rounded flex items-center justify-center">
+                <span className="text-xs font-medium text-gray-600">
+                  {company.name[0]}
+                </span>
+              </div>
+            )}
+          </button>
+          
+          {/* Explore Button */}
+          <a 
+            href={href}
+            className="flex flex-row justify-center items-center px-4 py-2 gap-2 w-auto h-10 bg-secondary text-teal-800 shadow-sm hover:bg-secondary/80 hover:shadow-md rounded-lg transition-all duration-300 ease-in-out hover:scale-105 transform-gpu backface-visibility-hidden"
+          >
+            <span className="font-medium text-sm leading-5">
+              Explore
+            </span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-300 ease-in-out group-hover:translate-x-1 flex-shrink-0">
+              <path d="M3.33334 8H12.6667M12.6667 8L8.00001 3.33333M12.6667 8L8.00001 12.6667" stroke="currentColor" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
+        </div>
+      </div>
 
       <CompanyModal 
         isOpen={isCompanyModalOpen}
@@ -138,7 +193,7 @@ export function FeaturedRoleCard({
         company={transformCompanyProfile({
           id: company.name, // Using name as fallback since we don't have company ID in props
           name: company.name,
-          logo_url: company.logo,
+          logo_url: company.logo?.startsWith('/') ? company.logo : `/companies/${company.logo}`,
           is_trusted_partner: company.isTrustedPartner,
           is_published: true, // Default to published since this is a featured role
           company_image_url: null, // Not available in current props

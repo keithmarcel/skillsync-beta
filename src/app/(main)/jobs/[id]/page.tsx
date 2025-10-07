@@ -12,6 +12,7 @@ import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } 
 import { useEffect, useState } from 'react'
 import { getJobById } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
+import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
 
 // No mock data - using real database data only
 
@@ -23,27 +24,69 @@ function CompanyModal({ company }: { company: any }) {
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <div className="flex items-center gap-4 mb-4">
-            {company.logo_url && (
-              <Image src={company.logo_url} alt={`${company.name} logo`} width={60} height={60} className="rounded" />
-            )}
+          {/* Logo displayed prominently - left aligned */}
+          {company.logo_url && (
+            <div className="flex justify-start mb-4">
+              <img 
+                src={company.logo_url} 
+                alt={`${company.name} logo`}
+                className="h-16 w-auto object-contain max-w-[300px]"
+              />
+            </div>
+          )}
+          <DialogTitle className="text-xl">{company.name}</DialogTitle>
+          <DialogDescription>Learn more about this trusted partner</DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {/* Profile/Company Image if available */}
+          {company.company_image && (
+            <div className="w-full h-48 rounded-lg overflow-hidden">
+              <img 
+                src={company.company_image} 
+                alt={`${company.name} profile`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">About</h4>
+            <p className="text-gray-600 text-sm">
+              {company.bio || 'Information about this company is not available at this time.'}
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <DialogTitle className="text-xl">{company.name}</DialogTitle>
-              <DialogDescription>Learn more about this trusted partner</DialogDescription>
+              <h4 className="font-medium text-gray-900 mb-1">Revenue</h4>
+              <p className="text-sm text-gray-600">{company.revenue_range || 'Not specified'}</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-1">Employees</h4>
+              <p className="text-sm text-gray-600">{company.employee_range || 'Not specified'}</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-1">Industry</h4>
+              <p className="text-sm text-gray-600">{company.industry || 'Not specified'}</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-1">Headquarters</h4>
+              <p className="text-sm text-gray-600">
+                {company.hq_city && company.hq_state ? `${company.hq_city}, ${company.hq_state}` : 'Not specified'}
+              </p>
             </div>
           </div>
-        </DialogHeader>
-        <div className="space-y-4">
-          {company.company_image && (
-            <Image src={company.company_image} alt={`${company.name}`} width={400} height={200} className="rounded-lg w-full" />
+          
+          {company.website && (
+            <div className="pt-4">
+              <Button asChild className="w-full">
+                <a href={company.website} target="_blank" rel="noopener noreferrer">
+                  Visit Company Website
+                </a>
+              </Button>
+            </div>
           )}
-          <p className="text-gray-700">{company.bio}</p>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div><strong>Revenue:</strong> {company.revenue_range || 'Not specified'}</div>
-            <div><strong>Employees:</strong> {company.employee_range || 'Not specified'}</div>
-            <div><strong>Industry:</strong> {company.industry || 'Not specified'}</div>
-            <div><strong>Headquarters:</strong> {company.hq_city && company.hq_state ? `${company.hq_city}, ${company.hq_state}` : 'Not specified'}</div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
@@ -81,14 +124,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   }, [params.id])
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading job details...</p>
-        </div>
-      </div>
-    )
+    return <JobDetailsSkeleton />
   }
 
   if (error || !job) {
@@ -132,7 +168,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
       <BreadcrumbLayout items={[
         { label: 'Jobs', href: '/jobs' },
         { 
-          label: job.job_kind === 'featured_role' ? 'Featured Roles' : 'High-Demand Occupations', 
+          label: job.job_kind === 'featured_role' ? 'Hiring Now' : 'High-Demand Occupations', 
           href: `/jobs?tab=${job.job_kind === 'featured_role' ? 'featured-roles' : 'high-demand'}` 
         },
         { label: job.title, isActive: true }

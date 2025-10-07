@@ -1,10 +1,11 @@
 'use client'
 
-import { MoreHorizontal } from 'lucide-react'
+import { MoreHorizontal, Heart, Eye, Building } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -15,7 +16,9 @@ interface FeaturedCardActionsProps {
   isFavorited: boolean
   onAddFavorite: () => void
   onRemoveFavorite: () => void
-  onViewDetails: () => void
+  onViewDetails?: () => void
+  onAboutCompany?: () => void
+  onAboutSchool?: () => void
 }
 
 export function FeaturedCardActions({
@@ -25,7 +28,9 @@ export function FeaturedCardActions({
   isFavorited,
   onAddFavorite,
   onRemoveFavorite,
-  onViewDetails
+  onViewDetails,
+  onAboutCompany,
+  onAboutSchool
 }: FeaturedCardActionsProps) {
   return (
     <DropdownMenu>
@@ -38,13 +43,49 @@ export function FeaturedCardActions({
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem onClick={onViewDetails}>
-          View Details
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={isFavorited ? onRemoveFavorite : onAddFavorite}>
-          {isFavorited ? 'Remove from Favorites' : 'Add to Favorites'}
-        </DropdownMenuItem>
+        {onViewDetails && (
+          <>
+            <DropdownMenuItem onClick={onViewDetails}>
+              <Eye className="mr-2 h-4 w-4" />
+              View Details
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        
+        {onAboutCompany && (
+          <>
+            <DropdownMenuItem onClick={onAboutCompany}>
+              <Building className="mr-2 h-4 w-4" />
+              About the Company
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        
+        {onAboutSchool && (
+          <>
+            <DropdownMenuItem onClick={onAboutSchool}>
+              <Building className="mr-2 h-4 w-4" />
+              About the School
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        
+        {isFavorited ? (
+          <DropdownMenuItem onClick={onRemoveFavorite} className="whitespace-nowrap">
+            <Heart className="mr-2 h-4 w-4 fill-current" />
+            Remove from Favorites
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem onClick={onAddFavorite} className="whitespace-nowrap">
+            <Heart className="mr-2 h-4 w-4" />
+            Add to Favorites
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
+

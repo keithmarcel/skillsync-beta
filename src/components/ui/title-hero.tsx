@@ -34,7 +34,7 @@ export function TitleHero({
   return (
     <div className={`flex flex-col justify-center items-start gap-5 w-full max-w-[1232px] mx-auto mb-6 ${className}`}>
       {/* Page Title */}
-      <h1 className="text-2xl font-bold leading-8 text-gray-900 font-geist">
+      <h1 className="text-[24px] font-bold leading-[32px] text-[#114B5F] font-source-sans-pro">
         {title}
       </h1>
       

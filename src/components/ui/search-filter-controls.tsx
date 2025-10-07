@@ -1,9 +1,16 @@
 'use client'
 
-import React from 'react'
-import { Search } from 'lucide-react'
+import React, { useState } from 'react'
+import { Search, ChevronDown } from 'lucide-react'
 import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
+import { Checkbox } from './checkbox'
+import { Button } from './button'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from './popover'
 
 interface Column {
   key: string
@@ -20,8 +27,8 @@ interface SearchFilterControlsProps {
   sortBy: string
   sortOrder: 'asc' | 'desc'
   onSortChange: (value: string) => void
-  filters: Record<string, string>
-  onFilterChange: (column: string, value: string) => void
+  filters: Record<string, string[]>
+  onFilterChange: (column: string, values: string[]) => void
   columns: Column[]
   className?: string
 }
@@ -78,28 +85,78 @@ export default function SearchFilterControls({
           </Select>
         )}
 
-        {/* Filter Dropdowns */}
-        {filterableColumns.map((column: Column) => (
-          <Select 
-            key={column.key}
-            value={filters[column.key] || 'all'} 
-            onValueChange={(value) => onFilterChange(column.key, value)}
-          >
-            <SelectTrigger className="w-auto min-w-40 h-10">
-              <SelectValue placeholder={column.label}>
-                {filters[column.key] ? `${column.label}: ${filters[column.key]}` : column.label}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All {column.label}</SelectItem>
-              {column.filterOptions?.map((option: string) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ))}
+        {/* Filter Popovers with Checkboxes */}
+        {filterableColumns.map((column: Column) => {
+          const selectedFilters = filters[column.key] || []
+          const selectedCount = selectedFilters.length
+          const displayLabel = column.label
+          
+          return (
+            <Popover key={column.key}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-auto min-w-40 h-10 justify-between font-normal"
+                >
+                  <span>
+                    {selectedCount > 0 
+                      ? `${displayLabel} (${selectedCount})` 
+                      : displayLabel
+                    }
+                  </span>
+                  <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-4" align="end">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-base">Filter by {displayLabel}</h4>
+                    {/* Reserve space for Clear All button */}
+                    <div className="h-5">
+                      {selectedCount > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 text-xs text-teal-600 hover:text-teal-700"
+                          onClick={() => onFilterChange(column.key, [])}
+                        >
+                          Clear All
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    {column.filterOptions?.map((option: string) => {
+                      const isChecked = selectedFilters.includes(option)
+                      return (
+                        <div key={option} className="flex items-center space-x-3">
+                          <Checkbox
+                            id={`${column.key}-${option}`}
+                            checked={isChecked}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                onFilterChange(column.key, [...selectedFilters, option])
+                              } else {
+                                onFilterChange(column.key, selectedFilters.filter(v => v !== option))
+                              }
+                            }}
+                            className="data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                          />
+                          <label
+                            htmlFor={`${column.key}-${option}`}
+                            className="text-sm font-normal cursor-pointer leading-relaxed peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex-1"
+                          >
+                            {option}
+                          </label>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )
+        })}
       </div>
     </div>
   )

@@ -185,9 +185,9 @@ export default function ProgramDetailPage({ params }: { params: { id: string } }
         {
           key: 'long_desc',
           label: 'Full Description',
-          type: EntityFieldType.TEXTAREA,
+          type: EntityFieldType.RICH_TEXT,
           placeholder: 'Detailed program overview...',
-          helpText: 'Complete program description for detail pages'
+          helpText: 'Complete program description for detail pages (supports HTML formatting)'
         },
         {
           key: 'program_url',
