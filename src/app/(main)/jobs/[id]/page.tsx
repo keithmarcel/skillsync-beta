@@ -210,9 +210,6 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <CardTitle className="text-white text-xl mb-2">
                       {job.job_kind === 'occupation' ? 'Occupation Overview' : 'Role Overview'}
                     </CardTitle>
-                    <CardDescription className="text-white text-lg font-semibold">
-                      {job.title}
-                    </CardDescription>
                   </div>
                   <div className="flex gap-2">
                     <Badge className="bg-[#0F3A47] text-white border-0 hover:bg-[#0F3A47]">{job.category}</Badge>
@@ -241,9 +238,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <div>
                       <div className="text-sm opacity-80">Median Salary</div>
                       <div className="text-xl font-bold">${job.median_wage_usd?.toLocaleString()}</div>
-                      {job.job_kind === 'occupation' && (
-                        <div className="text-xs opacity-70 mt-1">National Average</div>
-                      )}
+                      <div className="text-xs opacity-70 mt-1">National Average</div>
                     </div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
@@ -270,10 +265,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">Projected Open Positions in Region</div>
+                        <div className="text-sm opacity-80">Annual Job Openings</div>
                         <div className="text-xl font-bold">
-                          {job.projected_open_positions ? `~${job.projected_open_positions.toLocaleString()}` : 'Data not available'}
+                          {job.job_openings_annual ? `~${job.job_openings_annual.toLocaleString()}` : 'Data Not Available'}
                         </div>
+                        <div className="text-xs opacity-70 mt-1">Nationally</div>
                       </div>
                     </div>
                   )}
@@ -284,8 +280,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       </svg>
                     </div>
                     <div>
-                      <div className="text-sm opacity-80">Typical Education Requirements</div>
-                      <div className="text-xl font-bold">{job.education_level || job.education_requirements || 'Not specified'}</div>
+                      <div className="text-sm opacity-80">Typical Education</div>
+                      <div className="text-xl font-bold">{job.education_level || job.education_requirements || 'Not Specified'}</div>
+                      <div className="text-xs opacity-70 mt-1">Requirements</div>
                     </div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
@@ -308,10 +305,22 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">Career Outlook</div>
-                        <div className="text-base font-semibold">{job.employment_outlook || 'Data not available'}</div>
-                        {job.employment_outlook && (
-                          <div className="text-xs opacity-70 mt-1">Based on national data</div>
+                        <div className="text-sm opacity-80">National Career Outlook</div>
+                        {job.employment_outlook ? (
+                          <>
+                            <div className={`text-base font-semibold ${
+                              job.employment_outlook.toLowerCase().includes('bright') || job.employment_outlook.toLowerCase().includes('faster') 
+                                ? 'text-green-400' 
+                                : job.employment_outlook.toLowerCase().includes('average') || job.employment_outlook.toLowerCase().includes('as fast')
+                                ? 'text-yellow-400'
+                                : 'text-orange-400'
+                            }`}>
+                              {job.employment_outlook}
+                            </div>
+                            <div className="text-xs opacity-70 mt-1">Through 2032</div>
+                          </>
+                        ) : (
+                          <div className="text-base font-semibold">Data Not Available</div>
                         )}
                       </div>
                     </div>
@@ -324,46 +333,45 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
           {/* Featured Image */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8 h-full">
+            <div className="sticky top-8 h-[400px] rounded-2xl overflow-hidden">
               <Image 
                 src={job.featured_image_url || '/assets/hero_occupations.jpg'} 
                 alt={job.title} 
                 width={400} 
-                height={300} 
-                className="rounded-2xl w-full h-full object-cover"
+                height={400} 
+                className="w-full h-full object-cover"
+                priority
               />
             </div>
           </div>
         </div>
 
-        {/* Unlock this Role Assessment */}
-        <div className="flex items-center gap-8 my-12 p-8 bg-white rounded-2xl border">
-          <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
-            <Image 
-              src="/assets/hero_occupations.jpg" 
-              alt="Assessment" 
-              width={64} 
-              height={64} 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Unlock this Role! Assess your skills to see your role readiness.
-            </h3>
-            <p className="text-gray-600 text-sm">
-              We'll assess your skills, show you how they align with industry benchmarks, and recommend top regional programs that can help close any gaps.
-            </p>
-          </div>
-          <Button asChild className="bg-[#114B5F] hover:bg-[#0F3A47] text-[#FAFAFA] px-3 py-2 rounded-lg flex-shrink-0 shadow-sm w-[215px] h-10 gap-2 font-normal text-base">
-            <Link href={`/assessments/${job.id}/intro`} className="flex items-center justify-center gap-2">
-              Start Your Assessment
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M9 5l7 7-7 7"/>
+        {/* Unlock this Role Assessment - Only for Occupations */}
+        {job.job_kind === 'occupation' && (
+          <div className="flex items-center gap-8 my-12 p-8 bg-white rounded-2xl border">
+            <div className="w-16 h-16 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
               </svg>
-            </Link>
-          </Button>
-        </div>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Assess your skills to see your role readiness.
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Take a skills assessment to discover how your current abilities match this occupation. You'll receive a personalized readiness score and recommendations for training programs that can help you advance your career.
+              </p>
+            </div>
+            <Button asChild className="bg-[#114B5F] hover:bg-[#0F3A47] text-[#FAFAFA] px-3 py-2 rounded-lg flex-shrink-0 shadow-sm w-[215px] h-10 gap-2 font-normal text-base">
+              <Link href={`/assessments/${job.id}/intro`} className="flex items-center justify-center gap-2">
+                Start Your Assessment
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M9 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </Button>
+          </div>
+        )}
 
         {/* Skills & Responsibilities */}
         <Card className="rounded-2xl mb-8 bg-[#114B5F] text-white border-0">
@@ -375,12 +383,14 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               {/* Core Skills */}
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Skills</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-wrap gap-2">
                   {job.skills && job.skills.length > 0 ? job.skills.map((skill: any, index: number) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <span className="text-teal-400">•</span>
-                      <span className="text-white text-sm">{skill.skill?.name || skill.name}</span>
-                    </div>
+                    <span 
+                      key={index} 
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#002F3F] text-teal-50"
+                    >
+                      {skill.skill?.name || skill.name}
+                    </span>
                   )) : (
                     <div className="text-white/70 text-sm">No skills data available</div>
                   )}
@@ -408,24 +418,6 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               {/* Related Job Titles (for occupations only) */}
               {job.job_kind === 'occupation' && (
                 <>
-                  {/* Bright Outlook Badge */}
-                  {job.bright_outlook === 'Bright' && (
-                    <>
-                      <div className="border-t border-[#093A4B]"></div>
-                      <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-4 flex items-start gap-3">
-                        <div className="text-yellow-400 flex-shrink-0">
-                          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <div className="font-semibold text-yellow-100 mb-1">Bright Outlook Occupation</div>
-                          <div className="text-sm text-yellow-200">{job.bright_outlook_category}</div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-
                   {/* Typical Tasks Section */}
                   {job.tasks && job.tasks.length > 0 && (
                     <>
@@ -434,19 +426,27 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         <h3 className="font-semibold mb-4 text-white">Typical Tasks & Responsibilities</h3>
                         <div className="text-sm text-white/70 mb-3">Day-to-day activities in this occupation</div>
                         <div className="space-y-3">
-                          {job.tasks.slice(0, 8).map((task: any, index: number) => (
-                            <div key={index} className="flex items-start gap-3">
-                              <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
+                          {job.tasks.slice(0, 8).map((task: any, index: number) => {
+                            const importance = task.DataValue ? parseFloat(task.DataValue) : 0
+                            const importanceLabel = importance >= 4.0 ? 'High' : importance >= 3.0 ? 'Medium' : 'Low'
+                            const importanceColor = importance >= 4.0 ? 'text-green-400' : importance >= 3.0 ? 'text-yellow-400' : 'text-orange-400'
+                            
+                            return (
+                              <div key={index} className="flex items-start gap-3">
+                                <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
+                                  {task.DataValue && (
+                                    <span className={`text-xs mt-1 inline-block font-medium ${importanceColor}`}>
+                                      Importance: {importanceLabel}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex-1">
-                                <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
-                                {task.DataValue && (
-                                  <span className="text-xs text-white/50 mt-1 inline-block">Importance: {task.DataValue}/5.0</span>
-                                )}
-                              </div>
-                            </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </div>
                     </>
@@ -518,8 +518,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        {/* Hiring Companies for Occupations */}
-        {job.job_kind === 'occupation' && (
+        {/* Hiring Companies for Occupations - Hidden for now */}
+        {false && job.job_kind === 'occupation' && (
           <Card className="rounded-2xl mb-16">
             <CardHeader className="pb-5">
               <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>
