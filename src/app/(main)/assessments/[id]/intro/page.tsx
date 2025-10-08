@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { Clock, CheckCircle2, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { AssessmentSimulator } from '@/components/admin/AssessmentSimulator';
 import { supabase } from '@/lib/supabase/client';
-import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { PageLoader } from '@/components/ui/loading-spinner';
 import Image from 'next/image';
 
