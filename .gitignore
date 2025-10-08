@@ -48,4 +48,9 @@ docs/reference/
 docs/strategic/
 *.log
 question-bank-*.log
+
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
 program-enrichment.log

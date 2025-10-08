@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ViewAsProvider } from "@/contexts/ViewAsContext";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -30,8 +31,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${GeistSans.className} ${sourceSansPro.variable} antialiased bg-gray-50`}>
         <AuthProvider>
-          {children}
-          <Toaster />
+          <ViewAsProvider>
+            {children}
+            <Toaster />
+          </ViewAsProvider>
         </AuthProvider>
       </body>
     </html>

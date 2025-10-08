@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, User, Building2, GraduationCap, Shield } from 'lucide-react'
 import {
@@ -10,32 +9,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
+import { useViewAs } from '@/contexts/ViewAsContext'
 import { useAuth } from '@/hooks/useAuth'
+import { Badge } from '@/components/ui/badge'
 
 type ViewAsMode = 'super_admin' | 'employer_admin' | 'provider_admin' | 'user'
 
 export function ViewAsSwitcher() {
   const router = useRouter()
   const { isSuperAdmin } = useAuth()
-  const [viewAsMode, setViewAsMode] = useState<ViewAsMode>('super_admin')
+  const { viewAsMode, setViewAsMode, isViewingAs } = useViewAs()
 
-  // Only show for super admins
-  if (!isSuperAdmin) return null
-
-  // Load saved view mode from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('viewAsMode') as ViewAsMode
-    if (saved) {
-      setViewAsMode(saved)
-    }
-  }, [])
+  if (!isSuperAdmin) {
+    return null
+  }
 
   const handleViewChange = (mode: ViewAsMode) => {
-    setViewAsMode(mode)
-    localStorage.setItem('viewAsMode', mode)
+    setViewAsMode(mode === 'super_admin' ? null : mode)
     
-    // Navigate to appropriate dashboard
+    // Navigate to the appropriate view
     switch (mode) {
       case 'employer_admin':
         router.push('/employer')
@@ -78,22 +70,20 @@ export function ViewAsSwitcher() {
     }
   }
 
+  const currentMode = viewAsMode || 'super_admin'
+
   return (
-    <div className="border-t border-gray-200 pt-4 mt-4">
-      <div className="px-3 mb-2">
-        <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          <Eye className="w-4 h-4" />
-          <span>View As</span>
-        </div>
-      </div>
+    <div className="space-y-2">
+      {isViewingAs && (
+        <Badge variant="outline" className="w-full justify-center bg-amber-50 text-amber-700 border-amber-200">
+          Viewing as {getLabel(currentMode as ViewAsMode)}
+        </Badge>
+      )}
       
-      <div className="px-3">
-        <Select value={viewAsMode} onValueChange={(value) => handleViewChange(value as ViewAsMode)}>
+      <div>
+        <Select value={currentMode} onValueChange={(value) => handleViewChange(value as ViewAsMode)}>
           <SelectTrigger className="w-full">
-            <div className="flex items-center gap-2">
-              {getIcon(viewAsMode)}
-              <SelectValue />
-            </div>
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="super_admin">
@@ -122,10 +112,6 @@ export function ViewAsSwitcher() {
             </SelectItem>
           </SelectContent>
         </Select>
-        
-        <p className="text-xs text-gray-500 mt-2">
-          Switch views to test different user experiences
-        </p>
       </div>
     </div>
   )

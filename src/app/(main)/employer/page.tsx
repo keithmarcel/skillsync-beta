@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useViewAs } from '@/contexts/ViewAsContext'
 import PageHeader from '@/components/ui/page-header'
 import StickyTabs from '@/components/ui/sticky-tabs'
 import { EmployerDashboard } from '@/components/employer/employer-dashboard'
@@ -20,7 +21,8 @@ interface Company {
 }
 
 export default function EmployerDashboardPage() {
-  const { user, profile, loading: authLoading, isEmployerAdmin } = useAuth()
+  const { user, profile, loading: authLoading, isEmployerAdmin, isSuperAdmin } = useAuth()
+  const { viewAsMode } = useViewAs()
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -78,7 +80,10 @@ export default function EmployerDashboardPage() {
     )
   }
 
-  if (!user || !isEmployerAdmin) {
+  // Allow access if user is employer admin OR super admin viewing as employer
+  const hasAccess = isEmployerAdmin || (isSuperAdmin && viewAsMode === 'employer_admin')
+  
+  if (!user || !hasAccess) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-gray-500">Access denied. Employer admin access required.</div>

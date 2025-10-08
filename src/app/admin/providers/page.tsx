@@ -25,7 +25,7 @@ export default function ProvidersPage() {
     {
       key: 'about_url',
       header: 'Website',
-      render: (school: School) => school?.about_url ? <a href={school.about_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View</a> : '-'
+      render: (school: School) => school?.about_url ? <a href={school.about_url} target="_blank" rel="noopener noreferrer" className="text-[#0694A2] hover:underline">View</a> : '-'
     },
     {
       key: 'is_published',
@@ -99,7 +99,7 @@ export default function ProvidersPage() {
             <h1 className="text-2xl font-bold">Education Providers</h1>
             <p className="text-gray-600">Manage schools and training institutions</p>
           </div>
-          <Button asChild className="bg-teal-600 hover:bg-teal-700">
+          <Button asChild className="bg-[#0694A2] hover:bg-[#0694A2]/90">
             <Link href="/admin/providers/new">
               <Plus className="w-4 h-4 mr-2" />
               Add Provider

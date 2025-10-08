@@ -207,7 +207,7 @@ export interface QuizQuestion {
 
 // Job queries
 export async function getFeaturedRoles(): Promise<Job[]> {
-  const { data, error } = await supabase
+  const { data, error} = await supabase
     .from('jobs')
     .select(`
       *,
@@ -237,6 +237,25 @@ export async function getFeaturedRoles(): Promise<Job[]> {
     return company?.is_published !== false // Allow null/undefined (column doesn't exist yet)
   }) || []
 
+  // Check for curated skills for each role with a SOC code
+  for (const job of filteredData) {
+    if (job.soc_code) {
+      const { data: curatedSkills, error: curatedError } = await supabase
+        .from('soc_skills')
+        .select(`
+          weight,
+          skill:skills(*)
+        `)
+        .eq('soc_code', job.soc_code)
+        .order('weight', { ascending: false })
+
+      // Use curated skills if they exist
+      if (!curatedError && curatedSkills && curatedSkills.length > 0) {
+        job.skills = curatedSkills
+      }
+    }
+  }
+
   return filteredData
 }
 
@@ -265,6 +284,25 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
     return !job.company_id || company?.is_published !== false
   }) || []
 
+  // Check for curated skills for each occupation with a SOC code
+  for (const job of filteredData) {
+    if (job.soc_code) {
+      const { data: curatedSkills, error: curatedError } = await supabase
+        .from('soc_skills')
+        .select(`
+          weight,
+          skill:skills(*)
+        `)
+        .eq('soc_code', job.soc_code)
+        .order('weight', { ascending: false })
+
+      // Use curated skills if they exist
+      if (!curatedError && curatedSkills && curatedSkills.length > 0) {
+        job.skills = curatedSkills
+      }
+    }
+  }
+
   return filteredData
 }
 
@@ -292,6 +330,23 @@ export async function getJobById(id: string): Promise<Job | null> {
     const company = data.company as any
     if (company?.is_published === false) {
       return null // Job is from unpublished company
+    }
+  }
+
+  // Check for curated skills if job has a SOC code
+  if (data?.soc_code) {
+    const { data: curatedSkills, error: curatedError } = await supabase
+      .from('soc_skills')
+      .select(`
+        weight,
+        skill:skills(*)
+      `)
+      .eq('soc_code', data.soc_code)
+      .order('weight', { ascending: false })
+
+    // Use curated skills if they exist
+    if (!curatedError && curatedSkills && curatedSkills.length > 0) {
+      data.skills = curatedSkills
     }
   }
 

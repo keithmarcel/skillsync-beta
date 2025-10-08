@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { useViewAs } from '@/contexts/ViewAsContext'
 import PageHeader from '@/components/ui/page-header'
 import StickyTabs from '@/components/ui/sticky-tabs'
 import { ProviderDashboard } from '@/components/provider/provider-dashboard'
@@ -19,7 +20,8 @@ interface School {
 }
 
 export default function ProviderDashboardPage() {
-  const { user, profile, loading: authLoading, isProviderAdmin } = useAuth()
+  const { user, profile, loading: authLoading, isProviderAdmin, isSuperAdmin } = useAuth()
+  const { viewAsMode } = useViewAs()
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -77,7 +79,10 @@ export default function ProviderDashboardPage() {
     )
   }
 
-  if (!user || !isProviderAdmin) {
+  // Allow access if user is provider admin OR super admin viewing as provider
+  const hasAccess = isProviderAdmin || (isSuperAdmin && viewAsMode === 'provider_admin')
+  
+  if (!user || !hasAccess) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-gray-500">Access denied. Provider admin access required.</div>

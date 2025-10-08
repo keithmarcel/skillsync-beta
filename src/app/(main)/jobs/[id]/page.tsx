@@ -376,7 +376,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Skills</h3>
                 <div className="grid grid-cols-2 gap-4">
-                  {job.skills && job.skills.length > 0 ? job.skills.slice(0, 6).map((skill: any, index: number) => (
+                  {job.skills && job.skills.length > 0 ? job.skills.map((skill: any, index: number) => (
                     <div key={index} className="flex items-center gap-2">
                       <span className="text-teal-400">•</span>
                       <span className="text-white text-sm">{skill.skill?.name || skill.name}</span>
