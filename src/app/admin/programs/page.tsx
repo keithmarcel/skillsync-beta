@@ -138,7 +138,7 @@ export default function ProgramsPage() {
           <h1 className="text-2xl font-bold">Education Programs</h1>
           <p className="text-gray-600">Manage training programs and certifications</p>
         </div>
-        <Button asChild className="bg-teal-600 hover:bg-teal-700">
+        <Button asChild className="bg-[#0694A2] hover:bg-[#0694A2]/90">
           <Link href="/admin/programs/new">
             <Plus className="w-4 h-4 mr-2" />
             Add Program

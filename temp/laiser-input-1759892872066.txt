@@ -1,0 +1,45 @@
+Occupation Title: Software Developers
+
+Description: Develop, create, and modify general computer applications software or specialized utility programs. Analyze user needs and develop software solutions.
+
+Key Tasks:
+
+1. Analyze user requirements and design software solutions
+
+2. Develop and maintain computer programs
+
+3. Test and debug software applications
+
+4. Write technical documentation
+
+5. Collaborate with cross-functional teams
+
+Required Skills:
+
+- Programming (Importance: 95/100, Level: 85/100)
+
+- Problem Solving (Importance: 90/100, Level: 80/100)
+
+- Systems Analysis (Importance: 85/100, Level: 75/100)
+
+Required Knowledge:
+
+- Computer Science (Importance: 90/100)
+
+- Software Development (Importance: 85/100)
+
+Available Training Programs:
+
+- Computer Science Bachelor Degree
+
+- Software Engineering Certification
+
+- Coding Bootcamp Programs
+
+Relevant Certifications:
+
+- AWS Certified Developer
+
+- Google Cloud Professional
+
+- Microsoft Azure Fundamentals

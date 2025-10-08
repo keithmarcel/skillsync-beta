@@ -6,8 +6,10 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { LayoutDashboard, Building2, Briefcase, GraduationCap, FileText, Settings, LogOut, Home, User, Users, Menu, X, Database } from 'lucide-react';
+import { LayoutDashboard, Building2, Briefcase, GraduationCap, FileText, Settings, LogOut, Home, User, Users, Menu, X, Database, TestTube, Zap, Eye } from 'lucide-react';
 import { NAVIGATION_STYLES, BUTTON_STYLES } from '@/lib/design-system';
+import { ViewAsSwitcher } from '@/components/admin/ViewAsSwitcher';
+import { useViewAs } from '@/contexts/ViewAsContext';
 
 
 const navigation = [
@@ -65,12 +67,35 @@ const navigation = [
     icon: Database,
     roles: ['super_admin'],
   },
+  {
+    name: 'Skills Extractor',
+    href: '/admin/skills-extractor',
+    icon: Zap,
+    roles: ['super_admin'],
+  },
+  {
+    name: 'View As',
+    href: '#',
+    icon: Eye,
+    roles: ['super_admin'],
+    isViewSwitcher: true,
+  },
 ];
 
 export function AdminSidebar() {
   const pathname = usePathname();
   const { profile, isSuperAdmin, isCompanyAdmin, isProviderAdmin, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showViewSwitcher, setShowViewSwitcher] = useState(false);
+  const { viewAsMode } = useViewAs();
+
+  // Determine where "Return to App" should go based on ViewAs mode
+  const getReturnToAppUrl = () => {
+    if (!viewAsMode || viewAsMode === 'super_admin') return '/';
+    if (viewAsMode === 'employer_admin') return '/employer';
+    if (viewAsMode === 'provider_admin') return '/provider';
+    return '/';
+  };
 
   const userRoles = [
     isSuperAdmin && 'super_admin',
@@ -114,7 +139,7 @@ export function AdminSidebar() {
           <div className="flex-1 overflow-y-auto">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               <Link
-                href="/"
+                href={getReturnToAppUrl()}
                 className={`flex items-center gap-3 ${NAVIGATION_STYLES.padding} ${NAVIGATION_STYLES.borderRadius} ${NAVIGATION_STYLES.default} ${NAVIGATION_STYLES.hover} transition-colors`}
               >
                 <Home className="h-4 w-4" />
@@ -123,6 +148,20 @@ export function AdminSidebar() {
               {filteredNavigation.map((item) => {
                 const isActive = pathname === item.href ||
                                (item.href !== '/admin' && pathname.startsWith(item.href));
+
+                // Handle View Switcher specially
+                if (item.isViewSwitcher) {
+                  return (
+                    <button
+                      key={item.name}
+                      onClick={() => setShowViewSwitcher(!showViewSwitcher)}
+                      className={`flex items-center gap-3 ${NAVIGATION_STYLES.padding} ${NAVIGATION_STYLES.borderRadius} transition-colors ${NAVIGATION_STYLES.default} ${NAVIGATION_STYLES.hover} w-full text-left`}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.name}
+                    </button>
+                  );
+                }
 
                 return (
                   <Link
@@ -139,6 +178,13 @@ export function AdminSidebar() {
                   </Link>
                 );
               })}
+              
+              {/* View Switcher Dropdown */}
+              {showViewSwitcher && isSuperAdmin && (
+                <div className="ml-7 mt-2 space-y-1">
+                  <ViewAsSwitcher />
+                </div>
+              )}
             </nav>
           </div>
           <div className="mt-auto p-4 border-t">
@@ -205,8 +251,11 @@ export function AdminSidebar() {
               })}
             </nav>
           </div>
-          <div className="mt-auto p-4 border-t">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="mt-auto p-4 border-t space-y-4">
+            {/* View As Switcher - Only for Super Admins */}
+            <ViewAsSwitcher />
+            
+            <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
                 <User className="h-5 w-5 text-muted-foreground" />
               </div>

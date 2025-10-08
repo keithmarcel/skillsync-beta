@@ -69,6 +69,12 @@ export function useEnrichedOccupations(occupations: Job[] | null) {
           .select('soc_code')
           .in('soc_code', socCodes)
 
+        // Fetch curated skills count from Skills Extractor
+        const { data: curatedSkillsData } = await supabase
+          .from('soc_skills')
+          .select('soc_code')
+          .in('soc_code', socCodes)
+
         // Group data by SOC code
         const wageMap = new Map()
         wageData?.forEach(item => {
@@ -96,13 +102,19 @@ export function useEnrichedOccupations(occupations: Job[] | null) {
           certsCount.set(item.soc_code, (certsCount.get(item.soc_code) || 0) + 1)
         })
 
+        const curatedSkillsCount = new Map()
+        curatedSkillsData?.forEach(item => {
+          curatedSkillsCount.set(item.soc_code, (curatedSkillsCount.get(item.soc_code) || 0) + 1)
+        })
+
         // Merge enrichment data with occupations
         const enriched: EnrichedJob[] = occupations.map(job => ({
           ...job,
           bls_wage_data: job.soc_code ? wageMap.get(job.soc_code) || [] : [],
           bls_employment_projections: job.soc_code ? projectionsMap.get(job.soc_code) || [] : [],
           cos_programs_cache: job.soc_code ? [{ count: programsCount.get(job.soc_code) || 0 }] : [{ count: 0 }],
-          cos_certifications_cache: job.soc_code ? [{ count: certsCount.get(job.soc_code) || 0 }] : [{ count: 0 }]
+          cos_certifications_cache: job.soc_code ? [{ count: certsCount.get(job.soc_code) || 0 }] : [{ count: 0 }],
+          curated_skills_count: job.soc_code ? curatedSkillsCount.get(job.soc_code) || 0 : 0
         }))
 
         setEnrichedData(enriched)

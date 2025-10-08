@@ -1,0 +1,8 @@
+# LAiSER AI Skills Extraction Package
+# Install with: pip install -r requirements-laiser.txt
+
+laiser[gpu]  # GPU-accelerated version (recommended)
+# OR use: laiser[cpu]  # CPU-only version for environments without GPU
+
+# Note: This requires Python 3.9+ and HuggingFace token for model downloads
+# Set HUGGINGFACE_TOKEN in your .env file

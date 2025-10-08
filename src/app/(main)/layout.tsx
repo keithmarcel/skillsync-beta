@@ -4,6 +4,7 @@ import { GeistSans } from "geist/font/sans";
 import { Navbar } from "@/components/navbar";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { Footer } from "@/components/ui/footer";
+import { ViewAsBanner } from "@/components/ViewAsBanner";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function MainLayout({
 }>) {
   return (
     <>
+      <ViewAsBanner />
       <Navbar />
       <main className="min-h-screen pt-12 sm:pt-20 [&:has(.auth-page)]:pt-0">
         <ErrorBoundary>

@@ -133,7 +133,7 @@ export default function AdminRolesPage() {
                 <span className="font-medium">{companyRoleCount}</span> / {roleLimit} roles used
               </div>
             )}
-            <Button asChild className="bg-teal-600 hover:bg-teal-700">
+            <Button asChild className="bg-[#0694A2] hover:bg-[#0694A2]/90">
               <Link href="/admin/roles/new">
                 <Plus className="w-4 h-4 mr-2" />
                 Add New Role

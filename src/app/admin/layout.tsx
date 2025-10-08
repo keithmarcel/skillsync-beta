@@ -3,6 +3,7 @@
 import { AdminGuard } from '@/components/admin/AdminGuard';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Toaster } from '@/components/ui/toaster';
+import { ViewAsBanner } from '@/components/ViewAsBanner';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -64,6 +65,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {children}
         </div>
       </main>
+      <ViewAsBanner />
       <Toaster />
     </div>
   );

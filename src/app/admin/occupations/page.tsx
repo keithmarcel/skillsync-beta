@@ -186,16 +186,27 @@ export default function OccupationsPage() {
       key: 'skills_count',
       header: 'Skills',
       render: (value: any, job: Job) => {
-        const skillsCount = (job as any).job_skills?.[0]?.count || 0
+        // Check for curated skills count first (from Skills Extractor)
+        const curatedSkillsCount = (job as any).curated_skills_count || 0
+        // Fall back to job_skills count
+        const jobSkillsCount = (job as any).job_skills?.[0]?.count || 0
+        const skillsCount = curatedSkillsCount > 0 ? curatedSkillsCount : jobSkillsCount
+        const isCurated = curatedSkillsCount > 0
+        
         return (
-          <div className="text-center">
+          <div className="text-center flex items-center justify-center gap-1">
             {skillsCount > 0 ? (
-              <Link 
-                href={`/admin/skills?occupation=${job.id}`}
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                {skillsCount}
-              </Link>
+              <>
+                <Link 
+                  href={isCurated ? `/admin/skills-extractor?tab=review&soc=${job.soc_code}` : `/admin/skills?occupation=${job.id}`}
+                  className="text-[#0694A2] hover:text-[#0694A2]/80 font-medium"
+                >
+                  {skillsCount}
+                </Link>
+                {isCurated && (
+                  <Badge variant="default" className="text-xs">Curated</Badge>
+                )}
+              </>
             ) : (
               <span className="text-gray-400">0</span>
             )}
@@ -203,7 +214,7 @@ export default function OccupationsPage() {
         )
       },
       sortable: false,
-      width: 80
+      width: 120
     },
     {
       key: 'median_wage_usd',
@@ -259,7 +270,7 @@ export default function OccupationsPage() {
         return (
           <div className="text-center">
             {tasksCount > 0 ? (
-              <span className="text-blue-600 font-medium">{tasksCount}</span>
+              <span className="text-[#0694A2] font-medium">{tasksCount}</span>
             ) : (
               <span className="text-gray-400">0</span>
             )}
@@ -358,7 +369,7 @@ export default function OccupationsPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link href="/admin/occupations/new">
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+            <Button className="bg-[#0694A2] hover:bg-[#0694A2]/90 text-white">
               <Plus className="w-4 h-4 mr-2" />
               Add Occupation
             </Button>
@@ -435,7 +446,7 @@ export default function OccupationsPage() {
                   setIsEnrichmentDialogOpen(false)
                 }}
                 disabled={enrichmentProgress.status === 'running'}
-                className="bg-teal-600 hover:bg-teal-700"
+                className="bg-[#0694A2] hover:bg-[#0694A2]/90"
               >
                 Start Enrichment
               </Button>
@@ -458,7 +469,7 @@ export default function OccupationsPage() {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
                 <div 
-                  className="bg-teal-600 h-1.5 rounded-full transition-all duration-300" 
+                  className="bg-[#0694A2] h-1.5 rounded-full transition-all duration-300" 
                   style={{ width: `${progressPercentage}%` }}
                 ></div>
               </div>
