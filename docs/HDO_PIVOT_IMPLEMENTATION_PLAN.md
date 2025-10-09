@@ -437,20 +437,22 @@ GROUP BY hdo.soc_code;
 - Displays on occupation detail pages (e.g., `/jobs/9ee597fb-5b50-49bc-9e08-f2543a8b658b`)
 
 **Data Imported:**
-- ✅ 8 key occupations with May 2024 data
+- ✅ **ALL 35 occupations** with May 2024 data
 - ✅ Tampa MSA, Florida, and National data for each
-- ✅ 24 total wage records in database
-- Script: `scripts/import-sample-oews-data.js`
+- ✅ **105 total wage records** in database (35 × 3 areas)
+- Script: `scripts/import-all-occupations-oews-data.js`
 
-**Occupations with Regional Data:**
-1. Software Developers (15-1252)
-2. Registered Nurses (29-1141)
-3. Accountants and Auditors (13-2011)
-4. General and Operations Managers (11-1021)
-5. Marketing Managers (11-2021)
-6. Financial Analysts (13-2051)
-7. Medical and Health Services Managers (11-9111)
-8. Human Resources Managers (11-3121)
+**Complete Coverage:**
+- Management (6 occupations)
+- Business & Financial (8 occupations)
+- Computer & IT (2 occupations)
+- Legal (1 occupation)
+- Education (1 occupation)
+- Healthcare (3 occupations)
+- Sales (7 occupations)
+- Office & Admin (3 occupations)
+- Construction (3 occupations)
+- Transportation (1 occupation)
 
 **Next Steps:**
 - Expand to all occupations using BLS One-Screen tool
