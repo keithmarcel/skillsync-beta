@@ -104,6 +104,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showAllRoles, setShowAllRoles] = useState(false)
+  const [showAllPrograms, setShowAllPrograms] = useState(false)
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
 
   useEffect(() => {
@@ -377,38 +379,41 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             
             {/* Mock Featured Roles - TODO: Replace with real crosswalk data */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                { 
-                  company: 'BayCare Health System', 
-                  logo: '/companies/Baycare.svg', 
-                  title: 'Senior Financial Analyst', 
-                  category: 'Business',
-                  employmentType: 'Full-Time',
-                  skillsCount: 8,
-                  description: 'Analyze financial data and prepare reports to support business decisions and strategic planning.',
-                  proficiency: '85%'
-                },
-                { 
-                  company: 'Honeywell', 
-                  logo: '/companies/Honeywell.svg', 
-                  title: 'Financial Planning Analyst', 
-                  category: 'Business',
-                  employmentType: 'Full-Time',
-                  skillsCount: 7,
-                  description: 'Support budgeting, forecasting, and financial analysis to drive operational efficiency.',
-                  proficiency: '80%'
-                },
-                { 
-                  company: 'Jabil', 
-                  logo: '/companies/Jabil.svg', 
-                  title: 'Budget Analyst', 
-                  category: 'Business',
-                  employmentType: 'Full-Time',
-                  skillsCount: 6,
-                  description: 'Develop and monitor budgets, analyze spending patterns, and provide financial recommendations.',
-                  proficiency: '75%'
-                }
-              ].map((role, index) => (
+              {(() => {
+                const mockRoles = [
+                  { 
+                    company: 'BayCare Health System', 
+                    logo: '/companies/Baycare.svg', 
+                    title: 'Senior Financial Analyst', 
+                    category: 'Business',
+                    employmentType: 'Full-Time',
+                    skillsCount: 8,
+                    description: 'Analyze financial data and prepare reports to support business decisions and strategic planning.',
+                    proficiency: '85%'
+                  },
+                  { 
+                    company: 'Honeywell', 
+                    logo: '/companies/Honeywell.svg', 
+                    title: 'Financial Planning Analyst', 
+                    category: 'Business',
+                    employmentType: 'Full-Time',
+                    skillsCount: 7,
+                    description: 'Support budgeting, forecasting, and financial analysis to drive operational efficiency.',
+                    proficiency: '80%'
+                  },
+                  { 
+                    company: 'Jabil', 
+                    logo: '/companies/Jabil.svg', 
+                    title: 'Budget Analyst', 
+                    category: 'Business',
+                    employmentType: 'Full-Time',
+                    skillsCount: 6,
+                    description: 'Develop and monitor budgets, analyze spending patterns, and provide financial recommendations.',
+                    proficiency: '75%'
+                  }
+                ];
+                const displayedRoles = showAllRoles ? mockRoles : mockRoles.slice(0, 6);
+                return displayedRoles.map((role, index) => (
                 <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
                   <div className="p-5 pb-3">
                     <Link href={`/jobs/${index + 1}`} className="block group">
@@ -446,8 +451,29 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </Button>
                   </div>
                 </div>
-              ))}
+                ));
+              })()}
             </div>
+            
+            {/* Load More Button for Roles */}
+            {(() => {
+              const mockRoles = [
+                { company: 'BayCare Health System' },
+                { company: 'Honeywell' },
+                { company: 'Jabil' }
+              ];
+              return !showAllRoles && mockRoles.length > 6 && (
+                <div className="mt-6 flex justify-center">
+                  <Button
+                    onClick={() => setShowAllRoles(true)}
+                    variant="outline"
+                    className="px-8 py-3 text-[#0694A2] border-[#0694A2] hover:bg-[#0694A2] hover:text-white transition-colors"
+                  >
+                    Load More ({mockRoles.length - 6} remaining)
+                  </Button>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -472,38 +498,41 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             
             {/* Mock Programs - TODO: Replace with real skill overlap data */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                { 
-                  school: 'University of South Florida', 
-                  logo: '/schools/1759519859851-auburn-university-logo-horizontal-1.svg',
-                  program: 'Master of Accountancy', 
-                  type: "Master's Degree", 
-                  format: 'Online',
-                  duration: '2 years', 
-                  description: 'Advanced accounting program preparing students for CPA certification and leadership roles in finance.',
-                  skills: 12 
-                },
-                { 
-                  school: 'St. Petersburg College', 
-                  logo: '/schools/1759519888484-austin-peay-state-logo-1.svg',
-                  program: 'Accounting Technology', 
-                  type: "Associate's Degree", 
-                  format: 'Hybrid',
-                  duration: '2 years', 
-                  description: 'Foundational accounting skills including bookkeeping, financial reporting, and tax preparation.',
-                  skills: 10 
-                },
-                { 
-                  school: 'Hillsborough Community College', 
-                  logo: '/schools/1759520010733-umsl.png',
-                  program: 'Financial Services Certificate', 
-                  type: 'Certificate', 
-                  format: 'In-Person',
-                  duration: '1 year', 
-                  description: 'Focused training in financial analysis, budgeting, and business finance fundamentals.',
-                  skills: 8 
-                }
-              ].map((program, index) => (
+              {(() => {
+                const mockPrograms = [
+                  { 
+                    school: 'University of South Florida', 
+                    logo: '/schools/1759519859851-auburn-university-logo-horizontal-1.svg',
+                    program: 'Master of Accountancy', 
+                    type: "Master's Degree", 
+                    format: 'Online',
+                    duration: '2 years', 
+                    description: 'Advanced accounting program preparing students for CPA certification and leadership roles in finance.',
+                    skills: 12 
+                  },
+                  { 
+                    school: 'St. Petersburg College', 
+                    logo: '/schools/1759519888484-austin-peay-state-logo-1.svg',
+                    program: 'Accounting Technology', 
+                    type: "Associate's Degree", 
+                    format: 'Hybrid',
+                    duration: '2 years', 
+                    description: 'Foundational accounting skills including bookkeeping, financial reporting, and tax preparation.',
+                    skills: 10 
+                  },
+                  { 
+                    school: 'Hillsborough Community College', 
+                    logo: '/schools/1759520010733-umsl.png',
+                    program: 'Financial Services Certificate', 
+                    type: 'Certificate', 
+                    format: 'In-Person',
+                    duration: '1 year', 
+                    description: 'Focused training in financial analysis, budgeting, and business finance fundamentals.',
+                    skills: 8 
+                  }
+                ];
+                const displayedPrograms = showAllPrograms ? mockPrograms : mockPrograms.slice(0, 6);
+                return displayedPrograms.map((program, index) => (
                 <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
                   <div className="p-5 pb-3">
                     <Link href={`/programs/${index + 1}`} className="block group">
@@ -536,8 +565,29 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </Button>
                   </div>
                 </div>
-              ))}
+                ));
+              })()}
             </div>
+            
+            {/* Load More Button for Programs */}
+            {(() => {
+              const mockPrograms = [
+                { school: 'University of South Florida' },
+                { school: 'St. Petersburg College' },
+                { school: 'Hillsborough Community College' }
+              ];
+              return !showAllPrograms && mockPrograms.length > 6 && (
+                <div className="mt-6 flex justify-center">
+                  <Button
+                    onClick={() => setShowAllPrograms(true)}
+                    variant="outline"
+                    className="px-8 py-3 text-[#0694A2] border-[#0694A2] hover:bg-[#0694A2] hover:text-white transition-colors"
+                  >
+                    Load More ({mockPrograms.length - 6} remaining)
+                  </Button>
+                </div>
+              );
+            })()}
           </div>
         )}
 
