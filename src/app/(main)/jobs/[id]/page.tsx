@@ -412,7 +412,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
                   <div className="p-5 pb-3">
                     <Link href={`/jobs/${index + 1}`} className="block group">
-                      <h4 className="text-lg font-semibold leading-snug text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors">
+                      <h4 className="text-lg font-semibold leading-snug text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors font-source-sans-pro">
                         {role.title}
                       </h4>
                     </Link>
@@ -507,7 +507,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
                   <div className="p-5 pb-3">
                     <Link href={`/programs/${index + 1}`} className="block group">
-                      <h4 className="text-lg font-semibold leading-snug text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors">
+                      <h4 className="text-lg font-semibold leading-snug text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors font-source-sans-pro">
                         {program.program}
                       </h4>
                     </Link>
