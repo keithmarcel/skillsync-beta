@@ -379,8 +379,9 @@ GROUP BY hdo.soc_code;
 - [x] Implement regional data priority (Tampa Bay → Florida → National)
 - [x] Add regional salary display (shows area name)
 - [x] Update data source footer to "BLS 2024"
-- [ ] Test regional data with real API calls
-- [ ] Update occupation enrichment service to use new regional data
+- [x] Create test script for BLS API
+- [⚠️] Verify BLS series ID format (current format not returning data)
+- [ ] Update occupation enrichment service once series IDs verified
 - [ ] Run data refresh for existing occupations
 
 **Regional Data Priority:**
@@ -415,9 +416,17 @@ GROUP BY hdo.soc_code;
   - Updated salary area label to show dynamic area name
   - Defaults to "Tampa Bay Area" if no area name provided
 
+**Testing Results:**
+- ✅ BLS API key configured and accessible
+- ⚠️ Series ID format needs verification - current format not returning data
+- Test script created: `/scripts/test-bls-regional-data.js`
+- Series ID pattern attempted: `OEUM45300000000{SOC}04` (not working)
+- Need to verify correct OEWS series ID format from BLS documentation
+
 **Next Steps:**
-- Test API with real BLS API key
-- Update occupation enrichment service to fetch regional data
+- Verify correct BLS OEWS series ID format (check BLS Data Finder tool)
+- Test with known working series IDs from BLS website
+- Update series ID format in bls-api.ts once verified
 - Run batch update to refresh existing occupation wage data
 - Consider adding user location detection for personalized regional data
 
