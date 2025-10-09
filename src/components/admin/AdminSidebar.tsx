@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { LayoutDashboard, Building2, Briefcase, GraduationCap, FileText, Settings, LogOut, Home, User, Users, Menu, X, Database, TestTube, Zap, Eye } from 'lucide-react';
+import { LayoutDashboard, Building2, Briefcase, GraduationCap, FileText, Settings, LogOut, Home, User, Users, Menu, X, Database, TestTube, Zap, Eye, MessageSquare } from 'lucide-react';
 import { NAVIGATION_STYLES, BUTTON_STYLES } from '@/lib/design-system';
 import { ViewAsSwitcher } from '@/components/admin/ViewAsSwitcher';
 import { useViewAs } from '@/contexts/ViewAsContext';
@@ -72,6 +72,12 @@ const navigation = [
     href: '/admin/skills-extractor',
     icon: Zap,
     roles: ['super_admin'],
+  },
+  {
+    name: 'User Feedback',
+    href: '/admin/feedback',
+    icon: MessageSquare,
+    roles: ['super_admin', 'partner_admin'],
   },
   {
     name: 'View As',

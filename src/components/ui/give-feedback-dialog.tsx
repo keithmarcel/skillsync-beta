@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import {
@@ -30,6 +31,7 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
   const [submissionState, setSubmissionState] = useState<SubmissionState>('idle')
 
   const { user } = useAuth()
+  const pathname = usePathname()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,7 +50,8 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
           sentiment: selectedSentiment,
           message: message.trim() || null,
           user_id: user?.id,
-          user_email: user?.email
+          user_email: user?.email,
+          route_path: pathname
         })
       })
 
@@ -89,7 +92,7 @@ export function GiveFeedbackDialog({ children, triggerClassName }: GiveFeedbackD
         {children || (
           <Button 
             variant="outline" 
-            className={`flex h-10 px-3 justify-center items-center gap-2 text-gray-900 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 ${triggerClassName}`}
+            className={`flex h-10 px-3 justify-center items-center gap-2 text-gray-900 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 hover:text-gray-900 ${triggerClassName}`}
           >
             Give Feedback
           </Button>
