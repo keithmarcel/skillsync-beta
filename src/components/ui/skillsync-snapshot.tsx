@@ -27,6 +27,9 @@ interface SkillData {
   proficient: number
   building: number
   needsDevelopment: number
+  proficientSkills?: string[]
+  buildingSkills?: string[]
+  developingSkills?: string[]
 }
 
 interface AssessmentProgress {
@@ -89,7 +92,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
       fill: "#10B981" // Green
     },
     { 
-      category: "Building", 
+      category: "Almost There", 
       count: finalSkillData.building,
       fill: "#F59E0B" // Orange
     },
@@ -152,7 +155,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
               <Target className="w-4 h-4 text-muted-foreground" />
             </div>
             <div className="text-3xl font-bold mb-1">{masteryPercentage}%</div>
-            <p className="text-xs text-muted-foreground">Skills at proficiency</p>
+            <p className="text-xs text-muted-foreground">Out of {totalSkills} skills assessed</p>
           </CardContent>
         </Card>
       </div>
@@ -168,9 +171,9 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
           </h3>
           
           {totalSkills > 0 ? (
-            <div className="flex items-center max-w-5xl mx-auto">
+            <div className="flex flex-col lg:flex-row items-center max-w-5xl mx-auto gap-8">
               {/* Pie Chart */}
-              <div className="w-[380px] h-[320px] flex-shrink-0">
+              <div className="w-full lg:w-[380px] h-[320px] flex-shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -225,8 +228,8 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                           const percentage = Math.round((data.count / totalSkills) * 100);
                           const descriptions = {
                             'Proficient': 'You meet or exceed expectations. Ready to apply for roles requiring these skills.',
-                            'Building': 'Foundational knowledge present. Consider training or hands-on experience.',
-                            'Developing': 'Early stage skills. Focus on courses or mentorship in these areas.'
+                            'Almost There': 'You are close! A bit more practice or training will get you to proficiency.',
+                            'Developing': 'You are building your foundation. Focus on courses or mentorship in these areas.'
                           };
                           
                           return (
@@ -256,38 +259,58 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
               <div className="flex flex-col justify-center flex-1">
                 {/* Heading */}
                 <h4 className="text-white font-semibold text-xl mb-3">
-                  Your {totalSkills} Skills by Proficiency Level
+                  Here's the breakdown of the skills you've been assessed on:
                 </h4>
                 
                 {/* Encouraging summary - Dynamic based on data */}
                 <p className="text-gray-300 text-base leading-relaxed mb-6">
                   {(() => {
                     const proficientCount = skillBreakdownData.find(s => s.category === 'Proficient')?.count || 0;
-                    const buildingCount = skillBreakdownData.find(s => s.category === 'Building')?.count || 0;
+                    const almostThereCount = skillBreakdownData.find(s => s.category === 'Almost There')?.count || 0;
                     const developingCount = skillBreakdownData.find(s => s.category === 'Developing')?.count || 0;
                     const proficientPct = Math.round((proficientCount / totalSkills) * 100);
                     
                     if (proficientPct >= 60) {
-                      return `Excellent work! You're proficient in ${proficientCount} skills (${proficientPct}% of total). You're well-positioned for roles requiring these competencies.`;
+                      return `Excellent work! You are proficient in ${proficientCount} skills (${proficientPct}% of total). You are well-positioned for roles requiring these competencies.`;
                     } else if (proficientPct >= 40) {
-                      return `You're showing strong proficiency in ${proficientCount} skills! Keep building on your strengths while developing the remaining ${buildingCount + developingCount} areas to unlock even more opportunities.`;
-                    } else if (buildingCount > 0) {
-                      return `You're making solid progress with ${buildingCount} skills in development. Focus on moving these to proficiency to significantly expand your career options.`;
+                      return `You are showing strong proficiency in ${proficientCount} skills! Keep building on your strengths while developing the remaining ${almostThereCount + developingCount} areas to unlock even more opportunities.`;
+                    } else if (almostThereCount > 0) {
+                      return `You are making solid progress with ${almostThereCount} skills almost there. Focus on moving these to proficiency to significantly expand your career options.`;
                     } else {
-                      return `You're at the beginning of your skill journey! Focus on building proficiency in your developing skills to open up more career opportunities.`;
+                      return `You are at the beginning of your skill journey! Focus on developing your skills to open up more career opportunities.`;
                     }
                   })()}
                 </p>
                 
-                {/* Legend - Inline */}
-                <div className="flex flex-wrap gap-x-8 gap-y-2">
+                {/* Legend with Skill Lists - Column Layout */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {skillBreakdownData.map((item) => {
-                    const percentage = Math.round((item.count / totalSkills) * 100);
+                    // Get skills for this category
+                    let skills: string[] = [];
+                    if (item.category === 'Proficient' && finalSkillData.proficientSkills) {
+                      skills = finalSkillData.proficientSkills.slice(0, 3);
+                    } else if (item.category === 'Almost There' && finalSkillData.buildingSkills) {
+                      skills = finalSkillData.buildingSkills.slice(0, 3);
+                    } else if (item.category === 'Developing' && finalSkillData.developingSkills) {
+                      skills = finalSkillData.developingSkills.slice(0, 3);
+                    }
+                    
                     return (
-                      <div key={item.category} className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
-                        <span className="text-sm text-gray-300">{item.category}</span>
-                        <span className="text-sm font-semibold text-white">{item.count} ({percentage}%)</span>
+                      <div key={item.category} className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
+                          <span className="text-sm text-gray-300">{item.category}</span>
+                          <span className="text-sm font-semibold text-white">{item.count}</span>
+                        </div>
+                        {skills.length > 0 && (
+                          <ul className="space-y-0.5">
+                            {skills.map((skill, idx) => (
+                              <li key={idx} className="text-[10px] text-gray-400 leading-tight">
+                                • {skill}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     );
                   })}

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { BUTTON_STYLES } from '@/lib/design-system'
 import Link from 'next/link'
 import { ReactNode } from 'react'
 
@@ -53,22 +54,22 @@ export function EmptyState({
       <div className="flex gap-2 justify-center flex-wrap">
         {primaryButtonText && (
           primaryButtonHref ? (
-            <Button asChild variant={variant === 'gradient' ? 'outline' : 'default'} className={variant === 'gradient' ? 'bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white' : ''}>
+            <Button asChild className={variant === 'gradient' ? 'bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white' : BUTTON_STYLES.primary}>
               <Link href={primaryButtonHref}>{primaryButtonText}</Link>
             </Button>
           ) : (
-            <Button onClick={onPrimaryClick} variant={variant === 'gradient' ? 'outline' : 'default'} className={variant === 'gradient' ? 'bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white' : ''}>
+            <Button onClick={onPrimaryClick} className={variant === 'gradient' ? 'bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white' : BUTTON_STYLES.primary}>
               {primaryButtonText}
             </Button>
           )
         )}
         {secondaryButtonText && (
           secondaryButtonHref ? (
-            <Button asChild variant="outline" className={variant === 'gradient' ? 'bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white' : ''}>
+            <Button asChild className={variant === 'gradient' ? 'bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white' : BUTTON_STYLES.secondary}>
               <Link href={secondaryButtonHref}>{secondaryButtonText}</Link>
             </Button>
           ) : (
-            <Button onClick={onSecondaryClick} variant="outline" className={variant === 'gradient' ? 'bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white' : ''}>
+            <Button onClick={onSecondaryClick} className={variant === 'gradient' ? 'bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white' : BUTTON_STYLES.secondary}>
               {secondaryButtonText}
             </Button>
           )

@@ -36,11 +36,11 @@ export function ActionCard({
           />
         </div>
       )}
-      <CardContent className="p-6 bg-teal-600 text-white rounded-b-xl">
-        <h3 className="text-lg mb-2 text-white font-semibold" style={{ fontFamily: 'Source Sans Pro, sans-serif' }}>
+      <CardContent className="p-4 sm:p-6 bg-teal-600 text-white rounded-b-xl">
+        <h3 className="text-base sm:text-lg mb-2 text-white font-semibold leading-snug" style={{ fontFamily: 'Source Sans Pro, sans-serif' }}>
           {title}
         </h3>
-        <p className="text-sm mb-4 text-teal-50">
+        <p className="text-sm mb-4 text-teal-50 leading-relaxed">
           {description}
         </p>
         <Button 

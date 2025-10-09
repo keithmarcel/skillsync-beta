@@ -22,9 +22,9 @@ export const getBandLabel = (band: Band): string => {
     case 'proficient':
       return 'Proficient'
     case 'building':
-      return 'Building'
+      return 'Almost There'
     case 'needs_dev':
-      return 'Needs Development'
+      return 'Developing'
   }
 }
 

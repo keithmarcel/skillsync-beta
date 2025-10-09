@@ -36,7 +36,7 @@ export function InvitationsTable({ invitations, loading, isArchived, onUpdate }:
     // Readiness filter
     if (readinessFilter !== 'All') {
       if (readinessFilter === 'Ready' && inv.proficiency_pct < 90) return false
-      if (readinessFilter === 'Building Skills' && (inv.proficiency_pct < 85 || inv.proficiency_pct >= 90)) return false
+      if (readinessFilter === 'Almost There' && (inv.proficiency_pct < 85 || inv.proficiency_pct >= 90)) return false
     }
 
     // Status filter

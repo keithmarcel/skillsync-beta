@@ -24,9 +24,9 @@ export function RoleReadinessWidget({
 }: RoleReadinessWidgetProps) {
   // Calculate match label based on percentage
   const getMatchLabel = () => {
-    if (percentage >= 90) return "You're role ready!";
-    if (percentage >= 70) return "You're close to being role ready.";
-    if (percentage >= 50) return "You're building proficiency.";
+    if (percentage >= 90) return "You are role ready!";
+    if (percentage >= 70) return "You are almost there!";
+    if (percentage >= 50) return "You are developing proficiency.";
     return "Focus on skill development.";
   };
 
@@ -38,7 +38,7 @@ export function RoleReadinessWidget({
       case 'close_gaps':
         return <Badge className="bg-teal-500 text-white">Close to Ready</Badge>;
       case 'needs_development':
-        return <Badge className="bg-orange-500 text-white">Building Skills</Badge>;
+        return <Badge className="bg-orange-500 text-white">Developing Skills</Badge>;
     }
   };
 

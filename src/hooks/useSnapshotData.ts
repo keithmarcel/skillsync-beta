@@ -19,6 +19,9 @@ interface SkillData {
   proficient: number;
   building: number;
   needsDevelopment: number;
+  proficientSkills?: string[];
+  buildingSkills?: string[];
+  developingSkills?: string[];
 }
 
 interface AssessmentProgress {
@@ -72,13 +75,31 @@ export function useSnapshotData(): UseSnapshotDataReturn {
           
           const allSkills = new Set<string>();
           let proficient = 0, developing = 0, needsDevelopment = 0;
+          const proficientSkillNames: string[] = [];
+          const buildingSkillNames: string[] = [];
+          const developingSkillNames: string[] = [];
 
           assessments.forEach(a => {
             a.skill_results?.forEach((sr: AssessmentSkillResult) => {
               allSkills.add(sr.skill_id);
-              if (sr.band === 'proficient') proficient++;
-              else if (sr.band === 'building') developing++;
-              else if (sr.band === 'needs_dev') needsDevelopment++;
+              const skillName = (sr as any).skill?.name || (sr as any).skills?.name || 'Unknown Skill';
+              
+              if (sr.band === 'proficient') {
+                proficient++;
+                if (!proficientSkillNames.includes(skillName)) {
+                  proficientSkillNames.push(skillName);
+                }
+              } else if (sr.band === 'building') {
+                developing++;
+                if (!buildingSkillNames.includes(skillName)) {
+                  buildingSkillNames.push(skillName);
+                }
+              } else if (sr.band === 'needs_dev') {
+                needsDevelopment++;
+                if (!developingSkillNames.includes(skillName)) {
+                  developingSkillNames.push(skillName);
+                }
+              }
             });
           });
 
@@ -93,11 +114,15 @@ export function useSnapshotData(): UseSnapshotDataReturn {
 
           console.log('📊 Skill counts:', { proficient, building: developing, needsDevelopment });
           console.log('📊 Total skills:', proficient + developing + needsDevelopment);
+          console.log('📊 Skill names:', { proficientSkillNames, buildingSkillNames, developingSkillNames });
           
           setSkillData({
             proficient,
             building: developing,
             needsDevelopment,
+            proficientSkills: proficientSkillNames,
+            buildingSkills: buildingSkillNames,
+            developingSkills: developingSkillNames,
           });
 
           // Build progress timeline (last 5 assessments)
