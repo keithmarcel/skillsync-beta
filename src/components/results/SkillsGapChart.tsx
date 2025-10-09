@@ -37,9 +37,9 @@ export function SkillsGapChart({ skills }: SkillsGapChartProps) {
       case 'proficient':
         return 'Proficient';
       case 'building':
-        return 'Building Proficiency';
+        return 'Almost There';
       case 'needs_development':
-        return 'Needs Development';
+        return 'Developing';
       default:
         return status;
     }
@@ -67,11 +67,11 @@ export function SkillsGapChart({ skills }: SkillsGapChartProps) {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-            <span className="text-gray-700">Building Proficiency (60-79%)</span>
+            <span className="text-gray-700">Almost There (60-79%)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="text-gray-700">Needs Development (&lt;60%)</span>
+            <span className="text-gray-700">Developing (&lt;60%)</span>
           </div>
         </div>
       </div>

@@ -33,7 +33,7 @@ export function InvitationFilters({
         <SelectContent>
           <SelectItem value="All">Readiness: All</SelectItem>
           <SelectItem value="Ready">Ready</SelectItem>
-          <SelectItem value="Building Skills">Building Skills</SelectItem>
+          <SelectItem value="Almost There">Almost There</SelectItem>
         </SelectContent>
       </Select>
 

@@ -73,7 +73,7 @@ export async function getUserInvitations(filters?: {
   if (filters?.readiness && filters.readiness !== 'All') {
     if (filters.readiness === 'Ready') {
       query = query.gte('proficiency_pct', 90)
-    } else if (filters.readiness === 'Building Skills') {
+    } else if (filters.readiness === 'Almost There') {
       query = query.gte('proficiency_pct', 85).lt('proficiency_pct', 90)
     }
   }
@@ -331,7 +331,7 @@ export async function getEmployerCandidates(filters?: {
   if (filters?.readiness && filters.readiness !== 'All') {
     if (filters.readiness === 'Ready') {
       query = query.gte('proficiency_pct', 90)
-    } else if (filters.readiness === 'Building Skills') {
+    } else if (filters.readiness === 'Almost There') {
       query = query.gte('proficiency_pct', 85).lt('proficiency_pct', 90)
     }
   }

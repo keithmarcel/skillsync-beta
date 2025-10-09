@@ -122,7 +122,7 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
     } else if (invitation.proficiency_pct >= 85) {
       return (
         <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800">
-          Building Skills
+          Almost There
         </span>
       )
     }

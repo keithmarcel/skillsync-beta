@@ -89,7 +89,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
       fill: "#10B981" // Green
     },
     { 
-      category: "Building", 
+      category: "Almost There", 
       count: finalSkillData.building,
       fill: "#F59E0B" // Orange
     },
@@ -225,8 +225,8 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                           const percentage = Math.round((data.count / totalSkills) * 100);
                           const descriptions = {
                             'Proficient': 'You meet or exceed expectations. Ready to apply for roles requiring these skills.',
-                            'Building': 'Foundational knowledge present. Consider training or hands-on experience.',
-                            'Developing': 'Early stage skills. Focus on courses or mentorship in these areas.'
+                            'Almost There': 'You are close! A bit more practice or training will get you to proficiency.',
+                            'Developing': 'You are building your foundation. Focus on courses or mentorship in these areas.'
                           };
                           
                           return (
@@ -263,18 +263,18 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                 <p className="text-gray-300 text-base leading-relaxed mb-6">
                   {(() => {
                     const proficientCount = skillBreakdownData.find(s => s.category === 'Proficient')?.count || 0;
-                    const buildingCount = skillBreakdownData.find(s => s.category === 'Building')?.count || 0;
+                    const almostThereCount = skillBreakdownData.find(s => s.category === 'Almost There')?.count || 0;
                     const developingCount = skillBreakdownData.find(s => s.category === 'Developing')?.count || 0;
                     const proficientPct = Math.round((proficientCount / totalSkills) * 100);
                     
                     if (proficientPct >= 60) {
-                      return `Excellent work! You're proficient in ${proficientCount} skills (${proficientPct}% of total). You're well-positioned for roles requiring these competencies.`;
+                      return `Excellent work! You are proficient in ${proficientCount} skills (${proficientPct}% of total). You are well-positioned for roles requiring these competencies.`;
                     } else if (proficientPct >= 40) {
-                      return `You're showing strong proficiency in ${proficientCount} skills! Keep building on your strengths while developing the remaining ${buildingCount + developingCount} areas to unlock even more opportunities.`;
-                    } else if (buildingCount > 0) {
-                      return `You're making solid progress with ${buildingCount} skills in development. Focus on moving these to proficiency to significantly expand your career options.`;
+                      return `You are showing strong proficiency in ${proficientCount} skills! Keep building on your strengths while developing the remaining ${almostThereCount + developingCount} areas to unlock even more opportunities.`;
+                    } else if (almostThereCount > 0) {
+                      return `You are making solid progress with ${almostThereCount} skills almost there. Focus on moving these to proficiency to significantly expand your career options.`;
                     } else {
-                      return `You're at the beginning of your skill journey! Focus on building proficiency in your developing skills to open up more career opportunities.`;
+                      return `You are at the beginning of your skill journey! Focus on developing your skills to open up more career opportunities.`;
                     }
                   })()}
                 </p>
