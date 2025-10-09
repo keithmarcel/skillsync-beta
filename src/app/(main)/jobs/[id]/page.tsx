@@ -350,9 +350,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Explore Career Pathways - Only for Occupations */}
+        {/* Employers Hiring Now - Only for Occupations */}
         {job.job_kind === 'occupation' && (
-          <div className="flex items-center gap-8 my-12 p-8 bg-white rounded-2xl border">
+          <div id="open-roles" className="flex items-center gap-8 my-12 p-8 bg-white rounded-2xl border">
             <div className="w-16 h-16 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -360,50 +360,31 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Discover opportunities in this high-demand field
+                Employers Hiring Now
               </h3>
               <p className="text-gray-600 text-sm">
-                Explore open roles from trusted employers and education programs that can help you build the skills needed for this career path.
+                No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area.
               </p>
             </div>
-            <Button asChild className="bg-[#114B5F] hover:bg-[#0F3A47] text-[#FAFAFA] px-3 py-2 rounded-lg flex-shrink-0 shadow-sm w-[215px] h-10 gap-2 font-normal text-base">
-              <Link href="#open-roles" className="flex items-center justify-center gap-2">
-                View Open Roles
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M19 9l-7 7-7-7"/>
-                </svg>
-              </Link>
-            </Button>
           </div>
         )}
 
-        {/* Employers Hiring Now - Only for Occupations */}
+        {/* Education & Training Programs - Only for Occupations */}
         {job.job_kind === 'occupation' && (
-          <div id="open-roles" className="mb-8">
-            <Card className="rounded-2xl bg-white border">
-              <CardHeader>
-                <CardTitle className="text-xl">Employers Hiring Now</CardTitle>
-                <CardDescription>Featured roles from trusted partners in your area</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500 text-sm">Related roles will be displayed here based on SOC code matching.</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Relevant Programs - Only for Occupations */}
-        {job.job_kind === 'occupation' && (
-          <div id="programs" className="mb-8">
-            <Card className="rounded-2xl bg-white border">
-              <CardHeader>
-                <CardTitle className="text-xl">Education & Training Programs</CardTitle>
-                <CardDescription>Programs that can help you build skills for this occupation</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500 text-sm">Matching programs will be displayed here based on skill overlap.</p>
-              </CardContent>
-            </Card>
+          <div id="programs" className="flex items-center gap-8 my-12 p-8 bg-white rounded-2xl border">
+            <div className="w-16 h-16 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Education & Training Programs
+              </h3>
+              <p className="text-gray-600 text-sm">
+                No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+              </p>
+            </div>
           </div>
         )}
 
