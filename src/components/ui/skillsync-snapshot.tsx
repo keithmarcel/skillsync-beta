@@ -171,9 +171,9 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
           </h3>
           
           {totalSkills > 0 ? (
-            <div className="flex items-center max-w-5xl mx-auto">
+            <div className="flex flex-col lg:flex-row items-center lg:items-start max-w-5xl mx-auto gap-8">
               {/* Pie Chart */}
-              <div className="w-[380px] h-[320px] flex-shrink-0">
+              <div className="w-full lg:w-[380px] h-[320px] flex-shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -283,7 +283,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                 </p>
                 
                 {/* Legend with Skill Lists - Column Layout */}
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {skillBreakdownData.map((item) => {
                     const percentage = Math.round((item.count / totalSkills) * 100);
                     
