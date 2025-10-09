@@ -373,13 +373,15 @@ GROUP BY hdo.soc_code;
 - Separator provides clear visual break between sections
 
 ### Phase 1C: BLS 2024 Regional Data Upgrade 🔄 IN PROGRESS
-- [ ] Document BLS API research findings
-- [ ] Audit current BLS data connections
-- [ ] Update to May 2024 OEWS data
-- [ ] Implement regional data priority (Pinellas → Tampa Bay → Florida → National)
-- [ ] Add regional salary display
-- [ ] Update data source footer to "BLS 2024"
-- [ ] Test regional data fallback logic
+- [x] Document BLS API research findings
+- [x] Audit current BLS data connections
+- [x] Update to May 2024 OEWS data
+- [x] Implement regional data priority (Tampa Bay → Florida → National)
+- [x] Add regional salary display (shows area name)
+- [x] Update data source footer to "BLS 2024"
+- [ ] Test regional data with real API calls
+- [ ] Update occupation enrichment service to use new regional data
+- [ ] Run data refresh for existing occupations
 
 **Regional Data Priority:**
 1. **Primary:** Pinellas County, FL (all zip codes)
@@ -399,6 +401,25 @@ GROUP BY hdo.soc_code;
 - Projections: BLS Employment Projections 2022-2032 (national only, biennial updates)
 - Skills/Tasks: O*NET 30.0 (2025) - national only
 - Regional Projections: State workforce agencies (Florida DEO)
+
+**Implementation Details:**
+- **File Updated:** `/src/lib/services/bls-api.ts`
+  - Added Florida state FIPS code (12)
+  - Updated series ID priority: Tampa MSA → Florida → National
+  - Changed date range to 2023-2024 for May 2024 data
+  - Enhanced area name detection for Tampa MSA and Florida
+  - Added comments about Pinellas County (limited OEWS availability)
+
+- **UI Updated:** `/src/app/(main)/jobs/[id]/page.tsx`
+  - Changed "BLS 2022" to "BLS 2024" in data source footer
+  - Updated salary area label to show dynamic area name
+  - Defaults to "Tampa Bay Area" if no area name provided
+
+**Next Steps:**
+- Test API with real BLS API key
+- Update occupation enrichment service to fetch regional data
+- Run batch update to refresh existing occupation wage data
+- Consider adding user location detection for personalized regional data
 
 ### Phase 2A: Schema & Data
 - [ ] Complete schema audit
