@@ -367,10 +367,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">
-                  Employers Hiring Now
+                  Local Employers Hiring Now
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Featured roles from trusted partners in your area
+                  Open roles matching this occupation from trusted employers in your area
                 </p>
               </div>
             </div>
