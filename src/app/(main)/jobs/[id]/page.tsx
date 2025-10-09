@@ -377,103 +377,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
             </div>
             
-            {/* Mock Featured Roles - TODO: Replace with real crosswalk data */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(() => {
-                const mockRoles = [
-                  { 
-                    company: 'BayCare Health System', 
-                    logo: '/companies/Baycare.svg', 
-                    title: 'Senior Financial Analyst', 
-                    category: 'Business',
-                    employmentType: 'Full-Time',
-                    skillsCount: 8,
-                    description: 'Analyze financial data and prepare reports to support business decisions and strategic planning.',
-                    proficiency: '85%'
-                  },
-                  { 
-                    company: 'Honeywell', 
-                    logo: '/companies/Honeywell.svg', 
-                    title: 'Financial Planning Analyst', 
-                    category: 'Business',
-                    employmentType: 'Full-Time',
-                    skillsCount: 7,
-                    description: 'Support budgeting, forecasting, and financial analysis to drive operational efficiency.',
-                    proficiency: '80%'
-                  },
-                  { 
-                    company: 'Jabil', 
-                    logo: '/companies/Jabil.svg', 
-                    title: 'Budget Analyst', 
-                    category: 'Business',
-                    employmentType: 'Full-Time',
-                    skillsCount: 6,
-                    description: 'Develop and monitor budgets, analyze spending patterns, and provide financial recommendations.',
-                    proficiency: '75%'
-                  }
-                ];
-                const displayedRoles = showAllRoles ? mockRoles : mockRoles.slice(0, 6);
-                return displayedRoles.map((role, index) => (
-                <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
-                  <div className="p-5 pb-3">
-                    <Link href={`/jobs/${index + 1}`} className="block group">
-                      <h4 className="text-lg font-bold leading-tight text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors font-source-sans-pro">
-                        {role.title}
-                      </h4>
-                    </Link>
-                    <p className="text-sm text-gray-600 mb-3">{role.company}</p>
-                    
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">{role.category}</span>
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{role.employmentType}</span>
-                      <span className="px-2.5 py-1 bg-teal-50 text-teal-700 text-xs font-medium rounded-full flex items-center gap-1">
-                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                        </svg>
-                        {role.proficiency} Required
-                      </span>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 line-clamp-2">{role.description}</p>
-                  </div>
-                  
-                  <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
-                    <button className="text-sm text-gray-600 hover:text-gray-900">
-                      <img src={role.logo} alt={role.company} className="h-6 w-auto object-contain max-w-[110px]" />
-                    </button>
-                    <Button asChild size="sm" variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
-                      <Link href={`/jobs/${index + 1}`} className="flex items-center gap-1">
-                        Explore
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-                        </svg>
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-                ));
-              })()}
+            {/* Related Roles - TODO: Replace with real crosswalk data */}
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-sm">
+                No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area.
+              </p>
             </div>
-            
-            {/* Load More Button for Roles */}
-            {(() => {
-              const mockRoles = [
-                { company: 'BayCare Health System' },
-                { company: 'Honeywell' },
-                { company: 'Jabil' }
-              ];
-              return !showAllRoles && mockRoles.length > 6 && (
-                <div className="mt-6 flex justify-center">
-                  <Button
-                    onClick={() => setShowAllRoles(true)}
-                    variant="outline"
-                    className="px-8 py-3 text-[#0694A2] border-[#0694A2] hover:bg-[#0694A2] hover:text-white transition-colors"
-                  >
-                    Load More ({mockRoles.length - 6} remaining)
-                  </Button>
-                </div>
-              );
-            })()}
           </div>
         )}
 
@@ -501,98 +410,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
             </div>
             
-            {/* Mock Programs - TODO: Replace with real skill overlap data */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(() => {
-                const mockPrograms = [
-                  { 
-                    school: 'University of South Florida', 
-                    logo: '/schools/1759519859851-auburn-university-logo-horizontal-1.svg',
-                    program: 'Master of Accountancy', 
-                    type: "Master's Degree", 
-                    format: 'Online',
-                    duration: '2 years', 
-                    description: 'Advanced accounting program preparing students for CPA certification and leadership roles in finance.',
-                    skills: 12 
-                  },
-                  { 
-                    school: 'St. Petersburg College', 
-                    logo: '/schools/1759519888484-austin-peay-state-logo-1.svg',
-                    program: 'Accounting Technology', 
-                    type: "Associate's Degree", 
-                    format: 'Hybrid',
-                    duration: '2 years', 
-                    description: 'Foundational accounting skills including bookkeeping, financial reporting, and tax preparation.',
-                    skills: 10 
-                  },
-                  { 
-                    school: 'Hillsborough Community College', 
-                    logo: '/schools/1759520010733-umsl.png',
-                    program: 'Financial Services Certificate', 
-                    type: 'Certificate', 
-                    format: 'In-Person',
-                    duration: '1 year', 
-                    description: 'Focused training in financial analysis, budgeting, and business finance fundamentals.',
-                    skills: 8 
-                  }
-                ];
-                const displayedPrograms = showAllPrograms ? mockPrograms : mockPrograms.slice(0, 6);
-                return displayedPrograms.map((program, index) => (
-                <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
-                  <div className="p-5 pb-3">
-                    <Link href={`/programs/${index + 1}`} className="block group">
-                      <h4 className="text-lg font-bold leading-tight text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors font-source-sans-pro">
-                        {program.program}
-                      </h4>
-                    </Link>
-                    <p className="text-sm text-gray-600 mb-3">{program.school}</p>
-                    
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      <span className="px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full">{program.type}</span>
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{program.format}</span>
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{program.duration}</span>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 line-clamp-2">{program.description}</p>
-                  </div>
-                  
-                  <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
-                    <button className="text-sm text-gray-600 hover:text-gray-900">
-                      <img src={program.logo} alt={program.school} className="h-6 w-auto object-contain max-w-[110px]" />
-                    </button>
-                    <Button asChild size="sm" variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
-                      <Link href={`/programs/${index + 1}`} className="flex items-center gap-1">
-                        Explore
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-                        </svg>
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-                ));
-              })()}
+            {/* Related Programs - TODO: Replace with real skill overlap data */}
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-sm">
+                No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+              </p>
             </div>
-            
-            {/* Load More Button for Programs */}
-            {(() => {
-              const mockPrograms = [
-                { school: 'University of South Florida' },
-                { school: 'St. Petersburg College' },
-                { school: 'Hillsborough Community College' }
-              ];
-              return !showAllPrograms && mockPrograms.length > 6 && (
-                <div className="mt-6 flex justify-center">
-                  <Button
-                    onClick={() => setShowAllPrograms(true)}
-                    variant="outline"
-                    className="px-8 py-3 text-[#0694A2] border-[#0694A2] hover:bg-[#0694A2] hover:text-white transition-colors"
-                  >
-                    Load More ({mockPrograms.length - 6} remaining)
-                  </Button>
-                </div>
-              );
-            })()}
           </div>
         )}
 
