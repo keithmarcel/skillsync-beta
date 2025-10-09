@@ -40,8 +40,8 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
       <div className="w-full px-4 sm:px-8">
         <div className="flex items-center gap-4 sm:gap-8 py-4 sm:py-6">
-          {/* Logo section */}
-          <div className="flex flex-col justify-center items-start gap-2">
+          {/* Logo section - matches width of right-side actions for centered nav on desktop */}
+          <div className="flex flex-col justify-center items-start gap-2 md:w-[244px]">
             <Link href="/" className="flex items-center">
               <img 
                 src="/app/logo_skillsync-powered-by-bisk-amplified.svg" 

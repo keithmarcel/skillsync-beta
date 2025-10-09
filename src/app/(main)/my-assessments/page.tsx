@@ -110,28 +110,24 @@ export default function MyAssessmentsPage() {
       />
 
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-        <IllustrationHero 
-          imageSrc="/assets/heroimage_featured-roles.svg"
-          imageAlt="Assessment History"
-          title="Assessment History"
-        />
-
-        <div className="mt-8">
-          <SearchFilterControls
-            searchTerm={searchQuery}
-            onSearchChange={setSearchQuery}
-            searchPlaceholder="Search by job title, SOC code, or company"
-            sortBy={sortBy}
-            sortOrder="asc"
-            onSortChange={(value) => setSortBy(value)}
-            filters={{}}
-            onFilterChange={() => {}}
-            columns={[
-              { key: 'readiness', label: 'Readiness', sortable: true },
-              { key: 'date', label: 'Date', sortable: true }
-            ]}
-          />
-        </div>
+        {hasAssessments && (
+          <div className="mt-8">
+            <SearchFilterControls
+              searchTerm={searchQuery}
+              onSearchChange={setSearchQuery}
+              searchPlaceholder="Search by job title, SOC code, or company"
+              sortBy={sortBy}
+              sortOrder="asc"
+              onSortChange={(value) => setSortBy(value)}
+              filters={{}}
+              onFilterChange={() => {}}
+              columns={[
+                { key: 'readiness', label: 'Readiness', sortable: true },
+                { key: 'date', label: 'Date', sortable: true }
+              ]}
+            />
+          </div>
+        )}
 
         {loading ? (
           <div className="mt-5">
@@ -150,13 +146,11 @@ export default function MyAssessmentsPage() {
         ) : !hasAssessments ? (
           <div className="mt-5">
             <EmptyState
-              variant="gradient"
-              title="Your Assessment Journey"
-              description="No assessments completed yet. Start exploring jobs and take your first skills assessment to begin your career journey!"
-              primaryButtonText="Browse Featured Roles"
-              primaryButtonHref="/jobs?tab=featured-roles"
-              secondaryButtonText="Browse High-Demand Jobs"
-              secondaryButtonHref="/jobs?tab=high-demand"
+              variant="card"
+              title="No assessments yet"
+              description="Complete your first skills assessment to track your progress and identify opportunities for growth."
+              primaryButtonText="See Who's Hiring Now"
+              primaryButtonHref="/jobs"
             />
           </div>
         ) : (

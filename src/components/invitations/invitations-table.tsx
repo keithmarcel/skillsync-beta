@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { InvitationRow } from './invitation-row'
 import { BulkActionsDropdown } from './bulk-actions-dropdown'
 import { InvitationFilters } from './invitation-filters'
+import { EmptyState } from '@/components/ui/empty-state'
 import type { EmployerInvitation } from '@/lib/services/employer-invitations'
 
 interface InvitationsTableProps {
@@ -81,17 +82,27 @@ export function InvitationsTable({ invitations, loading, isArchived, onUpdate }:
   }
 
   if (invitations.length === 0) {
+    if (isArchived) {
+      return (
+        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            No Archived Invitations
+          </h3>
+          <p className="text-gray-600">
+            You haven't archived any invitations.
+          </p>
+        </div>
+      )
+    }
+    
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          {isArchived ? 'No Archived Invitations' : 'No Invitations Yet'}
-        </h3>
-        <p className="text-gray-600">
-          {isArchived 
-            ? 'You haven\'t archived any invitations.'
-            : 'Complete assessments to receive invitations from employers.'}
-        </p>
-      </div>
+      <EmptyState
+        variant="card"
+        title="No invitations yet"
+        description="Complete assessments to receive invitations from employers when you meet their role requirements."
+        primaryButtonText="See Who's Hiring Now"
+        primaryButtonHref="/jobs"
+      />
     )
   }
 
