@@ -242,14 +242,18 @@ export const occupationsTableColumns = [
     sortable: true,
     render: (value: any, item: any) => {
       const count = item.related_jobs_count || 0
-      return React.createElement('a', {
-        href: `/occupations/${item.soc_code}#open-roles`,
+      const elementType = count === 0 ? 'span' : 'a'
+      const props: any = {
         className: `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
           count === 0 
             ? 'bg-gray-100 text-gray-500 cursor-default' 
-            : 'bg-[#CCFBF1] text-[#0F766E] hover:bg-[#99F6E4]'
+            : 'bg-[#CCFBF1] text-[#0F766E] hover:bg-[#99F6E4] cursor-pointer'
         }`
-      }, `${count} Open Role${count !== 1 ? 's' : ''}`)
+      }
+      if (count > 0) {
+        props.href = `/occupations/${item.soc_code}#open-roles`
+      }
+      return React.createElement(elementType, props, `${count} Open Role${count !== 1 ? 's' : ''}`)
     },
     width: 'medium' as const,
   },
@@ -259,14 +263,18 @@ export const occupationsTableColumns = [
     sortable: true,
     render: (value: any, item: any) => {
       const count = item.related_programs_count || 0
-      return React.createElement('a', {
-        href: `/occupations/${item.soc_code}#programs`,
+      const elementType = count === 0 ? 'span' : 'a'
+      const props: any = {
         className: `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
           count === 0 
             ? 'bg-gray-100 text-gray-500 cursor-default' 
-            : 'bg-[#CCFBF1] text-[#0F766E] hover:bg-[#99F6E4]'
+            : 'bg-[#CCFBF1] text-[#0F766E] hover:bg-[#99F6E4] cursor-pointer'
         }`
-      }, `${count} Match${count !== 1 ? 'es' : ''}`)
+      }
+      if (count > 0) {
+        props.href = `/occupations/${item.soc_code}#programs`
+      }
+      return React.createElement(elementType, props, `${count} Match${count !== 1 ? 'es' : ''}`)
     },
     width: 'medium' as const,
   },
