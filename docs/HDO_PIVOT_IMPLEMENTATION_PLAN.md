@@ -303,17 +303,74 @@ GROUP BY hdo.soc_code;
 - [ ] Implement click handlers for smooth scroll
 - [ ] Add crosswalk count queries
 
-### Phase 1B: HDO Details Page
-- [ ] Remove assessment CTAs
-- [ ] Refactor "Start Assessment" block copy
-- [ ] Remove scrolling from Tasks section
-- [ ] Remove Importance lines from tasks
-- [ ] Move Trusted Partners block to top
-- [ ] Create Employers Hiring Now section
-- [ ] Create Relevant Programs section
-- [ ] Add Data Source footer
-- [ ] Implement smooth scroll anchors
-- [ ] (Optional) Add video iframe modal
+### Phase 1B: HDO Details Page ✅ COMPLETE
+- [x] Remove assessment CTAs - Removed "Start Assessment" block entirely
+- [x] Refactor "Start Assessment" block copy - N/A (removed)
+- [x] Remove scrolling from Tasks section - Removed max-h and overflow
+- [x] Remove Importance lines from tasks - Removed importance labels
+- [x] Move Trusted Partners block to top - Removed block (replaced with new sections)
+- [x] Create Employers Hiring Now section - 3-column cards with Load More
+- [x] Create Relevant Programs section - 3-column cards with Load More
+- [x] Add Data Source footer - BLS 2022, CareerOneStop, O*NET links
+- [x] Implement smooth scroll anchors - #open-roles and #programs IDs
+- [ ] (Optional) Add video iframe modal - Not needed (kept external link)
+
+**Additional Improvements:**
+- Removed bullets from Core Responsibilities and Typical Tasks
+- Removed Related Job Titles section
+- Added regional indicator cleaning helper (removes "(National)", etc.)
+- Styled cards to match featured card design (text-lg, font-bold, Source Sans Pro)
+- Added separator between employer and program sections
+- Updated section titles: "Local Employers Hiring Now" and "Relevant Education & Training Programs"
+- Deduplicated tasks display
+- Implemented compact empty states (message replaces subheading)
+- Logo sizing: h-6, max-w-[110px] for consistent display
+- Card padding: p-5 pb-3 for tighter spacing
+- Proficiency badge: Consolidated into badge row (teal with icon)
+- Load More: Shows after 6 cards, reuses hiring now tab pattern
+
+#### Card Section Implementation Details
+
+**Local Employers Hiring Now Section:**
+- Location: Between hero image and Skills & Responsibilities
+- Anchor ID: `#open-roles` for smooth scroll from table badges
+- Layout: 3-column responsive grid (`md:grid-cols-3`)
+- Card Structure:
+  - Title: text-lg, font-bold, leading-tight, Source Sans Pro, hover underline
+  - Company name: text-sm, gray-600
+  - Badge row: Category (blue), Employment Type (gray), Proficiency (teal with checkmark icon)
+  - Description: text-sm, line-clamp-2
+  - Footer: Logo (h-6, max-w-110px) + Explore button (ghost, teal)
+- Empty State: "No active roles currently match this occupation. Check back soon..."
+- Empty State Styling: Replaces subheading, mt-2, gray-500, left-aligned
+
+**Relevant Education & Training Programs Section:**
+- Location: After separator, before Skills & Responsibilities
+- Anchor ID: `#programs` for smooth scroll from table badges
+- Layout: 3-column responsive grid (`md:grid-cols-3`)
+- Card Structure:
+  - Title: text-lg, font-bold, leading-tight, Source Sans Pro, hover underline
+  - Provider name: text-sm, gray-600
+  - Badge row: Program Type (purple), Format (gray), Duration (gray)
+  - Description: text-sm, line-clamp-2
+  - Footer: Logo (h-6, max-w-110px) + Explore button (ghost, teal)
+- Empty State: "No matching programs are currently available in your region..."
+- Empty State Styling: Replaces subheading, mt-2, gray-500, left-aligned
+
+**Load More Functionality:**
+- State variables: `showAllRoles`, `showAllPrograms`
+- Default display: First 6 cards
+- Button appears when: `!showAll && items.length > 6`
+- Button styling: Teal outline, hover fills teal background
+- Shows remaining count: "Load More (X remaining)"
+- Pattern reused from hiring now tab
+
+**Design Consistency:**
+- All cards match featured card component styling
+- Logos constrained to prevent size inconsistencies
+- Compact padding for efficient space usage
+- Empty states minimize vertical space when no data
+- Separator provides clear visual break between sections
 
 ### Phase 2A: Schema & Data
 - [ ] Complete schema audit
