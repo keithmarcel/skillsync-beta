@@ -350,30 +350,60 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Unlock this Role Assessment - Only for Occupations */}
+        {/* Explore Career Pathways - Only for Occupations */}
         {job.job_kind === 'occupation' && (
           <div className="flex items-center gap-8 my-12 p-8 bg-white rounded-2xl border">
             <div className="w-16 h-16 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
               </svg>
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Assess your skills to see your role readiness.
+                Discover opportunities in this high-demand field
               </h3>
               <p className="text-gray-600 text-sm">
-                Take a skills assessment to discover how your current abilities match this occupation. You'll receive a personalized readiness score and recommendations for training programs that can help you advance your career.
+                Explore open roles from trusted employers and education programs that can help you build the skills needed for this career path.
               </p>
             </div>
             <Button asChild className="bg-[#114B5F] hover:bg-[#0F3A47] text-[#FAFAFA] px-3 py-2 rounded-lg flex-shrink-0 shadow-sm w-[215px] h-10 gap-2 font-normal text-base">
-              <Link href={`/assessments/${job.id}/intro`} className="flex items-center justify-center gap-2">
-                Start Your Assessment
+              <Link href="#open-roles" className="flex items-center justify-center gap-2">
+                View Open Roles
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M9 5l7 7-7 7"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M19 9l-7 7-7-7"/>
                 </svg>
               </Link>
             </Button>
+          </div>
+        )}
+
+        {/* Employers Hiring Now - Only for Occupations */}
+        {job.job_kind === 'occupation' && (
+          <div id="open-roles" className="mb-8">
+            <Card className="rounded-2xl bg-white border">
+              <CardHeader>
+                <CardTitle className="text-xl">Employers Hiring Now</CardTitle>
+                <CardDescription>Featured roles from trusted partners in your area</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500 text-sm">Related roles will be displayed here based on SOC code matching.</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Relevant Programs - Only for Occupations */}
+        {job.job_kind === 'occupation' && (
+          <div id="programs" className="mb-8">
+            <Card className="rounded-2xl bg-white border">
+              <CardHeader>
+                <CardTitle className="text-xl">Education & Training Programs</CardTitle>
+                <CardDescription>Programs that can help you build skills for this occupation</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-500 text-sm">Matching programs will be displayed here based on skill overlap.</p>
+              </CardContent>
+            </Card>
           </div>
         )}
 
@@ -430,17 +460,15 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   }
                   
                   return responsibilities && Array.isArray(responsibilities) && responsibilities.length > 0 ? (
-                    <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
-                      <div className="space-y-3">
-                        {responsibilities.map((responsibility: string, index: number) => (
-                          <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                            <div className="flex items-start gap-3">
-                              <span className="text-teal-400 flex-shrink-0">•</span>
-                              <span className="text-white text-sm">{responsibility}</span>
-                            </div>
+                    <div className="space-y-3">
+                      {responsibilities.map((responsibility: string, index: number) => (
+                        <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                          <div className="flex items-start gap-3">
+                            <span className="text-teal-400 flex-shrink-0">•</span>
+                            <span className="text-white text-sm">{responsibility}</span>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="text-white/70 text-sm">No responsibilities data available</div>
@@ -598,6 +626,26 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Data Source Footer - Only for Occupations */}
+        {job.job_kind === 'occupation' && (
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <p className="text-sm text-gray-500 text-center">
+              Data source:{' '}
+              <a href="https://www.bls.gov/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                BLS 2022
+              </a>
+              {'; '}
+              <a href="https://www.careeronestop.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                CareerOneStop
+              </a>
+              {'; '}
+              <a href="https://www.onetonline.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                O*NET
+              </a>
+            </p>
+          </div>
         )}
       </BreadcrumbLayout>
       
