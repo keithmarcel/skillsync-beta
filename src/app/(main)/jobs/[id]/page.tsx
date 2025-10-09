@@ -308,7 +308,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">Career Outlook</div>
+                        <div className="text-sm opacity-80">National Career Outlook</div>
                         {job.employment_outlook ? (
                           <>
                             <div className={`text-xl font-bold ${
@@ -318,7 +318,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                                 ? 'text-yellow-400'
                                 : 'text-orange-400'
                             }`}>
-                              {job.employment_outlook}
+                              {job.employment_outlook.replace(/\s*\(National\)/gi, '')}
                             </div>
                             <div className="text-xs opacity-70 mt-1">Through 2032</div>
                           </>
