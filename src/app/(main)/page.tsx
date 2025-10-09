@@ -21,7 +21,7 @@ export default function Dashboard() {
   }, [])
 
   // All data fetching and state management is now handled by custom hooks.
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { recentAssessments, loading: dashboardLoading } = useDashboardData();
   const { favoriteJobs, favoritePrograms, loading: favoritesLoading } = useFavorites();
   const { metrics, skillData, assessmentProgress, hasAssessments, loading: snapshotLoading } = useSnapshotData();
@@ -122,7 +122,7 @@ export default function Dashboard() {
       <PageHeader 
         variant="split"
         isDynamic={true}
-        userName={user?.user_metadata?.first_name || 'Explorer'}
+        userName={profile?.first_name || undefined}
         isReturningUser={recentAssessments.length > 0}
         primaryAction={{
           label: "Get Started",
