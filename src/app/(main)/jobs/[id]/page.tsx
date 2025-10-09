@@ -515,8 +515,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-3 text-white hover:text-teal-300 font-medium transition-colors"
                         >
-                          <div className="w-12 h-12 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
-                            <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-3 h-3 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
                               <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                             </svg>
                           </div>
