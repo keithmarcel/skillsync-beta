@@ -403,6 +403,7 @@ export async function getJobById(id: string): Promise<Job | null> {
       data.median_wage_usd = regionalWage.median_wage || regionalWage.mean_wage
       data.wage_area_name = regionalWage.area_name
       data.wage_data_year = regionalWage.data_year
+      data.employment_level = regionalWage.employment_level
     }
   }
 

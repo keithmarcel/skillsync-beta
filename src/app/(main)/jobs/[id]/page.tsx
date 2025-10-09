@@ -278,11 +278,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <div>
                         <div className="text-sm opacity-80">Current Employment</div>
                         <div className="text-xl font-bold">
-                          {job.bls_employment_projections?.[0]?.employment_2022 
+                          {(job as any).employment_level
+                            ? `~${(job as any).employment_level.toLocaleString()}`
+                            : job.bls_employment_projections?.[0]?.employment_2022 
                             ? `~${job.bls_employment_projections[0].employment_2022.toLocaleString()}` 
                             : 'Data Not Available'}
                         </div>
-                        <div className="text-xs opacity-70 mt-1">Workers Nationally (2022)</div>
+                        <div className="text-xs opacity-70 mt-1">
+                          {(job as any).wage_area_name 
+                            ? `Workers in ${(job as any).wage_area_name.replace('Tampa-St. Petersburg-Clearwater, FL', 'Tampa Bay Area')} (${(job as any).wage_data_year || 2024})`
+                            : 'Workers Nationally (2022)'}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -318,7 +324,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">National Career Outlook</div>
+                        <div className="text-sm opacity-80">
+                          {(job as any).wage_area_name ? 'Regional Career Outlook' : 'National Career Outlook'}
+                        </div>
                         {job.employment_outlook ? (
                           <>
                             <div className={`text-xl font-bold ${
