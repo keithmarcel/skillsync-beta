@@ -27,6 +27,9 @@ interface SkillData {
   proficient: number
   building: number
   needsDevelopment: number
+  proficientSkills?: string[]
+  buildingSkills?: string[]
+  developingSkills?: string[]
 }
 
 interface AssessmentProgress {
@@ -152,7 +155,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
               <Target className="w-4 h-4 text-muted-foreground" />
             </div>
             <div className="text-3xl font-bold mb-1">{masteryPercentage}%</div>
-            <p className="text-xs text-muted-foreground">Skills at proficiency</p>
+            <p className="text-xs text-muted-foreground">Out of {totalSkills} skills assessed</p>
           </CardContent>
         </Card>
       </div>
@@ -256,7 +259,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
               <div className="flex flex-col justify-center flex-1">
                 {/* Heading */}
                 <h4 className="text-white font-semibold text-xl mb-3">
-                  Your {totalSkills} Skills by Proficiency Level
+                  Here's the breakdown of all the skills you've been assessed on:
                 </h4>
                 
                 {/* Encouraging summary - Dynamic based on data */}
@@ -279,15 +282,37 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                   })()}
                 </p>
                 
-                {/* Legend - Inline */}
-                <div className="flex flex-wrap gap-x-8 gap-y-2">
+                {/* Legend with Skill Lists */}
+                <div className="space-y-4">
                   {skillBreakdownData.map((item) => {
                     const percentage = Math.round((item.count / totalSkills) * 100);
+                    
+                    // Get skills for this category
+                    let skills: string[] = [];
+                    if (item.category === 'Proficient' && finalSkillData.proficientSkills) {
+                      skills = finalSkillData.proficientSkills.slice(0, 3);
+                    } else if (item.category === 'Almost There' && finalSkillData.buildingSkills) {
+                      skills = finalSkillData.buildingSkills.slice(0, 3);
+                    } else if (item.category === 'Developing' && finalSkillData.developingSkills) {
+                      skills = finalSkillData.developingSkills.slice(0, 3);
+                    }
+                    
                     return (
-                      <div key={item.category} className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
-                        <span className="text-sm text-gray-300">{item.category}</span>
-                        <span className="text-sm font-semibold text-white">{item.count} ({percentage}%)</span>
+                      <div key={item.category} className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
+                          <span className="text-sm text-gray-300">{item.category}</span>
+                          <span className="text-sm font-semibold text-white">{item.count} ({percentage}%)</span>
+                        </div>
+                        {skills.length > 0 && (
+                          <ul className="ml-5 space-y-0.5">
+                            {skills.map((skill, idx) => (
+                              <li key={idx} className="text-[10px] text-gray-400 leading-tight">
+                                • {skill}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     );
                   })}
