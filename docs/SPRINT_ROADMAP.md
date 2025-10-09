@@ -472,6 +472,7 @@ Automatic duplicate prevention
 7. **Design System** - Unified colors, consistent UI
 8. **Authentication & Onboarding Flow** - Sign-in, sign-up with employer opt-in, email verification, password reset
 9. **Navbar & UX Improvements** - Centered nav, My Invites menu item, consistent empty states, homepage welcome message
+10. **Featured Roles View Toggle & Pagination** (Oct 9, 2025) - Grid/list view, load more, reusable components, admin fixes
 
 ### **🚧 In Progress / Next Up**
 1. **Quiz Generator Edge Function** - Update to use curated skills
@@ -488,4 +489,79 @@ Automatic duplicate prevention
 
 ---
 
-**Next Sprint:** Assessment UI + Dashboard Completion 🎯
+## 🎯 **COMPLETED: Featured Roles View Toggle & Pagination (October 9, 2025)**
+
+### **What Was Delivered**
+
+**1. View Toggle (Grid/List)** ✅
+- Toggle buttons with Grid and List icons
+- Teal active state (#0694A2), gray inactive
+- Persists view selection during browsing
+- Positioned right of search/filter controls
+
+**2. List View Component** ✅
+- New `FeaturedRoleListCard` component (175 lines)
+- Horizontal layout: Title/Company → Badges → Stats → Actions
+- Dashed vertical separators between sections
+- Reuses `MetaPillsRow` and `StatsGrid` from featured-card-base
+- Zero code duplication - single source of truth
+
+**3. Load More Pagination** ✅
+- Shows 12 items initially
+- Loads 12 more on click
+- Shows remaining count
+- Styled with teal border/text, hover fill
+- Works with both grid and list views
+
+**4. Search & Filter Enhancements** ✅
+- Darker placeholder text (gray-500)
+- Inline Clear All button with teal hover
+- Increased control heights (h-11)
+- Better touch targets and spacing
+
+**5. Featured Card Polish** ✅
+- Company logo fixed in modal
+- Heart icon now teal (#0694A2)
+- Explore button outline on hover
+- Removed dropdown separators
+- All focus states use teal palette
+
+**6. Admin Dashboard Fixes** ✅
+- Fixed user stats calculation (admins, employers, providers)
+- Renamed "Partners" to "Employers"
+- Proper role-based counting
+
+### **Component Architecture**
+```
+featured-card-base.tsx (shared components)
+├── MetaPillsRow (badges with category colors)
+├── StatsGrid (salary/proficiency with variants)
+│   └── variant: 'default' | 'minimal'
+└── ActionButton (explore button)
+
+featured-role-card.tsx (grid view)
+└── Uses: MetaPillsRow, StatsGrid, ActionButton
+
+featured-role-list-card.tsx (list view) ✨ NEW
+└── Uses: MetaPillsRow, StatsGrid (minimal), ActionButton
+```
+
+### **Technical Highlights**
+- **Reusable Components:** Added `variant` prop to StatsGrid
+- **Zero Duplication:** List card reuses all grid card components
+- **Easy Maintenance:** Single source of truth for styling
+- **Category Colors:** Proper mapping for all 8 categories
+- **Consistent Fonts:** Same typography across both views
+
+### **Files Modified**
+- `src/app/(main)/jobs/page.tsx` - View toggle, pagination, state management
+- `src/app/admin/users/page.tsx` - Stats calculation fixes
+- `src/components/ui/company-modal.tsx` - Logo display fix
+- `src/components/ui/featured-card-actions.tsx` - Teal heart, no separators
+- `src/components/ui/featured-card-base.tsx` - StatsGrid variant, focus states
+- `src/components/ui/search-filter-controls.tsx` - Clear All, heights, placeholder
+- `src/components/ui/featured-role-list-card.tsx` - NEW list view component
+
+---
+
+**Next Sprint:** High-Demand Occupations Updates 🎯
