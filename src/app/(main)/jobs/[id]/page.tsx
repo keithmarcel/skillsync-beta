@@ -412,7 +412,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
                   <div className="p-5 pb-3">
                     <Link href={`/jobs/${index + 1}`} className="block group">
-                      <h4 className="text-xl font-semibold leading-tight text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors font-source-sans-pro">
+                      <h4 className="text-lg font-bold leading-tight text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors font-source-sans-pro">
                         {role.title}
                       </h4>
                     </Link>
@@ -434,7 +434,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   
                   <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
                     <button className="text-sm text-gray-600 hover:text-gray-900">
-                      <img src={role.logo} alt={role.company} className="h-auto w-auto object-contain max-h-[24px] max-w-[110px]" />
+                      <img src={role.logo} alt={role.company} className="h-6 w-auto object-contain max-w-[110px]" />
                     </button>
                     <Button asChild size="sm" variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                       <Link href={`/jobs/${index + 1}`} className="flex items-center gap-1">
@@ -507,7 +507,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
                   <div className="p-5 pb-3">
                     <Link href={`/programs/${index + 1}`} className="block group">
-                      <h4 className="text-xl font-semibold leading-tight text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors font-source-sans-pro">
+                      <h4 className="text-lg font-bold leading-tight text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors font-source-sans-pro">
                         {program.program}
                       </h4>
                     </Link>
@@ -524,7 +524,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   
                   <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
                     <button className="text-sm text-gray-600 hover:text-gray-900">
-                      <img src={program.logo} alt={program.school} className="h-auto w-auto object-contain max-h-[24px] max-w-[110px]" />
+                      <img src={program.logo} alt={program.school} className="h-6 w-auto object-contain max-w-[110px]" />
                     </button>
                     <Button asChild size="sm" variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                       <Link href={`/programs/${index + 1}`} className="flex items-center gap-1">
