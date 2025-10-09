@@ -376,23 +376,81 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </div>
             
             {/* Mock Featured Roles - TODO: Replace with real crosswalk data */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { company: 'BayCare Health System', logo: '/companies/Baycare.svg', title: 'Senior Financial Analyst', location: 'Tampa, FL', salary: '$75,000 - $95,000' },
-                { company: 'Honeywell', logo: '/companies/Honeywell.svg', title: 'Financial Planning Analyst', location: 'St. Petersburg, FL', salary: '$70,000 - $90,000' },
-                { company: 'Jabil', logo: '/companies/Jabil.svg', title: 'Budget Analyst', location: 'Clearwater, FL', salary: '$65,000 - $85,000' }
+                { 
+                  company: 'BayCare Health System', 
+                  logo: '/companies/Baycare.svg', 
+                  title: 'Senior Financial Analyst', 
+                  category: 'Business',
+                  employmentType: 'Full-Time',
+                  skillsCount: 8,
+                  description: 'Analyze financial data and prepare reports to support business decisions and strategic planning.',
+                  proficiency: '85%'
+                },
+                { 
+                  company: 'Honeywell', 
+                  logo: '/companies/Honeywell.svg', 
+                  title: 'Financial Planning Analyst', 
+                  category: 'Business',
+                  employmentType: 'Full-Time',
+                  skillsCount: 7,
+                  description: 'Support budgeting, forecasting, and financial analysis to drive operational efficiency.',
+                  proficiency: '80%'
+                },
+                { 
+                  company: 'Jabil', 
+                  logo: '/companies/Jabil.svg', 
+                  title: 'Budget Analyst', 
+                  category: 'Business',
+                  employmentType: 'Full-Time',
+                  skillsCount: 6,
+                  description: 'Develop and monitor budgets, analyze spending patterns, and provide financial recommendations.',
+                  proficiency: '75%'
+                }
               ].map((role, index) => (
-                <div key={index} className="p-6 bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors">
-                  <div className="flex items-start justify-between mb-4">
-                    <img src={role.logo} alt={role.company} className="h-8 w-auto object-contain" />
-                    <span className="px-3 py-1 bg-teal-50 text-teal-700 text-xs font-medium rounded-full">Featured</span>
+                <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
+                  <div className="p-5">
+                    <Link href={`/jobs/${index + 1}`} className="block">
+                      <h4 className="text-base font-semibold text-gray-900 mb-1 hover:text-teal-600 transition-colors">
+                        {role.title}
+                      </h4>
+                    </Link>
+                    <p className="text-sm text-gray-600 mb-3">{role.company}</p>
+                    
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">{role.category}</span>
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{role.employmentType}</span>
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{role.skillsCount} Skills</span>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{role.description}</p>
+                    
+                    <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                        </svg>
+                        <div>
+                          <div className="text-xs text-gray-600">Required Proficiency</div>
+                          <div className="text-sm font-semibold text-gray-900">{role.proficiency}</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">{role.title}</h4>
-                  <p className="text-sm text-gray-600 mb-1">{role.company}</p>
-                  <p className="text-sm text-gray-500 mb-3">{role.location}</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-sm font-medium text-gray-900">{role.salary}</span>
-                    <Button size="sm" className="bg-[#114B5F] hover:bg-[#0F3A47]">View Role</Button>
+                  
+                  <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
+                    <button className="text-sm text-gray-600 hover:text-gray-900">
+                      <img src={role.logo} alt={role.company} className="h-6 w-auto object-contain" />
+                    </button>
+                    <Button asChild size="sm" variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
+                      <Link href={`/jobs/${index + 1}`} className="flex items-center gap-1">
+                        Explore
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                        </svg>
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -420,21 +478,70 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </div>
             
             {/* Mock Programs - TODO: Replace with real skill overlap data */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { school: 'University of South Florida', program: 'Master of Accountancy', type: "Master's Degree", duration: '2 years', skills: 12 },
-                { school: 'St. Petersburg College', program: 'Accounting Technology', type: "Associate's Degree", duration: '2 years', skills: 10 },
-                { school: 'Hillsborough Community College', program: 'Financial Services', type: 'Certificate', duration: '1 year', skills: 8 }
+                { 
+                  school: 'University of South Florida', 
+                  logo: '/schools/1759519859851-auburn-university-logo-horizontal-1.svg',
+                  program: 'Master of Accountancy', 
+                  type: "Master's Degree", 
+                  format: 'Online',
+                  duration: '2 years', 
+                  description: 'Advanced accounting program preparing students for CPA certification and leadership roles in finance.',
+                  skills: 12 
+                },
+                { 
+                  school: 'St. Petersburg College', 
+                  logo: '/schools/1759519888484-austin-peay-state-logo-1.svg',
+                  program: 'Accounting Technology', 
+                  type: "Associate's Degree", 
+                  format: 'Hybrid',
+                  duration: '2 years', 
+                  description: 'Foundational accounting skills including bookkeeping, financial reporting, and tax preparation.',
+                  skills: 10 
+                },
+                { 
+                  school: 'Hillsborough Community College', 
+                  logo: '/schools/1759520010733-umsl.png',
+                  program: 'Financial Services Certificate', 
+                  type: 'Certificate', 
+                  format: 'In-Person',
+                  duration: '1 year', 
+                  description: 'Focused training in financial analysis, budgeting, and business finance fundamentals.',
+                  skills: 8 
+                }
               ].map((program, index) => (
-                <div key={index} className="p-6 bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors">
-                  <div className="flex items-start justify-between mb-3">
-                    <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full">{program.type}</span>
-                    <span className="text-xs text-teal-600 font-medium">{program.skills} skills match</span>
+                <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
+                  <div className="p-5">
+                    <Link href={`/programs/${index + 1}`} className="block">
+                      <h4 className="text-base font-semibold text-gray-900 mb-1 hover:text-teal-600 transition-colors">
+                        {program.program}
+                      </h4>
+                    </Link>
+                    <p className="text-sm text-gray-600 mb-3">{program.school}</p>
+                    
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="px-2.5 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-full">{program.type}</span>
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{program.format}</span>
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{program.duration}</span>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{program.description}</p>
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">{program.program}</h4>
-                  <p className="text-sm text-gray-600 mb-1">{program.school}</p>
-                  <p className="text-sm text-gray-500 mb-4">{program.duration}</p>
-                  <Button size="sm" variant="outline" className="w-full">View Program</Button>
+                  
+                  <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
+                    <button className="text-sm text-gray-600 hover:text-gray-900">
+                      <img src={program.logo} alt={program.school} className="h-6 w-auto object-contain" />
+                    </button>
+                    <Button asChild size="sm" variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
+                      <Link href={`/programs/${index + 1}`} className="flex items-center gap-1">
+                        Explore
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                        </svg>
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
