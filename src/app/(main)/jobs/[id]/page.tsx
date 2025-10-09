@@ -218,7 +218,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6 text-white">
+              <CardContent className="space-y-6 text-white p-8">
                 {/* Divider after title */}
                 <div className="border-t border-[#093A4B]"></div>
                 
@@ -393,7 +393,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           <CardHeader>
             <CardTitle className="text-xl text-white">Skills and Responsibilities</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-8">
             <div className="space-y-8">
               {/* Core Skills */}
               <div>
@@ -470,12 +470,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                           {job.tasks.slice(0, 8).map((task: any, index: number) => (
                             <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
                               <div className="flex items-start gap-3">
-                                <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
-                                </div>
+                                <span className="text-teal-400 flex-shrink-0">•</span>
+                                <span className="text-white text-sm">{task.TaskDescription}</span>
                               </div>
                             </div>
                           ))}
