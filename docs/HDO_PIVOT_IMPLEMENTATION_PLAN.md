@@ -374,48 +374,196 @@ GROUP BY hdo.soc_code;
 **Status:** 🔄 Starting investigation  
 **Date:** October 9, 2025
 
-#### Featured Roles Table
-- [ ] Check if `soc_code` field exists
-- [ ] Check if `skills` field exists (JSONB or relation?)
-- [ ] Check if `required_proficiency_threshold` exists
-- [ ] Check if `auto_invite_threshold` exists
+#### Featured Roles Table (jobs table where job_kind='featured_role')
+- [x] Check if `soc_code` field exists
+- [x] Check if `skills` field exists (JSONB or relation?)
+- [x] Check if `required_proficiency_threshold` exists
+- [x] Check if `auto_invite_threshold` exists
 - [ ] Check if `related_program_ids` exists
-- [ ] Count roles with populated SOC codes
-- [ ] Sample data quality check
+- [ ] Count roles with populated SOC codes (need live DB query)
+- [ ] Sample data quality check (need live DB query)
 
 **Findings:**
-```
-[Investigation results will be logged here]
+```sql
+-- JOBS TABLE SCHEMA (from migrations):
+CREATE TABLE public.jobs (
+  id uuid PRIMARY KEY,
+  job_kind job_kind NOT NULL,  -- 'featured_role' or 'occupation'
+  title text NOT NULL,
+  soc_code text,  -- ✅ EXISTS
+  company_id uuid,
+  job_type text,
+  category text,
+  location_city text,
+  location_state text,
+  median_wage_usd numeric,
+  long_desc text,
+  short_desc text,  -- Added in migration
+  featured_image_url text,
+  skills_count integer DEFAULT 0,
+  
+  -- Employer Dashboard Fields (added 2025-10-07):
+  is_published BOOLEAN DEFAULT true,  -- ✅ EXISTS
+  assessments_count INTEGER DEFAULT 0,
+  
+  -- Invitation System Fields:
+  required_proficiency_pct NUMERIC DEFAULT 90,  -- ✅ EXISTS (as required_proficiency_pct)
+  application_url TEXT,
+  visibility_threshold_pct NUMERIC DEFAULT 85,  -- ✅ EXISTS (similar to auto_invite_threshold)
+  
+  -- Status for draft/publish:
+  status text DEFAULT 'published',  -- 'draft', 'published', 'archived'
+  
+  -- Other fields:
+  is_featured boolean DEFAULT false,
+  employment_outlook text,
+  education_level text,
+  core_responsibilities JSONB,
+  related_job_titles JSONB,
+  education_requirements text,
+  projected_open_positions integer,
+  job_growth_outlook text
+);
+
+-- SKILLS STORAGE:
+-- ❌ NO `skills` JSONB field in jobs table
+-- ✅ Skills stored via JUNCTION TABLE: job_skills
+CREATE TABLE public.job_skills (
+  job_id uuid REFERENCES jobs(id),
+  skill_id uuid REFERENCES skills(id),
+  weight numeric DEFAULT 1.0,
+  PRIMARY KEY (job_id, skill_id)
+);
+
+-- ✅ CURATED SKILLS via SOC_SKILLS junction:
+CREATE TABLE public.soc_skills (
+  id uuid PRIMARY KEY,
+  soc_code text NOT NULL,
+  skill_id uuid REFERENCES skills(id),
+  weight numeric DEFAULT 1.0,
+  display_order integer DEFAULT 0,
+  is_primary boolean DEFAULT false,
+  UNIQUE(soc_code, skill_id)
+);
+
+-- MISSING FIELDS:
+-- ❌ related_program_ids - DOES NOT EXIST (need to add or use junction table)
+
+-- CURRENT QUERY LOGIC (from queries.ts):
+-- Featured Roles query checks soc_skills FIRST, falls back to job_skills
+-- This means curated SOC skills already take precedence!
 ```
 
-#### Jobs Table
-- [ ] Relationship to `featured_roles`
-- [ ] Current skills storage mechanism
-- [ ] Assessment linkage structure
+**Key Findings:**
+1. ✅ `soc_code` exists on jobs table
+2. ✅ `required_proficiency_pct` exists (exact field name)
+3. ✅ `visibility_threshold_pct` exists (similar to auto_invite_threshold)
+4. ❌ `skills` JSONB field does NOT exist - uses `job_skills` junction table
+5. ❌ `related_program_ids` does NOT exist
+6. ✅ Skills inheritance already implemented! Query checks `soc_skills` first, then `job_skills`
+7. ✅ `is_published` field exists for draft/publish workflow
+
+#### High-Demand Occupations (jobs table where job_kind='occupation')
+- [x] Current SOC code population
+- [x] Skills data structure
+- [x] Existing crosswalk queries
 
 **Findings:**
-```
-[Investigation results will be logged here]
+```sql
+-- Same table as Featured Roles, just filtered by job_kind
+-- All fields from jobs table apply
+
+-- Query logic (from queries.ts):
+export async function getHighDemandOccupations() {
+  // Selects from jobs where job_kind = 'occupation'
+  // Also checks soc_skills first, then job_skills
+  // Same inheritance pattern as Featured Roles!
+}
+
+-- ✅ SOC codes exist for occupations
+-- ✅ Skills inheritance already working
+-- ✅ Can crosswalk via soc_code matching
 ```
 
-#### High-Demand Occupations Table
-- [ ] Current SOC code population
-- [ ] Skills data structure
-- [ ] Existing crosswalk queries
-
-**Findings:**
-```
-[Investigation results will be logged here]
-```
+**Key Findings:**
+1. ✅ HDO and Featured Roles use SAME table (jobs)
+2. ✅ Both use same skills inheritance (soc_skills → job_skills)
+3. ✅ Crosswalk is simple: match on `soc_code` field
+4. ✅ No separate "high_demand_occupations" table
 
 #### Programs Table
-- [ ] Skills data structure
-- [ ] Overlap query feasibility
+- [x] Skills data structure
+- [x] Overlap query feasibility
+- [x] CIP code relationship
 
 **Findings:**
+```sql
+CREATE TABLE public.programs (
+  id uuid PRIMARY KEY,
+  school_id uuid REFERENCES schools(id),
+  name text NOT NULL,
+  program_type text,  -- Certificate, Associate's, Bachelor Degree, etc.
+  format text,
+  duration_text text,
+  short_desc text,
+  program_url text,
+  cip_code text REFERENCES cip_codes(cip_code),
+  
+  -- Extended fields:
+  program_id text UNIQUE NOT NULL,
+  catalog_provider text,
+  discipline text,
+  long_desc text,
+  program_guide_url text,
+  
+  -- Status fields:
+  is_featured boolean DEFAULT false,
+  is_published boolean DEFAULT true,
+  status text DEFAULT 'published',
+  featured_image_url text,
+  skills_count integer DEFAULT 0,
+  inquiries_count integer DEFAULT 0,
+  
+  -- CIP metadata:
+  cip_assignment_confidence integer DEFAULT 100,
+  cip_assignment_method text DEFAULT 'manual',
+  cip_approved boolean DEFAULT true
+);
+
+-- SKILLS STORAGE:
+CREATE TABLE public.program_skills (
+  program_id uuid REFERENCES programs(id),
+  skill_id uuid REFERENCES skills(id),
+  weight numeric DEFAULT 1.0,
+  PRIMARY KEY (program_id, skill_id)
+);
+
+-- CIP → SOC CROSSWALK:
+CREATE TABLE public.cip_soc_crosswalk (
+  cip_code text REFERENCES cip_codes(cip_code),
+  soc_code text NOT NULL,
+  source text DEFAULT 'ONET',
+  PRIMARY KEY (cip_code, soc_code)
+);
+
+-- PROGRAM → JOBS JUNCTION (added 2025-09-30):
+CREATE TABLE public.program_jobs (
+  program_id uuid REFERENCES programs(id),
+  job_id uuid REFERENCES jobs(id),
+  match_score numeric,
+  PRIMARY KEY (program_id, job_id)
+);
 ```
-[Investigation results will be logged here]
-```
+
+**Key Findings:**
+1. ✅ Programs have `program_skills` junction table
+2. ✅ CIP → SOC crosswalk table exists!
+3. ✅ `program_jobs` junction table exists for direct matching
+4. ✅ Can calculate skill overlap via:
+   - Option A: Direct `program_jobs` junction
+   - Option B: CIP → SOC → programs path
+   - Option C: Skills array intersection
+5. ✅ Programs have `is_published` for filtering
 
 ---
 
@@ -434,11 +582,45 @@ GROUP BY hdo.soc_code;
 - [x] Create comprehensive implementation plan
 - [x] Document all requirements and open questions
 - [x] Commit plan to repository
+- [x] Schema audit - Featured Roles/Jobs table
+- [x] Schema audit - High-Demand Occupations
+- [x] Schema audit - Programs table
+- [x] Identify existing crosswalk infrastructure
+
+### 🎯 Major Discovery: Infrastructure Already Exists!
+
+**GOOD NEWS:** Much of the backend work is already done!
+
+1. **✅ Skills Inheritance Already Working**
+   - Query logic already checks `soc_skills` first, then `job_skills`
+   - Featured Roles automatically inherit curated SOC skills
+   - No duplication needed - system already supports both contexts!
+
+2. **✅ Crosswalk Tables Exist**
+   - `cip_soc_crosswalk` - Links programs to occupations via CIP→SOC
+   - `program_jobs` - Direct junction between programs and jobs
+   - Can use either for crosswalk logic
+
+3. **✅ All Required Fields Exist**
+   - `soc_code` on jobs table ✅
+   - `required_proficiency_pct` ✅
+   - `visibility_threshold_pct` ✅
+   - `is_published` for filtering ✅
+
+4. **❌ Only Missing: `related_program_ids`**
+   - But we have `program_jobs` junction table instead
+   - Actually better - more flexible and normalized
+
+**IMPLICATIONS:**
+- ✅ No schema migrations needed for Phase 1
+- ✅ No skills extractor duplication needed
+- ✅ Crosswalk queries can be built immediately
+- ✅ Can start UI work right away
 
 ### In Progress
-- [ ] Schema audit (featured_roles, jobs, high_demand_occupations, programs)
-- [ ] Data state check (SOC code population, skills data)
-- [ ] Crosswalk query feasibility test
+- [ ] Build crosswalk count queries
+- [ ] Test crosswalk performance
+- [ ] Data quality check (SOC code population)
 
 ### Up Next
 - [ ] Phase 1A: HDO Table Updates
