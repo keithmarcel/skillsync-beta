@@ -247,7 +247,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <div>
                       <div className="text-sm opacity-80">Median Salary</div>
                       <div className="text-xl font-bold">${job.median_wage_usd?.toLocaleString()}</div>
-                      <div className="text-xs opacity-70 mt-1">National Average</div>
+                      <div className="text-xs opacity-70 mt-1">
+                        {job.wage_area_name || 'Tampa Bay Area'}
+                      </div>
                     </div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
@@ -557,7 +559,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             <p className="text-xs text-gray-500 text-center">
               Data sources:{' '}
               <a href="https://www.bls.gov/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
-                BLS 2022
+                BLS 2024
               </a>
               {'; '}
               <a href="https://www.careeronestop.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">

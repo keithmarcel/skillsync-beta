@@ -33,8 +33,11 @@ class BLSApiService {
   private readonly baseUrl = 'https://api.bls.gov/publicAPI/v2'
   private readonly oewsUrl = 'https://api.bls.gov/publicAPI/v2/timeseries/data'
   
-  // Tampa-St. Petersburg-Clearwater, FL MSA
-  private readonly tampaMSA = '45300'
+  // Regional area codes for data priority
+  // Priority: Pinellas County → Tampa MSA → Florida → National
+  private readonly pinellasCounty = '12103' // Pinellas County, FL FIPS code
+  private readonly tampaMSA = '45300'       // Tampa-St. Petersburg-Clearwater, FL MSA
+  private readonly floridaState = '12'      // Florida state FIPS code
   
   constructor() {
     this.apiKey = process.env.BLS_API_KEY || ''
@@ -44,17 +47,30 @@ class BLSApiService {
   }
 
   /**
-   * Fetch OEWS wage data for a specific SOC code in Tampa MSA
+   * Fetch OEWS wage data for a specific SOC code with regional priority
+   * Priority: Pinellas County → Tampa MSA → Florida → National
+   * Uses May 2024 OEWS data (most recent available)
    */
   async getRegionalWageData(socCode: string): Promise<BLSWageData | null> {
     try {
       // Format SOC code for BLS (remove periods, ensure 7 digits with leading zero)
       const formattedSOC = socCode.replace(/[.-]/g, '').padStart(7, '0')
       
-      // Try multiple data sources in order of preference
+      // Try multiple data sources in order of regional preference
+      // Note: County-level OEWS data may not be available for all occupations
       const seriesIds = [
+        // Pinellas County (if available - county data is limited in OEWS)
+        // `OEUM${this.pinellasCounty}000000${formattedSOC}04`, // Pinellas median wage
+        
+        // Tampa-St. Petersburg-Clearwater MSA (Primary regional data)
         `OEUM${this.tampaMSA}000000${formattedSOC}04`, // Tampa MSA median wage
         `OEUM${this.tampaMSA}000000${formattedSOC}03`, // Tampa MSA mean wage  
+        
+        // Florida State
+        `OEUS${this.floridaState}0000000${formattedSOC}04`, // Florida median wage
+        `OEUS${this.floridaState}0000000${formattedSOC}03`, // Florida mean wage
+        
+        // National (fallback)
         `OEUS000000000${formattedSOC}04`,              // National median wage
         `OEUS000000000${formattedSOC}03`,              // National mean wage
       ]
@@ -65,8 +81,8 @@ class BLSApiService {
       for (const seriesId of seriesIds) {
         const requestBody = {
           seriesid: [seriesId],
-          startyear: '2020',  // Start from 2020 to get latest available data
-          endyear: '2024',    // Include 2024 OEWS data
+          startyear: '2023',  // Start from 2023 to get May 2024 data
+          endyear: '2024',    // May 2024 OEWS data (most recent)
           registrationkey: this.apiKey
         }
 
@@ -91,14 +107,23 @@ class BLSApiService {
         const series = data.Results?.series?.[0]
         if (series?.data?.length) {
           // Found data, process it
-          const latestData = series.data[0] // Most recent data point
-          const areaName = seriesId.includes(this.tampaMSA) 
-            ? 'Tampa-St. Petersburg-Clearwater, FL'
-            : 'United States'
+          const latestData = series.data[0] // Most recent data point (May 2024)
+          
+          // Determine area name based on series ID
+          let areaName = 'United States'
+          let areaCode = '0000'
+          
+          if (seriesId.includes(this.tampaMSA)) {
+            areaName = 'Tampa-St. Petersburg-Clearwater, FL'
+            areaCode = this.tampaMSA
+          } else if (seriesId.includes(`OEUS${this.floridaState}`)) {
+            areaName = 'Florida'
+            areaCode = this.floridaState
+          }
           
           return {
             socCode,
-            areaCode: seriesId.includes(this.tampaMSA) ? this.tampaMSA : '0000',
+            areaCode,
             areaName,
             medianWage: parseFloat(latestData.value) || null,
             meanWage: null, // OEWS median wage series doesn't include mean
