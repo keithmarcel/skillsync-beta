@@ -94,6 +94,12 @@ function CompanyModal({ company }: { company: any }) {
   )
 }
 
+// Helper function to remove regional indicators like (National), (Regional), etc.
+const cleanRegionalIndicators = (text: string | null | undefined): string => {
+  if (!text) return '';
+  return text.replace(/\s*\((National|Regional|State|Local)\)/gi, '').trim();
+}
+
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -284,7 +290,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </div>
                     <div>
                       <div className="text-sm opacity-80">Typical Education</div>
-                      <div className="text-xl font-bold">{job.education_level || job.education_requirements || 'Not Specified'}</div>
+                      <div className="text-xl font-bold">{cleanRegionalIndicators(job.education_level || job.education_requirements) || 'Not Specified'}</div>
                       <div className="text-xs opacity-70 mt-1">Requirements</div>
                     </div>
                   </div>
@@ -318,7 +324,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                                 ? 'text-yellow-400'
                                 : 'text-orange-400'
                             }`}>
-                              {job.employment_outlook.replace(/\s*\(National\)/gi, '')}
+                              {cleanRegionalIndicators(job.employment_outlook)}
                             </div>
                             <div className="text-xs opacity-70 mt-1">Through 2032</div>
                           </>
