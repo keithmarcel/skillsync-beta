@@ -26,7 +26,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
   const { isAdmin } = useAuth();
   const initials = user?.name 
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase()
-    : 'U'
+    : user?.email?.[0]?.toUpperCase() || 'U'
 
   return (
     <DropdownMenu>

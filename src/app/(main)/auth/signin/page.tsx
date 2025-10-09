@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -80,20 +79,21 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="auth-page h-full flex items-center justify-center bg-gray-50 px-4">
       <div className="flex items-center justify-center max-w-6xl w-full" style={{ gap: '88px' }}>
         {/* Left side - Sign in form */}
         <div className="w-full max-w-md">
           {/* Logo */}
-          <div className="mb-8">
-            <Image
+          <div className="mb-6">
+            <img
               src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
               alt="SkillSync - Powered by Bisk Amplified"
-              width={200}
-              height={48}
               className="h-12 w-auto"
             />
           </div>
+
+          {/* Separator */}
+          <div className="border-t border-gray-200 mb-6"></div>
 
           {/* Form */}
           <div className="space-y-6">
@@ -120,15 +120,18 @@ export default function SignInPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">
+                  Email <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className={errors.email ? 'border-red-500' : ''}
+                  className={errors.email ? 'border-red-500 focus:ring-red-500' : ''}
                   disabled={isLoading}
+                  required
                 />
                 {errors.email && (
                   <p className="text-sm text-red-600">{errors.email}</p>
@@ -137,7 +140,9 @@ export default function SignInPage() {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">
+                    Password <span className="text-red-500">*</span>
+                  </Label>
                   <Link 
                     href="/auth/forgot-password" 
                     className="text-sm text-[#0694A2] hover:underline"
@@ -151,8 +156,9 @@ export default function SignInPage() {
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
-                  className={errors.password ? 'border-red-500' : ''}
+                  className={errors.password ? 'border-red-500 focus:ring-red-500' : ''}
                   disabled={isLoading}
+                  required
                 />
                 {errors.password && (
                   <p className="text-sm text-red-600">{errors.password}</p>
@@ -184,12 +190,10 @@ export default function SignInPage() {
 
         {/* Right side - Welcome graphic */}
         <div className="hidden lg:block flex-shrink-0">
-          <Image
+          <img
             src="/assets/skillsync_welcome.svg"
             alt="Welcome to SkillSync"
-            width={572}
-            height={768}
-            priority
+            className="w-[572px] h-auto"
           />
         </div>
       </div>

@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="auth-page h-full flex items-center justify-center bg-gray-50 px-4">
         <div className="w-full max-w-md space-y-8 text-center">
           <div>
             <img
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="auth-page h-full flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <img

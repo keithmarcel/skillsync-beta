@@ -1,8 +1,8 @@
 # SkillSync Sprint Roadmap
 
-**Updated:** October 8, 2024 - 2:38 AM  
-**Current Sprint:** Skills Extractor Integration Complete  
-**Status:** 🎉 Backend Complete + Skills Extractor Fully Integrated + Design System Unified
+**Updated:** October 9, 2025 - 2:27 AM  
+**Current Sprint:** Authentication & Onboarding Flow Complete  
+**Status:** 🎉 Backend Complete + Skills Extractor Fully Integrated + Design System Unified + Auth Flow Complete
 
 ## 🎯 **MAJOR MILESTONE: Backend Complete**
 
@@ -470,6 +470,7 @@ Automatic duplicate prevention
 5. **Notification Center** - Header badge, dropdown, full page
 6. **Homepage Redesign** - Hero, features, testimonials
 7. **Design System** - Unified colors, consistent UI
+8. **Authentication & Onboarding Flow** - Sign-in, sign-up with employer opt-in, email verification, password reset
 
 ### **🚧 In Progress / Next Up**
 1. **Quiz Generator Edge Function** - Update to use curated skills
