@@ -87,10 +87,11 @@ export default function SignInPage() {
           {/* Logo */}
           <div className="mb-8">
             <Image
-              src="/logo_skillsync_hirestpeteway_lockup.svg"
-              alt="SkillSync"
+              src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
+              alt="SkillSync - Powered by Bisk Amplified"
               width={200}
-              height={60}
+              height={48}
+              className="h-12 w-auto"
             />
           </div>
 
@@ -184,10 +185,10 @@ export default function SignInPage() {
         {/* Right side - Welcome graphic */}
         <div className="hidden lg:block flex-shrink-0">
           <Image
-            src="/skillsync-welcome.svg"
+            src="/assets/skillsync_welcome.svg"
             alt="Welcome to SkillSync"
-            width={400}
-            height={400}
+            width={572}
+            height={768}
             priority
           />
         </div>

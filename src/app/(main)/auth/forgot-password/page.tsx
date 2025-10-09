@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -65,12 +64,10 @@ export default function ForgotPasswordPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="w-full max-w-md space-y-8 text-center">
           <div>
-            <Image
-              src="/logo_skillsync_hirestpeteway_lockup.svg"
-              alt="SkillSync"
-              width={200}
-              height={60}
-              className="mx-auto mb-8"
+            <img
+              src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
+              alt="SkillSync - Powered by Bisk Amplified"
+              className="h-12 w-auto mx-auto mb-8"
             />
           </div>
           
@@ -106,12 +103,10 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <Image
-            src="/logo_skillsync_hirestpeteway_lockup.svg"
-            alt="SkillSync"
-            width={200}
-            height={60}
-            className="mx-auto mb-8"
+          <img
+            src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
+            alt="SkillSync - Powered by Bisk Amplified"
+            className="h-12 w-auto mx-auto mb-8"
           />
         </div>
 
