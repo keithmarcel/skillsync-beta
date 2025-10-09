@@ -301,7 +301,7 @@ export default function DataTable({
                                 {getTertiaryActionLabel(tableType)}
                               </DropdownMenuItem>
                             )}
-                            {(tableType === 'occupations' || tableType === 'jobs') && (
+                            {tableType === 'jobs' && (
                               <>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => onRowAction?.('resume', row)}>
@@ -310,9 +310,9 @@ export default function DataTable({
                                 <DropdownMenuItem onClick={() => onRowAction?.('assessment', row)}>
                                   Take a Skills Assessment
                                 </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                               </>
                             )}
-                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => {
                               const entityKind = tableType === 'programs' ? 'program' : 'job'
                               const action = isOnFavoritesTab ? 'unfavorite' : ((isFavorite && isFavorite(entityKind, row.id)) ? 'unfavorite' : 'favorite')
