@@ -242,12 +242,13 @@ export const occupationsTableColumns = [
     sortable: true,
     render: (value: any, item: any) => {
       const count = item.related_jobs_count || 0
-      if (count === 0) {
-        return React.createElement('span', { className: 'text-gray-400 text-sm' }, '—')
-      }
       return React.createElement('a', {
         href: `/occupations/${item.soc_code}#open-roles`,
-        className: 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-[#EFF6FF] text-[#1E40AF] border border-[#DBEAFE] hover:bg-[#DBEAFE] transition-colors'
+        className: `inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+          count === 0 
+            ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-default' 
+            : 'bg-[#EFF6FF] text-[#1E40AF] border-[#DBEAFE] hover:bg-[#DBEAFE]'
+        }`
       }, `${count} Open Role${count !== 1 ? 's' : ''}`)
     },
     width: 'small' as const,
@@ -258,12 +259,13 @@ export const occupationsTableColumns = [
     sortable: true,
     render: (value: any, item: any) => {
       const count = item.related_programs_count || 0
-      if (count === 0) {
-        return React.createElement('span', { className: 'text-gray-400 text-sm' }, '—')
-      }
       return React.createElement('a', {
         href: `/occupations/${item.soc_code}#programs`,
-        className: 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-[#F0FDF4] text-[#15803D] border border-[#BBF7D0] hover:bg-[#DCFCE7] transition-colors'
+        className: `inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+          count === 0 
+            ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-default' 
+            : 'bg-[#F0FDF4] text-[#15803D] border-[#BBF7D0] hover:bg-[#DCFCE7]'
+        }`
       }, `${count} Match${count !== 1 ? 'es' : ''}`)
     },
     width: 'small' as const,
