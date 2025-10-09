@@ -41,21 +41,58 @@ export async function POST(request: NextRequest) {
     })
 
     // Insert feedback into database
+    // Try with new fields first, fallback to old schema if migration not applied
+    let insertData: any = {
+      sentiment,
+      message,
+      user_id,
+      user_email,
+    }
+
+    // Add new fields if they exist (after migration)
+    if (feedback_level !== undefined) {
+      insertData.feedback_level = feedback_level
+    }
+    if (route_path !== undefined) {
+      insertData.route_path = route_path
+    }
+
     const { data, error } = await supabase
       .from('feedback')
-      .insert({
-        sentiment,
-        feedback_level,
-        message,
-        user_id,
-        user_email,
-        route_path
-      })
+      .insert(insertData)
       .select()
       .single()
 
     if (error) {
       console.error('❌ Database error:', error)
+      console.error('❌ Error details:', JSON.stringify(error, null, 2))
+      
+      // If error is about missing columns, try without new fields
+      if (error.message?.includes('column') && (error.message?.includes('feedback_level') || error.message?.includes('route_path'))) {
+        console.log('⚠️ New columns not found, trying legacy insert...')
+        const { data: legacyData, error: legacyError } = await supabase
+          .from('feedback')
+          .insert({
+            sentiment,
+            message,
+            user_id,
+            user_email,
+          })
+          .select()
+          .single()
+        
+        if (legacyError) {
+          throw legacyError
+        }
+        
+        console.log('✅ Feedback saved (legacy mode):', legacyData)
+        return NextResponse.json({ 
+          success: true, 
+          feedback: legacyData,
+          warning: 'Migration not applied - route_path and feedback_level not saved'
+        }, { status: 200 })
+      }
+      
       throw error
     }
 
