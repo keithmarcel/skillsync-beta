@@ -685,33 +685,6 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        {/* Hiring Companies for Occupations */}
-        {job.job_kind === 'occupation' && (
-          <Card className="rounded-2xl mb-16">
-            <CardHeader className="pb-5">
-              <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>
-            </CardHeader>
-            <CardContent className="p-8 pt-0">
-              <div className="flex items-center justify-start gap-8">
-                {[
-                  { name: 'Power Design', logo: '/companies/power-design.svg' },
-                  { name: 'TD SYNNEX', logo: '/companies/td-synnexx.svg' },
-                  { name: 'Spectrum', logo: '/companies/spectrum.svg' },
-                  { name: 'BayCare', logo: '/companies/Baycare.svg' }
-                ].map((company, index) => (
-                  <div key={index} className="flex items-center gap-3 text-gray-700">
-                    <img 
-                      src={company.logo} 
-                      alt={`${company.name} logo`}
-                      className="h-6 w-auto object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Data Source Footer - Only for Occupations */}
         {job.job_kind === 'occupation' && (
           <div className="mt-12 pt-8 border-t border-gray-200">
