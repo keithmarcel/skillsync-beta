@@ -1,179 +1,207 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AuthBackground } from '@/components/auth/auth-background'
-import { useAuth } from '@/hooks/useAuth'
 import { useToast } from '@/hooks/use-toast'
+import { supabase } from '@/lib/supabase/client'
+import { BUTTON_STYLES } from '@/lib/design-system'
 
 export default function ResetPasswordPage() {
-  const { resetPassword } = useAuth()
+  const router = useRouter()
   const { toast } = useToast()
-  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [error, setError] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isValidToken, setIsValidToken] = useState(false)
+
+  useEffect(() => {
+    // Check if user has a valid session from the email link
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setIsValidToken(true)
+      } else {
+        toast({
+          title: "Invalid or Expired Link",
+          description: "Please request a new password reset link.",
+          variant: "destructive",
+        })
+        setTimeout(() => router.push('/auth/forgot-password'), 3000)
+      }
+    })
+  }, [router, toast])
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+    
+    if (!password) {
+      newErrors.password = 'Password is required'
+    } else if (password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters'
+    }
+    
+    if (!confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password'
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match'
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!email) {
-      setError('Email is required')
-      return
-    }
-    
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email')
-      return
-    }
+    if (!validateForm()) return
     
     setIsLoading(true)
-    setError('')
-    
     try {
-      // Use real Supabase password reset
-      await resetPassword(email)
-      
-      toast({
-        title: "Reset Email Sent",
-        description: "Check your email for password reset instructions.",
+      const { error } = await supabase.auth.updateUser({
+        password: password
       })
       
-      setIsSubmitted(true)
+      if (error) throw error
+      
+      toast({
+        title: "Password Updated!",
+        description: "Your password has been successfully reset.",
+      })
+      
+      // Redirect to dashboard
+      router.push('/')
     } catch (error: any) {
       console.error('Reset password error:', error)
-      const errorMessage = error.message || 'Failed to send reset email. Please try again.'
-      setError(errorMessage)
       toast({
         title: "Reset Failed",
-        description: errorMessage,
+        description: error.message || "Failed to reset password. Please try again.",
         variant: "destructive",
       })
+      setErrors({ general: error.message || 'Failed to reset password. Please try again.' })
     } finally {
       setIsLoading(false)
     }
   }
 
-  if (isSubmitted) {
+  if (!isValidToken) {
     return (
-      <div className="min-h-screen flex">
-        {/* Left side - Animated background */}
-        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-          <AuthBackground />
-        </div>
-
-        {/* Right side - Success message */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-          <div className="w-full max-w-md space-y-8 text-center">
-            {/* Logo */}
-            <Image
-              src="/logo_skillsync_hirestpeteway_lockup.svg"
-              alt="SkillSync"
-              width={200}
-              height={60}
-              className="mx-auto"
+      <div className="auth-page h-full flex items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-md text-center">
+          <div className="mb-6">
+            <img
+              src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
+              alt="SkillSync - Powered by Bisk Amplified"
+              className="h-12 w-auto mx-auto"
             />
-
-            <div className="space-y-4">
-              <h1 className="text-2xl font-semibold text-gray-900">Check your email</h1>
-              <p className="text-gray-600">
-                We've sent a password reset link to <strong>{email}</strong>
-              </p>
-              <p className="text-sm text-gray-500">
-                Didn't receive the email? Check your spam folder or{' '}
-                <button 
-                  onClick={() => setIsSubmitted(false)}
-                  className="text-[#0694A2] hover:underline"
-                >
-                  try again
-                </button>
-              </p>
-              
-              <Link href="/auth/signin">
-                <Button variant="outline" className="w-full mt-4">
-                  Back to Sign In
-                </Button>
-              </Link>
-            </div>
           </div>
+          <p className="text-gray-600">Validating reset link...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex auth-page">
-      {/* Left side - Animated background */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        <AuthBackground />
-      </div>
+    <div className="auth-page h-full flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="mb-6">
+          <img
+            src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
+            alt="SkillSync - Powered by Bisk Amplified"
+            className="h-12 w-auto"
+          />
+        </div>
 
-      {/* Right side - Reset password form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md space-y-8">
-          {/* Logo */}
-          <div className="text-center">
-            <Image
-              src="/logo_skillsync_hirestpeteway_lockup.svg"
-              alt="SkillSync"
-              width={200}
-              height={60}
-              className="mx-auto"
-            />
+        {/* Separator */}
+        <div className="border-t border-gray-200 mb-6"></div>
+
+        {/* Form */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-[36px] leading-[40px] font-bold text-[#114B5F] tracking-[-1px] font-source-sans-pro mb-2">
+              Reset Password
+            </h1>
+            <p className="text-base text-gray-600">
+              Enter your new password below.
+            </p>
           </div>
 
-          {/* Form */}
-          <div className="space-y-6">
-            <div className="text-center">
-              <h1 className="text-2xl font-semibold text-gray-900">Reset Password</h1>
-              <p className="mt-2 text-sm text-gray-600">
-                Enter your email address and we'll send you a link to reset your password.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value)
-                    setError('')
-                  }}
-                  className={error ? 'border-red-500' : ''}
-                />
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {errors.general && (
+              <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-200">
+                {errors.general}
               </div>
+            )}
 
-              <Button
-                type="submit"
+            <div className="space-y-2">
+              <Label htmlFor="password">
+                New Password <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter new password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  if (errors.password) {
+                    setErrors(prev => ({ ...prev, password: '' }))
+                  }
+                }}
+                className={errors.password ? 'border-red-500 focus:ring-red-500' : ''}
                 disabled={isLoading}
-                className="w-full bg-[#0694A2] hover:bg-[#0694A2]/90 text-white py-3"
-              >
-                {isLoading ? 'Sending...' : 'Send Reset Link'}
-              </Button>
-            </form>
-
-            <div className="text-center">
-              <Link 
-                href="/auth/signin" 
-                className="text-sm text-[#0694A2] hover:underline"
-              >
-                Back to Sign In
-              </Link>
+                required
+              />
+              <p className="text-xs text-gray-500">Minimum 8 characters</p>
+              {errors.password && (
+                <p className="text-sm text-red-600">{errors.password}</p>
+              )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">
+                Confirm Password <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value)
+                  if (errors.confirmPassword) {
+                    setErrors(prev => ({ ...prev, confirmPassword: '' }))
+                  }
+                }}
+                className={errors.confirmPassword ? 'border-red-500 focus:ring-red-500' : ''}
+                disabled={isLoading}
+                required
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-600">{errors.confirmPassword}</p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full ${BUTTON_STYLES.primary}`}
+            >
+              {isLoading ? 'Resetting Password...' : 'Reset Password'}
+            </Button>
+          </form>
+
+          <div className="text-center pt-4">
+            <Link 
+              href="/auth/signin" 
+              className="text-sm text-[#0694A2] hover:underline"
+            >
+              Back to Sign In
+            </Link>
           </div>
         </div>
       </div>

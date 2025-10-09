@@ -13,8 +13,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // --- Define Route Groups ---
-  const publicRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password'];
-  const authRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password']; // Routes for unauthenticated users
+  const publicRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/forgot-password', '/auth/verify-email'];
+  const authRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/forgot-password', '/auth/verify-email']; // Routes for unauthenticated users
   const protectedRoutes = ['/', '/jobs', '/programs', '/assessments', '/profile']; // Routes for any authenticated user
   const adminRoutes = ['/admin']; // Routes for admin users only
   const apiRoutes = ['/api']; // API routes - allow for now
@@ -66,7 +66,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - app/ (public assets)
+     * - assets/ (public assets)
      */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|app/|assets/).*)',
   ],
 };

@@ -32,8 +32,14 @@ export default function SettingsPage() {
 
   if (!profile) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <div className="text-gray-500">Please sign in to access settings.</div>
+        <button 
+          onClick={() => router.push('/auth/signin')}
+          className="text-[#0694A2] hover:underline"
+        >
+          Go to Sign In
+        </button>
       </div>
     )
   }

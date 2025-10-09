@@ -13,8 +13,10 @@ import { NotificationItem } from '@/components/ui/notification-item'
 import { 
   getRecentInvitations, 
   getUnreadInvitationCount,
-  markAllInvitationsAsRead 
+  markInvitationAsViewed,
+  markAllInvitationsAsRead
 } from '@/lib/services/employer-invitations'
+import { supabase } from '@/lib/supabase/client'
 import type { EmployerInvitation } from '@/lib/services/employer-invitations'
 
 export function NotificationDropdown() {
@@ -23,6 +25,7 @@ export function NotificationDropdown() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [open, setOpen] = useState(false)
+  const [isOptedIn, setIsOptedIn] = useState<boolean | null>(null)
 
   // Load invitations and unread count
   useEffect(() => {
@@ -35,6 +38,18 @@ export function NotificationDropdown() {
 
   const loadNotifications = async () => {
     try {
+      // Check if user is opted in to employer invites
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('visible_to_employers')
+          .eq('id', user.id)
+          .single()
+        
+        setIsOptedIn(profile?.visible_to_employers ?? false)
+      }
+      
       const [invites, count] = await Promise.all([
         getRecentInvitations(5), // Get top 5 recent
         getUnreadInvitationCount()
@@ -43,19 +58,21 @@ export function NotificationDropdown() {
       setInvitations(invites)
       setUnreadCount(count)
     } catch (error) {
-      console.error('Error loading notifications:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleMarkAllAsRead = async () => {
+  const handleInvitationClick = async (invitation: EmployerInvitation) => {
     try {
-      await markAllInvitationsAsRead()
-      setUnreadCount(0)
-      loadNotifications()
+      // Mark as viewed when clicked
+      await markInvitationAsViewed(invitation.id)
+      
+      // Navigate to invitations page
+      router.push('/invitations')
+      setOpen(false)
     } catch (error) {
-      console.error('Error marking all as read:', error)
+      console.error('Error marking invitation as viewed:', error)
     }
   }
 
@@ -64,8 +81,13 @@ export function NotificationDropdown() {
     router.push('/invitations')
   }
 
-  const handleInvitationClick = () => {
-    loadNotifications() // Refresh after interaction
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllInvitationsAsRead()
+      loadNotifications() // Refresh after marking all as read
+    } catch (error) {
+      console.error('Error marking all as read:', error)
+    }
   }
 
   return (
@@ -105,6 +127,22 @@ export function NotificationDropdown() {
             <div className="py-8 text-center text-sm text-gray-500">
               Loading notifications...
             </div>
+          ) : isOptedIn === false ? (
+            <div className="py-8 px-4 text-center">
+              <p className="text-sm font-medium text-gray-900 mb-2">Enable Employer Invites</p>
+              <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+                Get personally invited to roles you qualify for! Opt in to let employers view your assessment results and invite you to apply.
+              </p>
+              <Button
+                onClick={() => {
+                  router.push('/account-settings?tab=profile')
+                  setOpen(false)
+                }}
+                className="w-full bg-[#0694A2] hover:bg-[#0694A2]/90 text-white text-xs"
+              >
+                Enable in Account Settings
+              </Button>
+            </div>
           ) : invitations.length === 0 ? (
             <div className="py-8 text-center">
               <p className="text-sm text-gray-500">No new invitations</p>
@@ -125,23 +163,25 @@ export function NotificationDropdown() {
           )}
         </div>
 
-        {/* Footer Actions - Always visible for easy access to invitations page */}
-        <div className="px-4 py-6 flex gap-3">
-          <Button
-            variant="outline"
-            onClick={handleMarkAllAsRead}
-            className="flex-1 h-[34px] text-xs font-medium border-[#E5E7EB] text-[#111928] hover:bg-gray-50"
-            disabled={unreadCount === 0}
-          >
-            Mark All As Read
-          </Button>
-          <Button
-            onClick={handleViewAll}
-            className="flex-1 h-[34px] text-xs font-medium bg-[#0694A2] hover:bg-[#0694A2]/90 text-white"
-          >
-            View All Invites
-          </Button>
-        </div>
+        {/* Footer Actions - Only show if user is opted in */}
+        {isOptedIn && (
+          <div className="px-4 py-6 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={handleMarkAllAsRead}
+              className="flex-1 h-[34px] text-xs font-medium border-[#E5E7EB] text-[#111928] hover:bg-gray-50"
+              disabled={unreadCount === 0}
+            >
+              Mark All As Read
+            </Button>
+            <Button
+              onClick={handleViewAll}
+              className="flex-1 h-[34px] text-xs font-medium bg-[#0694A2] hover:bg-[#0694A2]/90 text-white"
+            >
+              View All Invites
+            </Button>
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

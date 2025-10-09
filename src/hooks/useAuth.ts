@@ -60,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Helper function to fetch user profile
   const fetchProfile = async (userId: string) => {
+    console.log('🔍 Fetching profile for user:', userId)
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -68,9 +69,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     if (error) {
       console.error('❌ Profile fetch error:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
       return null
     }
     
+    console.log('✅ Profile loaded:', data)
     return data as Profile
   }
 
@@ -133,8 +136,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           first_name: data.firstName,
           last_name: data.lastName,
-          zip_code: data.zipCode,
+          linkedin_url: data.linkedinUrl,
           agreed_to_terms: data.agreeToTerms,
+          visible_to_employers: data.visibleToEmployers,
         }
       }
     })
@@ -150,8 +154,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: data.role || 'user', // Default to 'user' role
           first_name: data.firstName,
           last_name: data.lastName,
-          zip_code: data.zipCode,
+          linkedin_url: data.linkedinUrl,
           agreed_to_terms: data.agreeToTerms || false,
+          visible_to_employers: data.visibleToEmployers || false,
         })
       
       if (profileError) {
@@ -164,6 +169,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut()
+    // Redirect to sign in page after sign out
+    if (typeof window !== 'undefined') {
+      window.location.href = '/auth/signin'
+    }
   }
 
   const resetPassword = async (email: string) => {

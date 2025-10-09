@@ -32,14 +32,15 @@ export function ProfileTab({ profile }: ProfileTabProps) {
   
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [cacheBuster] = useState(() => Date.now()) // Generate once on mount
 
   const initials = profile.first_name && profile.last_name
     ? `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase()
-    : 'U'
+    : profile.email?.[0]?.toUpperCase() || 'U'
 
-  // Add cache-busting to avatar URL
+  // Add cache-busting to avatar URL (using stable timestamp)
   const avatarUrlWithCache = profile.avatar_url 
-    ? `${profile.avatar_url}?t=${Date.now()}` 
+    ? `${profile.avatar_url}?t=${cacheBuster}` 
     : undefined
 
   const handleAvatarClick = () => {
@@ -312,17 +313,17 @@ export function ProfileTab({ profile }: ProfileTabProps) {
                 htmlFor="visible_to_employers"
                 className="text-sm font-medium text-gray-900 cursor-pointer leading-tight"
               >
-                Allow Employers to Invite You to Apply
+                Share your assessment results to get personally invited to roles you qualify for
               </Label>
-              <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                Option appears to employers when you've met the required proficiency score on any 'Hiring Now' assessment. Your full name and LinkedIn URL are required to activate this option.{' '}
+              <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
+                Enabling employer invites lets qualified employers view your SkillSync assessment results and invite you to apply for roles that match your proficiency. Your name and LinkedIn profile ensure accurate identification and reduce recruiter spam.{' '}
                 <a
                   href="https://biskamplified.com/privacy-policy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-teal-600 hover:text-teal-700 underline"
+                  className="text-[#0694A2] hover:underline"
                 >
-                  Privacy policy
+                  Privacy Policy
                 </a>
               </p>
             </div>
