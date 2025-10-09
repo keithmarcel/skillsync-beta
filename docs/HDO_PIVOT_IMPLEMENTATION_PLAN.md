@@ -365,4 +365,86 @@ GROUP BY hdo.soc_code;
 
 ---
 
-**Next Steps:** Begin Phase 1A - HDO Table Updates
+---
+
+## 🔬 Investigation Findings
+
+### Schema Audit (In Progress)
+
+**Status:** 🔄 Starting investigation  
+**Date:** October 9, 2025
+
+#### Featured Roles Table
+- [ ] Check if `soc_code` field exists
+- [ ] Check if `skills` field exists (JSONB or relation?)
+- [ ] Check if `required_proficiency_threshold` exists
+- [ ] Check if `auto_invite_threshold` exists
+- [ ] Check if `related_program_ids` exists
+- [ ] Count roles with populated SOC codes
+- [ ] Sample data quality check
+
+**Findings:**
+```
+[Investigation results will be logged here]
+```
+
+#### Jobs Table
+- [ ] Relationship to `featured_roles`
+- [ ] Current skills storage mechanism
+- [ ] Assessment linkage structure
+
+**Findings:**
+```
+[Investigation results will be logged here]
+```
+
+#### High-Demand Occupations Table
+- [ ] Current SOC code population
+- [ ] Skills data structure
+- [ ] Existing crosswalk queries
+
+**Findings:**
+```
+[Investigation results will be logged here]
+```
+
+#### Programs Table
+- [ ] Skills data structure
+- [ ] Overlap query feasibility
+
+**Findings:**
+```
+[Investigation results will be logged here]
+```
+
+---
+
+## 📊 Implementation Progress
+
+### Current Status: **Phase 0 - Investigations**
+
+**Approach:** Investigation-first strategy to prevent rework and ensure UI is built on solid data foundation.
+
+**Timeline:**
+- **Now (30-60 min):** Schema audit + data state check
+- **Then (2-3 hours):** Phase 1A - HDO Table UI updates
+- **Next Session:** Phase 1B - HDO Details page updates
+
+### Completed Tasks
+- [x] Create comprehensive implementation plan
+- [x] Document all requirements and open questions
+- [x] Commit plan to repository
+
+### In Progress
+- [ ] Schema audit (featured_roles, jobs, high_demand_occupations, programs)
+- [ ] Data state check (SOC code population, skills data)
+- [ ] Crosswalk query feasibility test
+
+### Up Next
+- [ ] Phase 1A: HDO Table Updates
+- [ ] Phase 1B: HDO Details Page Updates
+- [ ] Phase 2A: Schema & Data Migration
+
+---
+
+**Next Steps:** Begin Schema Audit Investigation
