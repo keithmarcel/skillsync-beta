@@ -618,11 +618,9 @@ CREATE TABLE public.program_jobs (
 - ✅ Can start UI work right away
 
 ### In Progress
-- [ ] Phase 1A: HDO Table Updates (In Progress - 80% complete)
-- [ ] Remove assessment actions from Actions menu
-- [ ] Remove separators from Actions menu
+- [ ] Phase 1B: HDO Details Page Updates
 
-### Completed - Phase 1A (HDO Table)
+### Completed - Phase 1A (HDO Table) ✅
 - [x] Build crosswalk count queries
 - [x] Remove AVG Salary column
 - [x] Remove Role Readiness column
@@ -630,11 +628,20 @@ CREATE TABLE public.program_jobs (
 - [x] Add "Programs" column with crosswalk counts
 - [x] Style badges as pills with teal colors
 - [x] Always show badges (gray when count is 0)
-- [x] Update column labels for single-line display
+- [x] Update column labels for single-line display ("Open Roles", "Programs")
 - [x] Adjust column widths (Summary: 30%, Job Title: 22%)
+- [x] Remove "Take Assessment" from Actions menu
+- [x] Remove "Upload Resume" from Actions menu
+- [x] Remove separators from Actions menu
+- [x] Make badges non-clickable when count is 0
+
+**Files Modified:**
+- `src/lib/table-configs.ts` - Column definitions, badge rendering
+- `src/lib/database/queries.ts` - Crosswalk count queries
+- `src/components/ui/data-table.tsx` - Column widths, Actions menu
+- `docs/HDO_PIVOT_IMPLEMENTATION_PLAN.md` - Progress tracking
 
 ### Up Next
-- [ ] Phase 1A: Complete Actions menu cleanup
 - [ ] Phase 1B: HDO Details Page Updates
 - [ ] Phase 2A: Schema & Data Migration
 
