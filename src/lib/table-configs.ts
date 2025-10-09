@@ -225,7 +225,7 @@ export const occupationsTableColumns = [
     key: 'description',
     label: 'Summary',
     sortable: true,
-    width: 'large' as const,
+    width: 'xlarge' as const,
   },
   {
     key: 'category',
