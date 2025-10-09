@@ -255,7 +255,7 @@ export const occupationsTableColumns = [
   },
   {
     key: 'related_programs',
-    label: 'Education Programs',
+    label: 'Programs',
     sortable: true,
     render: (value: any, item: any) => {
       const count = item.related_programs_count || 0
