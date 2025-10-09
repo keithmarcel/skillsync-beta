@@ -372,6 +372,34 @@ GROUP BY hdo.soc_code;
 - Empty states minimize vertical space when no data
 - Separator provides clear visual break between sections
 
+### Phase 1C: BLS 2024 Regional Data Upgrade 🔄 IN PROGRESS
+- [ ] Document BLS API research findings
+- [ ] Audit current BLS data connections
+- [ ] Update to May 2024 OEWS data
+- [ ] Implement regional data priority (Pinellas → Tampa Bay → Florida → National)
+- [ ] Add regional salary display
+- [ ] Update data source footer to "BLS 2024"
+- [ ] Test regional data fallback logic
+
+**Regional Data Priority:**
+1. **Primary:** Pinellas County, FL (all zip codes)
+2. **Secondary:** Tampa-St. Petersburg-Clearwater MSA
+3. **Tertiary:** Florida state-level
+4. **Fallback:** National data
+
+**BLS API Research Findings:**
+- **May 2024 OEWS data available** (2-year improvement over current 2022 data)
+- **Regional granularity:** State, Metro Area, and some county-level data
+- **API Access:** BLS Public Data API v2.0 (no registration required)
+- **Coverage:** ~830 occupations by SOC code
+- **Update frequency:** Annual (every May)
+
+**Data Sources:**
+- Salary/Employment: BLS OEWS May 2024
+- Projections: BLS Employment Projections 2022-2032 (national only, biennial updates)
+- Skills/Tasks: O*NET 30.0 (2025) - national only
+- Regional Projections: State workforce agencies (Florida DEO)
+
 ### Phase 2A: Schema & Data
 - [ ] Complete schema audit
 - [ ] Add missing fields to featured_roles
