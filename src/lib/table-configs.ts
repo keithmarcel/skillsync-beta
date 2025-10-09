@@ -218,14 +218,14 @@ export const occupationsTableColumns = [
     key: 'title',
     label: 'Job Title',
     sortable: true,
-    width: 'large' as const, // Large column
+    width: 'large' as const,
     render: (value: string, item: any, isOnFavoritesTab?: boolean) => renderJobTitleWithBadges(item, isOnFavoritesTab),
   },
   {
     key: 'description',
     label: 'Summary',
     sortable: true,
-    width: 'large' as const, // Large column
+    width: 'large' as const,
   },
   {
     key: 'category',
@@ -234,22 +234,39 @@ export const occupationsTableColumns = [
     filterable: true,
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
     render: (value: string) => renderCategoryBadge(value),
-    width: 'small' as const, // Small column for badges
+    width: 'small' as const,
   },
   {
-    key: 'median_wage_usd',
-    label: 'AVG Salary',
+    key: 'related_jobs',
+    label: 'Related Jobs',
     sortable: true,
-    render: (value: number) => formatSalary(value),
-    width: 'medium' as const,
+    render: (value: any, item: any) => {
+      const count = item.related_jobs_count || 0
+      if (count === 0) {
+        return React.createElement('span', { className: 'text-gray-400 text-sm' }, '—')
+      }
+      return React.createElement('a', {
+        href: `/occupations/${item.soc_code}#open-roles`,
+        className: 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-[#EFF6FF] text-[#1E40AF] border border-[#DBEAFE] hover:bg-[#DBEAFE] transition-colors'
+      }, `${count} Open Role${count !== 1 ? 's' : ''}`)
+    },
+    width: 'small' as const,
   },
   {
-    key: 'readiness',
-    label: 'Role Readiness',
-    filterable: true,
-    filterOptions: ['Assess Skills', 'Close Gaps', 'Ready'],
-    render: (value: string) => renderReadinessBadge(value || 'assess skills'),
-    width: 'medium' as const, // Medium column
+    key: 'related_programs',
+    label: 'Education & Training',
+    sortable: true,
+    render: (value: any, item: any) => {
+      const count = item.related_programs_count || 0
+      if (count === 0) {
+        return React.createElement('span', { className: 'text-gray-400 text-sm' }, '—')
+      }
+      return React.createElement('a', {
+        href: `/occupations/${item.soc_code}#programs`,
+        className: 'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-[#F0FDF4] text-[#15803D] border border-[#BBF7D0] hover:bg-[#DCFCE7] transition-colors'
+      }, `${count} Match${count !== 1 ? 'es' : ''}`)
+    },
+    width: 'small' as const,
   },
   {
     key: 'actions',

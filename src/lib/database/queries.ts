@@ -286,9 +286,10 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
     return !job.company_id || company?.is_published !== false
   }) || []
 
-  // Check for curated skills for each occupation with a SOC code
+  // Check for curated skills and add crosswalk counts for each occupation with a SOC code
   for (const job of filteredData) {
     if (job.soc_code) {
+      // Get curated skills
       const { data: curatedSkills, error: curatedError } = await supabase
         .from('soc_skills')
         .select(`
@@ -302,6 +303,24 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
       if (!curatedError && curatedSkills && curatedSkills.length > 0) {
         job.skills = curatedSkills
       }
+
+      // Count related featured roles (same SOC code)
+      const relatedJobsResult = await supabase
+        .from('jobs')
+        .select('*', { count: 'exact', head: true })
+        .eq('job_kind', 'featured_role')
+        .eq('soc_code', job.soc_code)
+        .eq('is_published', true)
+
+      (job as any).related_jobs_count = relatedJobsResult.count || 0
+
+      // Count related programs via program_jobs junction table
+      const relatedProgramsResult = await supabase
+        .from('program_jobs')
+        .select('*', { count: 'exact', head: true })
+        .eq('job_id', job.id)
+
+      (job as any).related_programs_count = relatedProgramsResult.count || 0
     }
   }
 
