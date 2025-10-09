@@ -383,8 +383,8 @@ GROUP BY hdo.soc_code;
 - [x] Research OEWS data access methods (API not available, use flat files)
 - [x] Create OEWS flat file import script
 - [x] Update getJobById query to fetch regional wage data
-- [ ] Run import script to populate database with May 2024 data
-- [ ] Test on occupation detail pages
+- [x] Import sample May 2024 data (8 key occupations)
+- [x] Test on occupation detail pages
 
 **Regional Data Priority:**
 1. **Primary:** Pinellas County, FL (all zip codes)
@@ -436,11 +436,26 @@ GROUP BY hdo.soc_code;
 - Populates `median_wage_usd`, `wage_area_name`, `wage_data_year` fields
 - Displays on occupation detail pages (e.g., `/jobs/9ee597fb-5b50-49bc-9e08-f2543a8b658b`)
 
+**Data Imported:**
+- ✅ 8 key occupations with May 2024 data
+- ✅ Tampa MSA, Florida, and National data for each
+- ✅ 24 total wage records in database
+- Script: `scripts/import-sample-oews-data.js`
+
+**Occupations with Regional Data:**
+1. Software Developers (15-1252)
+2. Registered Nurses (29-1141)
+3. Accountants and Auditors (13-2011)
+4. General and Operations Managers (11-1021)
+5. Marketing Managers (11-2021)
+6. Financial Analysts (13-2051)
+7. Medical and Health Services Managers (11-9111)
+8. Human Resources Managers (11-3121)
+
 **Next Steps:**
-- Run import script: `node scripts/import-oews-2024-data.js`
-- Verify data in database
-- Test occupation pages show regional salaries
+- Expand to all occupations using BLS One-Screen tool
 - Set up annual refresh process (May each year)
+- See: `/docs/OEWS_DATA_IMPORT_GUIDE.md` for full import process
 
 ### Phase 2A: Schema & Data
 - [ ] Complete schema audit
