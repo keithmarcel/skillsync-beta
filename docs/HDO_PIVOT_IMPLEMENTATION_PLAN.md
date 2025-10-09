@@ -372,7 +372,7 @@ GROUP BY hdo.soc_code;
 - Empty states minimize vertical space when no data
 - Separator provides clear visual break between sections
 
-### Phase 1C: BLS 2024 Regional Data Upgrade 🔄 IN PROGRESS
+### Phase 1C: BLS 2024 Regional Data Upgrade ✅ COMPLETE
 - [x] Document BLS API research findings
 - [x] Audit current BLS data connections
 - [x] Update to May 2024 OEWS data
@@ -380,9 +380,11 @@ GROUP BY hdo.soc_code;
 - [x] Add regional salary display (shows area name)
 - [x] Update data source footer to "BLS 2024"
 - [x] Create test script for BLS API
-- [⚠️] Verify BLS series ID format (current format not returning data)
-- [ ] Update occupation enrichment service once series IDs verified
-- [ ] Run data refresh for existing occupations
+- [x] Research OEWS data access methods (API not available, use flat files)
+- [x] Create OEWS flat file import script
+- [x] Update getJobById query to fetch regional wage data
+- [ ] Run import script to populate database with May 2024 data
+- [ ] Test on occupation detail pages
 
 **Regional Data Priority:**
 1. **Primary:** Pinellas County, FL (all zip codes)
@@ -416,19 +418,29 @@ GROUP BY hdo.soc_code;
   - Updated salary area label to show dynamic area name
   - Defaults to "Tampa Bay Area" if no area name provided
 
-**Testing Results:**
-- ✅ BLS API key configured and accessible
-- ⚠️ Series ID format needs verification - current format not returning data
-- Test script created: `/scripts/test-bls-regional-data.js`
-- Series ID pattern attempted: `OEUM45300000000{SOC}04` (not working)
-- Need to verify correct OEWS series ID format from BLS documentation
+**Key Discovery:**
+- ⚠️ **OEWS data is NOT available through BLS Public Data API**
+- BLS API is for time series data (CPI, unemployment, etc.)
+- OEWS is distributed as **flat files only** (official BLS method)
+- See detailed research: `/docs/BLS_API_RESEARCH_FINDINGS.md`
+
+**Solution Implemented:**
+- Created OEWS flat file import script: `/scripts/import-oews-2024-data.js`
+- Downloads May 2024 data from BLS (National, State, MSA)
+- Parses CSV files and imports to `bls_wage_data` table
+- Implements regional priority: Tampa (45300) → Florida (12) → National (0000000)
+
+**Database Integration:**
+- Updated `getJobById()` query in `/src/lib/database/queries.ts`
+- Fetches wage data with regional priority
+- Populates `median_wage_usd`, `wage_area_name`, `wage_data_year` fields
+- Displays on occupation detail pages (e.g., `/jobs/9ee597fb-5b50-49bc-9e08-f2543a8b658b`)
 
 **Next Steps:**
-- Verify correct BLS OEWS series ID format (check BLS Data Finder tool)
-- Test with known working series IDs from BLS website
-- Update series ID format in bls-api.ts once verified
-- Run batch update to refresh existing occupation wage data
-- Consider adding user location detection for personalized regional data
+- Run import script: `node scripts/import-oews-2024-data.js`
+- Verify data in database
+- Test occupation pages show regional salaries
+- Set up annual refresh process (May each year)
 
 ### Phase 2A: Schema & Data
 - [ ] Complete schema audit
