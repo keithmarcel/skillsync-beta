@@ -285,8 +285,6 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                 {/* Legend with Skill Lists - Column Layout */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {skillBreakdownData.map((item) => {
-                    const percentage = Math.round((item.count / totalSkills) * 100);
-                    
                     // Get skills for this category
                     let skills: string[] = [];
                     if (item.category === 'Proficient' && finalSkillData.proficientSkills) {
@@ -302,10 +300,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
                           <span className="text-sm text-gray-300">{item.category}</span>
-                        </div>
-                        <div className="text-sm text-white">
-                          <span className="font-semibold">{item.count}</span>
-                          <span className="font-normal"> ({percentage}%)</span>
+                          <span className="text-sm font-semibold text-white">{item.count}</span>
                         </div>
                         {skills.length > 0 && (
                           <ul className="space-y-0.5">
