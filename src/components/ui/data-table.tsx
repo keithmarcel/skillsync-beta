@@ -225,8 +225,8 @@ export default function DataTable({
                   key={column.key}
                   className={`py-6 px-6 text-left ${index === columns.length - 1 ? 'text-center' : ''}`}
                   style={{
-                    width: index === 0 ? '25%' :
-                           index === 1 ? '20%' :
+                    width: index === 0 ? '22%' :
+                           index === 1 ? '30%' :
                            index === 2 ? '12%' :
                            index === 3 ? '10%' :
                            index === 4 ? '12%' :
@@ -251,8 +251,8 @@ export default function DataTable({
                       key={column.key}
                       className={`py-6 px-6 font-normal ${colIndex === columns.length - 1 ? 'text-center' : ''} ${column.key === 'category' || column.key === 'readiness' ? 'whitespace-nowrap' : ''}`}
                       style={{
-                        width: colIndex === 0 ? '25%' :
-                               colIndex === 1 ? '20%' :
+                        width: colIndex === 0 ? '22%' :
+                               colIndex === 1 ? '30%' :
                                colIndex === 2 ? '12%' :
                                colIndex === 3 ? '10%' :
                                colIndex === 4 ? '12%' :
@@ -301,7 +301,7 @@ export default function DataTable({
                                 {getTertiaryActionLabel(tableType)}
                               </DropdownMenuItem>
                             )}
-                            {(tableType === 'occupations' || tableType === 'jobs') && (
+                            {tableType === 'jobs' && (
                               <>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => onRowAction?.('resume', row)}>
@@ -310,9 +310,9 @@ export default function DataTable({
                                 <DropdownMenuItem onClick={() => onRowAction?.('assessment', row)}>
                                   Take a Skills Assessment
                                 </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                               </>
                             )}
-                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => {
                               const entityKind = tableType === 'programs' ? 'program' : 'job'
                               const action = isOnFavoritesTab ? 'unfavorite' : ((isFavorite && isFavorite(entityKind, row.id)) ? 'unfavorite' : 'favorite')

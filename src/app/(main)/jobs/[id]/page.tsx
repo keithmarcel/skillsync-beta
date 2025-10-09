@@ -94,10 +94,18 @@ function CompanyModal({ company }: { company: any }) {
   )
 }
 
+// Helper function to remove regional indicators like (National), (Regional), etc.
+const cleanRegionalIndicators = (text: string | null | undefined): string => {
+  if (!text) return '';
+  return text.replace(/\s*\((National|Regional|State|Local)\)/gi, '').trim();
+}
+
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showAllRoles, setShowAllRoles] = useState(false)
+  const [showAllPrograms, setShowAllPrograms] = useState(false)
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
 
   useEffect(() => {
@@ -218,7 +226,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6 text-white">
+              <CardContent className="space-y-6 text-white px-8 pb-8 pt-0">
                 {/* Divider after title */}
                 <div className="border-t border-[#093A4B]"></div>
                 
@@ -284,7 +292,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </div>
                     <div>
                       <div className="text-sm opacity-80">Typical Education</div>
-                      <div className="text-xl font-bold">{job.education_level || job.education_requirements || 'Not Specified'}</div>
+                      <div className="text-xl font-bold">{cleanRegionalIndicators(job.education_level || job.education_requirements) || 'Not Specified'}</div>
                       <div className="text-xs opacity-70 mt-1">Requirements</div>
                     </div>
                   </div>
@@ -318,7 +326,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                                 ? 'text-yellow-400'
                                 : 'text-orange-400'
                             }`}>
-                              {job.employment_outlook}
+                              {cleanRegionalIndicators(job.employment_outlook)}
                             </div>
                             <div className="text-xs opacity-70 mt-1">Through 2032</div>
                           </>
@@ -350,30 +358,52 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Unlock this Role Assessment - Only for Occupations */}
+        {/* Employers Hiring Now - Only for Occupations */}
         {job.job_kind === 'occupation' && (
-          <div className="flex items-center gap-8 my-12 p-8 bg-white rounded-2xl border">
-            <div className="w-16 h-16 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-              </svg>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Assess your skills to see your role readiness.
-              </h3>
-              <p className="text-gray-600 text-sm">
-                Take a skills assessment to discover how your current abilities match this occupation. You'll receive a personalized readiness score and recommendations for training programs that can help you advance your career.
-              </p>
-            </div>
-            <Button asChild className="bg-[#114B5F] hover:bg-[#0F3A47] text-[#FAFAFA] px-3 py-2 rounded-lg flex-shrink-0 shadow-sm w-[215px] h-10 gap-2 font-normal text-base">
-              <Link href={`/assessments/${job.id}/intro`} className="flex items-center justify-center gap-2">
-                Start Your Assessment
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.33} d="M9 5l7 7-7 7"/>
+          <div id="open-roles" className="my-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
-              </Link>
-            </Button>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Local Employers Hiring Now
+                </h3>
+                {/* TODO: Replace with real crosswalk data - show subhead when data exists */}
+                <p className="text-gray-500 text-sm mt-2">
+                  No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Separator */}
+        {job.job_kind === 'occupation' && (
+          <hr className="my-12 border-gray-200" />
+        )}
+
+        {/* Education & Training Programs - Only for Occupations */}
+        {job.job_kind === 'occupation' && (
+          <div id="programs" className="my-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Relevant Education & Training Programs
+                </h3>
+                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
+                <p className="text-gray-500 text-sm mt-2">
+                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -382,7 +412,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           <CardHeader>
             <CardTitle className="text-xl text-white">Skills and Responsibilities</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-8 pb-8 pt-0">
             <div className="space-y-8">
               {/* Core Skills */}
               <div>
@@ -394,7 +424,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       return (
                         <Tooltip key={index}>
                           <TooltipTrigger asChild>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#002F3F] text-teal-50 cursor-help">
+                            <span className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-[#CCFBF1] text-[#0D5B52] font-medium cursor-help">
                               {skillData.name}
                             </span>
                           </TooltipTrigger>
@@ -430,17 +460,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   }
                   
                   return responsibilities && Array.isArray(responsibilities) && responsibilities.length > 0 ? (
-                    <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
-                      <div className="space-y-3">
-                        {responsibilities.map((responsibility: string, index: number) => (
-                          <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                            <div className="flex items-start gap-3">
-                              <span className="text-teal-400 flex-shrink-0">•</span>
-                              <span className="text-white text-sm">{responsibility}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {responsibilities.map((responsibility: string, index: number) => (
+                        <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                          <span className="text-white text-sm">{responsibility}</span>
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="text-white/70 text-sm">No responsibilities data available</div>
@@ -457,33 +482,18 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <div className="border-t border-[#093A4B]"></div>
                       <div>
                         <h3 className="font-semibold mb-4 text-white">Typical Tasks & Responsibilities</h3>
-                        <div className="text-sm text-white/70 mb-3">Day-to-day activities in this occupation</div>
-                        <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
-                          <div className="space-y-3">
-                            {job.tasks.slice(0, 8).map((task: any, index: number) => {
-                              const importance = task.DataValue ? parseFloat(task.DataValue) : 0
-                              const importanceLabel = importance >= 4.0 ? 'High' : importance >= 3.0 ? 'Medium' : 'Low'
-                              const importanceColor = importance >= 4.0 ? 'text-green-400' : importance >= 3.0 ? 'text-yellow-400' : 'text-orange-400'
-                              
-                              return (
-                                <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                                  <div className="flex items-start gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                      <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
-                                      {task.DataValue && (
-                                        <span className={`text-xs mt-1 inline-block font-medium ${importanceColor}`}>
-                                          Importance: {importanceLabel}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {(() => {
+                            // Deduplicate tasks by TaskDescription
+                            const uniqueTasks = job.tasks.filter((task: any, index: number, self: any[]) => 
+                              index === self.findIndex((t: any) => t.TaskDescription === task.TaskDescription)
+                            );
+                            return uniqueTasks.slice(0, 8).map((task: any, index: number) => (
+                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                                <span className="text-white text-sm">{task.TaskDescription}</span>
+                              </div>
+                            ));
+                          })()}
                         </div>
                       </div>
                     </>
@@ -522,82 +532,43 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                           href={job.video_url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-teal-400 hover:text-teal-300 font-medium transition-colors"
+                          className="inline-flex items-center gap-3 text-white hover:text-teal-300 font-medium transition-colors"
                         >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"/>
-                          </svg>
+                          <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-3 h-3 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                            </svg>
+                          </div>
                           Watch Career Video on CareerOneStop
                         </a>
                       </div>
                     </>
                   )}
 
-                  {/* Divider between sections */}
-                  <div className="border-t border-[#093A4B]"></div>
-                  
-                  <div>
-                    <h3 className="font-semibold mb-4 text-white">Related Job Titles</h3>
-                    {(() => {
-                      // Handle both array and JSON string formats
-                      let titles = job.related_job_titles;
-                      if (typeof titles === 'string') {
-                        try {
-                          titles = JSON.parse(titles);
-                        } catch (e) {
-                          titles = null;
-                        }
-                      }
-                      
-                      return titles && Array.isArray(titles) && titles.length > 0 ? (
-                        <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
-                          <div className="grid grid-cols-2 gap-3">
-                            {titles.map((title: string, index: number) => (
-                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                                <div className="flex items-start gap-3">
-                                  <span className="text-teal-400 flex-shrink-0">•</span>
-                                  <span className="text-white text-sm">{title}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-white/70 text-sm">No related titles available</div>
-                      );
-                    })()}
-                  </div>
                 </>
               )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Hiring Companies for Occupations */}
+        {/* Data Source Footer - Only for Occupations */}
         {job.job_kind === 'occupation' && (
-          <Card className="rounded-2xl mb-16">
-            <CardHeader className="pb-5">
-              <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>
-            </CardHeader>
-            <CardContent className="p-8 pt-0">
-              <div className="flex items-center justify-start gap-8">
-                {[
-                  { name: 'Power Design', logo: '/companies/power-design.svg' },
-                  { name: 'TD SYNNEX', logo: '/companies/td-synnexx.svg' },
-                  { name: 'Spectrum', logo: '/companies/spectrum.svg' },
-                  { name: 'BayCare', logo: '/companies/Baycare.svg' }
-                ].map((company, index) => (
-                  <div key={index} className="flex items-center gap-3 text-gray-700">
-                    <img 
-                      src={company.logo} 
-                      alt={`${company.name} logo`}
-                      className="h-6 w-auto object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <p className="text-xs text-gray-500 text-center">
+              Data sources:{' '}
+              <a href="https://www.bls.gov/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                BLS 2022
+              </a>
+              {'; '}
+              <a href="https://www.careeronestop.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                CareerOneStop
+              </a>
+              {'; '}
+              <a href="https://www.onetonline.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                O*NET
+              </a>
+            </p>
+          </div>
         )}
       </BreadcrumbLayout>
       
