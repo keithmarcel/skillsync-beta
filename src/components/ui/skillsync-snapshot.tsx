@@ -259,7 +259,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
               <div className="flex flex-col justify-center flex-1">
                 {/* Heading */}
                 <h4 className="text-white font-semibold text-xl mb-3">
-                  Here's the breakdown of all the skills you've been assessed on:
+                  Here's the breakdown of the skills you've been assessed on:
                 </h4>
                 
                 {/* Encouraging summary - Dynamic based on data */}
@@ -282,8 +282,8 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                   })()}
                 </p>
                 
-                {/* Legend with Skill Lists */}
-                <div className="space-y-4">
+                {/* Legend with Skill Lists - Column Layout */}
+                <div className="grid grid-cols-3 gap-6">
                   {skillBreakdownData.map((item) => {
                     const percentage = Math.round((item.count / totalSkills) * 100);
                     
@@ -298,14 +298,17 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
                     }
                     
                     return (
-                      <div key={item.category} className="space-y-1">
+                      <div key={item.category} className="space-y-2">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }}></div>
                           <span className="text-sm text-gray-300">{item.category}</span>
-                          <span className="text-sm font-semibold text-white">{item.count} ({percentage}%)</span>
+                        </div>
+                        <div className="text-sm text-white">
+                          <span className="font-semibold">{item.count}</span>
+                          <span className="font-normal"> ({percentage}%)</span>
                         </div>
                         {skills.length > 0 && (
-                          <ul className="ml-5 space-y-0.5">
+                          <ul className="space-y-0.5">
                             {skills.map((skill, idx) => (
                               <li key={idx} className="text-[10px] text-gray-400 leading-tight">
                                 • {skill}
