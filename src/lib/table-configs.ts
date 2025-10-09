@@ -238,37 +238,37 @@ export const occupationsTableColumns = [
   },
   {
     key: 'related_jobs',
-    label: 'Related Jobs',
+    label: 'Open Roles',
     sortable: true,
     render: (value: any, item: any) => {
       const count = item.related_jobs_count || 0
       return React.createElement('a', {
         href: `/occupations/${item.soc_code}#open-roles`,
-        className: `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+        className: `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
           count === 0 
             ? 'bg-gray-100 text-gray-500 cursor-default' 
             : 'bg-[#CCFBF1] text-[#0F766E] hover:bg-[#99F6E4]'
         }`
       }, `${count} Open Role${count !== 1 ? 's' : ''}`)
     },
-    width: 'small' as const,
+    width: 'medium' as const,
   },
   {
     key: 'related_programs',
-    label: 'Education & Training',
+    label: 'Education Programs',
     sortable: true,
     render: (value: any, item: any) => {
       const count = item.related_programs_count || 0
       return React.createElement('a', {
         href: `/occupations/${item.soc_code}#programs`,
-        className: `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+        className: `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${
           count === 0 
             ? 'bg-gray-100 text-gray-500 cursor-default' 
             : 'bg-[#CCFBF1] text-[#0F766E] hover:bg-[#99F6E4]'
         }`
       }, `${count} Match${count !== 1 ? 'es' : ''}`)
     },
-    width: 'small' as const,
+    width: 'medium' as const,
   },
   {
     key: 'actions',
