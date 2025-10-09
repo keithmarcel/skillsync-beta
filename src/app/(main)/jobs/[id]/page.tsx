@@ -477,6 +477,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </div>
         )}
 
+        {/* Separator */}
+        {job.job_kind === 'occupation' && (
+          <hr className="my-12 border-gray-200" />
+        )}
+
         {/* Education & Training Programs - Only for Occupations */}
         {job.job_kind === 'occupation' && (
           <div id="programs" className="my-12">
