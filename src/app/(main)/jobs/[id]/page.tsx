@@ -405,7 +405,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       return (
                         <Tooltip key={index}>
                           <TooltipTrigger asChild>
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#002F3F] text-teal-50 cursor-help">
+                            <span className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-[#CCFBF1] text-[#0F766E] font-medium cursor-help">
                               {skillData.name}
                             </span>
                           </TooltipTrigger>
@@ -441,7 +441,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   }
                   
                   return responsibilities && Array.isArray(responsibilities) && responsibilities.length > 0 ? (
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
                       {responsibilities.map((responsibility: string, index: number) => (
                         <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
                           <div className="flex items-start gap-3">
@@ -466,33 +466,19 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <div className="border-t border-[#093A4B]"></div>
                       <div>
                         <h3 className="font-semibold mb-4 text-white">Typical Tasks & Responsibilities</h3>
-                        <div className="text-sm text-white/70 mb-3">Day-to-day activities in this occupation</div>
-                        <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
-                          <div className="space-y-3">
-                            {job.tasks.slice(0, 8).map((task: any, index: number) => {
-                              const importance = task.DataValue ? parseFloat(task.DataValue) : 0
-                              const importanceLabel = importance >= 4.0 ? 'High' : importance >= 3.0 ? 'Medium' : 'Low'
-                              const importanceColor = importance >= 4.0 ? 'text-green-400' : importance >= 3.0 ? 'text-yellow-400' : 'text-orange-400'
-                              
-                              return (
-                                <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                                  <div className="flex items-start gap-3">
-                                    <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                      <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
-                                      {task.DataValue && (
-                                        <span className={`text-xs mt-1 inline-block font-medium ${importanceColor}`}>
-                                          Importance: {importanceLabel}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {job.tasks.slice(0, 8).map((task: any, index: number) => (
+                            <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                              <div className="flex items-start gap-3">
+                                <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
                                 </div>
-                              )
-                            })}
-                          </div>
+                                <div className="flex-1">
+                                  <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </>
@@ -542,40 +528,6 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </>
                   )}
 
-                  {/* Divider between sections */}
-                  <div className="border-t border-[#093A4B]"></div>
-                  
-                  <div>
-                    <h3 className="font-semibold mb-4 text-white">Related Job Titles</h3>
-                    {(() => {
-                      // Handle both array and JSON string formats
-                      let titles = job.related_job_titles;
-                      if (typeof titles === 'string') {
-                        try {
-                          titles = JSON.parse(titles);
-                        } catch (e) {
-                          titles = null;
-                        }
-                      }
-                      
-                      return titles && Array.isArray(titles) && titles.length > 0 ? (
-                        <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
-                          <div className="grid grid-cols-2 gap-3">
-                            {titles.map((title: string, index: number) => (
-                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                                <div className="flex items-start gap-3">
-                                  <span className="text-teal-400 flex-shrink-0">•</span>
-                                  <span className="text-white text-sm">{title}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-white/70 text-sm">No related titles available</div>
-                      );
-                    })()}
-                  </div>
                 </>
               )}
             </div>
