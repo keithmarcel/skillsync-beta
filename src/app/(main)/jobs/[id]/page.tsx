@@ -218,7 +218,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6 text-white p-8">
+              <CardContent className="space-y-6 text-white px-8 pb-8 pt-0">
                 {/* Divider after title */}
                 <div className="border-t border-[#093A4B]"></div>
                 
@@ -393,7 +393,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           <CardHeader>
             <CardTitle className="text-xl text-white">Skills and Responsibilities</CardTitle>
           </CardHeader>
-          <CardContent className="p-8">
+          <CardContent className="px-8 pb-8 pt-0">
             <div className="space-y-8">
               {/* Core Skills */}
               <div>
