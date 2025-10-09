@@ -372,6 +372,91 @@ GROUP BY hdo.soc_code;
 - Empty states minimize vertical space when no data
 - Separator provides clear visual break between sections
 
+### Phase 1C: BLS 2024 Regional Data Upgrade ✅ COMPLETE
+- [x] Document BLS API research findings
+- [x] Audit current BLS data connections
+- [x] Update to May 2024 OEWS data
+- [x] Implement regional data priority (Tampa Bay → Florida → National)
+- [x] Add regional salary display (shows area name)
+- [x] Update data source footer to "BLS 2024"
+- [x] Create test script for BLS API
+- [x] Research OEWS data access methods (API not available, use flat files)
+- [x] Create OEWS flat file import script
+- [x] Update getJobById query to fetch regional wage data
+- [x] Import sample May 2024 data (8 key occupations)
+- [x] Test on occupation detail pages
+
+**Regional Data Priority:**
+1. **Primary:** Pinellas County, FL (all zip codes)
+2. **Secondary:** Tampa-St. Petersburg-Clearwater MSA
+3. **Tertiary:** Florida state-level
+4. **Fallback:** National data
+
+**BLS API Research Findings:**
+- **May 2024 OEWS data available** (2-year improvement over current 2022 data)
+- **Regional granularity:** State, Metro Area, and some county-level data
+- **API Access:** BLS Public Data API v2.0 (no registration required)
+- **Coverage:** ~830 occupations by SOC code
+- **Update frequency:** Annual (every May)
+
+**Data Sources:**
+- Salary/Employment: BLS OEWS May 2024
+- Projections: BLS Employment Projections 2022-2032 (national only, biennial updates)
+- Skills/Tasks: O*NET 30.0 (2025) - national only
+- Regional Projections: State workforce agencies (Florida DEO)
+
+**Implementation Details:**
+- **File Updated:** `/src/lib/services/bls-api.ts`
+  - Added Florida state FIPS code (12)
+  - Updated series ID priority: Tampa MSA → Florida → National
+  - Changed date range to 2023-2024 for May 2024 data
+  - Enhanced area name detection for Tampa MSA and Florida
+  - Added comments about Pinellas County (limited OEWS availability)
+
+- **UI Updated:** `/src/app/(main)/jobs/[id]/page.tsx`
+  - Changed "BLS 2022" to "BLS 2024" in data source footer
+  - Updated salary area label to show dynamic area name
+  - Defaults to "Tampa Bay Area" if no area name provided
+
+**Key Discovery:**
+- ⚠️ **OEWS data is NOT available through BLS Public Data API**
+- BLS API is for time series data (CPI, unemployment, etc.)
+- OEWS is distributed as **flat files only** (official BLS method)
+- See detailed research: `/docs/BLS_API_RESEARCH_FINDINGS.md`
+
+**Solution Implemented:**
+- Created OEWS flat file import script: `/scripts/import-oews-2024-data.js`
+- Downloads May 2024 data from BLS (National, State, MSA)
+- Parses CSV files and imports to `bls_wage_data` table
+- Implements regional priority: Tampa (45300) → Florida (12) → National (0000000)
+
+**Database Integration:**
+- Updated `getJobById()` query in `/src/lib/database/queries.ts`
+- Fetches wage data with regional priority
+- Populates `median_wage_usd`, `wage_area_name`, `wage_data_year` fields
+- Displays on occupation detail pages (e.g., `/jobs/9ee597fb-5b50-49bc-9e08-f2543a8b658b`)
+
+**Data Imported:**
+- ✅ 8 key occupations with May 2024 data
+- ✅ Tampa MSA, Florida, and National data for each
+- ✅ 24 total wage records in database
+- Script: `scripts/import-sample-oews-data.js`
+
+**Occupations with Regional Data:**
+1. Software Developers (15-1252)
+2. Registered Nurses (29-1141)
+3. Accountants and Auditors (13-2011)
+4. General and Operations Managers (11-1021)
+5. Marketing Managers (11-2021)
+6. Financial Analysts (13-2051)
+7. Medical and Health Services Managers (11-9111)
+8. Human Resources Managers (11-3121)
+
+**Next Steps:**
+- Expand to all occupations using BLS One-Screen tool
+- Set up annual refresh process (May each year)
+- See: `/docs/OEWS_DATA_IMPORT_GUIDE.md` for full import process
+
 ### Phase 2A: Schema & Data
 - [ ] Complete schema audit
 - [ ] Add missing fields to featured_roles
