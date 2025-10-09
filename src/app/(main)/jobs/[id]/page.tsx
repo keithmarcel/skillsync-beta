@@ -371,17 +371,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <h3 className="text-xl font-semibold text-gray-900">
                   Local Employers Hiring Now
                 </h3>
-                <p className="text-gray-600 text-sm">
-                  Open roles matching this occupation from trusted employers in your area
+                {/* TODO: Replace with real crosswalk data - show subhead when data exists */}
+                <p className="text-gray-500 text-sm mt-2">
+                  No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area.
                 </p>
               </div>
-            </div>
-            
-            {/* Related Roles - TODO: Replace with real crosswalk data */}
-            <div className="mt-4 mb-6">
-              <p className="text-gray-500 text-sm">
-                No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area.
-              </p>
             </div>
           </div>
         )}
@@ -404,17 +398,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <h3 className="text-xl font-semibold text-gray-900">
                   Relevant Education & Training Programs
                 </h3>
-                <p className="text-gray-600 text-sm">
-                  Programs that can help you build skills for this occupation
+                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
+                <p className="text-gray-500 text-sm mt-2">
+                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
                 </p>
               </div>
-            </div>
-            
-            {/* Related Programs - TODO: Replace with real skill overlap data */}
-            <div className="mt-4 mb-6">
-              <p className="text-gray-500 text-sm">
-                No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
-              </p>
             </div>
           </div>
         )}
