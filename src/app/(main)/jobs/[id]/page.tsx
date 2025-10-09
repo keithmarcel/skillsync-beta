@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import PageHeader from '@/components/ui/page-header'
 import BreadcrumbLayout from '@/components/ui/breadcrumb-layout'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } from 'lucide-react'
@@ -265,11 +266,13 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">Annual Job Openings</div>
+                        <div className="text-sm opacity-80">Current Employment</div>
                         <div className="text-xl font-bold">
-                          {job.job_openings_annual ? `~${job.job_openings_annual.toLocaleString()}` : 'Data Not Available'}
+                          {job.bls_employment_projections?.[0]?.employment_2022 
+                            ? `~${job.bls_employment_projections[0].employment_2022.toLocaleString()}` 
+                            : 'Data Not Available'}
                         </div>
-                        <div className="text-xs opacity-70 mt-1">Nationally</div>
+                        <div className="text-xs opacity-70 mt-1">Workers Nationally (2022)</div>
                       </div>
                     </div>
                   )}
@@ -308,7 +311,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         <div className="text-sm opacity-80">National Career Outlook</div>
                         {job.employment_outlook ? (
                           <>
-                            <div className={`text-base font-semibold ${
+                            <div className={`text-xl font-bold ${
                               job.employment_outlook.toLowerCase().includes('bright') || job.employment_outlook.toLowerCase().includes('faster') 
                                 ? 'text-green-400' 
                                 : job.employment_outlook.toLowerCase().includes('average') || job.employment_outlook.toLowerCase().includes('as fast')
@@ -320,7 +323,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                             <div className="text-xs opacity-70 mt-1">Through 2032</div>
                           </>
                         ) : (
-                          <div className="text-base font-semibold">Data Not Available</div>
+                          <div className="text-xl font-bold">Data Not Available</div>
                         )}
                       </div>
                     </div>
@@ -333,14 +336,15 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
           {/* Featured Image */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8 h-[400px] rounded-2xl overflow-hidden">
+            <div className="sticky top-8 h-full min-h-[400px] rounded-2xl overflow-hidden">
               <Image 
                 src={job.featured_image_url || '/assets/hero_occupations.jpg'} 
                 alt={job.title} 
-                width={400} 
-                height={400} 
-                className="w-full h-full object-cover"
+                width={800} 
+                height={600} 
+                className="w-full h-full object-cover object-center"
                 priority
+                quality={95}
               />
             </div>
           </div>
@@ -383,18 +387,29 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               {/* Core Skills */}
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {job.skills && job.skills.length > 0 ? job.skills.map((skill: any, index: number) => (
-                    <span 
-                      key={index} 
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#002F3F] text-teal-50"
-                    >
-                      {skill.skill?.name || skill.name}
-                    </span>
-                  )) : (
-                    <div className="text-white/70 text-sm">No skills data available</div>
-                  )}
-                </div>
+                <TooltipProvider>
+                  <div className="flex flex-wrap gap-2">
+                    {job.skills && job.skills.length > 0 ? job.skills.map((skill: any, index: number) => {
+                      const skillData = skill.skill || skill;
+                      return (
+                        <Tooltip key={index}>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-[#002F3F] text-teal-50 cursor-help">
+                              {skillData.name}
+                            </span>
+                          </TooltipTrigger>
+                          {skillData.description && (
+                            <TooltipContent className="max-w-xs">
+                              <p className="text-sm">{skillData.description}</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      );
+                    }) : (
+                      <div className="text-white/70 text-sm">No skills data available</div>
+                    )}
+                  </div>
+                </TooltipProvider>
               </div>
 
               {/* Divider between sections */}
@@ -403,16 +418,34 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               {/* Core Responsibilities */}
               <div>
                 <h3 className="font-semibold mb-4 text-white">Core Responsibilities</h3>
-                <div className="grid grid-cols-1 gap-3">
-                  {job.core_responsibilities && job.core_responsibilities.length > 0 ? job.core_responsibilities.map((responsibility: string, index: number) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <span className="text-teal-400">•</span>
-                      <span className="text-white text-sm">{responsibility}</span>
+                {(() => {
+                  // Handle both array and JSON string formats
+                  let responsibilities = job.core_responsibilities;
+                  if (typeof responsibilities === 'string') {
+                    try {
+                      responsibilities = JSON.parse(responsibilities);
+                    } catch (e) {
+                      responsibilities = null;
+                    }
+                  }
+                  
+                  return responsibilities && Array.isArray(responsibilities) && responsibilities.length > 0 ? (
+                    <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
+                      <div className="space-y-3">
+                        {responsibilities.map((responsibility: string, index: number) => (
+                          <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                            <div className="flex items-start gap-3">
+                              <span className="text-teal-400 flex-shrink-0">•</span>
+                              <span className="text-white text-sm">{responsibility}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  )) : (
+                  ) : (
                     <div className="text-white/70 text-sm">No responsibilities data available</div>
-                  )}
-                </div>
+                  );
+                })()}
               </div>
 
               {/* Related Job Titles (for occupations only) */}
@@ -425,28 +458,32 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <div>
                         <h3 className="font-semibold mb-4 text-white">Typical Tasks & Responsibilities</h3>
                         <div className="text-sm text-white/70 mb-3">Day-to-day activities in this occupation</div>
-                        <div className="space-y-3">
-                          {job.tasks.slice(0, 8).map((task: any, index: number) => {
-                            const importance = task.DataValue ? parseFloat(task.DataValue) : 0
-                            const importanceLabel = importance >= 4.0 ? 'High' : importance >= 3.0 ? 'Medium' : 'Low'
-                            const importanceColor = importance >= 4.0 ? 'text-green-400' : importance >= 3.0 ? 'text-yellow-400' : 'text-orange-400'
-                            
-                            return (
-                              <div key={index} className="flex items-start gap-3">
-                                <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
+                        <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
+                          <div className="space-y-3">
+                            {job.tasks.slice(0, 8).map((task: any, index: number) => {
+                              const importance = task.DataValue ? parseFloat(task.DataValue) : 0
+                              const importanceLabel = importance >= 4.0 ? 'High' : importance >= 3.0 ? 'Medium' : 'Low'
+                              const importanceColor = importance >= 4.0 ? 'text-green-400' : importance >= 3.0 ? 'text-yellow-400' : 'text-orange-400'
+                              
+                              return (
+                                <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                                  <div className="flex items-start gap-3">
+                                    <div className="w-6 h-6 rounded-full bg-teal-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                      <span className="text-xs font-semibold text-teal-300">{index + 1}</span>
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
+                                      {task.DataValue && (
+                                        <span className={`text-xs mt-1 inline-block font-medium ${importanceColor}`}>
+                                          Importance: {importanceLabel}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
-                                <div className="flex-1">
-                                  <p className="text-white/90 text-sm leading-relaxed">{task.TaskDescription}</p>
-                                  {task.DataValue && (
-                                    <span className={`text-xs mt-1 inline-block font-medium ${importanceColor}`}>
-                                      Importance: {importanceLabel}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            )
-                          })}
+                              )
+                            })}
+                          </div>
                         </div>
                       </div>
                     </>
@@ -501,16 +538,34 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   
                   <div>
                     <h3 className="font-semibold mb-4 text-white">Related Job Titles</h3>
-                    <div className="grid grid-cols-2 gap-3">
-                      {job.related_job_titles && job.related_job_titles.length > 0 ? job.related_job_titles.map((title: string, index: number) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <span className="text-teal-400">•</span>
-                          <span className="text-white text-sm">{title}</span>
+                    {(() => {
+                      // Handle both array and JSON string formats
+                      let titles = job.related_job_titles;
+                      if (typeof titles === 'string') {
+                        try {
+                          titles = JSON.parse(titles);
+                        } catch (e) {
+                          titles = null;
+                        }
+                      }
+                      
+                      return titles && Array.isArray(titles) && titles.length > 0 ? (
+                        <div className="max-h-[520px] overflow-y-auto scrollbar-hide">
+                          <div className="grid grid-cols-2 gap-3">
+                            {titles.map((title: string, index: number) => (
+                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                                <div className="flex items-start gap-3">
+                                  <span className="text-teal-400 flex-shrink-0">•</span>
+                                  <span className="text-white text-sm">{title}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      )) : (
-                        <div className="text-white/70 text-sm col-span-2">No related titles available</div>
-                      )}
-                    </div>
+                      ) : (
+                        <div className="text-white/70 text-sm">No related titles available</div>
+                      );
+                    })()}
                   </div>
                 </>
               )}
@@ -518,8 +573,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        {/* Hiring Companies for Occupations - Hidden for now */}
-        {false && job.job_kind === 'occupation' && (
+        {/* Hiring Companies for Occupations */}
+        {job.job_kind === 'occupation' && (
           <Card className="rounded-2xl mb-16">
             <CardHeader className="pb-5">
               <CardTitle className="text-xl">Trusted Partners in your area are hiring for this occupation</CardTitle>

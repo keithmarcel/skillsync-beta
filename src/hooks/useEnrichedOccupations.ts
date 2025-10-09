@@ -10,8 +10,11 @@ interface EnrichedJob extends Job {
     updated_at: string
   }[]
   bls_employment_projections?: {
-    projected_growth_rate: number
-    projected_openings: number
+    growth_rate: string
+    change_number: number
+    change_percent: number
+    employment_2022: number
+    employment_2032: number
     updated_at: string
   }[]
   cos_programs_cache?: {
@@ -54,7 +57,7 @@ export function useEnrichedOccupations(occupations: Job[] | null) {
         // Fetch BLS employment projections
         const { data: projectionsData } = await supabase
           .from('bls_employment_projections')
-          .select('soc_code, projected_growth_rate, projected_openings, updated_at')
+          .select('soc_code, growth_rate, change_number, change_percent, employment_2022, employment_2032, updated_at')
           .in('soc_code', socCodes)
 
         // Fetch CareerOneStop programs count

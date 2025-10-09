@@ -24,8 +24,10 @@ export interface Job {
   job_openings_annual: number | null;
   growth_rate_percent: number | null;
   required_proficiency_pct: number | null;
+  // AI-generated content fields
+  core_responsibilities: string[] | null;
+  related_job_titles: string[] | null;
   // Company-specific fields for featured roles
-  core_responsibilities: string | null;
   growth_opportunities: string | null;
   team_structure: string | null;
   work_environment: string | null;
@@ -347,6 +349,17 @@ export async function getJobById(id: string): Promise<Job | null> {
     // Use curated skills if they exist
     if (!curatedError && curatedSkills && curatedSkills.length > 0) {
       data.skills = curatedSkills
+    }
+
+    // Fetch BLS employment projections data
+    const { data: blsData, error: blsError } = await supabase
+      .from('bls_employment_projections')
+      .select('growth_rate, change_number, change_percent, employment_2022, employment_2032')
+      .eq('soc_code', data.soc_code)
+      .single()
+
+    if (!blsError && blsData) {
+      data.bls_employment_projections = [blsData]
     }
   }
 

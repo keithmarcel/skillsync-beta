@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { PageLoader } from '@/components/ui/loading-spinner';
 import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
+import { AIContentTab } from '@/components/admin/AIContentTab';
 import { useAdminEntity } from '@/hooks/useAdminEntity';
 import type { Job } from '@/lib/database/queries';
 
@@ -18,7 +19,7 @@ export default function OccupationDetailPage({ params }: { params: { id: string 
 
   const isNew = params.id === 'new';
 
-  const defaultOccupation: Job = {
+  const defaultOccupation: Partial<Job> = {
     id: '',
     title: '',
     soc_code: '',
@@ -41,6 +42,8 @@ export default function OccupationDetailPage({ params }: { params: { id: string 
     job_openings_annual: null,
     growth_rate_percent: null,
     required_proficiency_pct: null,
+    core_responsibilities: null,
+    related_job_titles: null,
     created_at: '',
     updated_at: '',
   };
@@ -85,6 +88,22 @@ export default function OccupationDetailPage({ params }: { params: { id: string 
         { key: 'job_openings_annual', label: 'Annual Job Openings', type: EntityFieldType.NUMBER },
         { key: 'growth_rate_percent', label: 'Growth Rate (%)', type: EntityFieldType.NUMBER },
       ],
+    },
+    {
+      id: 'ai_content',
+      label: 'AI Content',
+      fields: [],
+      customRender: (entity: any, onChange: (field: string, value: any) => void) => (
+        <AIContentTab
+          occupationTitle={entity.title || ''}
+          socCode={entity.soc_code || ''}
+          coreResponsibilities={entity.core_responsibilities}
+          relatedJobTitles={entity.related_job_titles}
+          tasks={(entity as any).tasks}
+          skills={entity.skills}
+          onChange={onChange}
+        />
+      ),
     },
   ];
 

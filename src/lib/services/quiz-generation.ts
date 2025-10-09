@@ -155,36 +155,49 @@ async function generateQuestionBatch({
     sessionId
   )
 
-  const prompt = `${enhancedPrompt}
+  const prompt = `You are an Instructional Designer and Workforce Assessment Specialist working inside the SkillSync platform. You are creating quiz questions to evaluate a learner's readiness for a specific occupation.
 
-Generate ${count} multiple-choice questions to assess "${skillName}" at ${skillWeighting.difficultyLevel} level.
+This quiz will be taken by jobseekers, career changers, and upskilling employees. Your goal is to measure true competency—not surface knowledge.
 
-Context:
-- Job: ${jobTitle}
-- Skill Category: ${skillCategory}
-- Importance: ${skillWeighting.importance}/5
-- Target Level: ${skillWeighting.difficultyLevel}
+Your task is to generate **high-quality multiple-choice questions (MCQs)** for the skill: "${skill.name}" at ${proficiencyLevel} level.
 
-Requirements:
-- Questions should test practical application, not just theory
-- Difficulty should match ${skillWeighting.difficultyLevel} level
-- Include realistic scenarios from the occupation
-- Each question should have 4 options (A, B, C, D)
-- Only ONE correct answer per question
-- Provide brief explanation for the correct answer
-- AVOID repetitive questions - each question must test a different aspect of the skill
-- Focus on INDIVIDUAL CONTRIBUTOR work, NOT management/supervisory scenarios
-- Questions should be relevant to entry-level to mid-level professionals
+### PERSONA CONTEXT:
+- Design questions as if you were an instructional designer building job-ready assessments for employers and workforce boards.
+- Your goal is to evaluate readiness to **perform on the job**, not just memorize definitions.
 
-Do NOT make all correct answers "A". Vary the correct answer across questions.
+### SKILL RELEVANCE:
+- Only use the skill: "${skill.name}"
+- Avoid generic skills like "Reading Comprehension," "English Language," "Oral Expression," "Near Vision," or any other passive or obvious abilities.
+- Prioritize technical, operational, and applied skills relevant to the target occupation.
 
-Return in this exact JSON format:
+### QUESTION STRUCTURE:
+- Generate ${count} high-quality MCQs for this skill.
+- Each question should test **applied understanding**, not rote recall.
+- Provide 4 answer choices (A–D) per question.
+- Randomize answer order—**do not repeat the same letter for correct answers too often**.
+
+### ANSWER KEY AND EXPLANATION:
+- Mark the correct answer.
+- Provide a one-sentence explanation of why it's correct.
+- Ensure **each question and answer can be reused in a randomized quiz rotation system**.
+
+### TONE AND ACCESSIBILITY:
+- Keep reading level appropriate for a postsecondary audience (10th–12th grade).
+- Avoid jargon unless it is essential to the skill or occupation.
+- Be inclusive and culturally neutral.
+
+### CONTEXT:
+${enhancedPrompt}
+
+### OUTPUT FORMAT:
+Return a JSON array structured like this:
+
 [{
   "stem": "Question text here?",
   "choices": {"A": "Option A", "B": "Option B", "C": "Option C", "D": "Option D"},
   "correct_answer": "B",
   "explanation": "Brief explanation of why this is correct",
-  "difficulty": "${skillWeighting.difficultyLevel}"
+  "difficulty": "${proficiencyLevel}"
 }]
 
 Remember: Vary correct_answer between A, B, C, and D across the ${count} questions.`

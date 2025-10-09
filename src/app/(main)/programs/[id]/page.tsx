@@ -311,6 +311,31 @@ export default function ProgramDetailPage({ params, searchParams }: { params: { 
             </Card>
           </div>
         </div>
+
+        {/* Trusted Partners Section */}
+        <Card className="rounded-2xl mb-16">
+          <CardHeader className="pb-5">
+            <CardTitle className="text-xl">Trusted Partners offering this program</CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 pt-0">
+            <div className="flex items-center justify-start gap-8">
+              {[
+                { name: 'Bisk Education', logo: '/schools/bisk-logo.svg' },
+                { name: 'St. Petersburg College', logo: '/schools/spc.svg' },
+                { name: 'Hillsborough Community College', logo: '/schools/hcc-logo.svg' },
+                { name: 'University of South Florida', logo: '/schools/usf-logo.svg' }
+              ].map((school, index) => (
+                <div key={index} className="flex items-center gap-3 text-gray-700">
+                  <img 
+                    src={school.logo} 
+                    alt={`${school.name} logo`}
+                    className="h-6 w-auto object-contain"
+                  />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </BreadcrumbLayout>
     </div>
   )

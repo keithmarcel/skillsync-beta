@@ -18,8 +18,10 @@ This document provides comprehensive technical documentation for the SkillSync a
 10. [API Ecosystem Integration](#api-ecosystem-integration)
 11. [Intelligent Caching System](#intelligent-caching-system)
 12. [Admin Tools Architecture](#admin-tools-architecture)
-13. [Common Issues & Solutions](#common-issues--solutions)
-14. [Development Workflow](#development-workflow)
+13. [AI Content Generation System](#ai-content-generation-system)
+14. [Quiz Generation & Assessment](#quiz-generation--assessment)
+15. [Common Issues & Solutions](#common-issues--solutions)
+16. [Development Workflow](#development-workflow)
 
 ## Architecture Overview
 
@@ -2459,7 +2461,136 @@ Render chart + dynamic messaging
 
 ---
 
-## Production Status (October 3, 2025)
+## AI Content Generation System
+
+### Overview
+SkillSync includes an AI-powered content generation system for creating occupation-specific content using OpenAI GPT-4o-mini.
+
+### Components
+
+**1. Core Responsibilities Generation**
+- **Service:** `/src/lib/services/generate-core-responsibilities.ts`
+- **API Route:** `/src/app/api/generate-responsibilities/route.ts`
+- **Purpose:** Generate 5-7 core responsibilities for occupations
+- **Input:** Occupation title, SOC code, tasks, skills
+- **Output:** Array of responsibility strings
+
+**2. Related Job Titles Generation**
+- **Service:** `/src/lib/services/generate-related-titles.ts`
+- **API Route:** `/src/app/api/generate-related-titles/route.ts`
+- **Purpose:** Generate 6-8 related job title variations
+- **Input:** Occupation title, SOC code
+- **Output:** Array of related title strings
+
+**3. Admin Interface**
+- **Component:** `/src/components/admin/AIContentTab.tsx`
+- **Integration:** Admin occupations edit page
+- **Features:**
+  - "Generate with AI" buttons for each content type
+  - Real-time generation with loading states
+  - Manual editing capability
+  - One-per-line textarea format
+
+### Database Schema
+
+```sql
+-- AI-generated content fields in jobs table
+ALTER TABLE public.jobs 
+ADD COLUMN core_responsibilities text[],
+ADD COLUMN related_job_titles text[];
+```
+
+### Usage Pattern
+
+1. **Admin generates content:**
+   ```typescript
+   // Click "Generate with AI" button
+   const response = await fetch('/api/generate-responsibilities', {
+     method: 'POST',
+     body: JSON.stringify({ occupationTitle, socCode, tasks, skills })
+   });
+   const { responsibilities } = await response.json();
+   ```
+
+2. **Frontend displays content:**
+   ```typescript
+   // Parse JSON string to array if needed
+   let responsibilities = job.core_responsibilities;
+   if (typeof responsibilities === 'string') {
+     responsibilities = JSON.parse(responsibilities);
+   }
+   ```
+
+### Bulk Generation Script
+
+**Script:** `/scripts/generate-ai-content.js`
+
+```bash
+node scripts/generate-ai-content.js
+```
+
+**Features:**
+- Processes all occupations missing AI content
+- Filters for array vs string types
+- Rate limited at 2 seconds per occupation
+- Automatic database updates
+
+---
+
+## Quiz Generation & Assessment
+
+### Improved Quiz Generation Prompt
+
+**Updated:** October 8, 2025
+
+The quiz generation system now uses an Instructional Designer persona for better quality questions:
+
+**Key Improvements:**
+1. **Persona Context:** Instructional Designer and Workforce Assessment Specialist
+2. **Focus:** Job-ready competency assessment (not surface knowledge)
+3. **Skill Relevance:** Avoids generic skills (Reading, English, etc.)
+4. **Applied Understanding:** Tests practical application, not rote recall
+5. **Accessibility:** 10th-12th grade reading level
+6. **Cultural Neutrality:** Inclusive and unbiased content
+
+**Service:** `/src/lib/services/quiz-generation.ts`
+
+**Prompt Structure:**
+```
+You are an Instructional Designer and Workforce Assessment Specialist...
+
+### PERSONA CONTEXT:
+- Design questions for job-ready assessments
+- Evaluate readiness to perform on the job
+
+### SKILL RELEVANCE:
+- Prioritize technical, operational, applied skills
+- Avoid passive abilities (reading, speaking, etc.)
+
+### QUESTION STRUCTURE:
+- High-quality MCQs testing applied understanding
+- 4 answer choices (A-D)
+- Randomized correct answers
+
+### OUTPUT FORMAT:
+JSON array with stem, choices, correct_answer, explanation
+```
+
+### Quiz Database Status
+
+**Current State (October 8, 2025):**
+- **Total Quizzes:** 4
+- **Quizzes with Questions:** 2 (37 total questions)
+- **SOC Code Assignment:** None (all null)
+
+**Action Items:**
+1. Assign SOC codes to existing quizzes
+2. Generate new quizzes for key occupations
+3. Link quizzes to occupation pages
+
+---
+
+## Production Status (October 8, 2025)
 
 ### ✅ Complete Systems
 
@@ -2479,23 +2610,62 @@ Render chart + dynamic messaging
 - **Integration Tests:** All passing
 - **CIP→SOC→Skills:** Validated with 222 programs
 
-### Recent Updates (October 3, 2025)
+### Recent Updates (October 8, 2025)
 
-**Homepage Redesign Complete:**
-- ✅ SkillSync Snapshot with interactive charts
-- ✅ Dynamic user messaging based on proficiency
-- ✅ Comprehensive skeleton loading states
-- ✅ Footer component with branding
-- ✅ RLS policy fixes for assessment_skill_results
+**Job Details Page Enhancements:**
+- ✅ AI-generated Core Responsibilities display
+- ✅ AI-generated Related Job Titles display
+- ✅ JSON string parsing for array fields
+- ✅ Scrollable card containers (max-h-520px)
+- ✅ Hidden scrollbars with custom CSS utility
+- ✅ Current Employment metric (BLS employment_2022)
+- ✅ Trusted Partners section enabled for occupations
+- ✅ Skill description tooltips on hover
 
-**Next Phase: Provider/Employer Dashboards**
+**Program Details Page Enhancements:**
+- ✅ Trusted Partners section added
+- ✅ School logos display (Bisk, SPC, HCC, USF)
+
+**Admin Tools Enhancements:**
+- ✅ AI Content tab in occupations edit page
+- ✅ Generate with AI buttons for responsibilities and titles
+- ✅ Real-time AI generation with loading states
+- ✅ Manual editing capability
+
+**Employer Invitations System:**
+- ✅ Made assessment_id nullable for demo purposes
+- ✅ Seeded 3 Power Design invitations with different statuses
+- ✅ Invitation flow: pending → sent → applied
+
+**Quiz Generation Improvements:**
+- ✅ Updated prompt with Instructional Designer persona
+- ✅ Focus on job-ready competency assessment
+- ✅ Improved skill relevance filtering
+- ✅ Better accessibility and cultural neutrality
+
+**Database Migrations:**
+- ✅ Added core_responsibilities (text[]) to jobs table
+- ✅ Added related_job_titles (text[]) to jobs table
+- ✅ Made assessment_id nullable in employer_invitations
+
+**Scripts Created:**
+- ✅ generate-ai-content.js - Bulk AI content generation
+- ✅ populate-bls-data.js - BLS employment data population
+- ✅ seed-power-design-invitations.js - Demo invitation data
+
+**Bug Fixes:**
+- ✅ Removed duplicate (main)/admin routes
+- ✅ Fixed Next.js build conflicts
+- ✅ Fixed JSON string vs array handling for AI content
+
+**Next Phase: Quiz Assignment & Generation**
 
 **Pending Tasks:**
-1. Program details page with skills taught
-2. Company profile management
-3. Provider/Employer admin dashboards
-4. RFI form and email notifications
-5. Assessment UI polish
+1. Assign SOC codes to existing quizzes
+2. Generate new quizzes for key occupations
+3. Link quizzes to occupation pages
+4. Populate BLS employment data for all occupations
+5. Generate AI content for remaining occupations
 
 **Documentation:**
 - See `docs/PROJECT_STATUS.md` for current status
@@ -2504,5 +2674,5 @@ Render chart + dynamic messaging
 
 ---
 
-*Last Updated: October 3, 2025 - 1:55 AM*
-*Status: Homepage complete, all core systems operational and production-ready*
+*Last Updated: October 8, 2025 - 11:59 PM*
+*Status: AI content generation system complete, job/program details enhanced, invitation system operational*
