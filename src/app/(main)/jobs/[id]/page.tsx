@@ -308,7 +308,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">National Career Outlook</div>
+                        <div className="text-sm opacity-80">Career Outlook</div>
                         {job.employment_outlook ? (
                           <>
                             <div className={`text-xl font-bold ${
@@ -444,10 +444,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <div className="grid grid-cols-2 gap-3">
                       {responsibilities.map((responsibility: string, index: number) => (
                         <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                          <div className="flex items-start gap-3">
-                            <span className="text-teal-400 flex-shrink-0">•</span>
-                            <span className="text-white text-sm">{responsibility}</span>
-                          </div>
+                          <span className="text-white text-sm">{responsibility}</span>
                         </div>
                       ))}
                     </div>
@@ -469,10 +466,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         <div className="grid grid-cols-2 gap-3">
                           {job.tasks.slice(0, 8).map((task: any, index: number) => (
                             <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                              <div className="flex items-start gap-3">
-                                <span className="text-teal-400 flex-shrink-0">•</span>
-                                <span className="text-white text-sm">{task.TaskDescription}</span>
-                              </div>
+                              <span className="text-white text-sm">{task.TaskDescription}</span>
                             </div>
                           ))}
                         </div>
