@@ -16,7 +16,7 @@ const { createClient } = require('@supabase/supabase-js')
 const https = require('https')
 const fs = require('fs')
 const path = require('path')
-const { parse } = require('csv-parse/sync')
+const csv = require('csv-parser')
 
 // Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -77,52 +77,52 @@ async function extractZip(zipPath, outputDir) {
 /**
  * Parse OEWS CSV file and extract wage data
  */
-function parseOEWSFile(filePath, areaCode, areaName) {
+async function parseOEWSFile(filePath, areaCode, areaName) {
   console.log(`  📄 Parsing: ${path.basename(filePath)}`)
   
-  const fileContent = fs.readFileSync(filePath, 'utf-8')
-  const records = parse(fileContent, {
-    columns: true,
-    skip_empty_lines: true
+  return new Promise((resolve, reject) => {
+    const wageData = []
+    
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on('data', (record) => {
+        // Filter for specific area if provided
+        if (areaCode && record.area !== areaCode && record.area_code !== areaCode) {
+          return
+        }
+        
+        const socCode = record.occ_code || record.OCC_CODE
+        const medianWage = parseFloat(record.a_median || record.A_MEDIAN)
+        const meanWage = parseFloat(record.a_mean || record.A_MEAN)
+        const employment = parseInt(record.tot_emp || record.TOT_EMP)
+        
+        // Skip if no valid SOC code or wage data
+        if (!socCode || socCode === '00-0000' || (!medianWage && !meanWage)) {
+          return
+        }
+        
+        // Format SOC code (XX-XXXX)
+        const formattedSOC = socCode.includes('-') ? socCode : 
+          `${socCode.substring(0, 2)}-${socCode.substring(2)}`
+        
+        wageData.push({
+          soc_code: formattedSOC,
+          area_code: areaCode || record.area || record.area_code || '0000000',
+          area_name: areaName || record.area_title || record.area_name || 'United States',
+          median_wage: medianWage || null,
+          mean_wage: meanWage || null,
+          employment_level: employment || null,
+          data_year: 2024,
+          last_updated: new Date().toISOString(),
+          expires_at: new Date('2025-05-01').toISOString() // Expires when May 2025 data is released
+        })
+      })
+      .on('end', () => {
+        console.log(`  ✅ Found ${wageData.length} occupations with wage data`)
+        resolve(wageData)
+      })
+      .on('error', reject)
   })
-  
-  const wageData = []
-  
-  for (const record of records) {
-    // Filter for specific area if provided
-    if (areaCode && record.area !== areaCode && record.area_code !== areaCode) {
-      continue
-    }
-    
-    const socCode = record.occ_code || record.OCC_CODE
-    const medianWage = parseFloat(record.a_median || record.A_MEDIAN)
-    const meanWage = parseFloat(record.a_mean || record.A_MEAN)
-    const employment = parseInt(record.tot_emp || record.TOT_EMP)
-    
-    // Skip if no valid SOC code or wage data
-    if (!socCode || socCode === '00-0000' || (!medianWage && !meanWage)) {
-      continue
-    }
-    
-    // Format SOC code (XX-XXXX)
-    const formattedSOC = socCode.includes('-') ? socCode : 
-      `${socCode.substring(0, 2)}-${socCode.substring(2)}`
-    
-    wageData.push({
-      soc_code: formattedSOC,
-      area_code: areaCode || record.area || record.area_code || '0000000',
-      area_name: areaName || record.area_title || record.area_name || 'United States',
-      median_wage: medianWage || null,
-      mean_wage: meanWage || null,
-      employment_level: employment || null,
-      data_year: 2024,
-      last_updated: new Date().toISOString(),
-      expires_at: new Date('2025-05-01').toISOString() // Expires when May 2025 data is released
-    })
-  }
-  
-  console.log(`  ✅ Found ${wageData.length} occupations with wage data`)
-  return wageData
 }
 
 /**
@@ -199,7 +199,7 @@ async function main() {
     
     if (msaFiles.length > 0) {
       const msaFile = path.join(DATA_DIR, msaFiles[0])
-      const tampaData = parseOEWSFile(msaFile, AREAS.tampa.code, AREAS.tampa.name)
+      const tampaData = await parseOEWSFile(msaFile, AREAS.tampa.code, AREAS.tampa.name)
       await importToDatabase(tampaData, AREAS.tampa.name)
     } else {
       console.log('  ⚠️  MSA data file not found')
@@ -222,7 +222,7 @@ async function main() {
     
     if (stateFiles.length > 0) {
       const stateFile = path.join(DATA_DIR, stateFiles[0])
-      const floridaData = parseOEWSFile(stateFile, AREAS.florida.code, AREAS.florida.name)
+      const floridaData = await parseOEWSFile(stateFile, AREAS.florida.code, AREAS.florida.name)
       await importToDatabase(floridaData, AREAS.florida.name)
     } else {
       console.log('  ⚠️  State data file not found')
@@ -245,7 +245,7 @@ async function main() {
     
     if (nationalFiles.length > 0) {
       const nationalFile = path.join(DATA_DIR, nationalFiles[0])
-      const nationalData = parseOEWSFile(nationalFile, AREAS.national.code, AREAS.national.name)
+      const nationalData = await parseOEWSFile(nationalFile, AREAS.national.code, AREAS.national.name)
       await importToDatabase(nationalData, AREAS.national.name)
     } else {
       console.log('  ⚠️  National data file not found')
