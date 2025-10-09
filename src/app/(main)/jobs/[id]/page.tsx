@@ -464,11 +464,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <div>
                         <h3 className="font-semibold mb-4 text-white">Typical Tasks & Responsibilities</h3>
                         <div className="grid grid-cols-2 gap-3">
-                          {job.tasks.slice(0, 8).map((task: any, index: number) => (
-                            <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
-                              <span className="text-white text-sm">{task.TaskDescription}</span>
-                            </div>
-                          ))}
+                          {(() => {
+                            // Deduplicate tasks by TaskDescription
+                            const uniqueTasks = job.tasks.filter((task: any, index: number, self: any[]) => 
+                              index === self.findIndex((t: any) => t.TaskDescription === task.TaskDescription)
+                            );
+                            return uniqueTasks.slice(0, 8).map((task: any, index: number) => (
+                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                                <span className="text-white text-sm">{task.TaskDescription}</span>
+                              </div>
+                            ));
+                          })()}
                         </div>
                       </div>
                     </>
