@@ -381,6 +381,29 @@ export async function getJobById(id: string): Promise<Job | null> {
     if (!blsError && blsData) {
       data.bls_employment_projections = [blsData]
     }
+
+    // Fetch regional wage data with priority: Tampa MSA → Florida → National
+    const { data: wageData, error: wageError } = await supabase
+      .from('bls_wage_data')
+      .select('area_code, area_name, median_wage, mean_wage, employment_level, data_year')
+      .eq('soc_code', data.soc_code)
+      .in('area_code', ['45300', '12', '0000000']) // Tampa, Florida, National
+      .order('area_code', { ascending: true }) // Will sort: 0000000, 12, 45300
+      .limit(3)
+
+    if (!wageError && wageData && wageData.length > 0) {
+      // Sort by priority: Tampa (45300) > Florida (12) > National (0000000)
+      const priorityOrder: Record<string, number> = { '45300': 1, '12': 2, '0000000': 3 }
+      const sortedWageData = wageData.sort((a, b) => 
+        (priorityOrder[a.area_code as string] || 999) - (priorityOrder[b.area_code as string] || 999)
+      )
+      
+      // Use highest priority data available
+      const regionalWage = sortedWageData[0]
+      data.median_wage_usd = regionalWage.median_wage || regionalWage.mean_wage
+      data.wage_area_name = regionalWage.area_name
+      data.wage_data_year = regionalWage.data_year
+    }
   }
 
   return data as Job
