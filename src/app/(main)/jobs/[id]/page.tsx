@@ -488,7 +488,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">
-                  Education & Training Programs
+                  Relevant Education & Training Programs
                 </h3>
                 <p className="text-gray-600 text-sm">
                   Programs that can help you build skills for this occupation
