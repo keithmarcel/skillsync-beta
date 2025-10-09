@@ -568,8 +568,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         {/* Data Source Footer - Only for Occupations */}
         {job.job_kind === 'occupation' && (
           <div className="mt-12 pt-8 border-t border-gray-200">
-            <p className="text-sm text-gray-500 text-center">
-              Data source:{' '}
+            <p className="text-xs text-gray-500 text-center">
+              Data sources:{' '}
               <a href="https://www.bls.gov/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
                 BLS 2022
               </a>
