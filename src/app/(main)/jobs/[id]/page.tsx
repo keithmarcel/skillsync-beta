@@ -410,9 +410,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 }
               ].map((role, index) => (
                 <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
-                  <div className="p-5">
-                    <Link href={`/jobs/${index + 1}`} className="block">
-                      <h4 className="text-base font-semibold text-gray-900 mb-1 hover:text-teal-600 transition-colors">
+                  <div className="p-5 pb-3">
+                    <Link href={`/jobs/${index + 1}`} className="block group">
+                      <h4 className="text-base font-semibold text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors">
                         {role.title}
                       </h4>
                     </Link>
@@ -429,12 +429,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       </span>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{role.description}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{role.description}</p>
                   </div>
                   
                   <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
                     <button className="text-sm text-gray-600 hover:text-gray-900">
-                      <img src={role.logo} alt={role.company} className="h-6 w-auto object-contain" />
+                      <img src={role.logo} alt={role.company} className="h-6 w-auto object-contain max-w-[120px]" />
                     </button>
                     <Button asChild size="sm" variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                       <Link href={`/jobs/${index + 1}`} className="flex items-center gap-1">
@@ -505,9 +505,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 }
               ].map((program, index) => (
                 <div key={index} className="bg-white rounded-xl border border-gray-200 hover:border-teal-500 transition-colors overflow-hidden">
-                  <div className="p-5">
-                    <Link href={`/programs/${index + 1}`} className="block">
-                      <h4 className="text-base font-semibold text-gray-900 mb-1 hover:text-teal-600 transition-colors">
+                  <div className="p-5 pb-3">
+                    <Link href={`/programs/${index + 1}`} className="block group">
+                      <h4 className="text-base font-semibold text-gray-900 mb-1 group-hover:text-teal-600 group-hover:underline transition-colors">
                         {program.program}
                       </h4>
                     </Link>
@@ -519,12 +519,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{program.duration}</span>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{program.description}</p>
+                    <p className="text-sm text-gray-600 line-clamp-2">{program.description}</p>
                   </div>
                   
                   <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
                     <button className="text-sm text-gray-600 hover:text-gray-900">
-                      <img src={program.logo} alt={program.school} className="h-6 w-auto object-contain" />
+                      <img src={program.logo} alt={program.school} className="h-6 w-auto object-contain max-w-[140px]" />
                     </button>
                     <Button asChild size="sm" variant="ghost" className="text-teal-600 hover:text-teal-700 hover:bg-teal-50">
                       <Link href={`/programs/${index + 1}`} className="flex items-center gap-1">
