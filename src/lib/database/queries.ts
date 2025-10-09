@@ -310,17 +310,18 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
         .select('*', { count: 'exact', head: true })
         .eq('job_kind', 'featured_role')
         .eq('soc_code', job.soc_code)
-        .eq('is_published', true)
-
-      (job as any).related_jobs_count = relatedJobsResult.count || 0
+        .eq('is_published', true);
+      
+      const jobWithCounts = job as any;
+      jobWithCounts.related_jobs_count = relatedJobsResult.count || 0
 
       // Count related programs via program_jobs junction table
       const relatedProgramsResult = await supabase
         .from('program_jobs')
         .select('*', { count: 'exact', head: true })
-        .eq('job_id', job.id)
-
-      (job as any).related_programs_count = relatedProgramsResult.count || 0
+        .eq('job_id', job.id);
+      
+      jobWithCounts.related_programs_count = relatedProgramsResult.count || 0
     }
   }
 
