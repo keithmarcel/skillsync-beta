@@ -421,22 +421,15 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <div className="flex flex-wrap gap-2 mb-3">
                       <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">{role.category}</span>
                       <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{role.employmentType}</span>
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{role.skillsCount} Skills</span>
+                      <span className="px-2.5 py-1 bg-teal-50 text-teal-700 text-xs font-medium rounded-full flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                        </svg>
+                        {role.proficiency} Required
+                      </span>
                     </div>
                     
                     <p className="text-sm text-gray-600 mb-4 line-clamp-2">{role.description}</p>
-                    
-                    <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                      <div className="flex items-center gap-2">
-                        <svg className="w-4 h-4 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                        </svg>
-                        <div>
-                          <div className="text-xs text-gray-600">Required Proficiency</div>
-                          <div className="text-sm font-semibold text-gray-900">{role.proficiency}</div>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                   
                   <div className="px-5 pb-5 flex items-center justify-between border-t border-gray-100 pt-4">
