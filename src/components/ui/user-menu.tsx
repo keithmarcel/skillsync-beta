@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Settings, LogOut, FileText, Shield } from 'lucide-react'
+import { Settings, LogOut, FileText, Shield, Mail } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 
 interface UserMenuProps {
@@ -23,7 +23,7 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user, onSignOut }: UserMenuProps) {
-  const { isAdmin } = useAuth();
+  const { isAdmin, profile } = useAuth();
   const initials = user?.name 
     ? user.name.split(' ').map(n => n[0]).join('').toUpperCase()
     : user?.email?.[0]?.toUpperCase() || 'U'
@@ -89,6 +89,18 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
             My Assessments
           </Link>
         </DropdownMenuItem>
+
+        {profile?.visible_to_employers && (
+          <DropdownMenuItem asChild>
+            <Link 
+              href="/invitations" 
+              className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer"
+            >
+              <Mail className="w-4 h-4" />
+              My Invites
+            </Link>
+          </DropdownMenuItem>
+        )}
 
         {isAdmin && (
           <>
