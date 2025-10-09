@@ -36,51 +36,42 @@ export function FeaturedCardActions({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
+          className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#0694A2] focus:ring-offset-1 transition-colors"
           aria-label={`Actions for ${entityTitle}`}
         >
           <MoreHorizontal className="h-4 w-4 text-gray-500 hover:text-gray-700" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-56">
         {onViewDetails && (
-          <>
-            <DropdownMenuItem onClick={onViewDetails}>
-              <Eye className="mr-2 h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
+          <DropdownMenuItem onClick={onViewDetails}>
+            <Eye className="mr-2 h-4 w-4" />
+            View Details
+          </DropdownMenuItem>
         )}
         
         {onAboutCompany && (
-          <>
-            <DropdownMenuItem onClick={onAboutCompany}>
-              <Building className="mr-2 h-4 w-4" />
-              About the Company
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
+          <DropdownMenuItem onClick={onAboutCompany}>
+            <Building className="mr-2 h-4 w-4" />
+            About the Company
+          </DropdownMenuItem>
         )}
         
         {onAboutSchool && (
-          <>
-            <DropdownMenuItem onClick={onAboutSchool}>
-              <Building className="mr-2 h-4 w-4" />
-              About the School
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
+          <DropdownMenuItem onClick={onAboutSchool}>
+            <Building className="mr-2 h-4 w-4" />
+            About the School
+          </DropdownMenuItem>
         )}
         
         {isFavorited ? (
           <DropdownMenuItem onClick={onRemoveFavorite} className="whitespace-nowrap">
-            <Heart className="mr-2 h-4 w-4 fill-current" />
+            <Heart className="mr-2 h-4 w-4 fill-[#0694A2] text-[#0694A2]" />
             Remove from Favorites
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem onClick={onAddFavorite} className="whitespace-nowrap">
-            <Heart className="mr-2 h-4 w-4" />
+            <Heart className="mr-2 h-4 w-4 text-[#0694A2]" />
             Add to Favorites
           </DropdownMenuItem>
         )}

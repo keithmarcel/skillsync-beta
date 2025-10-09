@@ -46,7 +46,7 @@ export function CompanyModal({ isOpen, onClose, company }: CompanyModalProps) {
           {/* Company Logo */}
           <div className="p-6 pb-0">
             <img 
-              src={company.logo ? `/companies/${company.logo}` : '/companies/placeholder-logo.svg'} 
+              src={company.logo || '/companies/placeholder-logo.svg'} 
               alt={`${company.name} logo`} 
               className={`w-auto object-contain ${logoSize === 'small' ? 'h-6' : 'h-10'}`}
               onLoad={handleLogoLoad}

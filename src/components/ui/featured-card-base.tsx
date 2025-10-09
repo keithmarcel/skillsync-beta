@@ -30,6 +30,7 @@ interface StatProps {
   label: string
   value: string
   className?: string
+  variant?: 'default' | 'minimal'
 }
 
 // Base card container with Figma specifications
@@ -61,7 +62,7 @@ export function FeaturedCardHeader({ children, className }: FeaturedCardHeaderPr
 // Content section for description and other content
 export function FeaturedCardContent({ children, className }: FeaturedCardContentProps) {
   return (
-    <div className={cn("p-7 pb-0", className)}>
+    <div className={cn("px-7 pt-4 pb-0", className)}>
       {children}
     </div>
   )
@@ -183,7 +184,7 @@ export function MetaPill({ label, className }: MetaPillProps) {
 }
 
 // Stat display component matching exact Figma dimensions
-export function Stat({ label, value, className }: StatProps) {
+export function Stat({ label, value, className, variant = 'default' }: StatProps) {
   const getIconWithBackground = (label: string) => {
     if (label.toLowerCase().includes('salary')) {
       return (
@@ -231,10 +232,7 @@ export function Stat({ label, value, className }: StatProps) {
   return (
     <div className={cn(
       "flex items-center gap-2",
-      "px-2 py-1.5",
-      "border border-[#E5E7EB] rounded-lg",
-      "shadow-[0px_1px_2px_rgba(0,0,0,0.05)] bg-white",
-      "h-[46px]",
+      variant === 'default' && "px-2 py-1.5 border border-[#E5E7EB] rounded-lg shadow-[0px_1px_2px_rgba(0,0,0,0.05)] bg-white h-[46px]",
       className
     )}>
       {/* Icon container - 20px */}
@@ -323,11 +321,11 @@ export function FeaturedCardDescription({ children }: { children: ReactNode }) {
 }
 
 // Stats grid layout
-export function StatsGrid({ stats }: { stats: Array<{ label: string; value: string }> }) {
+export function StatsGrid({ stats, variant = 'default' }: { stats: Array<{ label: string; value: string }>, variant?: 'default' | 'minimal' }) {
   return (
     <div className="grid grid-cols-2 gap-4">
       {stats.map((stat, index) => (
-        <Stat key={index} label={stat.label} value={stat.value} />
+        <Stat key={index} label={stat.label} value={stat.value} variant={variant} />
       ))}
     </div>
   )
@@ -347,10 +345,10 @@ export function ActionButton({
   href?: string
   className?: string
 }) {
-  const baseClasses = "flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg shadow-[0px_1px_2px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 h-8 flex-1 min-w-0 transition-colors duration-150 ease-in-out"
+  const baseClasses = "flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg shadow-[0px_1px_2px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-[#0694A2]/50 h-8 flex-1 min-w-0 transition-all duration-150 ease-in-out"
   
   const variantClasses = variant === 'primary' 
-    ? "bg-white border border-[#047481] text-[#047481] hover:bg-[#047481] hover:text-white hover:border-[#047481]"
+    ? "bg-white border border-[#047481] text-[#047481] hover:outline hover:outline-2 hover:outline-[#025560] hover:outline-offset-2"
     : "bg-white border border-[#E5E5E5] text-gray-700 hover:bg-gray-50 hover:border-[#E5E5E5]"
 
   const combinedClasses = cn(baseClasses, variantClasses, className)

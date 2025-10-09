@@ -60,7 +60,7 @@ export default function SearchFilterControls({
           placeholder={searchPlaceholder}
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 h-10"
+          className="pl-10 h-11 placeholder:text-gray-500"
           title="Search dynamically filters results as you type"
         />
       </div>
@@ -70,7 +70,7 @@ export default function SearchFilterControls({
         {/* Sort Dropdown - Always First */}
         {sortableColumns.length > 0 && (
           <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger className="w-auto min-w-48 h-10">
+            <SelectTrigger className="w-auto min-w-48 h-11">
               <SelectValue placeholder="Sort by...">
                 {sortBy ? `Sort by ${sortableColumns.find(col => col.key === sortBy)?.label}${sortOrder === 'desc' ? ' ↓' : ' ↑'}` : 'Sort by...'}
               </SelectValue>
@@ -96,7 +96,7 @@ export default function SearchFilterControls({
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-auto min-w-40 h-10 justify-between font-normal"
+                  className="w-auto min-w-40 h-11 justify-between font-normal"
                 >
                   <span>
                     {selectedCount > 0 
@@ -109,21 +109,18 @@ export default function SearchFilterControls({
               </PopoverTrigger>
               <PopoverContent className="w-64 p-4" align="end">
                 <div className="space-y-4">
-                  <div className="space-y-2">
+                  <div className="flex items-center justify-between">
                     <h4 className="font-medium text-base">Filter by {displayLabel}</h4>
-                    {/* Reserve space for Clear All button */}
-                    <div className="h-5">
-                      {selectedCount > 0 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-auto p-0 text-xs text-teal-600 hover:text-teal-700"
-                          onClick={() => onFilterChange(column.key, [])}
-                        >
-                          Clear All
-                        </Button>
-                      )}
-                    </div>
+                    {selectedCount > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto p-0 text-xs text-gray-500 hover:text-[#0694A2] hover:bg-transparent"
+                        onClick={() => onFilterChange(column.key, [])}
+                      >
+                        Clear All
+                      </Button>
+                    )}
                   </div>
                   <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
                     {column.filterOptions?.map((option: string) => {

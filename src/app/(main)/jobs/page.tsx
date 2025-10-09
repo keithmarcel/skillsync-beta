@@ -9,8 +9,11 @@ import { IllustrationHero } from '@/components/ui/illustration-hero'
 import SearchFilterControls from '@/components/ui/search-filter-controls'
 import DataTable from '@/components/ui/data-table'
 import { FeaturedRoleCard } from '@/components/ui/featured-role-card'
+import { FeaturedRoleListCard } from '@/components/ui/featured-role-list-card'
 import { FeaturedJobCardV2 } from '@/components/ui/featured-job-card-v2'
 import { EmptyState } from '@/components/ui/empty-state'
+import { LayoutGrid, List } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import PageHeader from '@/components/ui/page-header'
 import { occupationsTableColumns, occupationsSearchFields } from '@/lib/table-configs'
 import { getFeaturedRoles, getHighDemandOccupations } from '@/lib/database/queries'
@@ -87,6 +90,10 @@ export default function JobsPage() {
   // Featured roles specific filters
   const [featuredSearchTerm, setFeaturedSearchTerm] = useState('')
   const [featuredFilters, setFeaturedFilters] = useState<Record<string, string[]>>({})
+  
+  // View and pagination state
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [itemsToShow, setItemsToShow] = useState(12)
 
   // Update activeTab when URL changes
   useEffect(() => {
@@ -282,74 +289,152 @@ export default function JobsPage() {
                 title="See Who's Hiring Now"
               />
               
-              <div className="mt-8">
-                <SearchFilterControls
-                  searchTerm={featuredSearchTerm}
-                  onSearchChange={setFeaturedSearchTerm}
-                  searchPlaceholder="Search by company, role, or category"
-                  sortBy=""
-                  sortOrder="asc"
-                  onSortChange={() => {}}
-                  filters={featuredFilters}
-                  onFilterChange={(column, values) => {
-                    setFeaturedFilters(prev => ({
-                      ...prev,
-                      [column]: values
-                    }))
-                  }}
-                  columns={[
-                    { key: 'category', label: 'Category', filterable: true, filterOptions: ['Skilled Trades', 'Business', 'Health & Education', 'Technology'] },
-                    { key: 'jobType', label: 'Job Type', filterable: true, filterOptions: ['Full-Time', 'Part-Time', 'Contract'] },
-                    { 
-                      key: 'company', 
-                      label: 'Company', 
-                      filterable: true, 
-                      filterOptions: Array.from(new Set(featuredRoles.map(role => role.company?.name).filter(Boolean))).sort()
-                    }
-                  ]}
-                />
+              {/* Search/Filter Controls and View Toggle */}
+              <div className="mt-8 flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <SearchFilterControls
+                    searchTerm={featuredSearchTerm}
+                    onSearchChange={setFeaturedSearchTerm}
+                    searchPlaceholder="Search by company, role, or category"
+                    sortBy=""
+                    sortOrder="asc"
+                    onSortChange={() => {}}
+                    filters={featuredFilters}
+                    onFilterChange={(column, values) => {
+                      setFeaturedFilters(prev => ({
+                        ...prev,
+                        [column]: values
+                      }))
+                    }}
+                    columns={[
+                      { key: 'category', label: 'Category', filterable: true, filterOptions: ['Skilled Trades', 'Business', 'Health & Education', 'Technology'] },
+                      { key: 'jobType', label: 'Job Type', filterable: true, filterOptions: ['Full-Time', 'Part-Time', 'Contract'] },
+                      { 
+                        key: 'company', 
+                        label: 'Company', 
+                        filterable: true, 
+                        filterOptions: Array.from(new Set(featuredRoles.map(role => role.company?.name).filter(Boolean))).sort()
+                      }
+                    ]}
+                  />
+                </div>
+                
+                {/* View Toggle */}
+                <div className="flex gap-1 border border-gray-200 rounded-lg p-1 bg-white">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded transition-colors ${
+                      viewMode === 'grid' 
+                        ? 'bg-[#0694A2] text-white' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                    title="Grid view"
+                  >
+                    <LayoutGrid className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded transition-colors ${
+                      viewMode === 'list' 
+                        ? 'bg-[#0694A2] text-white' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                    title="List view"
+                  >
+                    <List className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
               
               <div className="mt-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {loading ? (
-                  <div className="col-span-full">
-                    <PageLoader text="Loading Featured Roles" />
-                  </div>
+                  <PageLoader text="Loading Featured Roles" />
                 ) : filteredFeaturedRoles.length > 0 ? (
-                  filteredFeaturedRoles.map((role) => (
-                    <FeaturedRoleCard
-                      key={role.id}
-                      id={role.id}
-                      title={role.title}
-                      company={role.company}
-                      category={role.category}
-                      jobType={role.jobType}
-                      skillsCount={role.skillsCount}
-                      description={role.description}
-                      medianSalary={role.medianSalary}
-                      requiredProficiency={role.requiredProficiency}
-                      href={`/jobs/${role.id}`}
-                      onAboutCompany={() => {
-                        console.log(`About company for job ${role.id}`)
-                      }}
-                      isFavorited={isFavorite('job', role.id)}
-                      onAddFavorite={() => addFavorite('job', role.id)}
-                      onRemoveFavorite={() => removeFavorite('job', role.id)}
-                    />
-                  ))
+                  <>
+                    {/* Grid View */}
+                    {viewMode === 'grid' ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredFeaturedRoles.slice(0, itemsToShow).map((role) => (
+                          <FeaturedRoleCard
+                            key={role.id}
+                            id={role.id}
+                            title={role.title}
+                            company={role.company}
+                            category={role.category}
+                            jobType={role.jobType}
+                            skillsCount={role.skillsCount}
+                            description={role.description}
+                            medianSalary={role.medianSalary}
+                            requiredProficiency={role.requiredProficiency}
+                            href={`/jobs/${role.id}`}
+                            onAboutCompany={() => {
+                              console.log(`About company for job ${role.id}`)
+                            }}
+                            isFavorited={isFavorite('job', role.id)}
+                            onAddFavorite={() => addFavorite('job', role.id)}
+                            onRemoveFavorite={() => removeFavorite('job', role.id)}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      /* List View */
+                      <div className="space-y-3">
+                        {filteredFeaturedRoles.slice(0, itemsToShow).map((role) => (
+                          <FeaturedRoleListCard
+                            key={role.id}
+                            id={role.id}
+                            title={role.title}
+                            company={role.company}
+                            category={role.category}
+                            jobType={role.jobType}
+                            skillsCount={role.skillsCount}
+                            description={role.description}
+                            medianSalary={role.medianSalary}
+                            requiredProficiency={role.requiredProficiency}
+                            href={`/jobs/${role.id}`}
+                            onAboutCompany={() => {
+                              console.log(`About company for job ${role.id}`)
+                            }}
+                            isFavorited={isFavorite('job', role.id)}
+                            onAddFavorite={() => addFavorite('job', role.id)}
+                            onRemoveFavorite={() => removeFavorite('job', role.id)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Load More Button */}
+                    {filteredFeaturedRoles.length > itemsToShow && (
+                      <div className="mt-8 flex justify-center">
+                        <Button
+                          onClick={() => setItemsToShow(prev => prev + 12)}
+                          variant="outline"
+                          className="px-8 py-3 text-[#0694A2] border-[#0694A2] hover:bg-[#0694A2] hover:text-white transition-colors"
+                        >
+                          Load More ({filteredFeaturedRoles.length - itemsToShow} remaining)
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <EmptyState
-                    variant="inline"
-                    title="No Saved Jobs"
-                    description="You haven't saved any jobs yet. Browse jobs and click the heart icon to save them here."
-                    primaryButtonText="Browse Featured Roles"
-                    primaryButtonHref="/jobs?tab=featured-roles"
-                    secondaryButtonText="Browse High-Demand Jobs"
-                    secondaryButtonHref="/jobs?tab=high-demand"
+                    variant="card"
+                    icon={
+                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                    }
+                    title="No roles found"
+                    description="No featured roles match your search or filters."
+                    secondaryButtonText="Clear All"
+                    onSecondaryClick={() => {
+                      setFeaturedSearchTerm('')
+                      setFeaturedFilters({})
+                    }}
                   />
                 )}
-                </div>
               </div>
             </div>
           )}

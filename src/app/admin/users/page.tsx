@@ -120,38 +120,22 @@ export default function AdminUsersPage() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      let query = supabase
-        .from('profiles')
-        .select(`
-          *,
-          company:companies(id, name),
-          school:schools(id, name)
-        `)
-        .order('created_at', { ascending: false });
+      
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (searchTerm) params.append('search', searchTerm);
+      if (roleFilter !== 'all') params.append('role', roleFilter);
+      if (adminRoleFilter !== 'all') params.append('adminRole', adminRoleFilter);
 
-      // Apply search filter
-      if (searchTerm) {
-        query = query.or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`);
+      // Use API route with service role key to bypass RLS
+      const response = await fetch(`/api/admin/users?${params.toString()}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to load users');
       }
 
-      // Apply role filter
-      if (roleFilter !== 'all') {
-        query = query.eq('role', roleFilter);
-      }
-
-      // Apply admin role filter
-      if (adminRoleFilter !== 'all') {
-        if (adminRoleFilter === 'none') {
-          query = query.is('admin_role', null);
-        } else {
-          query = query.eq('admin_role', adminRoleFilter);
-        }
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setUsers(data || []);
+      setUsers(result.users || []);
     } catch (err) {
       console.error('Error loading users:', err);
       setError('Failed to load users');
@@ -162,20 +146,24 @@ export default function AdminUsersPage() {
 
   const loadStats = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role, admin_role');
+      // Use API route to get all profiles for stats calculation
+      const response = await fetch('/api/admin/users');
+      const result = await response.json();
 
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to load stats');
+      }
+
+      const data = result.users;
 
       const stats = (data || []).reduce(
-        (acc, profile) => {
+        (acc: any, profile: any) => {
           acc.total++;
-          if (profile.admin_role) {
+          if (profile.admin_role === 'super_admin') {
             acc.admins++;
-          } else if (profile.role === 'partner_admin') {
+          } else if (profile.admin_role === 'company_admin') {
             acc.companies++;
-          } else if (profile.role === 'org_user') {
+          } else if (profile.admin_role === 'provider_admin') {
             acc.providers++;
           } else {
             acc.basic++;
@@ -334,7 +322,7 @@ export default function AdminUsersPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Partners</CardTitle>
+            <CardTitle className="text-sm font-medium">Employers</CardTitle>
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
