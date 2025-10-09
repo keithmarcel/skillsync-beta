@@ -244,10 +244,10 @@ export const occupationsTableColumns = [
       const count = item.related_jobs_count || 0
       return React.createElement('a', {
         href: `/occupations/${item.soc_code}#open-roles`,
-        className: `inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+        className: `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${
           count === 0 
-            ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-default' 
-            : 'bg-[#EFF6FF] text-[#1E40AF] border-[#DBEAFE] hover:bg-[#DBEAFE]'
+            ? 'bg-gray-100 text-gray-500 cursor-default' 
+            : 'bg-[#CCFBF1] text-[#0F766E] hover:bg-[#99F6E4]'
         }`
       }, `${count} Open Role${count !== 1 ? 's' : ''}`)
     },
@@ -261,10 +261,10 @@ export const occupationsTableColumns = [
       const count = item.related_programs_count || 0
       return React.createElement('a', {
         href: `/occupations/${item.soc_code}#programs`,
-        className: `inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+        className: `inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-colors ${
           count === 0 
-            ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-default' 
-            : 'bg-[#F0FDF4] text-[#15803D] border-[#BBF7D0] hover:bg-[#DCFCE7]'
+            ? 'bg-gray-100 text-gray-500 cursor-default' 
+            : 'bg-[#CCFBF1] text-[#0F766E] hover:bg-[#99F6E4]'
         }`
       }, `${count} Match${count !== 1 ? 'es' : ''}`)
     },
