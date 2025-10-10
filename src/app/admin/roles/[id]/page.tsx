@@ -15,6 +15,7 @@ import { useSkillsList } from '@/hooks/useSkillsList';
 import { useAuth } from '@/hooks/useAuth';
 import { SocAutoSuggest } from '@/components/admin/soc-auto-suggest';
 import { AIGenerateButton } from '@/components/admin/ai-generate-button';
+import { SOCSkillsExtractor } from '@/components/admin/soc-skills-extractor';
 import type { Job } from '@/lib/database/queries';
 
 export default function RoleDetailPage({ params }: { params: { id: string } }) {
@@ -466,11 +467,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                 {jobSkills.map((js: any) => (
                   <div
                     key={js.id}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-sm"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-100 border border-teal-600 rounded-full text-sm"
                   >
-                    <span className="font-medium text-blue-900">{js.name}</span>
+                    <span className="font-medium text-teal-600">{js.name}</span>
                     {js.weight && (
-                      <span className="text-xs text-blue-600">
+                      <span className="text-xs text-teal-600 opacity-75">
                         {Math.round(js.weight * 100)}%
                       </span>
                     )}
@@ -485,17 +486,20 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Extract & Curate Skills',
           type: EntityFieldType.CUSTOM,
           render: (value: any, formData: any) => {
-            // TODO: Embed the full skills extractor component here
-            // For now, placeholder
+            const [refreshKey, setRefreshKey] = React.useState(0);
+            
             return (
-              <div className="border rounded-lg p-6 bg-gray-50">
-                <p className="text-sm text-gray-600 mb-4">
-                  Skills extractor will be embedded here - scoped to SOC code: {(formData as any).soc_code || 'Not set'}
-                </p>
-                <p className="text-xs text-gray-500">
-                  This will allow extraction and curation without leaving this page.
-                </p>
-              </div>
+              <SOCSkillsExtractor
+                socCode={(formData as any).soc_code || ''}
+                onSkillsUpdated={() => {
+                  // Refresh the skills display above
+                  setRefreshKey(prev => prev + 1);
+                  // Trigger a re-fetch of the current skills
+                  if (role?.id) {
+                    window.location.reload(); // Simple refresh for now
+                  }
+                }}
+              />
             );
           }
         }
