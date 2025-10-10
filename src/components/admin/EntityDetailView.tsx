@@ -427,8 +427,6 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               </SelectContent>
             </Select>
             {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
-            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
-
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
@@ -505,8 +503,6 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               Supports HTML: Use &lt;p&gt; for paragraphs, &lt;strong&gt; for bold, &lt;em&gt; for italic
             </p>
             {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
-            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
-
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
