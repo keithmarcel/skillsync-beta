@@ -68,7 +68,16 @@ function SortableItem({
         onSave();
       }
     } else if (e.key === 'Escape') {
-      onSave(); // Save on Escape too
+      if (editValue.trim()) {
+        onSave();
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    // Only save if there's actual content
+    if (editValue.trim()) {
+      onSave();
     }
   };
 
@@ -98,7 +107,7 @@ function SortableItem({
             <Textarea
               value={editValue}
               onChange={(e) => onEditValueChange(e.target.value)}
-              onBlur={() => editValue.trim() && onSave()}
+              onBlur={handleBlur}
               onKeyDown={handleKeyDown}
               placeholder="Enter text..."
               className="min-h-[80px]"
@@ -111,7 +120,17 @@ function SortableItem({
 
         {/* Actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          {!isEditing && (
+          {isEditing ? (
+            <Button
+              type="button"
+              size="sm"
+              onClick={onSave}
+              disabled={!editValue.trim()}
+              className="gap-1 bg-teal-600 hover:bg-teal-700 text-white"
+            >
+              Done
+            </Button>
+          ) : (
             <Button
               type="button"
               variant="ghost"
@@ -122,15 +141,17 @@ function SortableItem({
               <Edit2 className="h-4 w-4" />
             </Button>
           )}
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onDelete}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          {!isEditing && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onDelete}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </Card>
