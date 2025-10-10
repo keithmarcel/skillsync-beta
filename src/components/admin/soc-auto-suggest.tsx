@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Loader2, Sparkles, CheckCircle2, AlertCircle, InfoIcon } from 'lucide-react'
 
 interface SocSuggestion {
   soc_code: string
@@ -101,6 +102,24 @@ export function SocAutoSuggest({
             </>
           )}
         </Button>
+        
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
+              <p className="text-sm">
+                <strong>What happens when you click AI Suggest:</strong><br/>
+                • AI analyzes your job title and description<br/>
+                • Suggests the best matching SOC code<br/>
+                • Shows confidence level and reasoning<br/>
+                • You can review and accept or modify<br/>
+                • No changes until you click "Use This Code"
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         {!jobTitle.trim() && (
           <span className="text-sm text-gray-500">

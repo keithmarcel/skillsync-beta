@@ -95,28 +95,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         },
         {
           key: 'soc_code',
-          label: (
-            <div className="flex items-center gap-2">
-              <span>SOC Code</span>
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
-                    <p className="text-sm">
-                      <strong>What happens when you click AI Suggest:</strong><br/>
-                      • AI analyzes your job title and description<br/>
-                      • Suggests the best matching SOC code<br/>
-                      • Shows confidence level and reasoning<br/>
-                      • You can review and accept or modify<br/>
-                      • No changes until you click "Use This Code"
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          ),
+          label: 'SOC Code',
           type: EntityFieldType.CUSTOM,
           description: '📍 Shown on: Backend only (used for skills/O*NET matching)',
           helpText: 'Standard Occupational Classification - not visible to users',
@@ -160,6 +139,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Role Type',
           type: EntityFieldType.SELECT,
           required: true,
+          description: '📍 Shown on: Backend only (determines listing category)',
           options: [
             { value: 'featured_role', label: 'Featured Role' },
             { value: 'occupation', label: 'High-Demand Occupation' }
