@@ -373,6 +373,31 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
           </div>
         )
         
+      case 'currency':
+        return (
+          <div className="space-y-2">
+            <Label htmlFor={fieldId} className={error ? 'text-destructive' : ''}>
+              {field.label}
+              {field.required && <span className="text-destructive ml-1">*</span>}
+            </Label>
+            {field.description && <p className="text-xs text-muted-foreground -mt-1 mb-1">{field.description}</p>}
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 select-none">$</span>
+              <Input
+                id={fieldId}
+                type="text"
+                value={displayValue}
+                onChange={(e) => handleChange(field.key, e.target.value, field)}
+                placeholder={field.placeholder}
+                disabled={field.disabled}
+                className={`pl-7 ${error ? 'border-destructive' : ''}`}
+              />
+            </div>
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
+          </div>
+        )
+        
       case 'select':
         return (
           <div className="space-y-2">
