@@ -175,7 +175,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       await onSave(formData)
       
       toast({
-        title: `${entityType} Saved`,
+        title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} Saved`,
         description: `Successfully saved ${entityType.toLowerCase()}.`
       })
       
@@ -207,7 +207,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       await onPublish(formData)
       
       toast({
-        title: `${entityType} Published`,
+        title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} Published`,
         description: `Successfully published ${entityType.toLowerCase()}.`
       })
       
@@ -234,7 +234,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       await onUnpublish(formData.id)
       
       toast({
-        title: `${entityType} Unpublished`,
+        title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} Unpublished`,
         description: `Successfully unpublished ${entityType.toLowerCase()}.`
       })
       
@@ -261,7 +261,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       await onDelete(formData.id)
       
       toast({
-        title: `${entityType} Deleted`,
+        title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} Deleted`,
         description: `Successfully deleted ${entityType.toLowerCase()}.`
       })
       
@@ -290,7 +290,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       await onFeatureToggle(formData.id, newFeaturedState)
       
       toast({
-        title: `${entityType} ${newFeaturedState ? 'Featured' : 'Unfeatured'}`,
+        title: `${entityType.charAt(0).toUpperCase() + entityType.slice(1)} ${newFeaturedState ? 'Featured' : 'Unfeatured'}`,
         description: `Successfully ${newFeaturedState ? 'featured' : 'unfeatured'} ${entityType.toLowerCase()}.`
       })
       
