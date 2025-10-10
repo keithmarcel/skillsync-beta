@@ -29,8 +29,8 @@ const openai = new OpenAI({
 })
 
 // CareerOneStop API credentials
-const COS_USER_ID = process.env.CAREERONESTOP_USER_ID
-const COS_API_KEY = process.env.CAREERONESTOP_API_KEY
+const COS_USER_ID = process.env.COS_USERID
+const COS_TOKEN = process.env.COS_TOKEN
 const COS_BASE_URL = 'https://api.careeronestop.org/v1'
 
 /**
@@ -56,8 +56,8 @@ async function fetchCareerOneStopData(socCode) {
     
     const response = await fetch(endpoint, {
       headers: {
-        'Authorization': `Bearer ${COS_API_KEY}`,
-        'Accept': 'application/json'
+        'Authorization': `Bearer ${COS_TOKEN}`,
+        'Content-Type': 'application/json'
       }
     })
     
@@ -141,7 +141,15 @@ Return ONLY a JSON array of strings, no other text.`
 function needsEnrichment(field) {
   if (!field) return true
   if (Array.isArray(field)) return field.length === 0
-  if (typeof field === 'string') return field.length < 3
+  if (typeof field === 'string') {
+    // Handle JSON strings
+    try {
+      const parsed = JSON.parse(field)
+      return Array.isArray(parsed) ? parsed.length === 0 : false
+    } catch {
+      return field.length < 3
+    }
+  }
   if (typeof field === 'object') return Object.keys(field).length === 0
   return false
 }
