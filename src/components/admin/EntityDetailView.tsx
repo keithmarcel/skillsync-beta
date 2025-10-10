@@ -15,6 +15,8 @@ import { Save, X, ArrowLeft, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { ImageUpload } from './ImageUpload'
 import { PageLoader, InlineSpinner } from '@/components/ui/loading-spinner'
+import { toast } from '@/hooks/use-toast'
+import { DestructiveDialog } from '@/components/ui/destructive-dialog'
 
 export const EntityFieldType = {
   TEXT: 'text',
@@ -172,7 +174,10 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       setIsSaving(true)
       await onSave(formData)
       
-      console.log("Entity saved successfully");
+      toast({
+        title: `${entityType} Saved`,
+        description: `Successfully saved ${entityType.toLowerCase()}.`
+      })
       
       // If this is a new entity, redirect to edit page
       if (isNew && formData.id) {
@@ -182,7 +187,11 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       setIsDirty(false)
     } catch (error) {
       console.error('Error saving', error)
-      console.error('Failed to save:', error instanceof Error ? error.message : 'Failed to save')
+      toast({
+        title: 'Save Failed',
+        description: error instanceof Error ? error.message : 'Failed to save',
+        variant: 'destructive'
+      })
       throw error
     } finally {
       setIsSaving(false)
@@ -197,12 +206,19 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       setIsPublishing(true)
       await onPublish(formData)
       
-      console.log(`${entityType} published successfully`)
+      toast({
+        title: `${entityType} Published`,
+        description: `Successfully published ${entityType.toLowerCase()}.`
+      })
       
       setIsDirty(false)
     } catch (error) {
       console.error('Error publishing', error)
-      console.error('Failed to publish:', error instanceof Error ? error.message : 'Failed to publish')
+      toast({
+        title: 'Publish Failed',
+        description: error instanceof Error ? error.message : 'Failed to publish',
+        variant: 'destructive'
+      })
       throw error
     } finally {
       setIsPublishing(false)
@@ -217,12 +233,19 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
       setIsPublishing(true)
       await onUnpublish(formData.id)
       
-      console.log(`${entityType} unpublished successfully`)
+      toast({
+        title: `${entityType} Unpublished`,
+        description: `Successfully unpublished ${entityType.toLowerCase()}.`
+      })
       
       setIsDirty(false)
     } catch (error) {
       console.error('Error unpublishing', error)
-      console.error('Failed to unpublish:', error instanceof Error ? error.message : 'Failed to unpublish')
+      toast({
+        title: 'Unpublish Failed',
+        description: error instanceof Error ? error.message : 'Failed to unpublish',
+        variant: 'destructive'
+      })
       throw error
     } finally {
       setIsPublishing(false)
@@ -230,22 +253,27 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
   }, [formData.id, onUnpublish, entityType])
 
   // Handle delete action
-  const handleDelete = useCallback(async () => {
-    if (!onDelete || !window.confirm(`Are you sure you want to delete this ${entityType.toLowerCase()}?`)) {
-      return
-    }
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!onDelete) return
     
     try {
       setIsDeleting(true)
       await onDelete(formData.id)
       
-      console.error("Failed to save entity");
+      toast({
+        title: `${entityType} Deleted`,
+        description: `Successfully deleted ${entityType.toLowerCase()}.`
+      })
       
       // Redirect back after deletion
       router.push(backHref)
     } catch (error) {
       console.error('Error deleting', error)
-      console.error('Failed to delete:', error instanceof Error ? error.message : 'Failed to delete')
+      toast({
+        title: 'Delete Failed',
+        description: error instanceof Error ? error.message : 'Failed to delete',
+        variant: 'destructive'
+      })
       throw error
     } finally {
       setIsDeleting(false)
@@ -258,29 +286,33 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
     
     try {
       setIsFeaturing(true)
-      await onFeatureToggle(formData.id, !formData.is_featured)
+      const newFeaturedState = !formData.is_featured
+      await onFeatureToggle(formData.id, newFeaturedState)
       
-      console.log("Feature status updated");
-      
-      console.log(formData.is_featured 
-        ? `${entityType} removed from featured` 
-        : `${entityType} marked as featured`)
+      toast({
+        title: `${entityType} ${newFeaturedState ? 'Featured' : 'Unfeatured'}`,
+        description: `Successfully ${newFeaturedState ? 'featured' : 'unfeatured'} ${entityType.toLowerCase()}.`
+      })
       
       // Update local state
       setFormData(prev => ({
         ...prev,
-        is_featured: !prev.is_featured
+        is_featured: newFeaturedState
       }))
       
       setIsDirty(false)
     } catch (error) {
-      console.error('Error toggling featured status', error)
-      console.error('Failed to update featured status:', error instanceof Error ? error.message : 'Failed to update featured status')
+      console.error('Error toggling feature', error)
+      toast({
+        title: 'Feature Toggle Failed',
+        description: error instanceof Error ? error.message : 'Failed to toggle feature',
+        variant: 'destructive'
+      })
+      throw error
     } finally {
       setIsFeaturing(false)
     }
   }, [formData.id, formData.is_featured, onFeatureToggle, entityType])
-
   // Render a single form field
   const renderField = useCallback(<K extends keyof T>(
     field: EntityField<T, K> & { key: K }
@@ -620,19 +652,27 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
           )}
           
           {onDelete && !isNew && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-              disabled={isDeleting}
+            <DestructiveDialog
+              title={`Delete ${entityType}`}
+              description={`Are you sure you want to delete this ${entityType.toLowerCase()}? This action cannot be undone.`}
+              actionLabel="Delete"
+              onConfirm={handleDeleteConfirm}
+              onSuccess={() => {}}
+              onError={(error) => {}}
             >
-              {isDeleting ? (
-                <InlineSpinner size={16} />
-              ) : (
-                <X className="mr-2 h-4 w-4" />
-              )}
-              Delete
-            </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <InlineSpinner size={16} />
+                ) : (
+                  <X className="mr-2 h-4 w-4" />
+                )}
+                Delete
+              </Button>
+            </DestructiveDialog>
           )}
           
           {onFeatureToggle && user?.email === 'keith-woods@bisk.com' && (

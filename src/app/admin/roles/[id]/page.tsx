@@ -6,6 +6,7 @@ import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDeta
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { InfoIcon } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
@@ -294,13 +295,21 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               // Validate file type
               const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
               if (!allowedTypes.includes(file.type)) {
-                alert('Invalid file type. Only JPG, PNG, and WebP files are allowed.')
+                toast({
+                  title: 'Invalid File Type',
+                  description: 'Only JPG, PNG, and WebP files are allowed.',
+                  variant: 'destructive'
+                })
                 return
               }
 
               // Validate file size (5MB)
               if (file.size > 5 * 1024 * 1024) {
-                alert('File too large. Maximum file size is 5MB.')
+                toast({
+                  title: 'File Too Large',
+                  description: 'Maximum file size is 5MB.',
+                  variant: 'destructive'
+                })
                 return
               }
 
@@ -311,7 +320,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               img.onload = async () => {
                 // Check minimum dimensions (800x600)
                 if (img.width < 800 || img.height < 600) {
-                  alert(`Image too small. Minimum size is 800×600 pixels. Your image is ${img.width}×${img.height}.`)
+                  toast({
+                    title: 'Image Too Small',
+                    description: `Minimum size is 800×600 pixels. Your image is ${img.width}×${img.height}.`,
+                    variant: 'destructive'
+                  })
                   URL.revokeObjectURL(previewUrl)
                   return
                 }
@@ -335,9 +348,16 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
 
                   const result = await response.json()
                   onChange(result.image_url)
-                  alert('Image uploaded successfully!')
+                  toast({
+                    title: 'Image Uploaded',
+                    description: 'Image uploaded successfully!'
+                  })
                 } catch (error) {
-                  alert(error instanceof Error ? error.message : 'Failed to upload image')
+                  toast({
+                    title: 'Upload Failed',
+                    description: error instanceof Error ? error.message : 'Failed to upload image',
+                    variant: 'destructive'
+                  })
                 } finally {
                   setUploading(false)
                   URL.revokeObjectURL(previewUrl)
@@ -345,7 +365,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               }
               
               img.onerror = () => {
-                alert('Invalid image. Could not load the selected file.')
+                toast({
+                  title: 'Invalid Image',
+                  description: 'Could not load the selected file.',
+                  variant: 'destructive'
+                })
                 URL.revokeObjectURL(previewUrl)
               }
               
@@ -777,14 +801,21 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                   }
                   
                   // Show success message
-                  alert('SEO metadata generated successfully! Click Save to persist changes.');
+                  toast({
+                    title: 'SEO Metadata Generated',
+                    description: 'Click Save to persist changes.'
+                  });
                 } else {
                   throw new Error(result.error || 'Unknown error from API');
                 }
               } catch (error: any) {
                 console.error('SEO generation failed:', error);
                 const errorMessage = error.message || 'Failed to generate SEO metadata. Please try again.';
-                alert(`SEO Generation Error: ${errorMessage}`);
+                toast({
+                  title: 'SEO Generation Failed',
+                  description: errorMessage,
+                  variant: 'destructive'
+                });
               } finally {
                 setIsGenerating(false);
               }
@@ -875,19 +906,27 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       (dataToSave as any).median_wage_manual_override = true;
     }
     
-    const savedRole = await handleSave(dataToSave);
-    
-    console.log('✅ Save result:', savedRole);
-    
-    // Clear local changes after successful save
-    // handleSave now updates the entity state, so we can safely clear localChanges
-    if (savedRole) {
-      setLocalChanges({});
-      console.log('🧹 Local changes cleared after save');
-    }
-    
-    if (savedRole && isNew) {
-      router.push(`/admin/roles/${savedRole.id}`);
+    try {
+      const savedRole = await handleSave(dataToSave);
+      
+      console.log('✅ Save result:', savedRole);
+      
+      // Clear local changes after successful save
+      // handleSave now updates the entity state, so we can safely clear localChanges
+      if (savedRole) {
+        setLocalChanges({});
+        console.log('🧹 Local changes cleared after save');
+      }
+      
+      if (savedRole && isNew) {
+        router.push(`/admin/roles/${savedRole.id}`);
+      }
+      
+      return savedRole;
+    } catch (error) {
+      console.error('❌ Save failed:', error);
+      // Re-throw so EntityDetailView can handle it
+      throw error;
     }
   };
 
