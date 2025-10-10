@@ -457,7 +457,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
               {/* Core Responsibilities */}
               <div>
-                <h3 className="font-semibold mb-4 text-white">Core Responsibilities</h3>
+                <h3 className="font-semibold mb-4 text-white flex items-center gap-2">
+                  <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Core Responsibilities
+                </h3>
                 {(() => {
                   // Handle both array and JSON string formats
                   let responsibilities = job.core_responsibilities;
@@ -472,7 +477,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   return responsibilities && Array.isArray(responsibilities) && responsibilities.length > 0 ? (
                     <div className="grid grid-cols-2 gap-3">
                       {responsibilities.map((responsibility: string, index: number) => (
-                        <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                        <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20 transition-all duration-200 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
                           <span className="text-white text-sm">{responsibility}</span>
                         </div>
                       ))}
@@ -491,7 +496,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <>
                       <div className="border-t border-[#093A4B]"></div>
                       <div>
-                        <h3 className="font-semibold mb-4 text-white">Typical Tasks & Responsibilities</h3>
+                        <h3 className="font-semibold mb-4 text-white flex items-center gap-2">
+                          <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                          </svg>
+                          Typical Tasks & Responsibilities
+                        </h3>
                         <div className="grid grid-cols-2 gap-3">
                           {(() => {
                             // Deduplicate tasks by TaskDescription
@@ -499,7 +509,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                               index === self.findIndex((t: any) => t.TaskDescription === task.TaskDescription)
                             );
                             return uniqueTasks.slice(0, 8).map((task: any, index: number) => (
-                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20">
+                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20 transition-all duration-200 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
                                 <span className="text-white text-sm">{task.TaskDescription}</span>
                               </div>
                             ));
@@ -514,11 +524,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <>
                       <div className="border-t border-[#093A4B]"></div>
                       <div>
-                        <h3 className="font-semibold mb-4 text-white">Tools & Technology</h3>
+                        <h3 className="font-semibold mb-4 text-white flex items-center gap-2">
+                          <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Tools & Technology
+                        </h3>
                         <div className="text-sm text-white/70 mb-3">Software and equipment commonly used</div>
                         <div className="grid grid-cols-2 gap-3">
                           {job.tools_and_technology.slice(0, 12).map((tool: any, index: number) => (
-                            <div key={index} className="bg-[#0F3A47] rounded-lg p-3 border border-teal-500/20">
+                            <div key={index} className="bg-[#0F3A47] rounded-lg p-3 border border-teal-500/20 transition-all duration-200 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
                               <div className="text-sm font-medium text-white">
                                 {tool.ToolName || tool.TechnologyName}
                               </div>
@@ -537,19 +553,22 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <>
                       <div className="border-t border-[#093A4B]"></div>
                       <div>
-                        <h3 className="font-semibold mb-4 text-white">Career Video</h3>
+                        <h3 className="font-semibold mb-4 text-white flex items-center gap-2">
+                          <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Career Video
+                        </h3>
                         <a 
                           href={job.video_url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-3 text-white hover:text-teal-300 font-medium transition-colors"
+                          className="inline-flex items-center gap-2 text-white hover:text-teal-300 font-medium transition-colors group"
                         >
-                          <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
-                            <svg className="w-3 h-3 text-white ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                            </svg>
-                          </div>
                           Watch Career Video on CareerOneStop
+                          <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                          </svg>
                         </a>
                       </div>
                     </>
