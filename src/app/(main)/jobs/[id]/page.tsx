@@ -420,6 +420,32 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
+        {/* Unlock this Role Assessment */}
+        <div className="flex items-center gap-8 mb-12 p-8 bg-white rounded-2xl border">
+          <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+            <Image 
+              src="/assets/hero_occupations.jpg" 
+              alt="Assessment" 
+              width={64} 
+              height={64} 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Unlock this Role! Assess your skills to see your role readiness.
+            </h3>
+            <p className="text-gray-600 text-sm">
+              We'll assess your skills, show you how they align with industry benchmarks, and recommend top regional programs that can help close any gaps.
+            </p>
+          </div>
+          <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
+            <Link href={`/assessments/quiz/${job.id}`}>
+              Start Your Assessment →
+            </Link>
+          </Button>
+        </div>
+
         {/* Skills & Responsibilities */}
         <Card className="rounded-2xl mb-8 bg-[#114B5F] text-white border-0">
           <CardHeader>
