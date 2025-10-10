@@ -773,12 +773,10 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     console.log('✅ Save result:', savedRole);
     
     // Clear local changes after successful save
-    // Use setTimeout to ensure the role object has been updated first
+    // handleSave now updates the entity state, so we can safely clear localChanges
     if (savedRole) {
-      setTimeout(() => {
-        setLocalChanges({});
-        console.log('🧹 Local changes cleared after save');
-      }, 100);
+      setLocalChanges({});
+      console.log('🧹 Local changes cleared after save');
     }
     
     if (savedRole && isNew) {

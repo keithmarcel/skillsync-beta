@@ -60,6 +60,7 @@ export function useAdminEntity<T extends { id: string }>(
           .select()
           .single();
         if (error) throw error;
+        setEntity(data as T); // Update local entity state
         return data as T;
       } else {
         const { data, error } = await supabase
@@ -69,6 +70,7 @@ export function useAdminEntity<T extends { id: string }>(
           .select()
           .single();
         if (error) throw error;
+        setEntity(data as T); // Update local entity state
         return data as T;
       }
     } catch (err: any) {
