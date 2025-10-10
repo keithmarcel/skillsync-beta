@@ -374,6 +374,9 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
         )
         
       case 'currency':
+        // Strip $ and commas from display value for cleaner input
+        const currencyDisplayValue = displayValue ? String(displayValue).replace(/[$,]/g, '') : ''
+        
         return (
           <div className="space-y-2">
             <Label htmlFor={fieldId} className={error ? 'text-destructive' : ''}>
@@ -386,8 +389,12 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               <Input
                 id={fieldId}
                 type="text"
-                value={displayValue}
-                onChange={(e) => handleChange(field.key, e.target.value, field)}
+                value={currencyDisplayValue}
+                onChange={(e) => {
+                  // Strip $ and commas from input before saving
+                  const cleanValue = e.target.value.replace(/[$,]/g, '')
+                  handleChange(field.key, cleanValue, field)
+                }}
                 placeholder={field.placeholder}
                 disabled={field.disabled}
                 className={`pl-7 ${error ? 'border-destructive' : ''}`}
