@@ -706,25 +706,128 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       label: 'SEO & Metadata',
       fields: [
         {
+          key: 'og_title',
+          label: 'Open Graph Title',
+          type: EntityFieldType.TEXT,
+          placeholder: 'e.g., We\'re Hiring: Senior Software Engineer at TechCorp 🚀',
+          description: 'Title for social media shares (60-90 characters)'
+        },
+        {
+          key: 'og_description',
+          label: 'Open Graph Description',
+          type: EntityFieldType.TEXTAREA,
+          placeholder: 'e.g., Ready to level up your career? Join our innovative team and work on exciting projects with cutting-edge tech!',
+          description: 'Description for social media shares (150-200 characters)'
+        },
+        {
+          key: 'og_image',
+          label: 'Open Graph Image URL',
+          type: EntityFieldType.TEXT,
+          placeholder: 'e.g., https://skillsync.com/og-images/role-123.jpg',
+          description: 'Image URL for social media shares (1200×630px recommended)'
+        },
+        {
+          key: 'seo_generator',
+          label: 'AI SEO Generator',
+          type: EntityFieldType.CUSTOM,
+          render: () => {
+            const [isGenerating, setIsGenerating] = React.useState(false);
+            
+            const handleGenerate = async () => {
+              if (!role) return;
+              
+              setIsGenerating(true);
+              try {
+                const response = await fetch('/api/admin/seo-generator', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    title: role.title,
+                    company: role.company?.name,
+                    category: role.category,
+                    location_city: role.location_city,
+                    location_state: role.location_state,
+                    median_wage_usd: role.median_wage_usd,
+                    short_desc: role.short_desc,
+                    long_desc: role.long_desc,
+                    skills: role.skills,
+                    core_responsibilities: role.core_responsibilities,
+                    tasks: role.tasks,
+                    tools_and_technology: role.tools_and_technology
+                  })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                  // Update the form fields with generated data
+                  (role as any).seo_title = result.data.seo_title;
+                  (role as any).meta_description = result.data.meta_description;
+                  (role as any).og_title = result.data.og_title;
+                  (role as any).og_description = result.data.og_description;
+                  (role as any).slug = result.data.slug;
+                  
+                  // Force re-render
+                  window.location.reload();
+                }
+              } catch (error) {
+                console.error('SEO generation failed:', error);
+                alert('Failed to generate SEO metadata. Please try again.');
+              } finally {
+                setIsGenerating(false);
+              }
+            };
+            
+            return (
+              <AIGenerateButton
+                onClick={handleGenerate}
+                buttonText={isGenerating ? 'Generating...' : 'Generate SEO with AI'}
+                disabled={isGenerating || !role}
+                tooltipContent={{
+                  title: 'What happens when you click:',
+                  points: [
+                    'AI analyzes your role data from all tabs',
+                    'Reviews: Title, Company, Location, Salary',
+                    'Reviews: Descriptions, Skills, Responsibilities',
+                    'Reviews: Tasks, Tools, and Benefits',
+                    'Generates SEO-optimized titles and descriptions',
+                    'Creates social media (OG) tags',
+                    'Generates URL-friendly slug',
+                    'Follows best practices (character limits, keywords)'
+                  ]
+                }}
+              />
+            );
+          }
+        },
+        {
+          key: 'seo_divider',
+          label: '',
+          type: EntityFieldType.CUSTOM,
+          render: () => (
+            <div className="border-t border-gray-200 my-6"></div>
+          )
+        },
+        {
           key: 'seo_title',
           label: 'SEO Title',
           type: EntityFieldType.TEXT,
-          placeholder: 'e.g., Senior Software Engineer Job at TechCorp | SkillSync',
+          placeholder: 'e.g., Senior Software Engineer at TechCorp | Tampa, FL',
           description: 'Title tag for search engines (50-60 characters)'
         },
         {
           key: 'meta_description',
           label: 'Meta Description',
           type: EntityFieldType.TEXTAREA,
-          placeholder: 'e.g., Join TechCorp as a Senior Software Engineer. Work on cutting-edge technologies in a collaborative environment. Apply now!',
+          placeholder: 'e.g., Join TechCorp as a Senior Software Engineer in Tampa. Competitive salary, great benefits. Apply now!',
           description: 'Brief summary for search results (150-160 characters)'
         },
         {
           key: 'slug',
           label: 'URL Slug',
           type: EntityFieldType.TEXT,
-          placeholder: 'e.g., senior-software-engineer-techcorp',
-          description: 'User-friendly URL for this job posting'
+          placeholder: 'e.g., senior-software-engineer-techcorp-tampa',
+          description: 'User-friendly URL for this job posting (auto-generated by AI or enter manually)'
         }
       ]
     },
