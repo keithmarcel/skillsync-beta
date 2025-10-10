@@ -734,47 +734,6 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           description: 'Description for social media shares (150-200 characters)'
         },
         {
-          key: 'og_image',
-          label: 'Open Graph Image',
-          type: EntityFieldType.CUSTOM,
-          render: (value: any, formData: any, onChange: any) => {
-            // Use featured_image_url if og_image is not set
-            const displayValue = value || (formData as any).featured_image_url || '';
-            const isInherited = !value && (formData as any).featured_image_url;
-            
-            return (
-              <div className="space-y-3">
-                {/* Heading and Description */}
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-1">Social Media Share Image</h4>
-                  <p className="text-xs text-gray-600">
-                    Inheriting from your Featured Image. This image will appear when the role is shared on social media platforms like LinkedIn, Facebook, and Twitter.
-                  </p>
-                </div>
-
-                {/* Image Preview */}
-                {displayValue && (
-                  <div className="relative w-full max-w-md">
-                    <div className="aspect-[1.91/1] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                      <img 
-                        src={displayValue} 
-                        alt="Open Graph preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"%3E%3Crect fill="%23f3f4f6" width="1200" height="630"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-family="sans-serif" font-size="24"%3EImage not found%3C/text%3E%3C/svg%3E';
-                        }}
-                      />
-                    </div>
-                    <div className="absolute top-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 rounded-md shadow-sm">
-                      Inherited from Featured Image
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          }
-        },
-        {
           key: 'seo_generator',
           label: 'AI SEO Generator',
           type: EntityFieldType.CUSTOM,
@@ -846,6 +805,47 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                   ]
                 }}
               />
+            );
+          }
+        },
+        {
+          key: 'og_image',
+          label: 'Open Graph Image',
+          type: EntityFieldType.CUSTOM,
+          render: (value: any, formData: any, onChange: any) => {
+            // Use featured_image_url if og_image is not set
+            const displayValue = value || (formData as any).featured_image_url || '';
+            const isInherited = !value && (formData as any).featured_image_url;
+            
+            return (
+              <div className="space-y-3">
+                {/* Heading and Description */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">Social Media Share Image</h4>
+                  <p className="text-xs text-gray-600">
+                    Inheriting from your Featured Image. This image will appear when the role is shared on social media platforms like LinkedIn, Facebook, and Twitter.
+                  </p>
+                </div>
+
+                {/* Image Preview */}
+                {displayValue && (
+                  <div className="relative w-full max-w-md">
+                    <div className="aspect-[1.91/1] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                      <img 
+                        src={displayValue} 
+                        alt="Open Graph preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"%3E%3Crect fill="%23f3f4f6" width="1200" height="630"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-family="sans-serif" font-size="24"%3EImage not found%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                    </div>
+                    <div className="absolute top-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 rounded-md shadow-sm">
+                      Inherited from Featured Image
+                    </div>
+                  </div>
+                )}
+              </div>
             );
           }
         },
