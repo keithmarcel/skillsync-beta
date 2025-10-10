@@ -140,24 +140,36 @@ ROLE INFORMATION:
 - Description: ${description || 'Not provided'}
 
 YOUR TASK:
-1. Refine the O*NET tasks to be concise and professional (6-8 core responsibilities)
-2. Keep the best 10-12 tasks with importance ratings
+1. Create CORE RESPONSIBILITIES (6-8 items): High-level strategic duties and accountabilities
+   - What you're responsible for achieving
+   - Outcome-focused, not action-focused
+   - Example: "Maintain financial accuracy and compliance" NOT "Enter data into spreadsheets"
+   
+2. Create DAY-TO-DAY TASKS (10-12 items): Specific, granular daily actions
+   - What you actually do on a daily/weekly basis
+   - Action-focused, concrete activities
+   - Example: "Draft and proofread business correspondence" NOT "Ensure effective communication"
+   
 3. Organize tools by category (Software, Equipment, Technology)
 4. Fill any gaps if O*NET data is incomplete
-5. Remove redundancy and verbose language
+
+CRITICAL: Core Responsibilities and Day-to-Day Tasks MUST be distinctly different:
+- Responsibilities = Strategic, outcome-oriented, "what you own"
+- Tasks = Tactical, action-oriented, "what you do"
 
 Return JSON with this structure:
 {
-  "core_responsibilities": ["concise responsibility 1", "concise responsibility 2", ...],
-  "tasks": [{"task": "specific task", "importance": "High|Medium|Low"}, ...],
+  "core_responsibilities": ["strategic responsibility 1", "strategic responsibility 2", ...],
+  "tasks": [{"task": "specific daily action", "importance": "High|Medium|Low"}, ...],
   "tools_and_technology": [{"name": "tool name", "category": "Software|Equipment|Technology"}, ...]
 }
 
 GUIDELINES:
 - Keep O*NET data as the foundation - only refine and condense
-- Make responsibilities concise (no periods, action-oriented)
+- Make responsibilities outcome-focused (no periods, strategic)
+- Make tasks action-focused (specific verbs, concrete activities)
 - Ensure tools are industry-standard and realistic
-- Tasks should be measurable and specific`
+- NO OVERLAP between responsibilities and tasks`
 
   try {
     const response = await openai.chat.completions.create({
