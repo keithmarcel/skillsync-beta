@@ -1,236 +1,127 @@
 # SkillSync High-DemandOccupations Pivot (UI + Backend Context)
 
-**Status:** In Progress  
-**Branch:** `feature/high-demand-occupations-updates`  
+**Status:** Phase 1 Complete  
+**Branch:** `main` (Phase 1 merged)  
 **Updated:** October 9, 2025
 
 ## Context
 
-SkillSync's High-DemandOccupations (HDO) section is being redefined. Previously, the HDO Tab and HDO Details Page were wired directly into the assessment flow, allowing users to take skills assessments for generic occupations. That behavior is being deprecated in favor of a more data-driven discovery experience that surfaces regional insight and direct crossover with Featured Roles (Hiring Now) posted by employers.
+SkillSync's High-DemandOccupations (HDO) section has been successfully redefined. The HDO Tab and HDO Details Page are now discovery hubs that surface regional labor market data and connect with Featured Roles, completely disconnected from assessment flows. This pivot has been completed in phases.
 
 **Key Terminology:**
-- **Jobs** = Overarching bucket (includes both Occupations and Roles)
+- **Jobs** = Overarching bucket (includes bothOccupations and Roles)
 - **Occupations** = High-demand occupations (HDO) - general job outlines, labor market data
 - **Roles** = Featured Roles - company-sponsored, employer-paid positions
 - **Flow:**Occupations → Roles → Assessments → Role Readiness
 
-This pivot has multiple phases:
+---
 
-Phase 1 — UI and Routing Update (Disconnect HDO from Assessments)
+## Phase 1: Foundation & Data COMPLETE
 
-Goal:
+### 1A: UI & Routing Updates (Disconnect HDO from Assessments)
 
-Changes:
+**Completed:**
+- Removed "Take Assessment" and "Upload resume" from HDO table actions
+- Removed AVG Salary and Role Readiness columns
+- Added "Related Jobs" column with badge showing open roles count
+- Added "Education & Training" column with program matches count
+- Both columns link to occupation details with smooth scroll
+- Removed all assessment entry points from HDO details pages
 
-🧩 UI / Front-End
+### 1B: Featured Card Refinements
 
-### HDO Tab (Table View)
+**Completed:**
+- Standardized featured card component styling
+- Implemented "Load More" functionality (shows first 6, then reveals more)
+- Consistent responsive grid layouts
+- Clean empty states with proper messaging
 
-**✅ Remove:**
-- "Take Assessment" from Actions menu
-- "Upload your resume and take a skills assessment" from Actions menu
-- Separators in Actions menu
-- **AVG Salary** column
-- **Role Readiness** column
+### 1C: BLS 2024 Regional Data Upgrade
 
-**✅ Add:**
-- **Related Jobs** column
-  - Badge display: "4 Open Roles"
-  - Click behavior: Navigate to occupation details page with smooth scroll to `#open-roles`
-  - Data: Count of Featured Roles with matchingSOC code
-  
-- **Education & Training** column
-  - Badge display: "4 Matches"
-  - Click behavior: Navigate to occupation details page with smooth scroll to `#programs`
-  - Data: Count of programs with overlapping skills
+**Completed:**
+- Imported 105 wage records (35 occupations × 3 geographic areas)
+- Regional priority: Tampa-St. Petersburg MSA → Florida State → National
+- May 2024 OEWS data (2-year improvement over 2022)
+- FixedSOC code format (.00 suffix) for proper database matching
+- UI shows regional context with area names (e.g., "Tampa Bay Area")
 
-**📝 Note:** Category/industry column already exists - no changes needed”
+### 1D: O*NET Data Pipeline & Coverage
 
-HDO Details Page:
-
-Remove assessment entrypoints entirely.
-
-{{ ... }}
-
-Employers Hiring Now – a list of featured roles whose soc_code matches this occupation.
-
-Relevant Programs – based on shared skill overlap.
-
-Career Video – existing CareerOneStop embed remains.
-
-Add the standardized data source citation footer (BLS, CareerOneStop, O*NET).
-
-Ensure all UI action menus (contextual buttons, dropdowns, etc.) exclude “Take Assessment.”
-
-Routing Logic:
-
-HDO items route only to OccupationDetails (not to Assessment).
-
-Featured Roles remain the only entrypoint for assessments.
-
-Phase 2 — Backend / Schema Refactor and Admin Tools Rewiring
-
-Goal:
-Migrate all assessment generation, skills extraction, and quiz logic from HDO → Featured Roles, while preserving the original engine for legacy reference and ongoing HDO enrichment.
-
-Changes:
-
-⚙️ Backend / Schema
-
-Duplicate Skills Extractor Engine:
-
-Retain the current HDO-based skills_extractor logic and data structure.
-
-Create a duplicate instance specifically for Featured Roles (e.g., skills_extractor_featured).
-
-Both can use the same BLS/O*NET logic, but must draw SOC codes from different sources:
-
-HDO → high_demand_occupations.soc_code
-
-Featured Roles → featured_roles.soc_code
-
-Featured Roles extractor should allow per-employer customization, pulling their chosen SOC code as the seed for skills extraction.
-
-Schema Updates:
-
-Ensure featured_roles table includes:
-
-soc_code
-
-required_proficiency_threshold
-
-auto_invite_threshold
-
-skills (array or JSONB from skills extractor)
-
-related_program_ids
-
-Add indexes on soc_code to support cross-referencing between Featured Roles and High-Demand Occupations for the overlap logic.
-
-Admin Tools:
-
-Update the Employer Admin dashboard:
-
-Ensure each featured role has an editable SOC Code field.
-
-Validate that all user-facing fields (role title, description, salary, skills, category) are present and editable.
-
-Update system logic so that skills extraction pulls from Featured Role SOC codes instead of HDO ones.
-
-Assessment + Quiz Engine:
-
-No longer triggered from High-Demand Occupations.
-
-Now triggered only from Featured Role detail pages.
-
-Maintain full parity in results storage (assessment_results, skills_snapshot, etc.) so reporting and dashboards remain consistent.
-
-Phase 3 (Later) — Optional Enhancements
-
-(Claude doesn’t need to execute now but should keep in view for future planning)
-
-Introduce a “High-Demand Career Insights” dashboard summarizing which occupations have the strongest crossover with current Featured Roles.
-
-Add recommendation logic: “Based on your completed assessments, here are related high-demand careers and programs.”
-
-Expand data enrichment for HDO using additional BLS APIs (growth rate, projected demand).
-
-Key Outcomes
-
-Once complete:
-
-High-Demand Occupations become an exploratory learning view, not an assessment module.
-
-Featured Roles become the exclusive driver of assessments, skills extraction, and AI quiz generation.
-
-The Skills Extractor Engine supports dual contexts (regional occupations and live roles) with isolated schemas.
-
-The system architecture stays modular, maintaining a clean separation between static labor market data (HDO) and dynamic employer content (Featured Roles).
-
+**Completed:**
+- O*NET API integration via CareerOneStop service
+- Occupation enrichment service with AI supplementation
+- Current coverage: 79% responsibilities, 66% tasks, 0% tools
+- Enrichment script created and ready for full population
+- Featured roles strategy: Wait for AI-assistedSOC refinement before inheritance
 
 ---
 
-High-Demand Occupation Details Page Requirements
+## Phase 2: Data Architecture & Admin Tools (NEXT)
 
-Goal:
-Transform each occupation’s detail view into an informational intelligence hub that connects regional labor market data with live employer demand and educational pathways — without any assessment functionality.
+### 2A: Schema & Data
+-SOC code refinement with AI assistance for featured roles
+- Skills inheritance strategy fromSOC codes
+- Crosswalk logic forSOC matching and skill overlap queries
 
-Expected Outputs:
+### 2B: Admin Tools
+- O*NET data override system (companies customize inherited data)
+-SOC code auto-suggest with AI validation
+- Override tracking with restore defaults functionality
 
-Core Content
-
-Occupation Title, Description, and Category
-
-BLS Average Salary (optional, footer-cited only)
-
-Employment Outlook (optional if BLS data exists)
-
-CareerOneStop video embed for that SOC code
-
-Dynamic Overlap Blocks
-
-Employers Hiring Now
-
-Display Featured Roles (Hiring Now jobs) whose soc_code matches the current occupation’s SOC code.
-
-Each entry shows company logo, role title, and “View Details” button linking to the Featured Role detail page.
-
-If no overlap exists, show placeholder text: “No active roles currently match this occupation.”
-
-Relevant Education Programs
-
-Display programs that share overlapping skills with this occupation.
-
-Overlap determined via intersection of skills arrays between programs.skills and occupations.skills.
-
-Each entry includes:
-
-Program Title
-
-Provider Name
-
-Skill Overlap Count (e.g., “8 skills in common”)
-
-“View Program” button linking to Program Details page
-
-If no overlaps found, display: “No matching programs currently available in your region.”
-
-Data Source Footer
-
-Uniform footer on every HDO Details page:
-
-Data source: BLS 2022; CareerOneStop; ONET*
-Links open in new tab.
-
-Routing Logic
-
-“View Details” → navigates to HDO Details (/occupations/:socCode).
-
-“View Program” → navigates to Program Details (/programs/:id).
-
-“View Role” → navigates to Featured Role Detail (/jobs/:id).
-
-Technical Expectation:
-
-Introduce a crosswalk view or join table that relates occupations.soc_code → featured_roles.soc_code and occupations.skills → programs.skills.
-
-This crosswalk powers both the Employers Hiring Now and Relevant Education Programs sections dynamically.
-
-No assessments or quizzes may appear on this page.
-
+### 2C: Crosswalk Logic
+- Performance-optimized queries for related roles/programs
+- Caching strategies for real-time crosswalk data
+- Threshold logic for "relevant" matches
 
 ---
 
-🔹 Acceptance Checklist (Success Signals)
+## Technical Implementation
 
-Navigating to any HDO record → never launches an assessment.
+### Database State
+- 105 BLS wage records (May 2024)
+- 35 occupations with complete wage data
+- All jobs have education_level and employment_outlook
+- Regional priority working (Tampa → FL → US)
 
-HDO tab shows Employer and Program counts based on SOC cross-references.
+### Scripts Created
+- `import-all-occupations-oews-data.js` - Regional wage import
+- `enrich-jobs-with-onet-data.js` - Education/outlook enrichment
+- `enrich-hdo-occupation-details.js` - O*NET data enrichment
+- `check-onet-data-coverage.js` - Coverage analysis
 
-Featured Role details → launch assessment → writes to assessment_results.
+### Services & APIs
+- CareerOneStop API integration for O*NET data
+- AI generation services for content supplementation
+- Skills taxonomy mapper for cross-referencing
+- Occupation enrichment orchestrATOR
 
-Employer Admin can edit SOC codes and see linked Preferred Programs.
+---
 
-Skills Extractor for Featured Roles operates on role SOC codes, not HDO codes.
+## Key Outcomes Achieved
 
-Legacy HDO skills data remains untouched and queryable.
+- **High-DemandOccupations are now discovery hubs** - No assessment entry points
+- **Regional labor market data integrated** - May 2024 BLS data with Tampa priority
+- **Crosswalk foundation established** -SOC matching and badge displays working
+- **Featured Roles remain exclusive assessment entry points** - Clean separation maintained
+- **Data pipeline ready for expansion** - O*NET enrichment and AI supplementation
+- **UI polished with consistent interactions** - Icons, hover effects, smooth animations
+
+---
+
+## Success Metrics Met
+
+- [x] Navigating to any HDO record → never launches an assessment
+- [x] HDO tab shows Employer and Program counts based onSOC cross-references
+- [x] Featured Role details → launch assessment → writes to assessment_results
+- [x] Regional wage data displays correctly with Tampa Bay priority
+- [x] O*NET data pipeline established and enrichment scripts ready
+- [x] UI sections have consistent icons and hover interactions
+
+---
+
+## Legacy Data Preservation
+
+- Original HDO-based skills extraction logic preserved for reference
+- Assessment generation engine maintained for Featured Roles
+- All existing data structures remain intact and queryable
+- Clean architectural separation between static (HDO) and dynamic (Roles) content
