@@ -430,45 +430,74 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       label: 'Skills',
       fields: [
         {
-          key: 'skills',
-          label: 'Required Skills',
-          type: EntityFieldType.SELECT,
-          multiple: true,
-          options: skills?.map(skill => ({
-            value: skill.id,
-            label: skill.name,
-            group: skill.category
-          })) || [],
-          placeholder: 'Select skills required for this role...'
+          key: 'current_skills',
+          label: 'Currently Assigned Skills',
+          type: EntityFieldType.CUSTOM,
+          render: () => {
+            const [jobSkills, setJobSkills] = React.useState<any[]>([]);
+            const [loading, setLoading] = React.useState(true);
+
+            React.useEffect(() => {
+              if (role?.id) {
+                fetch(`/api/admin/roles/${role.id}/skills`)
+                  .then(res => res.json())
+                  .then(data => {
+                    setJobSkills(data.skills || []);
+                    setLoading(false);
+                  })
+                  .catch(() => setLoading(false));
+              }
+            }, [role?.id]);
+
+            if (loading) {
+              return <div className="text-sm text-gray-500">Loading skills...</div>;
+            }
+
+            if (jobSkills.length === 0) {
+              return (
+                <div className="text-sm text-gray-500 italic">
+                  No skills assigned yet. Use the extractor below to add skills.
+                </div>
+              );
+            }
+
+            return (
+              <div className="flex flex-wrap gap-2">
+                {jobSkills.map((js: any) => (
+                  <div
+                    key={js.id}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-sm"
+                  >
+                    <span className="font-medium text-blue-900">{js.name}</span>
+                    {js.weight && (
+                      <span className="text-xs text-blue-600">
+                        {Math.round(js.weight * 100)}%
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            );
+          }
         },
         {
-          key: 'skills_extractor_link',
-          label: 'AI Skills Extraction',
+          key: 'skills_extractor',
+          label: 'Extract & Curate Skills',
           type: EntityFieldType.CUSTOM,
-          render: (value: any, formData: any) => (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-medium text-blue-900 mb-2">Extract Skills with AI</h4>
-              <p className="text-sm text-blue-700 mb-3">
-                Use our AI-powered skills extractor to analyze this role and automatically suggest relevant skills from our taxonomy.
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  const socCode = (formData as any).soc_code;
-                  if (socCode) {
-                    window.open(`/admin/skills-extractor?soc=${socCode}`, '_blank');
-                  } else {
-                    alert('Please add a SOC Code first to use the skills extractor');
-                  }
-                }}
-                className="gap-2"
-              >
-                <span>Open Skills Extractor</span>
-                <span className="text-xs text-gray-500">→</span>
-              </Button>
-            </div>
-          )
+          render: (value: any, formData: any) => {
+            // TODO: Embed the full skills extractor component here
+            // For now, placeholder
+            return (
+              <div className="border rounded-lg p-6 bg-gray-50">
+                <p className="text-sm text-gray-600 mb-4">
+                  Skills extractor will be embedded here - scoped to SOC code: {(formData as any).soc_code || 'Not set'}
+                </p>
+                <p className="text-xs text-gray-500">
+                  This will allow extraction and curation without leaving this page.
+                </p>
+              </div>
+            );
+          }
         }
       ]
     },
