@@ -18,7 +18,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 // Comprehensive OEWS May 2024 data for all occupations
-// Format: SOC code without .00 suffix (database format)
+// Format: SOC code WITH .00 suffix to match jobs table format
 const comprehensiveData = [
   // Management Occupations
   { soc: '11-1021', tampa_wage: 112340, tampa_emp: 18920, fl_wage: 108760, fl_emp: 98560, us_wage: 115250, us_emp: 2735960 },
@@ -98,9 +98,12 @@ async function importAllOccupations() {
     const allRecords = []
     
     comprehensiveData.forEach(occ => {
+      // Add .00 suffix to match jobs table format
+      const socCode = occ.soc.includes('.') ? occ.soc : `${occ.soc}.00`
+      
       // Tampa MSA
       allRecords.push({
-        soc_code: occ.soc,
+        soc_code: socCode,
         area_code: '45300',
         area_name: 'Tampa-St. Petersburg-Clearwater, FL',
         median_wage: occ.tampa_wage,
@@ -112,7 +115,7 @@ async function importAllOccupations() {
       
       // Florida State
       allRecords.push({
-        soc_code: occ.soc,
+        soc_code: socCode,
         area_code: '12',
         area_name: 'Florida',
         median_wage: occ.fl_wage,
@@ -124,7 +127,7 @@ async function importAllOccupations() {
       
       // National
       allRecords.push({
-        soc_code: occ.soc,
+        soc_code: socCode,
         area_code: '0000000',
         area_name: 'United States',
         median_wage: occ.us_wage,
