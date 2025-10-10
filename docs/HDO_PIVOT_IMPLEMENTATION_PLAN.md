@@ -1,8 +1,8 @@
 # High-Demand Occupations Pivot - Implementation Plan
 
-**Status:** Phase 1 Complete, Phase 2 Planning  
-**Branch:** `main` (Phase 1 merged)  
-**Updated:** October 9, 2025  
+**Status:** Phase 2A Complete, Phase 2B In Progress  
+**Branch:** `main`  
+**Updated:** October 9, 2025 9:35 PM  
 **Owner:** Keith + Claude
 
 ---
@@ -604,17 +604,19 @@ node scripts/generate-soc-codes-for-featured-roles.js --role-id=UUID
 - ✅ All 8 featured roles now have accurate SOC codes
 - ✅ Corrected 4 roles with incorrect codes:
   - Power Design roles: `13-1082.00` → `11-9021.00` (Construction Managers)
-  - Business Development Manager: `11-2022.00` → `11-2021.00` (Marketing Managers)
+  - Business Development Manager: AI suggested `11-2021.00` → Manually corrected to `11-2022.00` (Sales Managers)
 - ✅ Verified 4 roles already had correct codes
 - ✅ Skills inheritance ready (roles will inherit from `soc_skills` table)
 
-**Current SOC Code Assignments:**
-- `43-6014.00` - Administrative Assistant (Raymond James)
-- `11-2021.00` - Business Development Manager (TECO)
-- `11-9021.00` - Mechanical Project Managers x3 (Power Design)
-- `13-2051.00` - Senior Financial Analyst (TD SYNNEX)
-- `41-1012.00` - Supervisor, Residential Inbound Sales (Spectrum)
-- `29-2055.00` - Surgical Technologist (BayCare)
+**Final Verified SOC Code Assignments:**
+- `43-6014.00` - Administrative Assistant (Raymond James) - Secretaries and Administrative Assistants
+- `11-2022.00` - Business Development Manager (TECO) - Sales Managers ✓
+- `11-9021.00` - Mechanical Project Managers x3 (Power Design) - Construction Managers
+- `13-2051.00` - Senior Financial Analyst (TD SYNNEX) - Financial Analysts
+- `41-1012.00` - Supervisor, Residential Inbound Sales (Spectrum) - First-Line Supervisors of Non-Retail Sales Workers
+- `29-2055.00` - Surgical Technologist (BayCare) - Surgical Technologists
+
+**Note:** Business Development Manager was initially AI-assigned to Marketing Managers but corrected to Sales Managers based on typical BDM responsibilities (client acquisition, revenue generation, sales strategy).
 
 ### Phase 2B: Admin Tools
 - [ ] Audit admin role editor
