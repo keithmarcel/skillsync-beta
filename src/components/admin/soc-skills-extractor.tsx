@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Sparkles, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { AIGenerateButton } from '@/components/admin/ai-generate-button';
 
 interface SOCSkillsExtractorProps {
   socCode: string;
@@ -141,10 +142,7 @@ export function SOCSkillsExtractor({ socCode, onSkillsUpdated }: SOCSkillsExtrac
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-teal-600" />
-          AI Skills Extraction
-        </CardTitle>
+        <CardTitle>AI Skills Extraction</CardTitle>
         <CardDescription>
           Extract and curate skills for SOC code: <strong>{socCode || 'Not set'}</strong>
         </CardDescription>
@@ -152,23 +150,28 @@ export function SOCSkillsExtractor({ socCode, onSkillsUpdated }: SOCSkillsExtrac
       <CardContent className="space-y-4">
         {/* Extract Button */}
         <div>
-          <Button
-            onClick={handleExtract}
-            disabled={isProcessing || !socCode}
-            className="gap-2"
-          >
-            {isProcessing && extractedSkills.length === 0 ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Extracting Skills...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4" />
-                Extract Skills with AI
-              </>
-            )}
-          </Button>
+          {isProcessing && extractedSkills.length === 0 ? (
+            <Button disabled className="gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Extracting Skills...
+            </Button>
+          ) : (
+            <AIGenerateButton
+              onClick={handleExtract}
+              buttonText="Extract Skills with AI"
+              disabled={!socCode}
+              tooltipContent={{
+                title: 'What happens when you click:',
+                points: [
+                  'AI analyzes your SOC code and job description',
+                  'Extracts 15-30 relevant skills from O*NET/Lightcast',
+                  'Auto-selects high confidence skills (≥85%)',
+                  'You can review and curate before saving',
+                  'No changes until you click Save'
+                ]
+              }}
+            />
+          )}
           {!socCode && (
             <p className="text-sm text-amber-600 mt-2">
               Please add a SOC Code in Basic Information first
