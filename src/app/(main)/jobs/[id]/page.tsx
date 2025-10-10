@@ -413,7 +413,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </h3>
             <p className="text-gray-600 text-sm">
               Take a quick skills assessment to see how you match this role. You'll receive a detailed readiness score, personalized skill gap analysis, and tailored program recommendations to help you succeed. {' '}
-              <Link href="/account/settings" className="text-[#0694A2] hover:text-[#057A85] font-medium inline-flex items-center gap-1">
+              <Link href="/account-settings" className="text-[#0694A2] hover:text-[#057A85] font-medium inline-flex items-center gap-1">
                 Enable job invitations in your profile →
               </Link>
             </p>
