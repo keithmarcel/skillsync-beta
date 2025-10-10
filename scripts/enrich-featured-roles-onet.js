@@ -37,7 +37,121 @@ if (specificRoleId) console.log(`Target: Single role ${specificRoleId}`)
 console.log('')
 
 /**
- * Generate O*NET-style data using AI based on SOC code and role details
+ * Fetch O*NET data from CareerOneStop API
+ */
+async function fetchONETData(socCode) {
+  const userId = process.env.COS_USERID
+  const token = process.env.COS_TOKEN
+  
+  if (!userId || !token) {
+    console.log('   ⚠️  CareerOneStop API credentials not found in environment')
+    return null
+  }
+
+  // Clean SOC code (remove .00 suffix for API)
+  const cleanSOC = socCode.replace('.00', '').replace('-', '')
+  
+  try {
+    const url = `https://api.careeronestop.org/v1/occupation/${userId}/${cleanSOC}/US`
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    })
+
+    if (!response.ok) {
+      console.log(`   ⚠️  CareerOneStop API error: ${response.status}`)
+      return null
+    }
+
+    const data = await response.json()
+    
+    if (!data.OccupationDetail || data.OccupationDetail.length === 0) {
+      console.log(`   ⚠️  No O*NET data found for SOC ${socCode}`)
+      return null
+    }
+
+    const occupation = data.OccupationDetail[0]
+    
+    return {
+      tasks: occupation.Tasks || occupation.TaskList || [],
+      tools: occupation.ToolsTechnology || occupation.Technology || [],
+      responsibilities: occupation.Tasks?.slice(0, 10) || []
+    }
+  } catch (error) {
+    console.log(`   ⚠️  O*NET fetch error: ${error.message}`)
+    return null
+  }
+}
+
+/**
+ * Refine O*NET data using AI - make concise and fill gaps
+ */
+async function refineONETDataWithAI(onetData, socCode, title, description) {
+  const prompt = `You are an O*NET data refinement expert. You have real O*NET data that needs to be refined: made more concise, professional, and any gaps filled.
+
+ORIGINAL O*NET DATA:
+${JSON.stringify(onetData, null, 2)}
+
+ROLE INFORMATION:
+- SOC Code: ${socCode}
+- Title: ${title}
+- Description: ${description || 'Not provided'}
+
+YOUR TASK:
+1. Refine the O*NET tasks to be concise and professional (6-8 core responsibilities)
+2. Keep the best 10-12 tasks with importance ratings
+3. Organize tools by category (Software, Equipment, Technology)
+4. Fill any gaps if O*NET data is incomplete
+5. Remove redundancy and verbose language
+
+Return JSON with this structure:
+{
+  "core_responsibilities": ["concise responsibility 1", "concise responsibility 2", ...],
+  "tasks": [{"task": "specific task", "importance": "High|Medium|Low"}, ...],
+  "tools_and_technology": [{"name": "tool name", "category": "Software|Equipment|Technology"}, ...]
+}
+
+GUIDELINES:
+- Keep O*NET data as the foundation - only refine and condense
+- Make responsibilities concise (no periods, action-oriented)
+- Ensure tools are industry-standard and realistic
+- Tasks should be measurable and specific`
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'You refine O*NET occupation data to be concise and professional while maintaining accuracy. Return only valid JSON.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.3,
+      response_format: { type: 'json_object' }
+    })
+
+    const content = response.choices[0].message.content
+    const data = JSON.parse(content)
+    
+    return {
+      responsibilities: data.core_responsibilities || [],
+      tasks: data.tasks || [],
+      tools: data.tools_and_technology || []
+    }
+  } catch (error) {
+    console.log(`   ❌ AI refinement error: ${error.message}`)
+    return null
+  }
+}
+
+/**
+ * Generate O*NET-style data using AI (fallback if API fails)
  */
 async function generateONETDataWithAI(socCode, title, description) {
   const prompt = `You are an O*NET occupation data expert. Generate realistic, professional occupation data for the following role.
@@ -254,15 +368,36 @@ async function main() {
       continue
     }
     
-    // Generate O*NET data using AI
-    console.log(`   🤖 Generating O*NET-style data with AI...`)
-    const description = role.long_desc || role.short_desc || ''
-    const onetData = await generateONETDataWithAI(role.soc_code, role.title, description)
+    // Step 1: Try to fetch real O*NET data from CareerOneStop API
+    console.log(`   🌐 Fetching O*NET data from CareerOneStop...`)
+    let rawONETData = await fetchONETData(role.soc_code)
     
-    if (!onetData) {
-      console.log(`   ❌ Failed to generate O*NET data`)
-      results.failed++
-      continue
+    const description = role.long_desc || role.short_desc || ''
+    let onetData
+    
+    if (rawONETData && (rawONETData.tasks?.length > 0 || rawONETData.tools?.length > 0)) {
+      // Step 2: Refine O*NET data with AI to make it concise
+      console.log(`   ✅ O*NET data fetched, refining with AI...`)
+      onetData = await refineONETDataWithAI(rawONETData, role.soc_code, role.title, description)
+      
+      if (!onetData) {
+        console.log(`   ⚠️  AI refinement failed, using raw O*NET data`)
+        onetData = {
+          responsibilities: rawONETData.responsibilities || [],
+          tasks: rawONETData.tasks || [],
+          tools: rawONETData.tools || []
+        }
+      }
+    } else {
+      // Fallback: Generate with AI if O*NET fetch failed
+      console.log(`   ⚠️  O*NET data unavailable, generating with AI...`)
+      onetData = await generateONETDataWithAI(role.soc_code, role.title, description)
+      
+      if (!onetData) {
+        console.log(`   ❌ Failed to generate O*NET data`)
+        results.failed++
+        continue
+      }
     }
 
     // Transform data (AI already returns in correct format, but ensure consistency)
