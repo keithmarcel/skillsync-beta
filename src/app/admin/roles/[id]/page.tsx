@@ -42,6 +42,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     location_city: null,
     location_state: null,
     median_wage_usd: null,
+    short_desc: null,
     long_desc: null,
     featured_image_url: null,
     skills_count: 0,
@@ -52,8 +53,18 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     job_openings_annual: null,
     growth_rate_percent: null,
     required_proficiency_pct: null,
-    // Company-specific fields for featured roles
+    // O*NET enrichment fields
     core_responsibilities: null,
+    tasks: null,
+    tools_and_technology: null,
+    related_job_titles: null,
+    onet_code: null,
+    bright_outlook: null,
+    bright_outlook_category: null,
+    video_url: null,
+    // Work location
+    work_location_type: null,
+    // Legacy company-specific fields (may remove later)
     growth_opportunities: null,
     team_structure: null,
     work_environment: null,
@@ -123,16 +134,29 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           placeholder: 'e.g., Tampa, FL or Remote'
         },
         {
-          key: 'employment_type',
+          key: 'job_type',
           label: 'Employment Type',
           type: EntityFieldType.SELECT,
+          placeholder: 'Select employment type',
           options: [
-            { value: 'full_time', label: 'Full-time' },
-            { value: 'part_time', label: 'Part-time' },
-            { value: 'contract', label: 'Contract' },
-            { value: 'temporary', label: 'Temporary' },
-            { value: 'internship', label: 'Internship' },
-            { value: 'volunteer', label: 'Volunteer' }
+            { value: 'Full-time', label: 'Full-time' },
+            { value: 'Part-time', label: 'Part-time' },
+            { value: 'Contract', label: 'Contract' },
+            { value: 'Temporary', label: 'Temporary' },
+            { value: 'Internship', label: 'Internship' },
+            { value: 'Volunteer', label: 'Volunteer' }
+          ]
+        },
+        {
+          key: 'work_location_type',
+          label: 'Work Location',
+          type: EntityFieldType.SELECT,
+          placeholder: 'Select work arrangement',
+          description: 'Where will this role be performed?',
+          options: [
+            { value: 'Onsite', label: 'Onsite' },
+            { value: 'Remote', label: 'Remote' },
+            { value: 'Hybrid', label: 'Hybrid' }
           ]
         },
         {
@@ -215,32 +239,23 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     },
     {
       id: 'description',
-      label: 'Job Description',
+      label: 'Descriptions',
       fields: [
         {
-          key: 'description',
-          label: 'Job Description',
+          key: 'short_desc',
+          label: 'Short Description (for cards)',
+          type: EntityFieldType.TEXTAREA,
+          placeholder: 'Enter a brief description (13-15 words, ~95 characters)',
+          description: 'This appears on role cards in listings',
+          helpText: 'Keep it concise and compelling - this is the first thing users see'
+        },
+        {
+          key: 'long_desc',
+          label: 'Full Job Description',
           type: EntityFieldType.TEXTAREA,
           required: true,
-          placeholder: 'Enter a detailed job description...'
-        },
-        {
-          key: 'responsibilities',
-          label: 'Key Responsibilities',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'List the key responsibilities for this role...'
-        },
-        {
-          key: 'requirements',
-          label: 'Requirements',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'List the requirements for this role...'
-        },
-        {
-          key: 'benefits',
-          label: 'Benefits',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'List the benefits for this role...'
+          placeholder: 'Enter a detailed job description...',
+          description: 'This appears on the role detail page'
         }
       ]
     },

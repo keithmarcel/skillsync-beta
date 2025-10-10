@@ -27,7 +27,16 @@ export interface Job {
   // AI-generated content fields
   core_responsibilities: string[] | null;
   related_job_titles: string[] | null;
-  // Company-specific fields for featured roles
+  // O*NET enrichment fields
+  onet_code: string | null;
+  bright_outlook: string | null;
+  bright_outlook_category: string | null;
+  video_url: string | null;
+  tasks: any | null; // JSONB array of tasks
+  tools_and_technology: any | null; // JSONB array of tools
+  // Work location
+  work_location_type: string | null;
+  // Company-specific fields for featured roles (legacy - may remove)
   growth_opportunities: string | null;
   team_structure: string | null;
   work_environment: string | null;
