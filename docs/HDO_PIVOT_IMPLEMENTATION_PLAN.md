@@ -1,8 +1,8 @@
 # High-Demand Occupations Pivot - Implementation Plan
 
-**Status:** Phase 2A Complete, Phase 2B In Progress  
+**Status:** Phase 2A Complete + O*NET Enrichment Complete, Phase 2B Next  
 **Branch:** `main`  
-**Updated:** October 9, 2025 9:35 PM  
+**Updated:** October 9, 2025 9:46 PM  
 **Owner:** Keith + Claude
 
 ---
@@ -617,6 +617,43 @@ node scripts/generate-soc-codes-for-featured-roles.js --role-id=UUID
 - `29-2055.00` - Surgical Technologist (BayCare) - Surgical Technologists
 
 **Note:** Business Development Manager was initially AI-assigned to Marketing Managers but corrected to Sales Managers based on typical BDM responsibilities (client acquisition, revenue generation, sales strategy).
+
+---
+
+### ✅ O*NET Data Enrichment (October 9, 2025)
+
+**Goal:** Populate baseline O*NET content for all featured roles based on their SOC codes.
+
+**Script Created:** `/scripts/enrich-featured-roles-onet.js`
+- AI-powered O*NET-style data generation using GPT-4o-mini
+- Generates professional occupation data based on SOC code + role description
+- Populates: Core Responsibilities, Tasks (with importance), Tools & Technology
+
+**Results:**
+- ✅ **8/8 featured roles** successfully enriched with O*NET data
+- ✅ **7-8 core responsibilities** per role (high-level duties)
+- ✅ **11-12 detailed tasks** per role (with importance ratings)
+- ✅ **10 tools & technology** per role (categorized by type)
+
+**Data Quality:**
+- Professional O*NET-style language
+- Specific to each occupation's SOC code
+- Industry-standard tools and technologies
+- Measurable, actionable task descriptions
+
+**Featured Roles Now Have:**
+1. **Senior Financial Analyst** - 7 responsibilities, 12 tasks, 10 tools
+2. **Surgical Technologist** - 8 responsibilities, 12 tasks, 10 tools
+3. **Business Development Manager** - 7 responsibilities, 12 tasks, 10 tools
+4. **Senior Mechanical Project Manager** - 8 responsibilities, 12 tasks, 10 tools
+5. **Administrative Assistant** - 8 responsibilities, 12 tasks, 10 tools
+6. **Mechanical Project Manager** - 7 responsibilities, 12 tasks, 10 tools
+7. **Mechanical Assistant Project Manager** - 7 responsibilities, 12 tasks, 10 tools
+8. **Supervisor, Residential Inbound Sales** - 8 responsibilities, 11 tasks, 10 tools
+
+**Next:** Phase 2B will add admin override system to customize this baseline O*NET data.
+
+---
 
 ### Phase 2B: Admin Tools
 - [ ] Audit admin role editor
