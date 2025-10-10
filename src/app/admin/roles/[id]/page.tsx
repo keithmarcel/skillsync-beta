@@ -88,13 +88,14 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           type: EntityFieldType.TEXT,
           required: true,
           placeholder: 'e.g., Senior Software Engineer',
-          description: 'Displayed on role cards and detail page header'
+          description: '📍 Shown on: Role Card, Role Details Page (header)'
         },
         {
           key: 'soc_code',
           label: 'SOC Code',
           type: EntityFieldType.CUSTOM,
-          description: 'Standard Occupational Classification - used for skills and O*NET data',
+          description: '📍 Shown on: Backend only (used for skills/O*NET matching)',
+          helpText: 'Standard Occupational Classification - not visible to users',
           component: ({ value, onChange, entity }: any) => {
             const handleAccept = (socCode: string) => {
               onChange(socCode)
@@ -147,6 +148,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           required: true,
           disabled: isCompanyAdmin, // Company admins can't change company
           placeholder: 'Select a company',
+          description: '📍 Shown on: Role Card, Role Details Page (header)',
           options: companies.map(company => ({
             value: company.id,
             label: company.name
@@ -168,6 +170,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           type: EntityFieldType.SELECT,
           required: true,
           placeholder: 'Select a category',
+          description: '📍 Shown on: Role Card (badge), Role Details Page',
           options: [
             { value: 'Business', label: 'Business' },
             { value: 'Health & Education', label: 'Health & Education' },
@@ -184,7 +187,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Employment Type',
           type: EntityFieldType.SELECT,
           placeholder: 'Select employment type',
-          description: '✅ Displayed on role cards and detail page',
+          description: '📍 Shown on: Role Card (pill), Role Details Page',
           options: [
             { value: 'Full-time', label: 'Full-time' },
             { value: 'Part-time', label: 'Part-time' },
@@ -199,7 +202,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Work Location',
           type: EntityFieldType.SELECT,
           placeholder: 'Select work arrangement',
-          description: '✅ Displayed on detail page (Onsite/Remote/Hybrid)',
+          description: '📍 Shown on: Role Details Page only',
           options: [
             { value: 'Onsite', label: 'Onsite' },
             { value: 'Remote', label: 'Remote' },
@@ -211,20 +214,21 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'City',
           type: EntityFieldType.TEXT,
           placeholder: 'e.g., Tampa',
-          description: '✅ Displayed on detail page'
+          description: '📍 Shown on: Role Details Page only'
         },
         {
           key: 'location_state',
           label: 'State',
           type: EntityFieldType.TEXT,
           placeholder: 'e.g., FL',
-          description: '✅ Displayed on detail page'
+          description: '📍 Shown on: Role Details Page only'
         },
         {
           key: 'experience_level',
           label: 'Experience Level',
           type: EntityFieldType.SELECT,
-          description: '❌ Not currently displayed (move to Additional Details)',
+          description: '📍 Shown on: Not currently displayed',
+          helpText: '⚠️ Candidate for Additional Details tab',
           options: [
             { value: 'entry', label: 'Entry Level' },
             { value: 'mid_level', label: 'Mid Level' },
@@ -237,7 +241,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'education_level',
           label: 'Education Requirements',
           type: EntityFieldType.CUSTOM,
-          description: '✅ Displayed on detail page',
+          description: '📍 Shown on: Role Details Page only',
+          helpText: 'O*NET baseline shown above, override if needed',
           component: ({ value, onChange, entity }: any) => (
             <div className="space-y-3">
               {entity.education_level && (
@@ -263,7 +268,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Median Salary',
           type: EntityFieldType.CURRENCY,
           placeholder: 'e.g., 75000',
-          description: '✅ Displayed on role cards and detail page',
+          description: '📍 Shown on: Role Card, Role Details Page',
           format: (value: number | null) => value ? formatCurrency(value) : '',
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
         },
@@ -271,7 +276,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'featured_image_url',
           label: 'Featured Image',
           type: EntityFieldType.CUSTOM,
-          description: '✅ Hero image on detail page (displays at 800×600px)',
+          description: '📍 Shown on: Role Details Page only (hero image, 800×600px)',
+          helpText: 'Recommended upload size: 1600×1200px (2x for retina)',
           component: ({ value, onChange }: any) => (
             <div className="space-y-3">
               {value && (
@@ -318,9 +324,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       fields: [
         {
           key: 'short_desc',
-          label: 'Short Description (for cards)',
+          label: 'Short Description',
           type: EntityFieldType.CUSTOM,
-          description: '✅ This appears on role cards in listings (13-15 words, ~95 characters)',
+          description: '📍 Shown on: Role Card only (13-15 words, ~95 characters)',
           component: ({ value, onChange }: any) => (
             <div className="space-y-2">
               <textarea
@@ -354,7 +360,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Full Job Description',
           type: EntityFieldType.CUSTOM,
           required: true,
-          description: '✅ This appears on the role detail page',
+          description: '📍 Shown on: Role Details Page only',
           component: ({ value, onChange }: any) => (
             <div className="space-y-2">
               <textarea
