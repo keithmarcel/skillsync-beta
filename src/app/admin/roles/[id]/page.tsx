@@ -564,8 +564,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'core_responsibilities',
           label: 'Core Responsibilities',
           type: EntityFieldType.CUSTOM,
-          render: (value: any, formData: any, onChange: any) => {
+          render: () => {
             // Parse responsibilities from JSON string or array
+            const value = role?.core_responsibilities;
             let responsibilities: string[] = [];
             if (typeof value === 'string') {
               try {
@@ -577,10 +578,17 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               responsibilities = value;
             }
 
+            const handleChange = (items: string[]) => {
+              // Update the role object directly
+              if (role) {
+                (role as any).core_responsibilities = JSON.stringify(items);
+              }
+            };
+
             return (
               <DraggableCardEditor
                 items={responsibilities}
-                onChange={(items) => onChange(JSON.stringify(items))}
+                onChange={handleChange}
                 title="Core Responsibilities"
                 description="These appear as cards on the role detail page. Drag to reorder, click edit to modify text."
                 maxItems={12}
@@ -592,8 +600,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'tasks',
           label: 'Day-to-Day Tasks',
           type: EntityFieldType.CUSTOM,
-          render: (value: any, formData: any, onChange: any) => {
+          render: () => {
             // Parse tasks - handle both old format (objects) and new format (strings)
+            const value = role?.tasks;
             let tasks: string[] = [];
             if (Array.isArray(value)) {
               tasks = value.map((task: any) => {
@@ -602,10 +611,16 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               }).filter(Boolean);
             }
 
+            const handleChange = (items: string[]) => {
+              if (role) {
+                (role as any).tasks = items.map(task => ({ task }));
+              }
+            };
+
             return (
               <DraggableCardEditor
                 items={tasks}
-                onChange={(items) => onChange(items.map(task => ({ task })))}
+                onChange={handleChange}
                 title="Day-to-Day Tasks"
                 description="Typical tasks for this role. These appear as cards on the detail page. Drag to reorder."
                 maxItems={12}
@@ -617,8 +632,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'tools_and_technology',
           label: 'Tools & Technology',
           type: EntityFieldType.CUSTOM,
-          render: (value: any, formData: any, onChange: any) => {
+          render: () => {
             // Parse tools - handle both old format (objects) and new format (strings)
+            const value = role?.tools_and_technology;
             let tools: string[] = [];
             if (Array.isArray(value)) {
               tools = value.map((tool: any) => {
@@ -627,10 +643,16 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               }).filter(Boolean);
             }
 
+            const handleChange = (items: string[]) => {
+              if (role) {
+                (role as any).tools_and_technology = items.map(tool => ({ name: tool }));
+              }
+            };
+
             return (
               <DraggableCardEditor
                 items={tools}
-                onChange={(items) => onChange(items.map(tool => ({ name: tool })))}
+                onChange={handleChange}
                 title="Commonly Used Tools & Technology"
                 description="Tools, software, and technology used in this role. These appear as cards on the detail page."
                 maxItems={15}
