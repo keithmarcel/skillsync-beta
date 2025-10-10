@@ -86,7 +86,41 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Job Title',
           type: EntityFieldType.TEXT,
           required: true,
-          placeholder: 'e.g., Senior Software Engineer'
+          placeholder: 'e.g., Senior Software Engineer',
+          description: 'Displayed on role cards and detail page header'
+        },
+        {
+          key: 'soc_code',
+          label: 'SOC Code',
+          type: EntityFieldType.TEXT,
+          placeholder: 'e.g., 13-1082.00',
+          description: 'Standard Occupational Classification - used for skills and O*NET data',
+          helpText: '💡 Use AI Suggest below if unsure'
+        },
+        {
+          key: 'soc_suggest',
+          label: 'AI SOC Suggestion',
+          type: EntityFieldType.CUSTOM,
+          description: 'Get AI-powered SOC code recommendations',
+          component: ({ entity }: any) => {
+            const handleAccept = (socCode: string) => {
+              const event = new Event('input', { bubbles: true })
+              const socInput = document.querySelector('input[name="soc_code"]') as HTMLInputElement
+              if (socInput) {
+                socInput.value = socCode
+                socInput.dispatchEvent(event)
+              }
+            }
+            
+            return (
+              <SocAutoSuggest
+                jobTitle={entity.title || ''}
+                jobDescription={entity.long_desc || ''}
+                onAccept={handleAccept}
+                disabled={!entity.title}
+              />
+            )
+          }
         },
         {
           key: 'company_id',
@@ -193,40 +227,6 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           description: 'Displayed on role cards and detail page',
           format: (value: number | null) => value ? formatCurrency(value) : '',
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
-        },
-        {
-          key: 'soc_code',
-          label: 'SOC Code',
-          type: EntityFieldType.TEXT,
-          placeholder: 'e.g., 13-1082',
-          description: 'Standard Occupational Classification code for government compliance'
-        },
-        {
-          key: 'soc_suggest',
-          label: 'AI SOC Suggestion',
-          type: EntityFieldType.CUSTOM,
-          description: 'Get AI-powered SOC code recommendations based on job title and description',
-          component: ({ entity, field }: any) => {
-            // Find the soc_code field to update it
-            const handleAccept = (socCode: string) => {
-              // Update the form data through the entity
-              const event = new Event('input', { bubbles: true })
-              const socInput = document.querySelector('input[name="soc_code"]') as HTMLInputElement
-              if (socInput) {
-                socInput.value = socCode
-                socInput.dispatchEvent(event)
-              }
-            }
-            
-            return (
-              <SocAutoSuggest
-                jobTitle={entity.title || ''}
-                jobDescription={entity.long_desc || entity.description || ''}
-                onAccept={handleAccept}
-                disabled={!entity.title}
-              />
-            )
-          }
         }
       ]
     },
