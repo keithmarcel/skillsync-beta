@@ -186,18 +186,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           ]
         },
         {
-          key: 'salary_min',
-          label: 'Minimum Salary',
+          key: 'median_wage_usd',
+          label: 'Median Salary',
           type: EntityFieldType.CURRENCY,
-          placeholder: 'e.g., 50000',
-          format: (value: number | null) => value ? formatCurrency(value) : '',
-          parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
-        },
-        {
-          key: 'salary_max',
-          label: 'Maximum Salary',
-          type: EntityFieldType.CURRENCY,
-          placeholder: 'e.g., 120000',
+          placeholder: 'e.g., 75000',
+          description: 'Displayed on role cards and detail page',
           format: (value: number | null) => value ? formatCurrency(value) : '',
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
         },
