@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(request: NextRequest) {
@@ -90,24 +90,26 @@ Example format:
   "slug": "senior-software-engineer-techcorp-tampa"
 }`;
 
-    const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1024,
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
       messages: [
+        {
+          role: 'system',
+          content: 'You are an expert SEO specialist. Return only valid JSON, no markdown formatting.',
+        },
         {
           role: 'user',
           content: prompt,
         },
       ],
+      temperature: 0.7,
+      max_tokens: 1024,
     });
 
-    const content = message.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type from Claude');
-    }
+    const responseText = completion.choices[0].message.content || '';
 
     // Parse the JSON response
-    const jsonMatch = content.text.match(/\{[\s\S]*\}/);
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('No JSON found in response');
     }
