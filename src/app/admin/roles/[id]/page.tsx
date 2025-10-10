@@ -402,19 +402,37 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               <span className="text-xs text-gray-500">
                 {value?.length || 0}/95 characters
               </span>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  // TODO: Implement AI generation
-                  alert('AI generation coming soon - will analyze role and generate compelling short description')
-                }}
-                className="gap-2"
-              >
-                <Sparkles className="h-4 w-4" />
-                Generate with AI
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // TODO: Implement AI generation
+                    alert('AI generation coming soon - will analyze role and generate compelling short description')
+                  }}
+                  className="gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Generate with AI
+                </Button>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
+                      <p className="text-sm">
+                        <strong>What happens when you click:</strong><br/>
+                        • AI analyzes your job title and full description<br/>
+                        • Generates a compelling 13-15 word summary<br/>
+                        • You can review and edit before saving<br/>
+                        • No changes until you click Save
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           )
         },
@@ -432,19 +450,38 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                 placeholder="Enter a detailed job description..."
                 className="w-full min-h-[200px] p-3 border rounded-md resize-none"
               />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  // TODO: Implement AI generation
-                  alert('AI generation coming soon - will analyze role and generate comprehensive description')
-                }}
-                className="gap-2"
-              >
-                <Sparkles className="h-4 w-4" />
-                Generate with AI
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // TODO: Implement AI generation
+                    alert('AI generation coming soon - will analyze role and generate comprehensive description')
+                  }}
+                  className="gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Generate with AI
+                </Button>
+                <TooltipProvider delayDuration={100}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
+                      <p className="text-sm">
+                        <strong>What happens when you click:</strong><br/>
+                        • AI analyzes your job title and requirements<br/>
+                        • Generates a comprehensive job description<br/>
+                        • Includes responsibilities and qualifications<br/>
+                        • You can review and edit before saving<br/>
+                        • No changes until you click Save
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           )
         }
@@ -471,15 +508,33 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'AI Skill Generation',
           type: EntityFieldType.CUSTOM,
           render: () => (
-            <Button 
-              variant="outline" 
-              className="w-full gap-2"
-              // TODO: Implement AI skill generation
-              onClick={() => {}}
-            >
-              <Sparkles className="h-4 w-4" />
-              Generate Skills with AI
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                className="flex-1 gap-2"
+                // TODO: Implement AI skill generation
+                onClick={() => {}}
+              >
+                <Sparkles className="h-4 w-4" />
+                Generate Skills with AI
+              </Button>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
+                    <p className="text-sm">
+                      <strong>What happens when you click:</strong><br/>
+                      • AI analyzes your job description<br/>
+                      • Suggests relevant skills from our taxonomy<br/>
+                      • You can review and select which to add<br/>
+                      • No changes until you click Save
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           )
         },
       ]
