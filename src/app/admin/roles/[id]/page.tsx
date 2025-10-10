@@ -36,13 +36,21 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
   // Track if there are unsaved card editor changes
   const hasLocalChanges = Object.keys(localChanges).length > 0;
   
+  // Track the last saved state to know when to clear local changes
+  const [lastSavedData, setLastSavedData] = React.useState<string>('');
+  
   // Clear local changes when role data updates (after save)
   React.useEffect(() => {
     if (role && !isLoadingRole) {
-      // Clear local changes when fresh data arrives from DB
-      setLocalChanges({});
+      const currentData = JSON.stringify(role);
+      if (currentData !== lastSavedData && lastSavedData !== '') {
+        // Fresh data arrived from DB, clear local changes
+        console.log('🔄 Fresh data from DB, clearing local changes');
+        setLocalChanges({});
+      }
+      setLastSavedData(currentData);
     }
-  }, [role?.updated_at, isLoadingRole]); // Only when updated_at changes (after save)
+  }, [role, isLoadingRole]); // Watch for any role changes
   
   // Debug: Log the role data to see what's being loaded
   React.useEffect(() => {
