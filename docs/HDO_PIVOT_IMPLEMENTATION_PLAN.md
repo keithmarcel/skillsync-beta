@@ -51,6 +51,22 @@ Transforming High-Demand Occupations from an assessment entry point into a disco
 - **4A:** Crosswalk UI - Related roles and programs display
 - **4B:** Advanced Caching - Materialized views for analytics
 - **4C:** Advanced Features - Video modals, skill gap analysis
+- **4D:** Program Skills Taxonomy Refactor - Ensure crosswalk consistency
+
+**Program Skills Architecture (Future Refactor):**
+When refactoring program skills to use SOC taxonomy for proper crosswalk:
+
+1. **CIP→SOC Pipeline** - Continue using existing CIP-to-SOC crosswalk
+2. **SOC Skills Lookup** - Check which SOC skills exist for the mapped SOC code(s)
+3. **Apply Taxonomy Skills** - Assign relevant SOC skills to programs
+4. **AI Gap Filling** - Use AI downstream to make connections when crosswalk data is insufficient
+5. **Validation** - Ensure program skills align with related occupation skills
+
+**Benefits:**
+- Consistent skills taxonomy across jobs and programs
+- Proper crosswalk between programs and occupations
+- AI enhancement when government data has gaps
+- Better program-to-job matching accuracy
 
 ---
 
