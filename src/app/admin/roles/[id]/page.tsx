@@ -182,27 +182,36 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         {
           key: 'soc_code',
           label: 'SOC Code',
-          type: EntityFieldType.CUSTOM,
+          type: EntityFieldType.TEXT,
           placeholder: 'e.g., 13-1082',
-          description: 'Standard Occupational Classification code for government compliance',
-          component: ({ value, onChange, entity }: any) => (
-            <div className="space-y-2">
-              <Input
-                value={value || ''}
-                onChange={(e: any) => onChange(e.target.value)}
-                placeholder="e.g., 13-1082"
-                className="mb-2"
-              />
+          description: 'Standard Occupational Classification code for government compliance'
+        },
+        {
+          key: 'soc_suggest',
+          label: 'AI SOC Suggestion',
+          type: EntityFieldType.CUSTOM,
+          description: 'Get AI-powered SOC code recommendations based on job title and description',
+          component: ({ entity, field }: any) => {
+            // Find the soc_code field to update it
+            const handleAccept = (socCode: string) => {
+              // Update the form data through the entity
+              const event = new Event('input', { bubbles: true })
+              const socInput = document.querySelector('input[name="soc_code"]') as HTMLInputElement
+              if (socInput) {
+                socInput.value = socCode
+                socInput.dispatchEvent(event)
+              }
+            }
+            
+            return (
               <SocAutoSuggest
                 jobTitle={entity.title || ''}
                 jobDescription={entity.long_desc || entity.description || ''}
-                onAccept={(socCode: string, socTitle: string) => {
-                  onChange(socCode)
-                }}
+                onAccept={handleAccept}
                 disabled={!entity.title}
               />
-            </div>
-          )
+            )
+          }
         }
       ]
     },
