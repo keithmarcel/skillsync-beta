@@ -735,7 +735,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         },
         {
           key: 'og_image',
-          label: 'Open Graph Image URL',
+          label: 'Open Graph Image',
           type: EntityFieldType.CUSTOM,
           render: (value: any, formData: any, onChange: any) => {
             // Use featured_image_url if og_image is not set
@@ -743,22 +743,52 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             const isInherited = !value && (formData as any).featured_image_url;
             
             return (
-              <div className="space-y-2">
-                <Input
-                  value={displayValue}
-                  onChange={(e: any) => onChange(e.target.value)}
-                  placeholder="e.g., https://skillsync.com/og-images/role-123.jpg"
-                />
-                <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                  <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>
+              <div className="space-y-3">
+                {/* Heading and Description */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">Social Media Share Image</h4>
+                  <p className="text-xs text-gray-600">
                     {isInherited 
-                      ? 'Inheriting from Featured Image. Enter a URL to override.'
-                      : 'Image URL for social media shares (1200×630px recommended)'
+                      ? 'Currently inheriting from your Featured Image. This image will appear when the role is shared on social media platforms like LinkedIn, Facebook, and Twitter.'
+                      : 'Custom image for social media shares. Recommended size: 1200×630px for optimal display across all platforms.'
                     }
-                  </span>
+                  </p>
+                </div>
+
+                {/* Image Preview */}
+                {displayValue && (
+                  <div className="relative w-full max-w-md">
+                    <div className="aspect-[1.91/1] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                      <img 
+                        src={displayValue} 
+                        alt="Open Graph preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"%3E%3Crect fill="%23f3f4f6" width="1200" height="630"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-family="sans-serif" font-size="24"%3EImage not found%3C/text%3E%3C/svg%3E';
+                        }}
+                      />
+                    </div>
+                    {isInherited && (
+                      <div className="absolute top-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 rounded-md shadow-sm">
+                        Inherited
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Editable URL Input */}
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-gray-700">Image URL</label>
+                  <Input
+                    value={displayValue}
+                    onChange={(e: any) => onChange(e.target.value)}
+                    placeholder="e.g., https://skillsync.com/og-images/role-123.jpg"
+                  />
+                  {isInherited && (
+                    <p className="text-xs text-gray-500">
+                      Enter a custom URL to override the inherited image
+                    </p>
+                  )}
                 </div>
               </div>
             );
