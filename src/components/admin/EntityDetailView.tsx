@@ -53,7 +53,7 @@ export interface EntityField<T = any, K extends keyof T = keyof T> {
   validate?: (value: T[K], formData: T) => string | undefined
   format?: (value: T[K]) => any
   parse?: (value: any) => T[K]
-  render?: (value: T[K], formData: T) => React.ReactNode
+  render?: (value: T[K], formData: T, onChange?: (newValue: any) => void, handleChange?: <K extends keyof T>(key: K, value: any) => void) => React.ReactNode
   groupBy?: string
   multiple?: boolean
   onClick?: (formData: T) => void
@@ -293,7 +293,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
     
     // Use custom render function if provided
     if (field.render) {
-      return field.render(value, formData)
+      return field.render(value, formData, (newValue: any) => handleChange(field.key, newValue, field), handleChange)
     }
     
     // Format value if format function is provided

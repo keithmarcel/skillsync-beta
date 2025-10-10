@@ -737,7 +737,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'seo_generator',
           label: 'AI SEO Generator',
           type: EntityFieldType.CUSTOM,
-          render: () => {
+          render: (value: any, formData: any, onChange: any, allOnChange: any) => {
             const [isGenerating, setIsGenerating] = React.useState(false);
             
             const handleGenerate = async () => {
@@ -767,16 +767,17 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                 const result = await response.json();
                 
                 if (result.success && result.data) {
-                  // Update the form fields with generated data
-                  (role as any).seo_title = result.data.seo_title;
-                  (role as any).meta_description = result.data.meta_description;
-                  (role as any).og_title = result.data.og_title;
-                  (role as any).og_description = result.data.og_description;
-                  (role as any).slug = result.data.slug;
-                  // og_image will inherit from featured_image_url automatically
+                  // Update the form fields with generated data using the form's onChange handlers
+                  if (allOnChange) {
+                    allOnChange('seo_title', result.data.seo_title);
+                    allOnChange('meta_description', result.data.meta_description);
+                    allOnChange('og_title', result.data.og_title);
+                    allOnChange('og_description', result.data.og_description);
+                    allOnChange('slug', result.data.slug);
+                  }
                   
-                  // Force re-render
-                  window.location.reload();
+                  // Show success message
+                  alert('SEO metadata generated successfully! Click Save to persist changes.');
                 } else {
                   throw new Error(result.error || 'Unknown error from API');
                 }
