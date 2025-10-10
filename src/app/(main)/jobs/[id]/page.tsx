@@ -260,12 +260,16 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">Role Location</div>
+                        <div className="text-sm opacity-80">
+                          {job.job_type || 'Full-Time'}
+                          {(job as any).work_location_type && `, ${(job as any).work_location_type}`}
+                        </div>
                         <div className="text-xl font-bold">
                           {job.location_city && job.location_state 
                             ? `${job.location_city}, ${job.location_state}`
                             : 'St. Petersburg, FL'}
                         </div>
+                        <div className="text-xs opacity-70 mt-1">Location</div>
                       </div>
                     </div>
                   ) : (
@@ -313,7 +317,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       </div>
                       <div>
                         <div className="text-sm opacity-80">Required Proficiency Score</div>
-                        <div className="text-xl font-bold">{job.proficiency_score ? `${job.proficiency_score}%` : 'Not specified'}</div>
+                        <div className="text-xl font-bold">{job.required_proficiency_pct ? `${job.required_proficiency_pct}%` : 'Not specified'}</div>
                       </div>
                     </div>
                   ) : (
@@ -500,7 +504,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                       </svg>
-                      Typical Tasks & Responsibilities
+                      Day-to-Day Tasks
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                       {(() => {
@@ -572,12 +576,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   BLS 2024
                 </a>
                 {'; '}
-                <a href="https://www.careeronestop.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
-                  CareerOneStop
-                </a>
-                {'; '}
               </>
             )}
+            <a href="https://www.careeronestop.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+              CareerOneStop
+            </a>
+            {'; '}
             <a href="https://www.onetonline.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
               O*NET
             </a>
