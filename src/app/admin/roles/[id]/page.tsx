@@ -748,10 +748,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                 <div>
                   <h4 className="text-sm font-medium text-gray-900 mb-1">Social Media Share Image</h4>
                   <p className="text-xs text-gray-600">
-                    {isInherited 
-                      ? 'Currently inheriting from your Featured Image. This image will appear when the role is shared on social media platforms like LinkedIn, Facebook, and Twitter.'
-                      : 'Custom image for social media shares. Recommended size: 1200×630px for optimal display across all platforms.'
-                    }
+                    Inheriting from your Featured Image. This image will appear when the role is shared on social media platforms like LinkedIn, Facebook, and Twitter.
                   </p>
                 </div>
 
@@ -768,28 +765,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                         }}
                       />
                     </div>
-                    {isInherited && (
-                      <div className="absolute top-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 rounded-md shadow-sm">
-                        Inherited
-                      </div>
-                    )}
+                    <div className="absolute top-2 right-2 bg-teal-600 text-white text-xs px-2 py-1 rounded-md shadow-sm">
+                      Inherited from Featured Image
+                    </div>
                   </div>
                 )}
-
-                {/* Editable URL Input */}
-                <div className="space-y-1">
-                  <label className="text-xs font-medium text-gray-700">Image URL</label>
-                  <Input
-                    value={displayValue}
-                    onChange={(e: any) => onChange(e.target.value)}
-                    placeholder="e.g., https://skillsync.com/og-images/role-123.jpg"
-                  />
-                  {isInherited && (
-                    <p className="text-xs text-gray-500">
-                      Enter a custom URL to override the inherited image
-                    </p>
-                  )}
-                </div>
               </div>
             );
           }
