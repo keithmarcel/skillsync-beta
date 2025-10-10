@@ -36,22 +36,6 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
   // Track if there are unsaved card editor changes
   const hasLocalChanges = Object.keys(localChanges).length > 0;
   
-  // Track the last saved state to know when to clear local changes
-  const [lastSavedData, setLastSavedData] = React.useState<string>('');
-  
-  // Clear local changes when role data updates (after save)
-  React.useEffect(() => {
-    if (role && !isLoadingRole) {
-      const currentData = JSON.stringify(role);
-      if (currentData !== lastSavedData && lastSavedData !== '') {
-        // Fresh data arrived from DB, clear local changes
-        console.log('🔄 Fresh data from DB, clearing local changes');
-        setLocalChanges({});
-      }
-      setLastSavedData(currentData);
-    }
-  }, [role, isLoadingRole]); // Watch for any role changes
-  
   // Debug: Log the role data to see what's being loaded
   React.useEffect(() => {
     if (role) {
@@ -788,9 +772,15 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     
     console.log('✅ Save result:', savedRole);
     
-    // Don't clear local changes - they'll be overwritten when role data refreshes
-    // The useAdminEntity hook should update the role with fresh data from DB
-    // Clearing localChanges here causes the UI to revert before role updates
+    // Clear local changes after successful save
+    // Use setTimeout to ensure the role object has been updated first
+    if (savedRole) {
+      setTimeout(() => {
+        setLocalChanges({});
+        console.log('🧹 Local changes cleared after save');
+      }, 100);
+    }
+    
     if (savedRole && isNew) {
       router.push(`/admin/roles/${savedRole.id}`);
     }
