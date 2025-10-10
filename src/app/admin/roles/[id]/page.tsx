@@ -238,9 +238,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           required: true,
           description: 'Shown on: Role Details Page only',
           helpText: (
-            <span className="flex items-center gap-1.5 text-xs text-amber-600">
+            <span className="flex items-center gap-1.5 text-xs text-gray-600">
               <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Inherits from O*NET/BLS data if available, can be overridden
             </span>
@@ -264,9 +264,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           placeholder: 'e.g., 75000',
           description: 'Shown on: Role Card, Role Details Page',
           helpText: (
-            <span className="flex items-center gap-1.5 text-xs text-amber-600">
+            <span className="flex items-center gap-1.5 text-xs text-gray-600">
               <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Inherits from BLS wage data (Tampa MSA) if available, can be overridden
             </span>
@@ -582,9 +582,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: '',
           type: EntityFieldType.CUSTOM,
           render: () => (
-            <div className="flex items-center gap-1.5 text-xs text-amber-600 mb-6 -mt-2">
+            <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-6 -mt-2">
               <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Inherits from O*NET occupational data based on SOC code, can be overridden</span>
             </div>
