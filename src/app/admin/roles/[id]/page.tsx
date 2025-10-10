@@ -942,9 +942,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         console.log('🗑️ Removing skills:', removedSkillIds);
         
         for (const skillId of removedSkillIds) {
-          await fetch(`/api/admin/roles/${role.id}/skills/${skillId}`, {
+          const response = await fetch(`/api/admin/roles/${role.id}/skills/${skillId}`, {
             method: 'DELETE'
           });
+          const result = await response.json();
+          console.log(`🗑️ Deleted skill ${skillId}:`, result);
         }
         
         // Remove from dataToSave so it doesn't try to save to jobs table
