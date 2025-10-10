@@ -85,7 +85,11 @@ export default function PageHeader({
     
     if (jobInfo) {
       let sub = ''
-      if (jobInfo.socCode) sub += `SOC Code: ${jobInfo.socCode}`
+      if (jobInfo.socCode) {
+        // Check if socCode is actually a SOC code format (XX-XXXX.XX) or a company name
+        const isSOCFormat = /^\d{2}-\d{4}\.\d{2}$/.test(jobInfo.socCode)
+        sub += isSOCFormat ? `SOC Code: ${jobInfo.socCode}` : jobInfo.socCode
+      }
       if (jobInfo.company) sub += sub ? ` • ${jobInfo.company}` : jobInfo.company
       return sub
     }
