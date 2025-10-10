@@ -722,9 +722,33 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         {
           key: 'og_image',
           label: 'Open Graph Image URL',
-          type: EntityFieldType.TEXT,
-          placeholder: 'e.g., https://skillsync.com/og-images/role-123.jpg',
-          description: 'Image URL for social media shares (1200×630px recommended)'
+          type: EntityFieldType.CUSTOM,
+          render: (value: any, formData: any, onChange: any) => {
+            // Use featured_image_url if og_image is not set
+            const displayValue = value || (formData as any).featured_image_url || '';
+            const isInherited = !value && (formData as any).featured_image_url;
+            
+            return (
+              <div className="space-y-2">
+                <Input
+                  value={displayValue}
+                  onChange={(e: any) => onChange(e.target.value)}
+                  placeholder="e.g., https://skillsync.com/og-images/role-123.jpg"
+                />
+                <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                  <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>
+                    {isInherited 
+                      ? 'Inheriting from Featured Image. Enter a URL to override.'
+                      : 'Image URL for social media shares (1200×630px recommended)'
+                    }
+                  </span>
+                </div>
+              </div>
+            );
+          }
         },
         {
           key: 'seo_generator',
@@ -766,6 +790,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                   (role as any).og_title = result.data.og_title;
                   (role as any).og_description = result.data.og_description;
                   (role as any).slug = result.data.slug;
+                  // og_image will inherit from featured_image_url automatically
                   
                   // Force re-render
                   window.location.reload();
