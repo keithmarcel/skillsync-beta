@@ -425,6 +425,12 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     return <div>Role not found.</div>;
   }
 
+  // Get company name for header
+  const companyName = role?.company?.name || companies.find(c => c.id === role?.company_id)?.name
+  const customTitle = !isNew && role?.title 
+    ? `Edit: ${role.title}${companyName ? ` (${companyName})` : ''}`
+    : undefined
+
   return (
     <EntityDetailView
       entity={role || defaultRole}
@@ -437,6 +443,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       onFeatureToggle={!isNew && isSuperAdmin ? onFeatureToggle : undefined}
       isNew={isNew}
       backHref="/admin/roles"
+      customTitle={customTitle}
+      alertMessage="You're editing live data. Changes will be reflected immediately after saving."
       viewHref={!isNew ? `/jobs/${role?.id}` : undefined}
     />
   )

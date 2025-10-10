@@ -90,6 +90,8 @@ export interface EntityDetailViewProps<T extends { id: string; status?: string; 
   loading?: boolean
   backHref: string
   viewHref?: string
+  customTitle?: string
+  alertMessage?: string
 }
 
 export function EntityDetailView<T extends { id: string; status?: string; is_featured?: boolean }>({
@@ -104,7 +106,9 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
   isNew = false,
   loading = false,
   backHref,
-  viewHref
+  viewHref,
+  customTitle,
+  alertMessage
 }: EntityDetailViewProps<T>) {
   const router = useRouter()
   const { user } = useAuth()
@@ -532,18 +536,24 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-bold">
-            {isNew ? `Create New ${entityType}` : `Edit ${entityType}`}
-          </h1>
-          {!isNew && formData.status === 'published' && (
-            <Badge variant="default">Published</Badge>
-          )}
-          {!isNew && formData.status === 'draft' && (
-            <Badge variant="outline">Draft</Badge>
-          )}
-          {!isNew && formData.is_featured && (
-            <Badge variant="secondary">Featured</Badge>
-          )}
+          <div>
+            <h1 className="text-2xl font-bold">
+              {customTitle || (isNew ? `Create New ${entityType}` : `Edit ${entityType}`)}
+            </h1>
+            {!isNew && !customTitle && (
+              <div className="flex items-center gap-2 mt-1">
+                {formData.status === 'published' && (
+                  <Badge variant="default">Published</Badge>
+                )}
+                {formData.status === 'draft' && (
+                  <Badge variant="outline">Draft</Badge>
+                )}
+                {formData.is_featured && (
+                  <Badge variant="secondary">Featured</Badge>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center space-x-2">
@@ -637,6 +647,18 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
           </Button>
         </div>
       </div>
+      
+      {/* Alert Banner */}
+      {alertMessage && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-blue-800">{alertMessage}</p>
+          </div>
+        </div>
+      )}
       
       {/* Main content */}
       <Tabs 
