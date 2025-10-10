@@ -278,6 +278,38 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
         },
         {
+          key: 'required_proficiency_pct',
+          label: 'Required Proficiency Score (%)',
+          type: EntityFieldType.NUMBER,
+          required: true,
+          placeholder: 'e.g., 90',
+          description: 'Minimum score for "Role Ready" status shown to job seekers',
+          helpText: (
+            <span className="flex items-center gap-1.5 text-xs text-gray-600">
+              <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Job seekers at or above this score see "Role Ready" status (default: 90%)
+            </span>
+          )
+        },
+        {
+          key: 'visibility_threshold_pct',
+          label: 'Employer Visibility Threshold (%)',
+          type: EntityFieldType.NUMBER,
+          required: true,
+          placeholder: 'e.g., 85',
+          description: 'Minimum score for candidates to appear in employer dashboard',
+          helpText: (
+            <span className="flex items-center gap-1.5 text-xs text-gray-600">
+              <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Candidates at or above this score appear in your candidate pool (default: 85%)
+            </span>
+          )
+        },
+        {
           key: 'featured_image_url',
           label: 'Featured Image',
           type: EntityFieldType.CUSTOM,

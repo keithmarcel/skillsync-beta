@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function DELETE(
   request: NextRequest,
@@ -10,15 +15,26 @@ export async function DELETE(
 
     console.log('🗑️ DELETE API called:', { jobId, skillId });
 
-    // Delete the job_skill relationship
-    const { data, error, count } = await supabase
-      .from('job_skills')
+    // First, get the job's SOC code
+    const { data: job, error: jobError } = await supabase
+      .from('jobs')
+      .select('soc_code')
+      .eq('id', jobId)
+      .single();
+
+    if (jobError || !job || !job.soc_code) {
+      throw new Error('Job or SOC code not found');
+    }
+
+    // Delete from soc_skills table (SOC taxonomy mapping)
+    const { data, error } = await supabase
+      .from('soc_skills')
       .delete()
-      .eq('job_id', jobId)
+      .eq('soc_code', job.soc_code)
       .eq('skill_id', skillId)
       .select();
 
-    console.log('🗑️ DELETE result:', { data, error, count });
+    console.log('🗑️ DELETE result:', { data, error, rowsDeleted: data?.length });
 
     if (error) {
       console.error('🗑️ DELETE error:', error);
