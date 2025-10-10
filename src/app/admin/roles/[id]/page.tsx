@@ -27,6 +27,22 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     handleDelete 
   } = useAdminEntity<Job>('jobs', params.id === 'new' ? null : params.id);
   
+  // Debug: Log the role data to see what's being loaded
+  React.useEffect(() => {
+    if (role) {
+      console.log('🔍 Role data loaded:', {
+        id: role.id,
+        title: role.title,
+        job_type: role.job_type,
+        median_wage_usd: role.median_wage_usd,
+        work_location_type: role.work_location_type,
+        location_city: role.location_city,
+        location_state: role.location_state,
+        education_level: role.education_level
+      });
+    }
+  }, [role]);
+  
   const { companies, isLoading: isLoadingCompanies } = useCompaniesList();
   const { skills, isLoading: isLoadingSkills } = useSkillsList();
 
