@@ -440,6 +440,35 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             group: skill.category
           })) || [],
           placeholder: 'Select skills required for this role...'
+        },
+        {
+          key: 'skills_extractor_link',
+          label: 'AI Skills Extraction',
+          type: EntityFieldType.CUSTOM,
+          render: (value: any, formData: any) => (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-900 mb-2">Extract Skills with AI</h4>
+              <p className="text-sm text-blue-700 mb-3">
+                Use our AI-powered skills extractor to analyze this role and automatically suggest relevant skills from our taxonomy.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  const socCode = (formData as any).soc_code;
+                  if (socCode) {
+                    window.open(`/admin/skills-extractor?soc=${socCode}`, '_blank');
+                  } else {
+                    alert('Please add a SOC Code first to use the skills extractor');
+                  }
+                }}
+                className="gap-2"
+              >
+                <span>Open Skills Extractor</span>
+                <span className="text-xs text-gray-500">→</span>
+              </Button>
+            </div>
+          )
         }
       ]
     },
