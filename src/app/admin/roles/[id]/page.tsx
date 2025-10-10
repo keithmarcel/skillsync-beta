@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { InfoIcon, Sparkles } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useAdminEntity } from '@/hooks/useAdminEntity';
 import { useCompaniesList } from '@/hooks/useCompaniesList';
 import { useSkillsList } from '@/hooks/useSkillsList';
 import { useAuth } from '@/hooks/useAuth';
 import { SocAutoSuggest } from '@/components/admin/soc-auto-suggest';
+import { AIGenerateButton } from '@/components/admin/ai-generate-button';
 import type { Job } from '@/lib/database/queries';
 
 export default function RoleDetailPage({ params }: { params: { id: string } }) {
@@ -402,37 +403,22 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               <span className="text-xs text-gray-500">
                 {value?.length || 0}/95 characters
               </span>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    // TODO: Implement AI generation
-                    alert('AI generation coming soon - will analyze role and generate compelling short description')
-                  }}
-                  className="gap-2"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Generate with AI
-                </Button>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
-                      <p className="text-sm">
-                        <strong>What happens when you click:</strong><br/>
-                        • AI analyzes your job title and full description<br/>
-                        • Generates a compelling 13-15 word summary<br/>
-                        • You can review and edit before saving<br/>
-                        • No changes until you click Save
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <AIGenerateButton
+                onClick={() => {
+                  // TODO: Implement AI generation
+                  alert('AI generation coming soon - will analyze role and generate compelling short description')
+                }}
+                buttonText="Generate with AI"
+                tooltipContent={{
+                  title: 'What happens when you click:',
+                  points: [
+                    'AI analyzes your job title and full description',
+                    'Generates a compelling 13-15 word summary',
+                    'You can review and edit before saving',
+                    'No changes until you click Save'
+                  ]
+                }}
+              />
             </div>
           )
         },
@@ -450,38 +436,23 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                 placeholder="Enter a detailed job description..."
                 className="w-full min-h-[200px] p-3 border rounded-md resize-none"
               />
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    // TODO: Implement AI generation
-                    alert('AI generation coming soon - will analyze role and generate comprehensive description')
-                  }}
-                  className="gap-2"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Generate with AI
-                </Button>
-                <TooltipProvider delayDuration={100}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
-                      <p className="text-sm">
-                        <strong>What happens when you click:</strong><br/>
-                        • AI analyzes your job title and requirements<br/>
-                        • Generates a comprehensive job description<br/>
-                        • Includes responsibilities and qualifications<br/>
-                        • You can review and edit before saving<br/>
-                        • No changes until you click Save
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
+              <AIGenerateButton
+                onClick={() => {
+                  // TODO: Implement AI generation
+                  alert('AI generation coming soon - will analyze role and generate comprehensive description')
+                }}
+                buttonText="Generate with AI"
+                tooltipContent={{
+                  title: 'What happens when you click:',
+                  points: [
+                    'AI analyzes your job title and requirements',
+                    'Generates a comprehensive job description',
+                    'Includes responsibilities and qualifications',
+                    'You can review and edit before saving',
+                    'No changes until you click Save'
+                  ]
+                }}
+              />
             </div>
           )
         }
@@ -508,33 +479,21 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'AI Skill Generation',
           type: EntityFieldType.CUSTOM,
           render: () => (
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                className="flex-1 gap-2"
+            <AIGenerateButton
+              onClick={() => {
                 // TODO: Implement AI skill generation
-                onClick={() => {}}
-              >
-                <Sparkles className="h-4 w-4" />
-                Generate Skills with AI
-              </Button>
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
-                    <p className="text-sm">
-                      <strong>What happens when you click:</strong><br/>
-                      • AI analyzes your job description<br/>
-                      • Suggests relevant skills from our taxonomy<br/>
-                      • You can review and select which to add<br/>
-                      • No changes until you click Save
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+              }}
+              buttonText="Generate Skills with AI"
+              tooltipContent={{
+                title: 'What happens when you click:',
+                points: [
+                  'AI analyzes your job description',
+                  'Suggests relevant skills from our taxonomy',
+                  'You can review and select which to add',
+                  'No changes until you click Save'
+                ]
+              }}
+            />
           )
         },
       ]
