@@ -482,7 +482,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   return responsibilities && Array.isArray(responsibilities) && responsibilities.length > 0 ? (
                     <div className="grid grid-cols-2 gap-3">
                       {responsibilities.map((responsibility: string, index: number) => (
-                        <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20 transition-all duration-200 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
+                        <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20 transition-all duration-150 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
                           <span className="text-white text-sm">{responsibility}</span>
                         </div>
                       ))}
@@ -514,7 +514,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                               index === self.findIndex((t: any) => t.TaskDescription === task.TaskDescription)
                             );
                             return uniqueTasks.slice(0, 8).map((task: any, index: number) => (
-                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20 transition-all duration-200 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
+                              <div key={index} className="bg-[#0F3A47] rounded-lg p-4 border border-teal-500/20 transition-all duration-150 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
                                 <span className="text-white text-sm">{task.TaskDescription}</span>
                               </div>
                             ));
@@ -539,7 +539,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         <div className="text-sm text-white/70 mb-3">Software and equipment commonly used</div>
                         <div className="grid grid-cols-2 gap-3">
                           {job.tools_and_technology.slice(0, 12).map((tool: any, index: number) => (
-                            <div key={index} className="bg-[#0F3A47] rounded-lg p-3 border border-teal-500/20 transition-all duration-200 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
+                            <div key={index} className="bg-[#0F3A47] rounded-lg p-3 border border-teal-500/20 transition-all duration-150 hover:scale-[1.02] hover:border-teal-400/40 hover:shadow-lg hover:shadow-teal-500/10 cursor-default">
                               <div className="text-sm font-medium text-white">
                                 {tool.ToolName || tool.TechnologyName}
                               </div>
