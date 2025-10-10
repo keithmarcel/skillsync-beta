@@ -261,7 +261,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     },
     {
       id: 'skills',
-      label: 'Skills & Assessments',
+      label: 'Skills',
       fields: [
         {
           key: 'skills',
@@ -293,68 +293,62 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       ]
     },
     {
-      id: 'company_details',
-      label: 'Company-Specific Details',
+      id: 'assessments',
+      label: 'Assessments',
+      fields: [
+        {
+          key: 'assessment_info',
+          label: 'Role Assessment',
+          type: EntityFieldType.CUSTOM,
+          render: () => (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Assessment Management</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                View and manage the skills assessment for this role. The assessment is automatically generated based on the required skills.
+              </p>
+              <Button variant="outline" className="w-full">
+                View/Edit Assessment Questions
+              </Button>
+            </div>
+          )
+        }
+      ]
+    },
+    {
+      id: 'role_details',
+      label: 'Role Details (O*NET Data)',
       fields: [
         {
           key: 'core_responsibilities',
           label: 'Core Responsibilities',
           type: EntityFieldType.TEXTAREA,
-          placeholder: 'Enter specific responsibilities for this role at your company...',
-          description: 'Company-specific responsibilities that differentiate this role'
+          placeholder: 'Enter core responsibilities (from O*NET or custom)...',
+          description: 'These appear as cards on the role detail page',
+          helpText: '🔜 Future: This will be a drag-and-drop card editor'
         },
         {
-          key: 'growth_opportunities',
-          label: 'Growth Opportunities',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'Describe career advancement and growth opportunities...',
-          description: 'How employees can advance in this role'
+          key: 'tasks_note',
+          label: 'Day-to-Day Tasks',
+          type: EntityFieldType.CUSTOM,
+          render: () => (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                📝 <strong>Note:</strong> Day-to-day tasks are automatically populated from O*NET data. Card-based editor coming soon.
+              </p>
+            </div>
+          )
         },
         {
-          key: 'team_structure',
-          label: 'Team Structure',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'Describe the team this role will work with...',
-          description: 'Team size, reporting structure, collaboration style'
-        },
-        {
-          key: 'work_environment',
-          label: 'Work Environment',
-          type: EntityFieldType.SELECT,
-          options: [
-            { value: 'office', label: 'Office-based' },
-            { value: 'remote', label: 'Remote' },
-            { value: 'hybrid', label: 'Hybrid' },
-            { value: 'field', label: 'Field work' },
-            { value: 'mixed', label: 'Mixed environment' }
-          ],
-          description: 'Primary work environment for this role'
-        },
-        {
-          key: 'travel_requirements',
-          label: 'Travel Requirements',
-          type: EntityFieldType.SELECT,
-          options: [
-            { value: 'none', label: 'No travel required' },
-            { value: 'minimal', label: 'Minimal (< 10%)' },
-            { value: 'occasional', label: 'Occasional (10-25%)' },
-            { value: 'frequent', label: 'Frequent (25-50%)' },
-            { value: 'extensive', label: 'Extensive (> 50%)' }
-          ]
-        },
-        {
-          key: 'performance_metrics',
-          label: 'Key Performance Metrics',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'How success is measured in this role...',
-          description: 'Specific KPIs and success metrics for this position'
-        },
-        {
-          key: 'training_provided',
-          label: 'Training & Development',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'Describe training programs and professional development opportunities...',
-          description: 'Company-provided training and skill development programs'
+          key: 'tools_note',
+          label: 'Tools & Technology',
+          type: EntityFieldType.CUSTOM,
+          render: () => (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                🔧 <strong>Note:</strong> Tools & technology are automatically populated from O*NET data. Card-based editor coming soon.
+              </p>
+            </div>
+          )
         }
       ]
     },
