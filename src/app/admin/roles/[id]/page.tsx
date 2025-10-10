@@ -492,6 +492,15 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                   .then(data => {
                     setJobSkills(data.skills || []);
                     setLoading(false);
+                    
+                    // Clear any stale removed_skill_ids from localChanges
+                    setLocalChanges(prev => {
+                      if (prev.removed_skill_ids) {
+                        const { removed_skill_ids, ...rest } = prev;
+                        return rest;
+                      }
+                      return prev;
+                    });
                   })
                   .catch(() => setLoading(false));
               }
