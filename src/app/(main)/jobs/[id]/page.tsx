@@ -400,30 +400,54 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           <hr className="my-12 border-gray-200" />
         )}
 
-        {/* Skills Assessment Card */}
-        <div className="flex items-center gap-8 mb-12 p-8 bg-white rounded-2xl border">
-          <div className="w-16 h-16 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+        {/* Education & Training Programs - For Occupations (before skills) */}
+        {job.job_kind === 'occupation' && (
+          <div id="programs" className="my-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Relevant Education & Training Programs
+                </h3>
+                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
+                <p className="text-gray-500 text-sm mt-2">
+                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Assess Your Skills & Get Invited to Apply{job.job_kind === 'featured_role' && job.company?.name ? ` at ${job.company.name}` : ''}
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Take a quick skills assessment to see how you match this role. You'll receive a detailed readiness score, personalized skill gap analysis, and tailored program recommendations to help you succeed. {' '}
-              <Link href="/account-settings" className="text-[#0694A2] hover:text-[#057A85] font-medium inline-flex items-center gap-1">
-                Enable job invitations in your profile →
+        )}
+
+        {/* Skills Assessment Card - Featured Roles Only */}
+        {job.job_kind === 'featured_role' && (
+          <div className="flex items-center gap-8 mb-12 p-8 bg-white rounded-2xl border">
+            <div className="w-16 h-16 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Assess Your Skills & Get Invited to Apply at {job.company?.name}
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Take a quick skills assessment to see how you match this role. You'll receive a detailed readiness score, personalized skill gap analysis, and tailored program recommendations to help you succeed. {' '}
+                <Link href="/account-settings" className="text-[#0694A2] hover:text-[#057A85] font-medium inline-flex items-center gap-1">
+                  Enable job invitations in your profile →
+                </Link>
+              </p>
+            </div>
+            <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
+              <Link href={`/assessments/quiz/${job.id}`}>
+                Start Assessment →
               </Link>
-            </p>
+            </Button>
           </div>
-          <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
-            <Link href={`/assessments/quiz/${job.id}`}>
-              Start Assessment →
-            </Link>
-          </Button>
-        </div>
+        )}
 
         {/* Skills & Responsibilities */}
         <Card className="rounded-2xl mb-8 bg-[#114B5F] text-white border-0">
@@ -566,25 +590,27 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        {/* Education & Training Programs - For Both Occupations and Featured Roles */}
-        <div id="programs" className="my-12">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900">
-                Relevant Education & Training Programs
-              </h3>
-              {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
-              <p className="text-gray-500 text-sm mt-2">
-                No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
-              </p>
+        {/* Education & Training Programs - For Featured Roles Only (after skills) */}
+        {job.job_kind === 'featured_role' && (
+          <div id="programs" className="my-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Relevant Education & Training Programs
+                </h3>
+                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
+                <p className="text-gray-500 text-sm mt-2">
+                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Data Source Footer */}
         <div className="mt-12 pt-8 border-t border-gray-200">
