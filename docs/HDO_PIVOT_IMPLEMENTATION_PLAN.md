@@ -569,13 +569,52 @@ CREATE TABLE job_data_overrides (
 
 ## Phase 2: Data Architecture & Admin Tools
 
-### Phase 2A: Schema & Data
-- [ ] Complete schema audit
-- [ ] Add missing fields to featured_roles
-- [ ] Create indexes for crosswalk
-- [ ] Build SOC code generation script
-- [ ] Run script on existing Featured Roles
-- [ ] Decide on skills inheritance strategy
+### Phase 2A: Schema & Data ✅ COMPLETE
+- [x] Complete schema audit (✅ Infrastructure already exists!)
+- [x] Add missing fields to featured_roles (✅ Not needed - all fields exist)
+- [ ] Create indexes for crosswalk (if needed after performance testing)
+- [x] Build SOC code generation script (✅ `/scripts/generate-soc-codes-for-featured-roles.js`)
+- [x] Run script on existing Featured Roles (✅ All 8 roles now have accurate SOC codes)
+- [x] Decide on skills inheritance strategy (✅ Uses `soc_skills` table - already implemented)
+
+**SOC Code Generation Script:**
+```bash
+# Dry run (preview only)
+node scripts/generate-soc-codes-for-featured-roles.js --dry-run
+
+# Process all roles without SOC codes
+node scripts/generate-soc-codes-for-featured-roles.js
+
+# Force regenerate all SOC codes
+node scripts/generate-soc-codes-for-featured-roles.js --force
+
+# Process specific role
+node scripts/generate-soc-codes-for-featured-roles.js --role-id=UUID
+```
+
+**How it works:**
+1. Fetches featured roles without SOC codes (or all with `--force`)
+2. Uses GPT-4o-mini to analyze title + description + company
+3. Matches to appropriate O*NET SOC code from taxonomy
+4. Updates database with assigned SOC code
+5. Validates format (XX-XXXX.XX)
+6. Rate limits to 1 request/second
+
+**Results (October 9, 2025):**
+- ✅ All 8 featured roles now have accurate SOC codes
+- ✅ Corrected 4 roles with incorrect codes:
+  - Power Design roles: `13-1082.00` → `11-9021.00` (Construction Managers)
+  - Business Development Manager: `11-2022.00` → `11-2021.00` (Marketing Managers)
+- ✅ Verified 4 roles already had correct codes
+- ✅ Skills inheritance ready (roles will inherit from `soc_skills` table)
+
+**Current SOC Code Assignments:**
+- `43-6014.00` - Administrative Assistant (Raymond James)
+- `11-2021.00` - Business Development Manager (TECO)
+- `11-9021.00` - Mechanical Project Managers x3 (Power Design)
+- `13-2051.00` - Senior Financial Analyst (TD SYNNEX)
+- `41-1012.00` - Supervisor, Residential Inbound Sales (Spectrum)
+- `29-2055.00` - Surgical Technologist (BayCare)
 
 ### Phase 2B: Admin Tools
 - [ ] Audit admin role editor
@@ -599,6 +638,25 @@ CREATE TABLE job_data_overrides (
 - [ ] Implement skill overlap queries
 - [ ] Performance test with real data
 - [ ] Add caching if needed
+
+### Phase 2D: Featured Roles Detail Page Updates
+**Goal:** Apply similar discovery-focused updates from Phase 1B to Featured Role detail pages
+
+- [ ] Remove assessment entry points from Featured Role pages
+- [ ] Add "Related Occupations" section (reverse crosswalk - show HDOs with matching SOC)
+- [ ] Add "Relevant Programs" section (programs matching role's SOC/skills)
+- [ ] Add "Similar Roles at Other Companies" section (other featured roles with same SOC)
+- [ ] Update data source footer to include O*NET + BLS
+- [ ] Implement smooth scroll anchors (#related-occupations, #programs, #similar-roles)
+- [ ] Ensure consistent card styling with HDO pages
+- [ ] Add Load More functionality for each section
+
+**Design Consistency:**
+- Match HDO detail page layout and spacing
+- Use same 3-column card grid pattern
+- Same empty state messaging
+- Same badge styling and colors
+- Same "Explore" button patterns
 
 ---
 
