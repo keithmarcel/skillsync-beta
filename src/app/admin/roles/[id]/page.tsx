@@ -612,10 +612,15 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             }
 
             const handleChange = (items: string[]) => {
-              setLocalChanges(prev => ({
-                ...prev,
-                core_responsibilities: JSON.stringify(items)
-              }));
+              console.log('🔄 Core Responsibilities changed:', items);
+              setLocalChanges(prev => {
+                const updated = {
+                  ...prev,
+                  core_responsibilities: JSON.stringify(items)
+                };
+                console.log('📝 Local changes updated:', updated);
+                return updated;
+              });
             };
 
             return (
@@ -747,11 +752,17 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
   ]
   
   const onSave = async (updatedData: Partial<Job>) => {
+    console.log('💾 Save triggered');
+    console.log('📦 Form data:', updatedData);
+    console.log('🎨 Local changes:', localChanges);
+    
     // Merge local changes (from card editors) with form data
     const dataToSave = {
       ...updatedData,
       ...localChanges
     };
+    
+    console.log('🚀 Final data to save:', dataToSave);
     
     // If user manually changed median_wage_usd, mark it as overridden
     if (dataToSave.median_wage_usd !== undefined && dataToSave.median_wage_usd !== role?.median_wage_usd) {
@@ -760,9 +771,12 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     
     const savedRole = await handleSave(dataToSave);
     
+    console.log('✅ Save result:', savedRole);
+    
     // Clear local changes after successful save
     if (savedRole) {
       setLocalChanges({});
+      console.log('🧹 Local changes cleared');
     }
     if (savedRole && isNew) {
       router.push(`/admin/roles/${savedRole.id}`);
