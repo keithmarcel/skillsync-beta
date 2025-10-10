@@ -556,25 +556,33 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </CardContent>
         </Card>
 
-        {/* Data Source Footer - Only for Occupations */}
-        {job.job_kind === 'occupation' && (
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <p className="text-xs text-gray-500 text-center">
-              Data sources:{' '}
-              <a href="https://www.bls.gov/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
-                BLS 2024
-              </a>
-              {'; '}
-              <a href="https://www.careeronestop.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
-                CareerOneStop
-              </a>
-              {'; '}
-              <a href="https://www.onetonline.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
-                O*NET
-              </a>
-            </p>
-          </div>
-        )}
+        {/* Data Source Footer */}
+        <div className="mt-12 pt-8 border-t border-gray-200">
+          <p className="text-xs text-gray-500 text-center">
+            Data sources:{' '}
+            {job.job_kind === 'featured_role' && job.company?.name && (
+              <>
+                {job.company.name}
+                {', '}
+              </>
+            )}
+            {job.job_kind === 'occupation' && (
+              <>
+                <a href="https://www.bls.gov/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                  BLS 2024
+                </a>
+                {'; '}
+                <a href="https://www.careeronestop.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                  CareerOneStop
+                </a>
+                {'; '}
+              </>
+            )}
+            <a href="https://www.onetonline.org/" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+              O*NET
+            </a>
+          </p>
+        </div>
       </BreadcrumbLayout>
       
       {/* Extra bottom padding for featured roles */}
