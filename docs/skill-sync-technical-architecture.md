@@ -1034,13 +1034,114 @@ src/app/admin/
 ├── layout.tsx              # Admin layout with navigation
 ├── page.tsx               # Admin dashboard
 ├── companies/             # Company management
-├── occupations/           # Occupation management
+├── occupations/           # Occupation management (⚠️ TODO: Refactor to match Role Editor)
 ├── programs/              # Program management
-├── roles/                 # Featured role management
+├── roles/                 # Featured role management ✅ COMPLETE
+│   ├── page.tsx          # Roles list table
+│   └── [id]/page.tsx     # Role editor (6-tab interface)
 ├── users/                 # User management
 ├── analytics/             # Analytics dashboard
 └── settings/              # System settings
 ```
+
+### Role Editor Architecture ✅ **PRODUCTION-READY**
+
+**Location:** `/admin/roles/[id]`
+
+#### 6-Tab Interface
+
+1. **Basic Information**
+   - All role metadata (title, company, SOC code, location, salary)
+   - SOC auto-suggest with O*NET integration
+   - Proficiency thresholds (required_proficiency_pct, visibility_threshold_pct)
+   - Image upload with validation
+
+2. **Descriptions**
+   - Short description (13-15 words, ~95 chars)
+   - Long description (detailed role overview)
+   - AI generation powered by OpenAI
+
+3. **Skills**
+   - Current skills display from SOC taxonomy
+   - X-button removal (deletes from soc_skills table)
+   - AI Skills Extractor (Lightcast + O*NET)
+   - Manual Skills Selector
+
+4. **Assessments**
+   - Placeholder for quiz management
+   - ⚠️ TODO: Wire up after quiz generation fix
+
+5. **Role Details**
+   - Draggable card editors for:
+     - Core Responsibilities (strategic, outcome-focused)
+     - Day-to-Day Tasks (tactical, action-focused)
+     - Tools & Technology (software, equipment, platforms)
+   - Add/remove/reorder functionality
+
+6. **SEO & Metadata**
+   - SEO fields (seo_title, meta_description)
+   - Open Graph tags (og_title, og_description, og_image)
+   - URL slug
+   - AI SEO Generator (analyzes all tabs)
+   - OG image preview with featured image inheritance
+
+#### Key Features
+
+**Dirty State Tracking:**
+- Tracks all form changes in `localChanges` state
+- Unsaved changes warning on navigation
+- Save button enables when changes detected
+
+**Professional UX:**
+- Toast notifications (Title Case) for all actions
+- DestructiveDialog for delete confirmations
+- Proper error handling and user feedback
+- Loading states throughout
+
+**Skills Management:**
+- Remove skills from SOC taxonomy
+- Skills tracked in localChanges, deleted on Save
+- Service role key for RLS bypass
+- Proper refresh after deletion
+
+**AI Integration:**
+- Description generation
+- SEO content generation
+- Skills extraction from O*NET/Lightcast
+
+**Database Integration:**
+- Migration ready: `20251010000004_add_seo_fields_to_jobs.sql`
+- Fields: seo_title, meta_description, og_title, og_description, og_image, slug
+- Proficiency thresholds: required_proficiency_pct, visibility_threshold_pct
+
+#### Component Architecture
+
+**EntityDetailView Component:**
+```typescript
+<EntityDetailView
+  entity={role}
+  entityType="role"
+  tabs={tabsConfig}
+  onSave={handleSave}
+  onDelete={handleDelete}
+  onPublish={handlePublish}
+  onUnpublish={handleUnpublish}
+  onFeatureToggle={handleFeatureToggle}
+  backHref="/admin/roles"
+  isNew={!role}
+/>
+```
+
+**Reusable Architecture:**
+- Can be extended to employer admin areas
+- Tab-based configuration system
+- Proper separation of concerns
+- Service role key pattern for RLS bypass
+
+**⚠️ TODO NEXT:**
+- Fix quiz generation system
+- Refactor Occupations Editor to match Role Editor experience
+- Wire up Assessments tab after quiz fix
 
 ### Component Patterns
 
