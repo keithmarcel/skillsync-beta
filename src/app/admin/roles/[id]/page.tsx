@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { InfoIcon } from 'lucide-react';
+import { InfoIcon, Sparkles } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useAdminEntity } from '@/hooks/useAdminEntity';
 import { useCompaniesList } from '@/hooks/useCompaniesList';
@@ -411,8 +411,10 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                     // TODO: Implement AI generation
                     alert('AI generation coming soon - will analyze role and generate compelling short description')
                   }}
+                  className="gap-2"
                 >
-                  ✨ Generate with AI
+                  <Sparkles className="h-4 w-4" />
+                  Generate with AI
                 </Button>
               </div>
             </div>
@@ -440,8 +442,10 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                   // TODO: Implement AI generation
                   alert('AI generation coming soon - will analyze role and generate comprehensive description')
                 }}
+                className="gap-2"
               >
-                ✨ Generate with AI
+                <Sparkles className="h-4 w-4" />
+                Generate with AI
               </Button>
             </div>
           )
@@ -466,16 +470,17 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         },
         {
           key: 'generate_skills',
-          label: 'Generate Skills from Description',
+          label: 'AI Skill Generation',
           type: EntityFieldType.CUSTOM,
           render: () => (
             <Button 
               variant="outline" 
-              className="w-full"
+              className="w-full gap-2"
               // TODO: Implement AI skill generation
               onClick={() => {}}
             >
-              🔍 Analyze Job Description & Suggest Skills
+              <Sparkles className="h-4 w-4" />
+              Generate Skills with AI
             </Button>
           )
         },

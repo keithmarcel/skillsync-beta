@@ -50,7 +50,7 @@ export function transformJobToFeaturedRole(job: Job) {
     jobType: job.job_type || 'Full-time',
     category: job.category && job.category.trim() !== '' ? job.category : getJobCategory(job.title), // Prefer database category, fallback to title mapping
     skillsCount: job.skills_count || 0,
-    description: job.long_desc || '',
+    description: job.short_desc || job.long_desc || '', // Use short_desc for card (13-15 words)
     medianSalary: job.median_wage_usd || 0,
     requiredProficiency: job.required_proficiency_pct || 70, // Use database value or default
     featuredImage: job.featured_image_url || '/assets/hero_featured-roles.jpg',
