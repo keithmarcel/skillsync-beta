@@ -75,10 +75,16 @@ export function useAdminEntity<T extends { id: string }>(
       }
     } catch (err: any) {
       console.error(`Error saving ${tableName}:`, err);
-      console.error('Full error details:', err);
-      setError(`Failed to save ${tableName}.`);
-      // Re-throw the error so EntityDetailView can catch it and show toast
-      throw err;
+      console.error('Error message:', err.message);
+      console.error('Error code:', err.code);
+      console.error('Error details:', err.details);
+      console.error('Full error:', JSON.stringify(err, null, 2));
+      
+      const errorMessage = err.message || err.details || `Failed to save ${tableName}.`;
+      setError(errorMessage);
+      
+      // Re-throw with a more descriptive error
+      throw new Error(errorMessage);
     }
   };
 
