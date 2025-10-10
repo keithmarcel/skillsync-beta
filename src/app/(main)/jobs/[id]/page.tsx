@@ -532,9 +532,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      Tools & Technology
+                      Commonly Used Tools & Technology
                     </h3>
-                    <div className="text-sm text-white/70 mb-3">Software and equipment commonly used</div>
                     <div className="grid grid-cols-2 gap-3">
                       {job.tools_and_technology.slice(0, 12).map((tool: any, index: number) => {
                         // Handle both old format (ToolName/TechnologyName) and new format (name)
@@ -555,6 +554,42 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   </div>
                 </>
               )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Relevant Education & Training Programs - For Featured Roles */}
+        {job.job_kind === 'featured_role' && (
+          <>
+            <hr className="my-12 border-gray-200" />
+            <div id="programs" className="my-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Relevant Education & Training Programs
+                  </h3>
+                  {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
+                  <p className="text-gray-500 text-sm mt-2">
+                    No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Skills & Responsibilities */}
+        <Card className="rounded-2xl mb-8 bg-[#114B5F] text-white border-0">
+          <CardHeader>
+            <CardTitle className="text-xl text-white">Skills and Responsibilities</CardTitle>
+          </CardHeader>
+          <CardContent className="px-8 pb-8 pt-0">
+            <div className="space-y-8">
 
               {/* CareerOneStop Video - Only for occupations */}
               {job.job_kind === 'occupation' && job.video_url && (
