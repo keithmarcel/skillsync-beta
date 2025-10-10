@@ -479,9 +479,10 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'current_skills',
           label: 'Currently Assigned Skills',
           type: EntityFieldType.CUSTOM,
-          render: () => {
+          render: (value: any, formData: any, onChange: any, allOnChange: any) => {
             const [jobSkills, setJobSkills] = React.useState<any[]>([]);
             const [loading, setLoading] = React.useState(true);
+            const [removedSkills, setRemovedSkills] = React.useState<Set<string>>(new Set());
 
             React.useEffect(() => {
               if (role?.id) {
@@ -495,12 +496,50 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               }
             }, [role?.id]);
 
+            const handleRemoveSkill = async (skillId: string) => {
+              if (!role?.id) return;
+              
+              try {
+                const response = await fetch(`/api/admin/roles/${role.id}/skills/${skillId}`, {
+                  method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                  // Remove from local state
+                  setJobSkills(prev => prev.filter(s => s.id !== skillId));
+                  setRemovedSkills(prev => {
+                    const newSet = new Set(prev);
+                    newSet.add(skillId);
+                    return newSet;
+                  });
+                  
+                  // Mark form as dirty by triggering a change
+                  if (allOnChange) {
+                    allOnChange('skills_updated', Date.now());
+                  }
+                  
+                  toast({
+                    title: 'Skill Removed',
+                    description: 'Skill removed successfully.'
+                  });
+                } else {
+                  throw new Error('Failed to remove skill');
+                }
+              } catch (error) {
+                toast({
+                  title: 'Remove Failed',
+                  description: error instanceof Error ? error.message : 'Failed to remove skill',
+                  variant: 'destructive'
+                });
+              }
+            };
+
             return (
               <div className="space-y-3">
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900">Current Skills</h3>
                   <p className="text-xs text-gray-500 mt-1">
-                    Skills inherited from SOC taxonomy mapping. Use the extractor below to update.
+                    Click the X to remove a skill. Changes will be saved when you click Save.
                   </p>
                 </div>
                 
@@ -515,7 +554,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                     {jobSkills.map((js: any) => (
                       <div
                         key={js.id}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-100 border border-teal-600 rounded-full text-sm"
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-100 border border-teal-600 rounded-full text-sm group"
                       >
                         <span className="font-medium text-teal-600">{js.name}</span>
                         {js.weight && (
@@ -523,6 +562,16 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                             {Math.round(js.weight * 100)}%
                           </span>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSkill(js.id)}
+                          className="ml-1 text-teal-600 hover:text-red-600 hover:bg-red-50 rounded-full p-0.5 transition-colors"
+                          title="Remove skill"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
                       </div>
                     ))}
                   </div>
