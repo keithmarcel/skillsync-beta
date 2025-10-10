@@ -513,11 +513,6 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                     return newSet;
                   });
                   
-                  // Mark form as dirty by triggering a change
-                  if (allOnChange) {
-                    allOnChange('skills_updated', Date.now());
-                  }
-                  
                   toast({
                     title: 'Skill Removed',
                     description: 'Skill removed successfully.'
