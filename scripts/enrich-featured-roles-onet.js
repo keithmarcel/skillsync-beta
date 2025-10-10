@@ -28,6 +28,7 @@ const openai = new OpenAI({
 // Parse command line arguments
 const args = process.argv.slice(2)
 const isDryRun = args.includes('--dry-run')
+const forceOverwrite = args.includes('--force')
 const specificRoleId = args.find(arg => arg.startsWith('--role-id='))?.split('=')[1]
 
 console.log('🎯 O*NET Enrichment for Featured Roles')
@@ -37,47 +38,86 @@ if (specificRoleId) console.log(`Target: Single role ${specificRoleId}`)
 console.log('')
 
 /**
- * Fetch O*NET data from CareerOneStop API
+ * Fetch O*NET data from O*NET Web Services API
  */
 async function fetchONETData(socCode) {
-  const userId = process.env.COS_USERID
-  const token = process.env.COS_TOKEN
+  const username = process.env.ONET_USERNAME
+  const password = process.env.ONET_PASSWORD
   
-  if (!userId || !token) {
-    console.log('   ⚠️  CareerOneStop API credentials not found in environment')
+  if (!username || !password) {
+    console.log('   ⚠️  O*NET API credentials not found in environment')
+    console.log(`   ONET_USERNAME: ${username ? 'Found' : 'Missing'}`)
+    console.log(`   ONET_PASSWORD: ${password ? 'Found' : 'Missing'}`)
     return null
   }
 
-  // Clean SOC code (remove .00 suffix for API)
-  const cleanSOC = socCode.replace('.00', '').replace('-', '')
+  // O*NET uses format like 43-6014.00
+  const onetCode = socCode
   
   try {
-    const url = `https://api.careeronestop.org/v1/occupation/${userId}/${cleanSOC}/US`
-    const response = await fetch(url, {
+    // Create Basic Auth header
+    const auth = Buffer.from(`${username}:${password}`).toString('base64')
+    
+    // Fetch Tasks
+    const tasksUrl = `https://services.onetcenter.org/ws/online/occupations/${onetCode}/summary/tasks`
+    console.log(`   📡 Fetching tasks from O*NET...`)
+    
+    const tasksResponse = await fetch(tasksUrl, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Basic ${auth}`,
         'Accept': 'application/json'
       }
     })
 
-    if (!response.ok) {
-      console.log(`   ⚠️  CareerOneStop API error: ${response.status}`)
-      return null
-    }
-
-    const data = await response.json()
+    // Fetch Tools & Technology
+    const toolsUrl = `https://services.onetcenter.org/ws/online/occupations/${onetCode}/summary/tools_technology`
+    console.log(`   📡 Fetching tools from O*NET...`)
     
-    if (!data.OccupationDetail || data.OccupationDetail.length === 0) {
-      console.log(`   ⚠️  No O*NET data found for SOC ${socCode}`)
-      return null
+    const toolsResponse = await fetch(toolsUrl, {
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Accept': 'application/json'
+      }
+    })
+
+    let tasks = []
+    let tools = []
+
+    if (tasksResponse.ok) {
+      const tasksData = await tasksResponse.json()
+      tasks = tasksData.task || []
+      console.log(`   ✅ Fetched ${tasks.length} tasks from O*NET`)
+    } else {
+      console.log(`   ⚠️  Tasks API error: ${tasksResponse.status}`)
     }
 
-    const occupation = data.OccupationDetail[0]
+    if (toolsResponse.ok) {
+      const toolsData = await toolsResponse.json()
+      // O*NET returns tools in categories
+      const toolCategories = toolsData.category || []
+      tools = toolCategories.flatMap(cat => 
+        (cat.item || []).map(item => ({
+          name: item.name,
+          category: cat.title || 'General'
+        }))
+      )
+      console.log(`   ✅ Fetched ${tools.length} tools from O*NET`)
+    } else {
+      console.log(`   ⚠️  Tools API error: ${toolsResponse.status}`)
+    }
+
+    if (tasks.length === 0 && tools.length === 0) {
+      console.log(`   ⚠️  No O*NET data available for ${socCode}`)
+      return null
+    }
     
     return {
-      tasks: occupation.Tasks || occupation.TaskList || [],
-      tools: occupation.ToolsTechnology || occupation.Technology || [],
-      responsibilities: occupation.Tasks?.slice(0, 10) || []
+      tasks: tasks.map(t => ({
+        task: t.statement || t,
+        importance: 'High' // O*NET doesn't provide importance in this endpoint
+      })),
+      tools: tools,
+      responsibilities: tasks.slice(0, 10).map(t => t.statement || t)
     }
   } catch (error) {
     console.log(`   ⚠️  O*NET fetch error: ${error.message}`)
@@ -353,12 +393,12 @@ async function main() {
     console.log(`   Company: ${companyName}`)
     console.log(`   SOC Code: ${role.soc_code}`)
     
-    // Check if already has O*NET data
+    // Check if already has O*NET data (skip unless --force)
     const hasData = role.core_responsibilities?.length > 0 || 
                     role.tasks?.length > 0 || 
                     role.tools_and_technology?.length > 0
     
-    if (hasData) {
+    if (hasData && !forceOverwrite) {
       console.log(`   ℹ️  Already has O*NET data:`)
       console.log(`     - Responsibilities: ${role.core_responsibilities?.length || 0}`)
       console.log(`     - Tasks: ${role.tasks?.length || 0}`)
@@ -366,6 +406,10 @@ async function main() {
       console.log(`   ⏭️  Skipping (use --force to overwrite)`)
       results.skipped++
       continue
+    }
+    
+    if (hasData && forceOverwrite) {
+      console.log(`   🔄 Forcing overwrite of existing data`)
     }
     
     // Step 1: Try to fetch real O*NET data from CareerOneStop API
