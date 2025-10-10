@@ -312,6 +312,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
             {field.label}
             {field.required && <span className="text-destructive ml-1">*</span>}
           </Label>
+          {field.description && <p className="text-xs text-muted-foreground -mt-1 mb-1">{field.description}</p>}
           <FieldComponent
             value={value}
             onChange={(newValue: T[K]) => handleChange(field.key, newValue, field)}
@@ -319,6 +320,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
             entity={formData}
             error={error}
           />
+          {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
       )
@@ -333,6 +335,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
+            {field.description && <p className="text-xs text-muted-foreground -mt-1 mb-1">{field.description}</p>}
             <Input
               id={fieldId}
               value={value !== null && value !== undefined ? String(value) : ''}
@@ -341,6 +344,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               disabled={field.disabled}
               className={error ? 'border-destructive' : ''}
             />
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
@@ -352,6 +357,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
+            {field.description && <p className="text-xs text-muted-foreground -mt-1 mb-1">{field.description}</p>}
             <Textarea
               id={fieldId}
               value={value !== null && value !== undefined ? String(value) : ''}
@@ -361,6 +367,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               className={error ? 'border-destructive' : ''}
               rows={4}
             />
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
@@ -372,6 +380,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
+            {field.description && <p className="text-xs text-muted-foreground -mt-1 mb-1">{field.description}</p>}
             <Select
               value={value !== undefined && value !== null && value !== '' ? String(value) : 'none'}
               onValueChange={(val) => {
@@ -393,6 +402,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               </SelectContent>
             </Select>
             {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
@@ -411,6 +422,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
@@ -427,6 +440,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
             >
               {field.label}
             </Button>
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
@@ -451,6 +466,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
+            {field.description && <p className="text-xs text-muted-foreground -mt-1 mb-1">{field.description}</p>}
             <Textarea
               id={fieldId}
               value={value !== null && value !== undefined ? String(value) : ''}
@@ -464,6 +480,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               Supports HTML: Use &lt;p&gt; for paragraphs, &lt;strong&gt; for bold, &lt;em&gt; for italic
             </p>
             {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )
@@ -475,6 +493,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
+            {field.description && <p className="text-xs text-muted-foreground -mt-1 mb-1">{field.description}</p>}
             <Input
               id={fieldId}
               value={value !== null && value !== undefined ? String(value) : ''}
@@ -483,6 +502,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
               disabled={field.disabled}
               className={error ? 'border-destructive' : ''}
             />
+            {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
+
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )

@@ -97,8 +97,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'soc_code',
           label: 'SOC Code',
           type: EntityFieldType.CUSTOM,
-          description: 'Shown on: Backend only (used for skills/O*NET matching)',
-          helpText: 'Standard Occupational Classification - not visible to users',
+          required: true,
+          description: 'Shown on: Backend only (determines skills and O*NET data matching)',
           component: ({ value, onChange, entity }: any) => {
             const handleAccept = (socCode: string) => {
               onChange(socCode)
@@ -167,9 +167,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'job_type',
           label: 'Employment Type',
           type: EntityFieldType.SELECT,
+          required: true,
           placeholder: 'Select employment type',
           description: 'Shown on: Role Card (pill), Role Details Page',
-          helpText: 'Pre-populated from database if available',
           options: [
             { value: 'Full-time', label: 'Full-time' },
             { value: 'Part-time', label: 'Part-time' },
@@ -183,6 +183,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'work_location_type',
           label: 'Work Location',
           type: EntityFieldType.SELECT,
+          required: true,
           placeholder: 'Select work arrangement',
           description: 'Shown on: Role Details Page only',
           options: [
@@ -195,6 +196,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'location_city',
           label: 'City',
           type: EntityFieldType.TEXT,
+          required: true,
           placeholder: 'e.g., Tampa',
           description: 'Shown on: Role Details Page only'
         },
@@ -202,29 +204,16 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'location_state',
           label: 'State',
           type: EntityFieldType.TEXT,
+          required: true,
           placeholder: 'e.g., FL',
           description: 'Shown on: Role Details Page only'
-        },
-        {
-          key: 'experience_level',
-          label: 'Experience Level',
-          type: EntityFieldType.SELECT,
-          description: 'Shown on: Not currently displayed',
-          helpText: '⚠️ Candidate for Additional Details tab',
-          options: [
-            { value: 'entry', label: 'Entry Level' },
-            { value: 'mid_level', label: 'Mid Level' },
-            { value: 'senior', label: 'Senior' },
-            { value: 'lead', label: 'Lead' },
-            { value: 'executive', label: 'Executive' }
-          ]
         },
         {
           key: 'education_level',
           label: 'Education Requirements',
           type: EntityFieldType.SELECT,
+          required: true,
           description: 'Shown on: Role Details Page only',
-          helpText: 'Inherited from O*NET/BLS if available, can be overridden',
           placeholder: 'Select education level',
           options: [
             { value: 'No formal educational credential', label: 'No formal education' },
@@ -240,9 +229,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'median_wage_usd',
           label: 'Median Salary',
           type: EntityFieldType.CURRENCY,
+          required: true,
           placeholder: 'e.g., 75000',
           description: 'Shown on: Role Card, Role Details Page',
-          helpText: 'Inherited from O*NET/BLS if available, can be overridden',
           format: (value: number | null) => value ? formatCurrency(value) : '',
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
         },
@@ -250,6 +239,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'featured_image_url',
           label: 'Featured Image',
           type: EntityFieldType.CUSTOM,
+          required: true,
           description: 'Shown on: Role Details Page only (hero image, 800×600px)',
           helpText: 'Recommended upload size: 1600×1200px (2x for retina)',
           component: ({ value, onChange, entity }: any) => {
@@ -380,6 +370,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'short_desc',
           label: 'Short Description',
           type: EntityFieldType.CUSTOM,
+          required: true,
           description: 'Shown on: Role Card only (13-15 words, ~95 characters)',
           component: ({ value, onChange }: any) => (
             <div className="space-y-2">
@@ -556,6 +547,26 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           type: EntityFieldType.TEXT,
           placeholder: 'e.g., senior-software-engineer-techcorp',
           description: 'User-friendly URL for this job posting'
+        }
+      ]
+    },
+    {
+      id: 'additional',
+      label: 'Additional Role Details',
+      fields: [
+        {
+          key: 'experience_level',
+          label: 'Experience Level',
+          type: EntityFieldType.SELECT,
+          description: 'Shown on: Not currently displayed',
+          helpText: 'Internal field for future use',
+          options: [
+            { value: 'entry', label: 'Entry Level' },
+            { value: 'mid_level', label: 'Mid Level' },
+            { value: 'senior', label: 'Senior' },
+            { value: 'lead', label: 'Lead' },
+            { value: 'executive', label: 'Executive' }
+          ]
         }
       ]
     }
