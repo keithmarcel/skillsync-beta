@@ -31,6 +31,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     handleDelete 
   } = useAdminEntity<Job>('jobs', params.id === 'new' ? null : params.id);
   
+  // Local state for card editor changes
+  const [localChanges, setLocalChanges] = React.useState<Record<string, any>>({});
+  
   // Debug: Log the role data to see what's being loaded
   React.useEffect(() => {
     if (role) {
@@ -589,8 +592,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Core Responsibilities',
           type: EntityFieldType.CUSTOM,
           render: () => {
-            // Parse responsibilities from JSON string or array
-            const value = role?.core_responsibilities;
+            // Use local changes if available, otherwise use role data
+            const value = localChanges.core_responsibilities ?? role?.core_responsibilities;
             let responsibilities: string[] = [];
             if (typeof value === 'string') {
               try {
@@ -603,10 +606,10 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             }
 
             const handleChange = (items: string[]) => {
-              // Update the role object directly
-              if (role) {
-                (role as any).core_responsibilities = JSON.stringify(items);
-              }
+              setLocalChanges(prev => ({
+                ...prev,
+                core_responsibilities: JSON.stringify(items)
+              }));
             };
 
             return (
@@ -625,8 +628,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Day-to-Day Tasks',
           type: EntityFieldType.CUSTOM,
           render: () => {
-            // Parse tasks - handle both old format (objects) and new format (strings)
-            const value = role?.tasks;
+            // Use local changes if available, otherwise use role data
+            const value = localChanges.tasks ?? role?.tasks;
             let tasks: string[] = [];
             if (Array.isArray(value)) {
               tasks = value.map((task: any) => {
@@ -636,9 +639,10 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             }
 
             const handleChange = (items: string[]) => {
-              if (role) {
-                (role as any).tasks = items.map(task => ({ task }));
-              }
+              setLocalChanges(prev => ({
+                ...prev,
+                tasks: items.map(task => ({ task }))
+              }));
             };
 
             return (
@@ -657,8 +661,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Tools & Technology',
           type: EntityFieldType.CUSTOM,
           render: () => {
-            // Parse tools - handle both old format (objects) and new format (strings)
-            const value = role?.tools_and_technology;
+            // Use local changes if available, otherwise use role data
+            const value = localChanges.tools_and_technology ?? role?.tools_and_technology;
             let tools: string[] = [];
             if (Array.isArray(value)) {
               tools = value.map((tool: any) => {
@@ -668,9 +672,10 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             }
 
             const handleChange = (items: string[]) => {
-              if (role) {
-                (role as any).tools_and_technology = items.map(tool => ({ name: tool }));
-              }
+              setLocalChanges(prev => ({
+                ...prev,
+                tools_and_technology: items.map(tool => ({ name: tool }))
+              }));
             };
 
             return (
@@ -736,12 +741,23 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
   ]
   
   const onSave = async (updatedData: Partial<Job>) => {
+    // Merge local changes (from card editors) with form data
+    const dataToSave = {
+      ...updatedData,
+      ...localChanges
+    };
+    
     // If user manually changed median_wage_usd, mark it as overridden
-    if (updatedData.median_wage_usd !== undefined && updatedData.median_wage_usd !== role?.median_wage_usd) {
-      (updatedData as any).median_wage_manual_override = true;
+    if (dataToSave.median_wage_usd !== undefined && dataToSave.median_wage_usd !== role?.median_wage_usd) {
+      (dataToSave as any).median_wage_manual_override = true;
     }
     
-    const savedRole = await handleSave(updatedData);
+    const savedRole = await handleSave(dataToSave);
+    
+    // Clear local changes after successful save
+    if (savedRole) {
+      setLocalChanges({});
+    }
     if (savedRole && isNew) {
       router.push(`/admin/roles/${savedRole.id}`);
     }
