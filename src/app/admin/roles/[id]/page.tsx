@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { SocAutoSuggest } from '@/components/admin/soc-auto-suggest';
 import { AIGenerateButton } from '@/components/admin/ai-generate-button';
 import { SOCSkillsExtractor } from '@/components/admin/soc-skills-extractor';
+import { ManualSkillsSelector } from '@/components/admin/manual-skills-selector';
 import type { Job } from '@/lib/database/queries';
 
 export default function RoleDetailPage({ params }: { params: { id: string } }) {
@@ -488,13 +489,35 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         },
         {
           key: 'skills_extractor',
-          label: 'Extract & Curate Skills',
+          label: 'AI Skills Extraction',
           type: EntityFieldType.CUSTOM,
           render: (value: any, formData: any) => {
             const [refreshKey, setRefreshKey] = React.useState(0);
             
             return (
               <SOCSkillsExtractor
+                socCode={(formData as any).soc_code || ''}
+                onSkillsUpdated={() => {
+                  // Refresh the skills display above
+                  setRefreshKey(prev => prev + 1);
+                  // Trigger a re-fetch of the current skills
+                  if (role?.id) {
+                    window.location.reload(); // Simple refresh for now
+                  }
+                }}
+              />
+            );
+          }
+        },
+        {
+          key: 'manual_skills_selector',
+          label: 'Manual Skills Selection',
+          type: EntityFieldType.CUSTOM,
+          render: (value: any, formData: any) => {
+            const [refreshKey, setRefreshKey] = React.useState(0);
+            
+            return (
+              <ManualSkillsSelector
                 socCode={(formData as any).soc_code || ''}
                 onSkillsUpdated={() => {
                   // Refresh the skills display above
