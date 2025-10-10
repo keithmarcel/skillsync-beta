@@ -155,7 +155,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         isDynamic={true}
         jobInfo={{
           title: job.title,
-          socCode: job.soc_code
+          socCode: job.job_kind === 'featured_role' && job.company?.name ? job.company.name : job.soc_code
         }}
         showPrimaryAction={true}
         showSecondaryAction={false}
@@ -260,16 +260,16 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         </svg>
                       </div>
                       <div>
-                        <div className="text-sm opacity-80">
+                        <div className="text-sm opacity-80">Role Type</div>
+                        <div className="text-xl font-bold">
                           {job.job_type || 'Full-Time'}
                           {(job as any).work_location_type && `, ${(job as any).work_location_type}`}
                         </div>
-                        <div className="text-xl font-bold">
+                        <div className="text-xs opacity-70 mt-1">
                           {job.location_city && job.location_state 
                             ? `${job.location_city}, ${job.location_state}`
                             : 'St. Petersburg, FL'}
                         </div>
-                        <div className="text-xs opacity-70 mt-1">Location</div>
                       </div>
                     </div>
                   ) : (
@@ -303,9 +303,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       </svg>
                     </div>
                     <div>
-                      <div className="text-sm opacity-80">Typical Education</div>
+                      <div className="text-sm opacity-80">Education Requirements</div>
                       <div className="text-xl font-bold">{cleanRegionalIndicators(job.education_level || job.education_requirements) || 'Not Specified'}</div>
-                      <div className="text-xs opacity-70 mt-1">Requirements</div>
+                      <div className="text-xs opacity-70 mt-1">For this Role</div>
                     </div>
                   </div>
                   {job.job_kind === 'featured_role' ? (
@@ -318,6 +318,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       <div>
                         <div className="text-sm opacity-80">Required Proficiency Score</div>
                         <div className="text-xl font-bold">{job.required_proficiency_pct ? `${job.required_proficiency_pct}%` : 'Not specified'}</div>
+                        <div className="text-xs opacity-70 mt-1">On Assessment</div>
                       </div>
                     </div>
                   ) : (
