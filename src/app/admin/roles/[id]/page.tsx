@@ -1,3 +1,5 @@
+'use client';
+
 import { useRouter } from 'next/navigation';
 import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
 import { Button } from '@/components/ui/button';
