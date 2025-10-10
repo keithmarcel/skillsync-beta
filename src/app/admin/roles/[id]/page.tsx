@@ -403,22 +403,6 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               <span className="text-xs text-gray-500">
                 {value?.length || 0}/95 characters
               </span>
-              <AIGenerateButton
-                onClick={() => {
-                  // TODO: Implement AI generation
-                  alert('AI generation coming soon - will analyze role and generate compelling short description')
-                }}
-                buttonText="Generate with AI"
-                tooltipContent={{
-                  title: 'What happens when you click:',
-                  points: [
-                    'AI analyzes your job title and full description',
-                    'Generates a compelling 13-15 word summary',
-                    'You can review and edit before saving',
-                    'No changes until you click Save'
-                  ]
-                }}
-              />
             </div>
           )
         },
@@ -435,23 +419,6 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                 onChange={(e: any) => onChange(e.target.value)}
                 placeholder="Enter a detailed job description..."
                 className="w-full min-h-[200px] p-3 border rounded-md resize-none"
-              />
-              <AIGenerateButton
-                onClick={() => {
-                  // TODO: Implement AI generation
-                  alert('AI generation coming soon - will analyze role and generate comprehensive description')
-                }}
-                buttonText="Generate with AI"
-                tooltipContent={{
-                  title: 'What happens when you click:',
-                  points: [
-                    'AI analyzes your job title and requirements',
-                    'Generates a comprehensive job description',
-                    'Includes responsibilities and qualifications',
-                    'You can review and edit before saving',
-                    'No changes until you click Save'
-                  ]
-                }}
               />
             </div>
           )
@@ -473,29 +440,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             group: skill.category
           })) || [],
           placeholder: 'Select skills required for this role...'
-        },
-        {
-          key: 'generate_skills',
-          label: 'AI Skill Generation',
-          type: EntityFieldType.CUSTOM,
-          render: () => (
-            <AIGenerateButton
-              onClick={() => {
-                // TODO: Implement AI skill generation
-              }}
-              buttonText="Generate Skills with AI"
-              tooltipContent={{
-                title: 'What happens when you click:',
-                points: [
-                  'AI analyzes your job description',
-                  'Suggests relevant skills from our taxonomy',
-                  'You can review and select which to add',
-                  'No changes until you click Save'
-                ]
-              }}
-            />
-          )
-        },
+        }
       ]
     },
     {
