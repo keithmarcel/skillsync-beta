@@ -17,6 +17,7 @@ import { SocAutoSuggest } from '@/components/admin/soc-auto-suggest';
 import { AIGenerateButton } from '@/components/admin/ai-generate-button';
 import { SOCSkillsExtractor } from '@/components/admin/soc-skills-extractor';
 import { ManualSkillsSelector } from '@/components/admin/manual-skills-selector';
+import { DraggableCardEditor } from '@/components/admin/draggable-card-editor';
 import type { Job } from '@/lib/database/queries';
 
 export default function RoleDetailPage({ params }: { params: { id: string } }) {
@@ -557,39 +558,85 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     },
     {
       id: 'role_details',
-      label: 'Role Details (O*NET Data)',
+      label: 'Role Details',
       fields: [
         {
           key: 'core_responsibilities',
           label: 'Core Responsibilities',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'Enter core responsibilities (from O*NET or custom)...',
-          description: 'These appear as cards on the role detail page',
-          helpText: '🔜 Future: This will be a drag-and-drop card editor'
+          type: EntityFieldType.CUSTOM,
+          render: (value: any, formData: any, onChange: any) => {
+            // Parse responsibilities from JSON string or array
+            let responsibilities: string[] = [];
+            if (typeof value === 'string') {
+              try {
+                responsibilities = JSON.parse(value);
+              } catch {
+                responsibilities = value ? [value] : [];
+              }
+            } else if (Array.isArray(value)) {
+              responsibilities = value;
+            }
+
+            return (
+              <DraggableCardEditor
+                items={responsibilities}
+                onChange={(items) => onChange(JSON.stringify(items))}
+                title="Core Responsibilities"
+                description="These appear as cards on the role detail page. Drag to reorder, click edit to modify text."
+                maxItems={12}
+              />
+            );
+          }
         },
         {
-          key: 'tasks_note',
+          key: 'tasks',
           label: 'Day-to-Day Tasks',
           type: EntityFieldType.CUSTOM,
-          render: () => (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800">
-                📝 <strong>Note:</strong> Day-to-day tasks are automatically populated from O*NET data. Card-based editor coming soon.
-              </p>
-            </div>
-          )
+          render: (value: any, formData: any, onChange: any) => {
+            // Parse tasks - handle both old format (objects) and new format (strings)
+            let tasks: string[] = [];
+            if (Array.isArray(value)) {
+              tasks = value.map((task: any) => {
+                if (typeof task === 'string') return task;
+                return task.task || task.TaskDescription || '';
+              }).filter(Boolean);
+            }
+
+            return (
+              <DraggableCardEditor
+                items={tasks}
+                onChange={(items) => onChange(items.map(task => ({ task })))}
+                title="Day-to-Day Tasks"
+                description="Typical tasks for this role. These appear as cards on the detail page. Drag to reorder."
+                maxItems={12}
+              />
+            );
+          }
         },
         {
-          key: 'tools_note',
+          key: 'tools_and_technology',
           label: 'Tools & Technology',
           type: EntityFieldType.CUSTOM,
-          render: () => (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-800">
-                🔧 <strong>Note:</strong> Tools & technology are automatically populated from O*NET data. Card-based editor coming soon.
-              </p>
-            </div>
-          )
+          render: (value: any, formData: any, onChange: any) => {
+            // Parse tools - handle both old format (objects) and new format (strings)
+            let tools: string[] = [];
+            if (Array.isArray(value)) {
+              tools = value.map((tool: any) => {
+                if (typeof tool === 'string') return tool;
+                return tool.name || tool.ToolName || tool.TechnologyName || '';
+              }).filter(Boolean);
+            }
+
+            return (
+              <DraggableCardEditor
+                items={tools}
+                onChange={(items) => onChange(items.map(tool => ({ name: tool })))}
+                title="Commonly Used Tools & Technology"
+                description="Tools, software, and technology used in this role. These appear as cards on the detail page."
+                maxItems={15}
+              />
+            );
+          }
         }
       ]
     },
