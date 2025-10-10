@@ -245,9 +245,52 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Median Salary',
           type: EntityFieldType.CURRENCY,
           placeholder: 'e.g., 75000',
-          description: 'Displayed on role cards and detail page',
+          description: '✅ Displayed on role cards and detail page',
           format: (value: number | null) => value ? formatCurrency(value) : '',
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
+        },
+        {
+          key: 'featured_image_url',
+          label: 'Featured Image',
+          type: EntityFieldType.CUSTOM,
+          description: '✅ Hero image on detail page (displays at 800×600px)',
+          component: ({ value, onChange }: any) => (
+            <div className="space-y-3">
+              {value && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-gray-700">Preview (actual size on detail page):</div>
+                  <div className="relative w-full max-w-[800px] h-[600px] rounded-lg overflow-hidden border-2 border-gray-300">
+                    <img 
+                      src={value} 
+                      alt="Featured" 
+                      className="w-full h-full object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => onChange(null)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              )}
+              <div>
+                <Input
+                  type="url"
+                  value={value || ''}
+                  onChange={(e: any) => onChange(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  📐 <strong>Recommended size:</strong> 1600×1200px (2x for retina displays)<br/>
+                  💡 <strong>Future:</strong> Direct upload support coming soon
+                </p>
+              </div>
+            </div>
+          )
         }
       ]
     },
