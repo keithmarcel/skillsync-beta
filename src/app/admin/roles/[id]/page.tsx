@@ -3,11 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/utils';
 import { useAdminEntity } from '@/hooks/useAdminEntity';
 import { useCompaniesList } from '@/hooks/useCompaniesList';
 import { useSkillsList } from '@/hooks/useSkillsList';
 import { useAuth } from '@/hooks/useAuth';
+import { SocAutoSuggest } from '@/components/admin/soc-auto-suggest';
 import type { Job } from '@/lib/database/queries';
 
 export default function RoleDetailPage({ params }: { params: { id: string } }) {
@@ -180,9 +182,27 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         {
           key: 'soc_code',
           label: 'SOC Code',
-          type: EntityFieldType.TEXT,
+          type: EntityFieldType.CUSTOM,
           placeholder: 'e.g., 13-1082',
-          description: 'Standard Occupational Classification code for government compliance'
+          description: 'Standard Occupational Classification code for government compliance',
+          component: ({ value, onChange, entity }: any) => (
+            <div className="space-y-2">
+              <Input
+                value={value || ''}
+                onChange={(e: any) => onChange(e.target.value)}
+                placeholder="e.g., 13-1082"
+                className="mb-2"
+              />
+              <SocAutoSuggest
+                jobTitle={entity.title || ''}
+                jobDescription={entity.long_desc || entity.description || ''}
+                onAccept={(socCode: string, socTitle: string) => {
+                  onChange(socCode)
+                }}
+                disabled={!entity.title}
+              />
+            </div>
+          )
         }
       ]
     },
