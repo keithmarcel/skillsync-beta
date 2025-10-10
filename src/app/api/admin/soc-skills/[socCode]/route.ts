@@ -1,6 +1,12 @@
-// API endpoint to get skills for a specific SOC code
+// API endpoint to get/delete skills for a specific SOC code
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function GET(
   request: NextRequest,
@@ -60,6 +66,43 @@ export async function GET(
 
   } catch (error) {
     console.error('Failed to fetch SOC skills:', error)
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { socCode: string } }
+) {
+  try {
+    const socCode = params.socCode
+
+    console.log(`Deleting skills for SOC code: ${socCode}`)
+
+    // Delete all soc_skills entries for this SOC code
+    const { error } = await supabaseAdmin
+      .from('soc_skills')
+      .delete()
+      .eq('soc_code', socCode)
+
+    if (error) {
+      console.error('Database error:', error)
+      return NextResponse.json(
+        { success: false, error: 'Failed to delete skills' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Deleted all skills for SOC ${socCode}`
+    })
+
+  } catch (error) {
+    console.error('Failed to delete SOC skills:', error)
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }

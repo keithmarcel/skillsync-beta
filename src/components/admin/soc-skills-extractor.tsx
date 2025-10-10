@@ -78,20 +78,37 @@ export function SOCSkillsExtractor({ socCode, onSkillsUpdated }: SOCSkillsExtrac
       return;
     }
 
+    if (!socCode) {
+      setError('SOC Code is required to save skills');
+      return;
+    }
+
     setIsProcessing(true);
     setError(null);
 
     try {
+      // First, delete existing skills for this SOC code to replace them
+      const deleteResponse = await fetch(`/api/admin/soc-skills/${socCode}`, {
+        method: 'DELETE'
+      });
+
+      if (!deleteResponse.ok) {
+        console.warn('Failed to delete existing skills, continuing anyway');
+      }
+
+      // Prepare skills to save
       const skillsToSave = extractedSkills
         .filter(s => selectedSkills.has(s.skill))
-        .map(s => ({
+        .map((s, index) => ({
           skill_name: s.skill,
           description: s.description,
           confidence: s.confidence,
-          curation_status: 'approved'
+          display_order: index + 1,
+          weight: (s.confidence || 50) / 100 // Convert confidence to weight (0-1)
         }));
 
-      const response = await fetch('/api/admin/skills-extractor/bulk-curate', {
+      // Save new skills to soc_skills table
+      const response = await fetch('/api/admin/soc-skills/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -106,12 +123,15 @@ export function SOCSkillsExtractor({ socCode, onSkillsUpdated }: SOCSkillsExtrac
         throw new Error(data.error || 'Failed to save skills');
       }
 
-      setSuccess(`Successfully saved ${selectedSkills.size} skills!`);
+      setSuccess(`Successfully saved ${selectedSkills.size} skills! The skills above will update shortly.`);
       setExtractedSkills([]);
       setSelectedSkills(new Set());
       
+      // Trigger refresh of skills display
       if (onSkillsUpdated) {
-        onSkillsUpdated();
+        setTimeout(() => {
+          onSkillsUpdated();
+        }, 500); // Small delay to ensure DB is updated
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save skills');
@@ -166,8 +186,9 @@ export function SOCSkillsExtractor({ socCode, onSkillsUpdated }: SOCSkillsExtrac
                   'AI analyzes your SOC code and job description',
                   'Extracts 15-30 relevant skills from O*NET/Lightcast',
                   'Auto-selects high confidence skills (≥85%)',
-                  'You can review and curate before saving',
-                  'No changes until you click Save'
+                  'You curate the list with checkboxes',
+                  'Clicking Save replaces current skills above',
+                  'You can re-run anytime to update skills'
                 ]
               }}
             />
