@@ -25,14 +25,21 @@ SET median_wage_usd = COALESCE(
 WHERE j.soc_code IS NOT NULL
   AND j.soc_code != '';
 
+-- Add column to track if user has manually overridden the salary
+ALTER TABLE public.jobs 
+ADD COLUMN IF NOT EXISTS median_wage_manual_override BOOLEAN DEFAULT FALSE;
+
 -- Create function to auto-sync when BLS data is inserted/updated
+-- Only syncs if user hasn't manually overridden the value
 CREATE OR REPLACE FUNCTION sync_bls_wage_to_jobs()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Update jobs table with the new BLS wage data
+  -- ONLY if user hasn't manually set a custom value
   UPDATE public.jobs
   SET median_wage_usd = NEW.median_wage
   WHERE soc_code = NEW.soc_code
+    AND (median_wage_manual_override = FALSE OR median_wage_manual_override IS NULL)
     AND (median_wage_usd IS NULL OR median_wage_usd = 0);  -- Only update if empty
   
   RETURN NEW;

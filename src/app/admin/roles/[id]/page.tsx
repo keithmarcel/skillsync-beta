@@ -589,6 +589,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
   ]
   
   const onSave = async (updatedData: Partial<Job>) => {
+    // If user manually changed median_wage_usd, mark it as overridden
+    if (updatedData.median_wage_usd !== undefined && updatedData.median_wage_usd !== role?.median_wage_usd) {
+      (updatedData as any).median_wage_manual_override = true;
+    }
+    
     const savedRole = await handleSave(updatedData);
     if (savedRole && isNew) {
       router.push(`/admin/roles/${savedRole.id}`);
