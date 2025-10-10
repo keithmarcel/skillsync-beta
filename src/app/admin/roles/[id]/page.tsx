@@ -399,24 +399,22 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                 className="w-full min-h-[80px] p-3 border rounded-md resize-none"
                 maxLength={95}
               />
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-500">
-                  {value?.length || 0}/95 characters
-                </span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    // TODO: Implement AI generation
-                    alert('AI generation coming soon - will analyze role and generate compelling short description')
-                  }}
-                  className="gap-2"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  Generate with AI
-                </Button>
-              </div>
+              <span className="text-xs text-gray-500">
+                {value?.length || 0}/95 characters
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // TODO: Implement AI generation
+                  alert('AI generation coming soon - will analyze role and generate compelling short description')
+                }}
+                className="gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Generate with AI
+              </Button>
             </div>
           )
         },
