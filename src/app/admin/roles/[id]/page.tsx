@@ -777,10 +777,13 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                   
                   // Force re-render
                   window.location.reload();
+                } else {
+                  throw new Error(result.error || 'Unknown error from API');
                 }
-              } catch (error) {
+              } catch (error: any) {
                 console.error('SEO generation failed:', error);
-                alert('Failed to generate SEO metadata. Please try again.');
+                const errorMessage = error.message || 'Failed to generate SEO metadata. Please try again.';
+                alert(`SEO Generation Error: ${errorMessage}`);
               } finally {
                 setIsGenerating(false);
               }
