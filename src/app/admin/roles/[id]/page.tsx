@@ -162,16 +162,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           ]
         },
         {
-          key: 'location',
-          label: 'Location',
-          type: EntityFieldType.TEXT,
-          placeholder: 'e.g., Tampa, FL or Remote'
-        },
-        {
           key: 'job_type',
           label: 'Employment Type',
           type: EntityFieldType.SELECT,
           placeholder: 'Select employment type',
+          description: '✅ Displayed on role cards and detail page',
           options: [
             { value: 'Full-time', label: 'Full-time' },
             { value: 'Part-time', label: 'Part-time' },
@@ -186,7 +181,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Work Location',
           type: EntityFieldType.SELECT,
           placeholder: 'Select work arrangement',
-          description: 'Where will this role be performed?',
+          description: '✅ Displayed on detail page (Onsite/Remote/Hybrid)',
           options: [
             { value: 'Onsite', label: 'Onsite' },
             { value: 'Remote', label: 'Remote' },
@@ -194,9 +189,24 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           ]
         },
         {
+          key: 'location_city',
+          label: 'City',
+          type: EntityFieldType.TEXT,
+          placeholder: 'e.g., Tampa',
+          description: '✅ Displayed on detail page'
+        },
+        {
+          key: 'location_state',
+          label: 'State',
+          type: EntityFieldType.TEXT,
+          placeholder: 'e.g., FL',
+          description: '✅ Displayed on detail page'
+        },
+        {
           key: 'experience_level',
           label: 'Experience Level',
           type: EntityFieldType.SELECT,
+          description: '❌ Not currently displayed (move to Additional Details)',
           options: [
             { value: 'entry', label: 'Entry Level' },
             { value: 'mid_level', label: 'Mid Level' },
@@ -206,18 +216,29 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           ]
         },
         {
-          key: 'education_requirement',
-          label: 'Education Requirement',
-          type: EntityFieldType.SELECT,
-          options: [
-            { value: 'none', label: 'No formal education' },
-            { value: 'high_school', label: 'High School' },
-            { value: 'certificate', label: 'Certificate' },
-            { value: 'associates', label: 'Associate\'s Degree' },
-            { value: 'bachelors', label: 'Bachelor\'s Degree' },
-            { value: 'masters', label: 'Master\'s Degree' },
-            { value: 'doctorate', label: 'Doctorate' }
-          ]
+          key: 'education_level',
+          label: 'Education Requirements',
+          type: EntityFieldType.CUSTOM,
+          description: '✅ Displayed on detail page',
+          component: ({ value, onChange, entity }: any) => (
+            <div className="space-y-3">
+              {entity.education_level && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="text-xs font-semibold text-blue-700 mb-1">FROM O*NET/BLS:</div>
+                  <div className="text-sm text-blue-900">{entity.education_level}</div>
+                </div>
+              )}
+              <Input
+                type="text"
+                value={value || ''}
+                onChange={(e: any) => onChange(e.target.value)}
+                placeholder={entity.education_level || 'e.g., High school diploma or equivalent'}
+              />
+              <p className="text-xs text-gray-500">
+                💡 O*NET data shown above. Leave empty to use O*NET value, or enter custom text to override.
+              </p>
+            </div>
+          )
         },
         {
           key: 'median_wage_usd',
