@@ -395,27 +395,25 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           <hr className="my-12 border-gray-200" />
         )}
 
-        {/* Education & Training Programs - Only for Occupations */}
-        {job.job_kind === 'occupation' && (
-          <div id="programs" className="my-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Relevant Education & Training Programs
-                </h3>
-                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
-                <p className="text-gray-500 text-sm mt-2">
-                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
-                </p>
-              </div>
+        {/* Education & Training Programs - For Both Occupations and Featured Roles */}
+        <div id="programs" className="my-12">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900">
+                Relevant Education & Training Programs
+              </h3>
+              {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
+              <p className="text-gray-500 text-sm mt-2">
+                No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+              </p>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Skills & Responsibilities */}
         <Card className="rounded-2xl mb-8 bg-[#114B5F] text-white border-0">
@@ -553,68 +551,6 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
                 </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Relevant Education & Training Programs - For Featured Roles */}
-        {job.job_kind === 'featured_role' && (
-          <>
-            <hr className="my-12 border-gray-200" />
-            <div id="programs" className="my-12">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    Relevant Education & Training Programs
-                  </h3>
-                  {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
-                  <p className="text-gray-500 text-sm mt-2">
-                    No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Skills & Responsibilities */}
-        <Card className="rounded-2xl mb-8 bg-[#114B5F] text-white border-0">
-          <CardHeader>
-            <CardTitle className="text-xl text-white">Skills and Responsibilities</CardTitle>
-          </CardHeader>
-          <CardContent className="px-8 pb-8 pt-0">
-            <div className="space-y-8">
-
-              {/* CareerOneStop Video - Only for occupations */}
-              {job.job_kind === 'occupation' && job.video_url && (
-                    <>
-                      <div className="border-t border-[#093A4B]"></div>
-                      <div>
-                        <h3 className="font-semibold mb-4 text-white flex items-center gap-2">
-                          <svg className="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                          </svg>
-                          Career Video
-                        </h3>
-                        <a 
-                          href={job.video_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-white hover:text-teal-300 font-medium transition-colors group"
-                        >
-                          Watch Career Video on CareerOneStop
-                          <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                          </svg>
-                        </a>
-                      </div>
-                    </>
               )}
             </div>
           </CardContent>
