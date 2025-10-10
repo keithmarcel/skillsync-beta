@@ -439,7 +439,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       return (
                         <Tooltip key={index}>
                           <TooltipTrigger asChild>
-                            <span className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-[#CCFBF1] text-[#0D5B52] font-medium cursor-help">
+                            <span className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-[#CCFBF1] text-[#0D5B52] font-semibold cursor-help">
                               {skillData.name}
                             </span>
                           </TooltipTrigger>
