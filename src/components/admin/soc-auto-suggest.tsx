@@ -149,7 +149,10 @@ export function SocAutoSuggest({
                 </div>
                 <Button
                   type="button"
-                  onClick={() => onAccept(suggestion.soc_code, suggestion.soc_title)}
+                  onClick={() => {
+                    onAccept(suggestion.soc_code, suggestion.soc_title)
+                    setSuggestion(null) // Close the card
+                  }}
                   className="bg-teal-600 hover:bg-teal-700"
                 >
                   Use This Code
@@ -187,7 +190,10 @@ export function SocAutoSuggest({
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => onAccept(alt.soc_code, alt.title)}
+                          onClick={() => {
+                            onAccept(alt.soc_code, alt.title)
+                            setSuggestion(null) // Close the card
+                          }}
                         >
                           Use
                         </Button>

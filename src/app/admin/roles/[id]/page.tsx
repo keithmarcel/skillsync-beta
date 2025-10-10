@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
 import { Button } from '@/components/ui/button';
@@ -94,7 +95,28 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         },
         {
           key: 'soc_code',
-          label: 'SOC Code',
+          label: (
+            <div className="flex items-center gap-2">
+              <span>SOC Code</span>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <InfoIcon className="h-4 w-4 text-gray-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-xs bg-gray-900 text-white border-gray-700">
+                    <p className="text-sm">
+                      <strong>What happens when you click AI Suggest:</strong><br/>
+                      • AI analyzes your job title and description<br/>
+                      • Suggests the best matching SOC code<br/>
+                      • Shows confidence level and reasoning<br/>
+                      • You can review and accept or modify<br/>
+                      • No changes until you click "Use This Code"
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          ),
           type: EntityFieldType.CUSTOM,
           description: '📍 Shown on: Backend only (used for skills/O*NET matching)',
           helpText: 'Standard Occupational Classification - not visible to users',
@@ -105,34 +127,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             
             return (
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <Input
-                      value={value || ''}
-                      onChange={(e: any) => onChange(e.target.value)}
-                      placeholder="e.g., 13-1082.00"
-                    />
-                  </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button type="button" variant="ghost" size="icon" className="shrink-0">
-                          <InfoIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-sm">
-                          <strong>What happens when you click AI Suggest:</strong><br/>
-                          • AI analyzes your job title and description<br/>
-                          • Suggests the best matching SOC code<br/>
-                          • Shows confidence level and reasoning<br/>
-                          • You can review and accept or modify<br/>
-                          • No changes until you click "Use This Code"
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
+                <Input
+                  value={value || ''}
+                  onChange={(e: any) => onChange(e.target.value)}
+                  placeholder="e.g., 13-1082.00"
+                />
                 <SocAutoSuggest
                   jobTitle={entity.title || ''}
                   jobDescription={entity.long_desc || ''}
@@ -190,6 +189,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           type: EntityFieldType.SELECT,
           placeholder: 'Select employment type',
           description: '📍 Shown on: Role Card (pill), Role Details Page',
+          helpText: 'Pre-populated from database if available',
           options: [
             { value: 'Full-time', label: 'Full-time' },
             { value: 'Part-time', label: 'Part-time' },
@@ -242,28 +242,19 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         {
           key: 'education_level',
           label: 'Education Requirements',
-          type: EntityFieldType.CUSTOM,
+          type: EntityFieldType.SELECT,
           description: '📍 Shown on: Role Details Page only',
-          helpText: 'O*NET baseline shown above, override if needed',
-          component: ({ value, onChange, entity }: any) => (
-            <div className="space-y-3">
-              {entity.education_level && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <div className="text-xs font-semibold text-blue-700 mb-1">FROM O*NET/BLS:</div>
-                  <div className="text-sm text-blue-900">{entity.education_level}</div>
-                </div>
-              )}
-              <Input
-                type="text"
-                value={value || ''}
-                onChange={(e: any) => onChange(e.target.value)}
-                placeholder={entity.education_level || 'e.g., High school diploma or equivalent'}
-              />
-              <p className="text-xs text-gray-500">
-                💡 O*NET data shown above. Leave empty to use O*NET value, or enter custom text to override.
-              </p>
-            </div>
-          )
+          helpText: 'Inherited from O*NET/BLS if available, can be overridden',
+          placeholder: 'Select education level',
+          options: [
+            { value: 'No formal educational credential', label: 'No formal education' },
+            { value: 'High school diploma or equivalent', label: 'High school diploma or equivalent' },
+            { value: 'Postsecondary nondegree award', label: 'Certificate' },
+            { value: "Associate's degree", label: "Associate's Degree" },
+            { value: "Bachelor's degree", label: "Bachelor's Degree" },
+            { value: "Master's degree", label: "Master's Degree" },
+            { value: 'Doctoral or professional degree', label: 'Doctorate' }
+          ]
         },
         {
           key: 'median_wage_usd',
@@ -271,6 +262,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           type: EntityFieldType.CURRENCY,
           placeholder: 'e.g., 75000',
           description: '📍 Shown on: Role Card, Role Details Page',
+          helpText: 'Inherited from O*NET/BLS if available, can be overridden',
           format: (value: number | null) => value ? formatCurrency(value) : '',
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
         },
@@ -280,43 +272,123 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           type: EntityFieldType.CUSTOM,
           description: '📍 Shown on: Role Details Page only (hero image, 800×600px)',
           helpText: 'Recommended upload size: 1600×1200px (2x for retina)',
-          component: ({ value, onChange }: any) => (
-            <div className="space-y-3">
-              {value && (
-                <div className="space-y-2">
-                  <div className="text-sm font-medium text-gray-700">Preview (actual size on detail page):</div>
-                  <div className="relative w-full max-w-[800px] h-[600px] rounded-lg overflow-hidden border-2 border-gray-300">
-                    <img 
-                      src={value} 
-                      alt="Featured" 
-                      className="w-full h-full object-cover"
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-2 right-2"
-                      onClick={() => onChange(null)}
-                    >
-                      Remove
-                    </Button>
+          component: ({ value, onChange, entity }: any) => {
+            const [uploading, setUploading] = React.useState(false)
+            const fileInputRef = React.useRef<HTMLInputElement>(null)
+            
+            const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+              const file = e.target.files?.[0]
+              if (!file || !entity.id) return
+
+              // Validate file type
+              const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+              if (!allowedTypes.includes(file.type)) {
+                alert('Invalid file type. Only JPG, PNG, and WebP files are allowed.')
+                return
+              }
+
+              // Validate file size (5MB)
+              if (file.size > 5 * 1024 * 1024) {
+                alert('File too large. Maximum file size is 5MB.')
+                return
+              }
+
+              // Validate image dimensions
+              const img = new Image()
+              const previewUrl = URL.createObjectURL(file)
+              
+              img.onload = async () => {
+                // Check minimum dimensions (800x600)
+                if (img.width < 800 || img.height < 600) {
+                  alert(`Image too small. Minimum size is 800×600 pixels. Your image is ${img.width}×${img.height}.`)
+                  URL.revokeObjectURL(previewUrl)
+                  return
+                }
+
+                // Upload the file
+                setUploading(true)
+                try {
+                  const formData = new FormData()
+                  formData.append('image', file)
+                  formData.append('roleId', entity.id)
+
+                  const response = await fetch('/api/admin/role-image', {
+                    method: 'POST',
+                    body: formData
+                  })
+
+                  if (!response.ok) {
+                    const error = await response.json()
+                    throw new Error(error.error || 'Failed to upload image')
+                  }
+
+                  const result = await response.json()
+                  onChange(result.image_url)
+                  alert('Image uploaded successfully!')
+                } catch (error) {
+                  alert(error instanceof Error ? error.message : 'Failed to upload image')
+                } finally {
+                  setUploading(false)
+                  URL.revokeObjectURL(previewUrl)
+                }
+              }
+              
+              img.onerror = () => {
+                alert('Invalid image. Could not load the selected file.')
+                URL.revokeObjectURL(previewUrl)
+              }
+              
+              img.src = previewUrl
+            }
+
+            return (
+              <div className="space-y-3">
+                {value && (
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-700">Preview (actual size on detail page):</div>
+                    <div className="relative w-full max-w-[800px] h-[600px] rounded-lg overflow-hidden border-2 border-gray-300">
+                      <img 
+                        src={value} 
+                        alt="Featured" 
+                        className="w-full h-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={() => onChange(null)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
+                )}
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading || !entity.id}
+                  >
+                    {uploading ? 'Uploading...' : 'Choose File'}
+                  </Button>
+                  <p className="text-xs text-gray-500 mt-2">
+                    📐 <strong>Recommended size:</strong> 1600×1200px (2x for retina displays)<br/>
+                    📁 <strong>Accepted formats:</strong> JPG, PNG, WebP (max 5MB)<br/>
+                    📏 <strong>Minimum size:</strong> 800×600px
+                  </p>
                 </div>
-              )}
-              <div>
-                <Input
-                  type="url"
-                  value={value || ''}
-                  onChange={(e: any) => onChange(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                />
-                <p className="text-xs text-gray-500 mt-2">
-                  📐 <strong>Recommended size:</strong> 1600×1200px (2x for retina displays)<br/>
-                  💡 <strong>Future:</strong> Direct upload support coming soon
-                </p>
               </div>
-            </div>
-          )
+            )
+          }
         }
       ]
     },
