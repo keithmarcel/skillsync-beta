@@ -230,6 +230,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           type: EntityFieldType.SELECT,
           required: true,
           description: 'Shown on: Role Details Page only',
+          helpText: '⚠️ Inherits from O*NET/BLS data if available, can be overridden',
           placeholder: 'Select education level',
           options: [
             { value: 'No formal educational credential', label: 'No formal education' },
@@ -248,6 +249,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           required: true,
           placeholder: 'e.g., 75000',
           description: 'Shown on: Role Card, Role Details Page',
+          helpText: '⚠️ Inherits from BLS wage data (Tampa MSA) if available, can be overridden',
           format: (value: number | null) => value ? formatCurrency(value) : '',
           parse: (value: string) => value ? parseFloat(value.replace(/[^0-9.-]+/g, '')) : null
         },
