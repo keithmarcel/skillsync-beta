@@ -1,9 +1,10 @@
-'use client';
-
 import { useRouter } from 'next/navigation';
 import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { InfoIcon } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useAdminEntity } from '@/hooks/useAdminEntity';
 import { useCompaniesList } from '@/hooks/useCompaniesList';
@@ -92,33 +93,50 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         {
           key: 'soc_code',
           label: 'SOC Code',
-          type: EntityFieldType.TEXT,
-          placeholder: 'e.g., 13-1082.00',
-          description: 'Standard Occupational Classification - used for skills and O*NET data',
-          helpText: '💡 Use AI Suggest below if unsure'
-        },
-        {
-          key: 'soc_suggest',
-          label: 'AI SOC Suggestion',
           type: EntityFieldType.CUSTOM,
-          description: 'Get AI-powered SOC code recommendations',
-          component: ({ entity }: any) => {
+          description: 'Standard Occupational Classification - used for skills and O*NET data',
+          component: ({ value, onChange, entity }: any) => {
             const handleAccept = (socCode: string) => {
-              const event = new Event('input', { bubbles: true })
-              const socInput = document.querySelector('input[name="soc_code"]') as HTMLInputElement
-              if (socInput) {
-                socInput.value = socCode
-                socInput.dispatchEvent(event)
-              }
+              onChange(socCode)
             }
             
             return (
-              <SocAutoSuggest
-                jobTitle={entity.title || ''}
-                jobDescription={entity.long_desc || ''}
-                onAccept={handleAccept}
-                disabled={!entity.title}
-              />
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <Input
+                      value={value || ''}
+                      onChange={(e: any) => onChange(e.target.value)}
+                      placeholder="e.g., 13-1082.00"
+                    />
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" variant="ghost" size="icon" className="shrink-0">
+                          <InfoIcon className="h-4 w-4 text-gray-500" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-sm">
+                          <strong>What happens when you click AI Suggest:</strong><br/>
+                          • AI analyzes your job title and description<br/>
+                          • Suggests the best matching SOC code<br/>
+                          • Shows confidence level and reasoning<br/>
+                          • You can review and accept or modify<br/>
+                          • No changes until you click "Use This Code"
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <SocAutoSuggest
+                  jobTitle={entity.title || ''}
+                  jobDescription={entity.long_desc || ''}
+                  onAccept={handleAccept}
+                  disabled={!entity.title}
+                />
+              </div>
             )
           }
         },
