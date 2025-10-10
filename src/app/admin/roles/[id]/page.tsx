@@ -319,18 +319,63 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         {
           key: 'short_desc',
           label: 'Short Description (for cards)',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'Enter a brief description (13-15 words, ~95 characters)',
-          description: 'This appears on role cards in listings',
-          helpText: 'Keep it concise and compelling - this is the first thing users see'
+          type: EntityFieldType.CUSTOM,
+          description: '✅ This appears on role cards in listings (13-15 words, ~95 characters)',
+          component: ({ value, onChange }: any) => (
+            <div className="space-y-2">
+              <textarea
+                value={value || ''}
+                onChange={(e: any) => onChange(e.target.value)}
+                placeholder="Enter a brief description..."
+                className="w-full min-h-[80px] p-3 border rounded-md resize-none"
+                maxLength={95}
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500">
+                  {value?.length || 0}/95 characters
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // TODO: Implement AI generation
+                    alert('AI generation coming soon - will analyze role and generate compelling short description')
+                  }}
+                >
+                  ✨ Generate with AI
+                </Button>
+              </div>
+            </div>
+          )
         },
         {
           key: 'long_desc',
           label: 'Full Job Description',
-          type: EntityFieldType.TEXTAREA,
+          type: EntityFieldType.CUSTOM,
           required: true,
-          placeholder: 'Enter a detailed job description...',
-          description: 'This appears on the role detail page'
+          description: '✅ This appears on the role detail page',
+          component: ({ value, onChange }: any) => (
+            <div className="space-y-2">
+              <textarea
+                value={value || ''}
+                onChange={(e: any) => onChange(e.target.value)}
+                placeholder="Enter a detailed job description..."
+                className="w-full min-h-[200px] p-3 border rounded-md resize-none"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  // TODO: Implement AI generation
+                  alert('AI generation coming soon - will analyze role and generate comprehensive description')
+                }}
+              >
+                ✨ Generate with AI
+              </Button>
+            </div>
+          )
         }
       ]
     },
