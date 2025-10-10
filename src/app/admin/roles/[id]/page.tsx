@@ -482,7 +482,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           render: (value: any, formData: any, onChange: any, allOnChange: any) => {
             const [jobSkills, setJobSkills] = React.useState<any[]>([]);
             const [loading, setLoading] = React.useState(true);
-            const [removedSkills, setRemovedSkills] = React.useState<Set<string>>(new Set());
+            const [removedSkillIds, setRemovedSkillIds] = React.useState<Set<string>>(new Set());
 
             React.useEffect(() => {
               if (role?.id) {
@@ -496,43 +496,22 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               }
             }, [role?.id]);
 
-            const handleRemoveSkill = async (skillId: string) => {
-              if (!role?.id) return;
+            const handleRemoveSkill = (skillId: string) => {
+              // Remove from local state
+              const updatedSkills = jobSkills.filter(s => s.id !== skillId);
+              setJobSkills(updatedSkills);
               
-              try {
-                const response = await fetch(`/api/admin/roles/${role.id}/skills/${skillId}`, {
-                  method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                  // Remove from local state
-                  setJobSkills(prev => prev.filter(s => s.id !== skillId));
-                  setRemovedSkills(prev => {
-                    const newSet = new Set(prev);
-                    newSet.add(skillId);
-                    return newSet;
-                  });
-                  
-                  toast({
-                    title: 'Skill Removed',
-                    description: 'Skill removed successfully.'
-                  });
-                } else {
-                  throw new Error('Failed to remove skill');
-                }
-              } catch (error) {
-                toast({
-                  title: 'Remove Failed',
-                  description: error instanceof Error ? error.message : 'Failed to remove skill',
-                  variant: 'destructive'
-                });
-              }
+              // Track in localChanges for save
+              setLocalChanges(prev => ({
+                ...prev,
+                removed_skill_ids: [...(prev.removed_skill_ids || []), skillId]
+              }));
             };
 
             return (
               <div className="space-y-3">
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900">Current Skills</h3>
+                  <h3 className="text-sm font-medium text-gray-900">Current Skills</h3>
                   <p className="text-xs text-gray-500 mt-1">
                     Click the X to remove a skill. Changes will be saved when you click Save.
                   </p>
@@ -951,6 +930,21 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     }
     
     try {
+      // Handle removed skills first if any
+      const removedSkillIds = (dataToSave as any).removed_skill_ids;
+      if (removedSkillIds && removedSkillIds.length > 0 && role?.id) {
+        console.log('🗑️ Removing skills:', removedSkillIds);
+        
+        for (const skillId of removedSkillIds) {
+          await fetch(`/api/admin/roles/${role.id}/skills/${skillId}`, {
+            method: 'DELETE'
+          });
+        }
+        
+        // Remove from dataToSave so it doesn't try to save to jobs table
+        delete (dataToSave as any).removed_skill_ids;
+      }
+      
       const savedRole = await handleSave(dataToSave);
       
       console.log('✅ Save result:', savedRole);
