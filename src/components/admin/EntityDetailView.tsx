@@ -92,6 +92,7 @@ export interface EntityDetailViewProps<T extends { id: string; status?: string; 
   viewHref?: string
   customTitle?: string
   alertMessage?: string
+  hasExternalChanges?: boolean
 }
 
 export function EntityDetailView<T extends { id: string; status?: string; is_featured?: boolean }>({
@@ -108,7 +109,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
   backHref,
   viewHref,
   customTitle,
-  alertMessage
+  alertMessage,
+  hasExternalChanges = false
 }: EntityDetailViewProps<T>) {
   const router = useRouter()
   const { user } = useAuth()
@@ -685,18 +687,16 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
           <Button
             size="sm"
             onClick={handleSave}
-            disabled={isSaving || !isDirty}
+            disabled={isSaving || (!isDirty && !hasExternalChanges)}
           >
             {isSaving ? (
               <InlineSpinner size={16} />
             ) : (
-              <Save className="mr-2 h-4 w-4" />
+              'Save'
             )}
-            Save Changes
           </Button>
         </div>
       </div>
-      
       {/* Alert Banner */}
       {alertMessage && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

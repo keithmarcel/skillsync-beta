@@ -34,6 +34,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
   // Local state for card editor changes
   const [localChanges, setLocalChanges] = React.useState<Record<string, any>>({});
   
+  // Track if there are unsaved card editor changes
+  const hasLocalChanges = Object.keys(localChanges).length > 0;
+  
   // Debug: Log the role data to see what's being loaded
   React.useEffect(() => {
     if (role) {
@@ -818,6 +821,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       customTitle={customTitle}
       alertMessage="You're editing live data. Changes will be reflected immediately after saving."
       viewHref={!isNew ? `/jobs/${role?.id}` : undefined}
+      hasExternalChanges={hasLocalChanges}
     />
   )
 }
