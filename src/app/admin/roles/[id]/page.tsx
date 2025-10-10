@@ -83,13 +83,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           type: EntityFieldType.SELECT,
           required: true,
           disabled: isCompanyAdmin, // Company admins can't change company
-          options: [
-            { value: '', label: 'Select a company' },
-            ...companies.map(company => ({
-              value: company.id,
-              label: company.name
-            }))
-          ]
+          placeholder: 'Select a company',
+          options: companies.map(company => ({
+            value: company.id,
+            label: company.name
+          }))
         },
         {
           key: 'job_kind',
@@ -106,8 +104,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           label: 'Category',
           type: EntityFieldType.SELECT,
           required: true,
+          placeholder: 'Select a category',
           options: [
-            { value: '', label: 'Select a category' },
             { value: 'Business', label: 'Business' },
             { value: 'Health & Education', label: 'Health & Education' },
             { value: 'Tech & Services', label: 'Tech & Services' },
