@@ -510,6 +510,7 @@ export default function JobsPage() {
             <div>
               <TitleHero 
                 title="Favorites"
+                subtitle="Review and manage the jobs you've bookmarked for future reference."
               />
               
               <div className="mt-8">
