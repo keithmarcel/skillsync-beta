@@ -31,11 +31,18 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     handleDelete 
   } = useAdminEntity<Job>('jobs', params.id === 'new' ? null : params.id);
   
-  // Local state for card editor changes
   const [localChanges, setLocalChanges] = React.useState<Record<string, any>>({});
   
   // Track if there are unsaved card editor changes
   const hasLocalChanges = Object.keys(localChanges).length > 0;
+  
+  // Clear local changes when role data updates (after save)
+  React.useEffect(() => {
+    if (role && !isLoadingRole) {
+      // Clear local changes when fresh data arrives from DB
+      setLocalChanges({});
+    }
+  }, [role?.updated_at, isLoadingRole]); // Only when updated_at changes (after save)
   
   // Debug: Log the role data to see what's being loaded
   React.useEffect(() => {
@@ -48,7 +55,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         work_location_type: role.work_location_type,
         location_city: role.location_city,
         location_state: role.location_state,
-        education_level: role.education_level
+        education_level: role.education_level,
       });
     }
   }, [role]);
@@ -773,11 +780,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     
     console.log('✅ Save result:', savedRole);
     
-    // Clear local changes after successful save
-    if (savedRole) {
-      setLocalChanges({});
-      console.log('🧹 Local changes cleared');
-    }
+    // Don't clear local changes - they'll be overwritten when role data refreshes
+    // The useAdminEntity hook should update the role with fresh data from DB
+    // Clearing localChanges here causes the UI to revert before role updates
     if (savedRole && isNew) {
       router.push(`/admin/roles/${savedRole.id}`);
     }
