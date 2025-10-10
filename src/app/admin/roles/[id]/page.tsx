@@ -848,26 +848,6 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               </div>
             );
           }
-        },
-      ]
-    },
-    {
-      id: 'additional',
-      label: 'Additional Role Details',
-      fields: [
-        {
-          key: 'experience_level',
-          label: 'Experience Level',
-          type: EntityFieldType.SELECT,
-          description: 'Shown on: Not currently displayed',
-          helpText: 'Internal field for future use',
-          options: [
-            { value: 'entry', label: 'Entry Level' },
-            { value: 'mid_level', label: 'Mid Level' },
-            { value: 'senior', label: 'Senior' },
-            { value: 'lead', label: 'Lead' },
-            { value: 'executive', label: 'Executive' }
-          ]
         }
       ]
     }
