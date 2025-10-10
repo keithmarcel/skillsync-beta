@@ -450,33 +450,38 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
               }
             }, [role?.id]);
 
-            if (loading) {
-              return <div className="text-sm text-gray-500">Loading skills...</div>;
-            }
-
-            if (jobSkills.length === 0) {
-              return (
-                <div className="text-sm text-gray-500 italic">
-                  No skills assigned yet. Use the extractor below to add skills.
-                </div>
-              );
-            }
-
             return (
-              <div className="flex flex-wrap gap-2">
-                {jobSkills.map((js: any) => (
-                  <div
-                    key={js.id}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-100 border border-teal-600 rounded-full text-sm"
-                  >
-                    <span className="font-medium text-teal-600">{js.name}</span>
-                    {js.weight && (
-                      <span className="text-xs text-teal-600 opacity-75">
-                        {Math.round(js.weight * 100)}%
-                      </span>
-                    )}
+              <div className="space-y-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900">Current Skills</h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Skills inherited from SOC taxonomy mapping. Use the extractor below to update.
+                  </p>
+                </div>
+                
+                {loading ? (
+                  <div className="text-sm text-gray-500">Loading skills...</div>
+                ) : jobSkills.length === 0 ? (
+                  <div className="text-sm text-gray-500 italic">
+                    No skills assigned yet. Use the extractor below to add skills.
                   </div>
-                ))}
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {jobSkills.map((js: any) => (
+                      <div
+                        key={js.id}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-100 border border-teal-600 rounded-full text-sm"
+                      >
+                        <span className="font-medium text-teal-600">{js.name}</span>
+                        {js.weight && (
+                          <span className="text-xs text-teal-600 opacity-75">
+                            {Math.round(js.weight * 100)}%
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           }
