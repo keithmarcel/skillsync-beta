@@ -13,6 +13,7 @@ interface AIGenerateButtonProps {
   };
   className?: string;
   disabled?: boolean;
+  size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
 export function AIGenerateButton({
@@ -20,14 +21,15 @@ export function AIGenerateButton({
   buttonText,
   tooltipContent,
   className = '',
-  disabled = false
+  disabled = false,
+  size = 'default'
 }: AIGenerateButtonProps) {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <Button
         type="button"
         variant="outline"
-        size="sm"
+        size={size}
         onClick={onClick}
         disabled={disabled}
         className="gap-2"
