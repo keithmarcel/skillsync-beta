@@ -3,6 +3,14 @@
 
 BEGIN;
 
+-- Note: Database already has 'Full-Time' (capital T) but dropdown uses 'Full-time' (lowercase t)
+-- We need to standardize to match the dropdown options
+
+-- Standardize existing job_type values to match dropdown options
+UPDATE public.jobs
+SET job_type = 'Full-time'
+WHERE job_type = 'Full-Time';
+
 -- Set default job_type to 'Full-time' for roles that don't have it set
 UPDATE public.jobs
 SET job_type = 'Full-time'
