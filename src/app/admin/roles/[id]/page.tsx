@@ -482,10 +482,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           render: (value: any, formData: any, onChange: any, allOnChange: any) => {
             const [jobSkills, setJobSkills] = React.useState<any[]>([]);
             const [loading, setLoading] = React.useState(true);
-            const [removedSkillIds, setRemovedSkillIds] = React.useState<Set<string>>(new Set());
+            const [refreshTrigger, setRefreshTrigger] = React.useState(0);
 
             React.useEffect(() => {
               if (role?.id) {
+                setLoading(true);
                 fetch(`/api/admin/roles/${role.id}/skills`)
                   .then(res => res.json())
                   .then(data => {
@@ -494,7 +495,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                   })
                   .catch(() => setLoading(false));
               }
-            }, [role?.id]);
+            }, [role?.id, refreshTrigger]);
 
             const handleRemoveSkill = (skillId: string) => {
               // Remove from local state
@@ -507,6 +508,11 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
                 removed_skill_ids: [...(prev.removed_skill_ids || []), skillId]
               }));
             };
+            
+            // Expose refresh function to parent
+            React.useEffect(() => {
+              (window as any).refreshSkillsList = () => setRefreshTrigger(prev => prev + 1);
+            }, []);
 
             return (
               <div className="space-y-3">
@@ -954,6 +960,13 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       if (savedRole) {
         setLocalChanges({});
         console.log('🧹 Local changes cleared after save');
+        
+        // Refresh skills list if skills were removed
+        if (removedSkillIds && removedSkillIds.length > 0) {
+          if ((window as any).refreshSkillsList) {
+            (window as any).refreshSkillsList();
+          }
+        }
       }
       
       if (savedRole && isNew) {
