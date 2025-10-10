@@ -239,21 +239,39 @@ export async function getFeaturedRoles(): Promise<Job[]> {
     return company?.is_published !== false // Allow null/undefined (column doesn't exist yet)
   }) || []
 
-  // Check for curated skills for each role with a SOC code
-  for (const job of filteredData) {
-    if (job.soc_code) {
-      const { data: curatedSkills, error: curatedError } = await supabase
-        .from('soc_skills')
-        .select(`
-          weight,
-          skill:skills(*)
-        `)
-        .eq('soc_code', job.soc_code)
-        .order('weight', { ascending: false })
+  // OPTIMIZED: Fetch all curated skills in ONE query
+  const socCodes = Array.from(new Set(filteredData.map(job => job.soc_code).filter(Boolean)))
+  
+  if (socCodes.length > 0) {
+    const { data: allCuratedSkills } = await supabase
+      .from('soc_skills')
+      .select(`
+        soc_code,
+        weight,
+        skill:skills(*)
+      `)
+      .in('soc_code', socCodes)
+      .order('weight', { ascending: false })
 
-      // Use curated skills if they exist
-      if (!curatedError && curatedSkills && curatedSkills.length > 0) {
-        job.skills = curatedSkills
+    // Group skills by SOC code
+    const skillsBySoc = new Map<string, any[]>()
+    allCuratedSkills?.forEach(item => {
+      if (!skillsBySoc.has(item.soc_code)) {
+        skillsBySoc.set(item.soc_code, [])
+      }
+      skillsBySoc.get(item.soc_code)!.push({
+        weight: item.weight,
+        skill: item.skill
+      })
+    })
+
+    // Apply curated skills to jobs
+    for (const job of filteredData) {
+      if (job.soc_code && skillsBySoc.has(job.soc_code)) {
+        const curatedSkills = skillsBySoc.get(job.soc_code)!
+        if (curatedSkills.length > 0) {
+          job.skills = curatedSkills
+        }
       }
     }
   }
@@ -286,43 +304,78 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
     return !job.company_id || company?.is_published !== false
   }) || []
 
-  // Check for curated skills and add crosswalk counts for each occupation with a SOC code
-  for (const job of filteredData) {
-    if (job.soc_code) {
-      // Get curated skills
-      const { data: curatedSkills, error: curatedError } = await supabase
-        .from('soc_skills')
-        .select(`
-          weight,
-          skill:skills(*)
-        `)
-        .eq('soc_code', job.soc_code)
-        .order('weight', { ascending: false })
+  // OPTIMIZED: Fetch all data in parallel with batch queries
+  const socCodes = Array.from(new Set(filteredData.map(job => job.soc_code).filter(Boolean)))
+  const jobIds = filteredData.map(job => job.id)
+  
+  const [curatedSkillsResult, relatedJobsResult, relatedProgramsResult] = await Promise.all([
+    // Fetch all curated skills in ONE query
+    socCodes.length > 0 ? supabase
+      .from('soc_skills')
+      .select(`
+        soc_code,
+        weight,
+        skill:skills(*)
+      `)
+      .in('soc_code', socCodes)
+      .order('weight', { ascending: false }) : Promise.resolve({ data: [] }),
+    
+    // Fetch all related featured roles counts in ONE query
+    socCodes.length > 0 ? supabase
+      .from('jobs')
+      .select('soc_code')
+      .eq('job_kind', 'featured_role')
+      .eq('is_published', true)
+      .in('soc_code', socCodes) : Promise.resolve({ data: [] }),
+    
+    // Fetch all related programs counts in ONE query
+    supabase
+      .from('program_jobs')
+      .select('job_id')
+      .in('job_id', jobIds)
+  ])
 
-      // Use curated skills if they exist
-      if (!curatedError && curatedSkills && curatedSkills.length > 0) {
+  // Group curated skills by SOC code
+  const skillsBySoc = new Map<string, any[]>()
+  curatedSkillsResult.data?.forEach(item => {
+    if (!skillsBySoc.has(item.soc_code)) {
+      skillsBySoc.set(item.soc_code, [])
+    }
+    skillsBySoc.get(item.soc_code)!.push({
+      weight: item.weight,
+      skill: item.skill
+    })
+  })
+
+  // Count related jobs by SOC code
+  const relatedJobsBySoc = new Map<string, number>()
+  relatedJobsResult.data?.forEach(job => {
+    const count = relatedJobsBySoc.get(job.soc_code) || 0
+    relatedJobsBySoc.set(job.soc_code, count + 1)
+  })
+
+  // Count related programs by job ID
+  const relatedProgramsByJob = new Map<string, number>()
+  relatedProgramsResult.data?.forEach(item => {
+    const count = relatedProgramsByJob.get(item.job_id) || 0
+    relatedProgramsByJob.set(item.job_id, count + 1)
+  })
+
+  // Apply all data to jobs
+  for (const job of filteredData) {
+    const jobWithCounts = job as any
+    
+    // Apply curated skills
+    if (job.soc_code && skillsBySoc.has(job.soc_code)) {
+      const curatedSkills = skillsBySoc.get(job.soc_code)!
+      if (curatedSkills.length > 0) {
         job.skills = curatedSkills
       }
-
-      // Count related featured roles (same SOC code)
-      const relatedJobsResult = await supabase
-        .from('jobs')
-        .select('*', { count: 'exact', head: true })
-        .eq('job_kind', 'featured_role')
-        .eq('soc_code', job.soc_code)
-        .eq('is_published', true);
-      
-      const jobWithCounts = job as any;
-      jobWithCounts.related_jobs_count = relatedJobsResult.count || 0
-
-      // Count related programs via program_jobs junction table
-      const relatedProgramsResult = await supabase
-        .from('program_jobs')
-        .select('*', { count: 'exact', head: true })
-        .eq('job_id', job.id);
-      
-      jobWithCounts.related_programs_count = relatedProgramsResult.count || 0
     }
+    
+    // Apply counts
+    jobWithCounts.related_jobs_count = job.soc_code ? (relatedJobsBySoc.get(job.soc_code) || 0) : 0
+    jobWithCounts.related_programs_count = relatedProgramsByJob.get(job.id) || 0
   }
 
   return filteredData
