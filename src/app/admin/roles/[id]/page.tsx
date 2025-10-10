@@ -706,6 +706,20 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       label: 'SEO & Metadata',
       fields: [
         {
+          key: 'seo_title',
+          label: 'SEO Title',
+          type: EntityFieldType.TEXT,
+          placeholder: 'e.g., Senior Software Engineer at TechCorp | Tampa, FL',
+          description: 'Title tag for search engines (50-60 characters)'
+        },
+        {
+          key: 'meta_description',
+          label: 'Meta Description',
+          type: EntityFieldType.TEXTAREA,
+          placeholder: 'e.g., Join TechCorp as a Senior Software Engineer in Tampa. Competitive salary, great benefits. Apply now!',
+          description: 'Brief summary for search results (150-160 characters)'
+        },
+        {
           key: 'og_title',
           label: 'Open Graph Title',
           type: EntityFieldType.TEXT,
@@ -832,20 +846,6 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           render: () => (
             <div className="border-t border-gray-200 my-6"></div>
           )
-        },
-        {
-          key: 'seo_title',
-          label: 'SEO Title',
-          type: EntityFieldType.TEXT,
-          placeholder: 'e.g., Senior Software Engineer at TechCorp | Tampa, FL',
-          description: 'Title tag for search engines (50-60 characters)'
-        },
-        {
-          key: 'meta_description',
-          label: 'Meta Description',
-          type: EntityFieldType.TEXTAREA,
-          placeholder: 'e.g., Join TechCorp as a Senior Software Engineer in Tampa. Competitive salary, great benefits. Apply now!',
-          description: 'Brief summary for search results (150-160 characters)'
         },
         {
           key: 'slug',
