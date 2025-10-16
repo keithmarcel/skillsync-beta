@@ -52,15 +52,40 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
     try {
       setLoading(true)
       
-      const { data, error } = await supabase
+      // Fetch jobs with their invitation counts
+      const { data: jobsData, error: jobsError } = await supabase
         .from('jobs')
         .select('*')
         .eq('company_id', companyId)
         .eq('job_kind', 'featured_role')
         .order('title')
 
-      if (error) throw error
-      setJobs(data || [])
+      if (jobsError) throw jobsError
+
+      // For each job, count candidates who meet the proficiency threshold
+      const jobsWithCounts = await Promise.all(
+        (jobsData || []).map(async (job) => {
+          const requiredProficiency = job.required_proficiency_pct || 90
+          
+          // Count invitations where candidate meets or exceeds required proficiency
+          const { count, error: countError } = await supabase
+            .from('invitations')
+            .select('*', { count: 'exact', head: true })
+            .eq('job_id', job.id)
+            .gte('proficiency_pct', requiredProficiency)
+          
+          if (countError) {
+            console.error(`Error counting candidates for job ${job.id}:`, countError)
+          }
+          
+          return {
+            ...job,
+            candidates_count: count || 0
+          }
+        })
+      )
+      
+      setJobs(jobsWithCounts)
     } catch (error) {
       console.error('Error loading jobs:', error)
     } finally {
