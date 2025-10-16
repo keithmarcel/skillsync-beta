@@ -62,25 +62,36 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
 
       if (jobsError) throw jobsError
 
-      // For each job, count candidates who meet the proficiency threshold
+      // For each job, count candidates and assessments
       const jobsWithCounts = await Promise.all(
         (jobsData || []).map(async (job) => {
           const requiredProficiency = job.required_proficiency_pct || 90
           
           // Count invitations where candidate meets or exceeds required proficiency
-          const { count, error: countError } = await supabase
+          const { count: candidatesCount, error: candidatesError } = await supabase
             .from('invitations')
             .select('*', { count: 'exact', head: true })
             .eq('job_id', job.id)
             .gte('proficiency_pct', requiredProficiency)
           
-          if (countError) {
-            console.error(`Error counting candidates for job ${job.id}:`, countError)
+          if (candidatesError) {
+            console.error(`Error counting candidates for job ${job.id}:`, candidatesError)
+          }
+          
+          // Count assessments taken for this role
+          const { count: assessmentsCount, error: assessmentsError } = await supabase
+            .from('user_assessments')
+            .select('*', { count: 'exact', head: true })
+            .eq('job_id', job.id)
+          
+          if (assessmentsError) {
+            console.error(`Error counting assessments for job ${job.id}:`, assessmentsError)
           }
           
           return {
             ...job,
-            candidates_count: count || 0
+            candidates_count: candidatesCount || 0,
+            assessments_count: assessmentsCount || 0
           }
         })
       )
