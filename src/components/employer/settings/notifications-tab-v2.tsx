@@ -45,7 +45,7 @@ export function NotificationsTab({ company }: NotificationsTabProps) {
       <form onSubmit={handleSave} className="space-y-8">
         {/* Email Notifications */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Email Notifications</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Email Notifications</h3>
           <p className="text-sm text-gray-600 mb-4">
             Choose which emails you'd like to receive about your hiring activity.
           </p>
@@ -105,7 +105,7 @@ export function NotificationsTab({ company }: NotificationsTabProps) {
 
         {/* System Notifications */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">System Notifications</h3>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">System Notifications</h3>
           <p className="text-sm text-gray-600 mb-4">
             Stay informed about platform updates and important announcements.
           </p>

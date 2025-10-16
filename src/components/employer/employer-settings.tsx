@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { SectionWithTabs } from '@/components/ui/section-with-tabs'
 import { ProfileTab } from './settings/profile-tab-v2'
 import { AccountTab } from './settings/account-tab-v2'
 import { NotificationsTab } from './settings/notifications-tab-v2'
@@ -60,31 +60,30 @@ export function EmployerSettings({ company: initialCompany }: EmployerSettingsPr
     }
   }
 
-  return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 font-source-sans-pro">Manage Your Settings</h2>
-      
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
-        </TabsList>
+  const tabs = [
+    {
+      id: 'profile',
+      label: 'Profile',
+      content: <ProfileTab company={company} onUpdate={handleCompanyUpdate} />
+    },
+    {
+      id: 'account',
+      label: 'Account',
+      content: <AccountTab company={company} onUpdate={handleCompanyUpdate} />
+    },
+    {
+      id: 'notifications',
+      label: 'Notifications',
+      content: <NotificationsTab company={company} />
+    }
+  ]
 
-        <div className="flex justify-center mt-6">
-          <div className="w-full max-w-[672px]">
-            <TabsContent value="profile" className="mt-0">
-              <ProfileTab company={company} onUpdate={handleCompanyUpdate} />
-            </TabsContent>
-            <TabsContent value="account" className="mt-0">
-              <AccountTab company={company} onUpdate={handleCompanyUpdate} />
-            </TabsContent>
-            <TabsContent value="notifications" className="mt-0">
-              <NotificationsTab company={company} />
-            </TabsContent>
-          </div>
-        </div>
-      </Tabs>
-    </div>
+  return (
+    <SectionWithTabs
+      heading="Manage Your Settings"
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
+    />
   )
 }
