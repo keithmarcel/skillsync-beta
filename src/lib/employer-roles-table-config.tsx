@@ -97,9 +97,8 @@ export const employerRolesTableColumns = [
     key: 'title',
     label: 'Role Title',
     sortable: true,
-    width: 'large' as const,
     render: (value: string) => React.createElement('span', {
-      className: 'text-base font-semibold text-gray-900 font-source-sans-pro'
+      className: 'text-base font-semibold text-gray-900 font-source-sans-pro whitespace-nowrap'
     }, value)
   },
   {
@@ -108,7 +107,6 @@ export const employerRolesTableColumns = [
     sortable: true,
     filterable: true,
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
-    width: 'medium' as const,
     render: (value: string) => value ? renderCategoryBadge(value) : React.createElement(Badge, {
       style: { 
         backgroundColor: '#F3F4F6', 
@@ -123,26 +121,30 @@ export const employerRolesTableColumns = [
     key: 'assessments_count',
     label: 'Assessments',
     sortable: true,
-    width: 'small' as const,
-    render: (value: number) => React.createElement('span', {
+    centered: true,
+    render: (value: number) => React.createElement('div', {
+      className: 'flex items-center justify-center'
+    }, React.createElement('span', {
       className: 'text-sm text-gray-900'
-    }, `${value || 0}`)
+    }, `${value || 0}`))
   },
   {
     key: 'candidates_count',
     label: 'Candidates',
     sortable: true,
-    width: 'small' as const,
-    render: (value: number) => React.createElement('span', {
+    centered: true,
+    render: (value: number) => React.createElement('div', {
+      className: 'flex items-center justify-center'
+    }, React.createElement('span', {
       className: 'text-sm text-gray-900'
-    }, `${value || 0}`)
+    }, `${value || 0}`))
   },
   {
     key: 'is_published',
     label: 'Published',
     filterable: true,
     filterOptions: ['Published', 'Unpublished'],
-    width: 'small' as const,
+    centered: true,
     render: (value: boolean, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
       return renderPublishedSwitch(value, row, (row, newValue) => {
         onRowAction?.('toggle-publish', { ...row, newPublishState: newValue })
