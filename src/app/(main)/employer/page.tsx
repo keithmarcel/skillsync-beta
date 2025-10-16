@@ -148,12 +148,23 @@ export default function EmployerDashboardPage() {
     }
   }
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/auth/signin')
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <PageHeader
         title={`Welcome, ${company.name}!`}
         subtitle={getSubtitle()}
         variant="split"
+        primaryAction={{
+          label: 'Log Out',
+          onClick: handleLogout,
+          variant: 'outline'
+        }}
+        showPrimaryAction={true}
       />
 
       <main className="max-w-[1280px] mx-auto px-6">

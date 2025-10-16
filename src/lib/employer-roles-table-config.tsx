@@ -26,7 +26,7 @@ const renderPublishedSwitch = (isPublished: boolean, row: any, onToggle?: (row: 
   }))
 }
 
-// Helper to render actions dropdown
+// Helper to render actions dropdown for employer roles
 const renderActionsDropdown = (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
   const menuItems = []
   
