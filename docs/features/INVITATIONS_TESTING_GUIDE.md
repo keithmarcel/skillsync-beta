@@ -189,23 +189,7 @@
 ✅ Status enum validation works
 ✅ Count queries work
 
-✅ Passed: 9
 ❌ Failed: 0
-```
-
----
-
-## 🐛 Known Issues / Limitations
-
-1. **Invitations status:** All seeded invitations are "pending" (not "sent")
-   - Need to update status to "sent" to show as unread
-   - Run: Update invitations set status='sent' where status='pending'
-
-2. **Company logos:** May not display if logo_url is null
-   - Fallback to company name only
-
-3. **Real-time updates:** 30-second polling only
-   - Not true real-time (would need WebSockets)
 
 4. **Role Details / Assessment Results:** ✅ Now wired up
    - Role Details navigates to `/jobs/{job_id}` or searches by SOC code
@@ -220,11 +204,8 @@
 node scripts/seed-invitation-test-data.js
 
 # 2. Update invitations to "sent" status
-# (Run in Supabase SQL Editor)
-UPDATE employer_invitations 
-SET status = 'sent', 
-    invited_at = NOW() - INTERVAL '2 days'
-WHERE status = 'pending';
+# (Run in Supabase SQL Editor: scripts/fix-test-invitations-status.sql)
+# This makes test invitations visible to candidates
 
 # 3. Test database
 node scripts/test-invitations-db.js
@@ -241,6 +222,31 @@ npm run dev
 
 # 7. Navigate to /invitations
 ```
+
+---
+
+## 📋 Status Workflow Explanation
+
+**Understanding `pending` vs `sent`:**
+
+| Status | Visible To | Meaning | Trigger |
+|--------|-----------|---------|---------|
+| `pending` | Employer only | Candidate in pool, invitation NOT sent | Auto-populated when assessment >= threshold |
+| `sent` | Candidate | Invitation sent and visible | Employer clicks "Send Invitation" |
+| `applied` | Both | Candidate marked as applied | Candidate clicks "Mark as Applied" |
+| `declined` | Both | Candidate declined | Candidate clicks "Decline" |
+| `archived` | Neither (archived view) | Removed from active list | Either party archives |
+
+**Why This Design:**
+- Prevents spam - candidates only see intentional invitations
+- Gives employers control over timing and messaging
+- `pending` = employer's candidate pool
+- `sent` = candidate's inbox
+
+**For Testing:**
+- Seeded data starts as `pending` (realistic)
+- Run `scripts/fix-test-invitations-status.sql` to convert to `sent`
+- This simulates employer clicking "Send Invitation"
 
 ---
 

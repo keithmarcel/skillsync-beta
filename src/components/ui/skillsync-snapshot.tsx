@@ -154,7 +154,7 @@ export function SkillSyncSnapshot({ hasAssessments, metrics, skillData, assessme
               <p className="text-sm font-medium">Skill Mastery</p>
               <Target className="w-4 h-4 text-muted-foreground" />
             </div>
-            <div className="text-3xl font-bold mb-1">{masteryPercentage}%</div>
+            <div className="text-3xl font-bold mb-1">{finalSkillData.proficient}</div>
             <p className="text-xs text-muted-foreground">Out of {totalSkills} skills assessed</p>
           </CardContent>
         </Card>

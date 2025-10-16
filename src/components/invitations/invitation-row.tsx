@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreHorizontal, ExternalLink } from 'lucide-react'
+import { MoreHorizontal, ExternalLink, Check, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -153,14 +153,29 @@ export function InvitationRow({ invitation, isSelected, onSelect, isArchived, on
         )
       case 'applied':
         return (
-          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-gray-200 text-gray-700 min-w-[120px]">
+          <span className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-md text-xs font-medium bg-teal-100 text-teal-800 border border-teal-200 min-w-[120px]">
+            <Check className="w-3.5 h-3.5" />
             Applied
           </span>
         )
       case 'declined':
         return (
-          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-red-100 text-red-800 min-w-[120px]">
+          <span className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-md text-xs font-medium bg-red-100 text-red-800 border border-red-200 min-w-[120px]">
+            <X className="w-3.5 h-3.5" />
             Declined
+          </span>
+        )
+      case 'hired':
+        return (
+          <span className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-md text-xs font-medium bg-green-100 text-green-800 border border-green-200 min-w-[120px]">
+            <Check className="w-3.5 h-3.5" />
+            Hired
+          </span>
+        )
+      case 'unqualified':
+        return (
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 min-w-[120px]">
+            Position Filled
           </span>
         )
       default:

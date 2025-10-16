@@ -1,0 +1,344 @@
+-- Seed Power Design Test Data for Employer Invites Table
+-- This creates realistic test data matching the Figma design
+-- Run this in Supabase SQL Editor
+
+-- ============================================
+-- STEP 1: Verify Power Design exists and get ID
+-- ============================================
+DO $$
+DECLARE
+  power_design_id UUID;
+  keith_user_id UUID;
+BEGIN
+  -- Get Power Design company ID
+  SELECT id INTO power_design_id FROM companies WHERE name = 'Power Design' LIMIT 1;
+  
+  IF power_design_id IS NULL THEN
+    RAISE EXCEPTION 'Power Design company not found. Please create it first.';
+  END IF;
+  
+  -- Get Keith's user ID
+  SELECT id INTO keith_user_id FROM auth.users WHERE email = 'keith-woods@bisk.com' LIMIT 1;
+  
+  IF keith_user_id IS NULL THEN
+    RAISE EXCEPTION 'Keith Woods user not found in auth.users';
+  END IF;
+  
+  RAISE NOTICE 'Power Design ID: %', power_design_id;
+  RAISE NOTICE 'Keith User ID: %', keith_user_id;
+END $$;
+
+-- ============================================
+-- STEP 2: Create Mock Candidates Table (Temporary for Testing)
+-- ============================================
+
+-- Create a temporary table to store mock candidate data
+CREATE TEMP TABLE IF NOT EXISTS mock_candidates (
+  email TEXT PRIMARY KEY,
+  first_name TEXT,
+  last_name TEXT,
+  avatar_url TEXT
+);
+
+-- Insert mock candidate data
+INSERT INTO mock_candidates (email, first_name, last_name, avatar_url) VALUES
+  ('naomi.blake@example.com', 'Naomi', 'Blake', '/assets/Avatar-1.png'),
+  ('elias.thorne@example.com', 'Elias', 'Thorne', '/assets/Avatar-2.png'),
+  ('emanuel.highgate@example.com', 'Emanuel', 'Highgate', '/assets/Avatar-3.png'),
+  ('aaliyah.ramirez@example.com', 'Aaliyah', 'Ramirez', '/assets/Avatar-4.png'),
+  ('fatima.nguyen@example.com', 'Fatima', 'Nguyen', '/assets/Avatar-5.png'),
+  ('amelia.dubois@example.com', 'Amelia', 'Dubois', '/assets/Avatar-6.png'),
+  ('jamison.quince@example.com', 'Jamison', 'Quince', '/assets/Avatar-7.png'),
+  ('catalina.moreau@example.com', 'Catalina', 'Moreau', '/assets/Avatar-8.png'),
+  ('alfred.milstone@example.com', 'Alfred', 'Milstone', '/assets/Avatar-1.png');
+
+-- Update Keith Woods profile to ensure avatar is set
+UPDATE profiles 
+SET avatar_url = '/assets/Avatar.png',
+    visible_to_employers = true
+WHERE id = (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com');
+
+-- ============================================
+-- STEP 3: Create Power Design Job Roles
+-- ============================================
+
+-- Mechanical Assistant Project Manager (required_proficiency: 85%)
+INSERT INTO jobs (
+  id, title, soc_code, company_id, job_kind, category, 
+  required_proficiency_pct, visibility_threshold_pct, created_at
+)
+VALUES (
+  gen_random_uuid(),
+  'Mechanical Assistant Project Manager',
+  '17-2141.00',
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  'featured_role',
+  'Engineering',
+  85,
+  85,
+  NOW()
+)
+ON CONFLICT DO NOTHING;
+
+-- Project Management Specialists (required_proficiency: 90%)
+INSERT INTO jobs (
+  id, title, soc_code, company_id, job_kind, category,
+  required_proficiency_pct, visibility_threshold_pct, created_at
+)
+VALUES (
+  gen_random_uuid(),
+  'Project Management Specialists',
+  '11-9199.00',
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  'featured_role',
+  'Management',
+  90,
+  85,
+  NOW()
+)
+ON CONFLICT DO NOTHING;
+
+-- Business Development Manager (required_proficiency: 80%)
+INSERT INTO jobs (
+  id, title, soc_code, company_id, job_kind, category,
+  required_proficiency_pct, visibility_threshold_pct, created_at
+)
+VALUES (
+  gen_random_uuid(),
+  'Business Development Manager',
+  '11-2021.00',
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  'featured_role',
+  'Business',
+  80,
+  75,
+  NOW()
+)
+ON CONFLICT DO NOTHING;
+
+-- Senior Mechanical Project Manager (required_proficiency: 90%)
+INSERT INTO jobs (
+  id, title, soc_code, company_id, job_kind, category,
+  required_proficiency_pct, visibility_threshold_pct, created_at
+)
+VALUES (
+  gen_random_uuid(),
+  'Senior Mechanical Project Manager',
+  '17-2141.01',
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  'featured_role',
+  'Engineering',
+  90,
+  85,
+  NOW()
+)
+ON CONFLICT DO NOTHING;
+
+-- ============================================
+-- STEP 4: Create Employer Invitations
+-- ============================================
+
+-- Clear existing Power Design invitations (for clean test)
+DELETE FROM employer_invitations 
+WHERE company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1);
+
+-- 1. Naomi Blake - 99% - Mechanical Assistant PM - PENDING (Invite to Apply button)
+-- Note: Using Keith's user_id as placeholder - in real app, these would be actual user IDs
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Mechanical Assistant Project Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  99,
+  'pending',
+  NOW() - INTERVAL '3 days'
+);
+
+-- 2. Elias Thorne - 98% - Project Management Specialists - SENT (Invite Sent badge)
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, invited_at, is_read, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Project Management Specialists' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  98,
+  'sent',
+  NOW() - INTERVAL '2 days',
+  false,
+  NOW() - INTERVAL '3 days'
+);
+
+-- 3. Emanuel Highgate - 95% - Mechanical Assistant PM - SENT
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, invited_at, is_read, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Mechanical Assistant Project Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  95,
+  'sent',
+  NOW() - INTERVAL '1 day',
+  false,
+  NOW() - INTERVAL '3 days'
+);
+
+-- 4. Aaliyah Ramirez - 91% - Mechanical Assistant PM - PENDING
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Mechanical Assistant Project Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  91,
+  'pending',
+  NOW() - INTERVAL '2 days'
+);
+
+-- 5. Fatima Nguyen - 87% - Project Management Specialists - PENDING
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Project Management Specialists' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  87,
+  'pending',
+  NOW() - INTERVAL '1 day'
+);
+
+-- 6. Amelia Dubois - 82% - Business Development Manager - PENDING
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Business Development Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  82,
+  'pending',
+  NOW() - INTERVAL '1 day'
+);
+
+-- 7. Jamison Quince - 80% - Senior Mechanical PM - SENT
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, invited_at, is_read, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Senior Mechanical Project Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  80,
+  'sent',
+  NOW() - INTERVAL '12 hours',
+  true,
+  NOW() - INTERVAL '2 days'
+);
+
+-- 8. Catalina Moreau - 80% - Senior Mechanical PM - SENT
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, invited_at, is_read, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Senior Mechanical Project Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  80,
+  'sent',
+  NOW() - INTERVAL '6 hours',
+  false,
+  NOW() - INTERVAL '2 days'
+);
+
+-- 9. Alfred Milstone - 80% - Mechanical Assistant PM - PENDING
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, created_at
+)
+VALUES (
+  (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+  (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+  (SELECT id FROM jobs WHERE title = 'Mechanical Assistant Project Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+  80,
+  'pending',
+  NOW() - INTERVAL '12 hours'
+);
+
+-- ============================================
+-- STEP 5: Create Keith Woods Invitations (for his dropdown)
+-- ============================================
+
+-- Keith should see 2 invitations from Power Design in his dropdown
+-- These need to be status='sent' to appear in candidate notifications
+
+INSERT INTO employer_invitations (
+  company_id, user_id, job_id, proficiency_pct, status, invited_at, is_read, created_at
+)
+VALUES 
+  -- Keith - Mechanical Assistant PM
+  (
+    (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+    (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+    (SELECT id FROM jobs WHERE title = 'Mechanical Assistant Project Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+    92,
+    'sent',
+    NOW() - INTERVAL '1 day',
+    false,
+    NOW() - INTERVAL '2 days'
+  ),
+  -- Keith - Senior Mechanical PM
+  (
+    (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1),
+    (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com'),
+    (SELECT id FROM jobs WHERE title = 'Senior Mechanical Project Manager' AND company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1) LIMIT 1),
+    95,
+    'sent',
+    NOW() - INTERVAL '2 days',
+    false,
+    NOW() - INTERVAL '3 days'
+  )
+ON CONFLICT (user_id, job_id) DO UPDATE 
+SET status = 'sent', invited_at = NOW() - INTERVAL '1 day', is_read = false;
+
+-- ============================================
+-- VERIFICATION QUERIES
+-- ============================================
+
+-- Check Power Design invitations
+SELECT 
+  p.first_name || ' ' || p.last_name as candidate_name,
+  j.title as role,
+  ei.proficiency_pct,
+  ei.status,
+  CASE 
+    WHEN ei.proficiency_pct >= 90 THEN 'Ready'
+    WHEN ei.proficiency_pct >= 85 THEN 'Building Skills'
+    ELSE 'Needs Development'
+  END as readiness,
+  CASE
+    WHEN ei.proficiency_pct >= (j.required_proficiency_pct + 5) THEN 'Top Performer'
+    ELSE ''
+  END as top_performer_badge
+FROM employer_invitations ei
+JOIN profiles p ON ei.user_id = p.id
+JOIN jobs j ON ei.job_id = j.id
+WHERE ei.company_id = (SELECT id FROM companies WHERE name = 'Power Design' LIMIT 1)
+ORDER BY ei.proficiency_pct DESC;
+
+-- Check Keith's invitations (what he sees in dropdown)
+SELECT 
+  c.name as company_name,
+  j.title as role,
+  ei.status,
+  ei.invited_at,
+  ei.is_read
+FROM employer_invitations ei
+JOIN companies c ON ei.company_id = c.id
+JOIN jobs j ON ei.job_id = j.id
+WHERE ei.user_id = (SELECT id FROM auth.users WHERE email = 'keith-woods@bisk.com')
+  AND ei.status = 'sent'
+ORDER BY ei.invited_at DESC;

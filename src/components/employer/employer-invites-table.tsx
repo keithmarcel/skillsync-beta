@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, MoreHorizontal } from 'lucide-react'
+import { Search, MoreHorizontal, Check, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -17,9 +18,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { LoadingState } from '@/components/ui/loading-state'
+import { EmployerBulkActions } from './employer-bulk-actions'
 import { supabase } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
-import { sendInvitation, markAsHired, markAsUnqualified, archiveInvitation } from '@/lib/services/employer-invitations'
+import { 
+  sendInvitationToCandidate, 
+  markCandidateAsHired, 
+  markCandidateAsUnqualified, 
+  archiveCandidate 
+} from '@/lib/services/employer-invitations'
 
 interface Invitation {
   id: string
@@ -31,9 +40,11 @@ interface Invitation {
     first_name: string
     last_name: string
     avatar_url: string | null
+    linkedin_url: string | null
   }
   job: {
     title: string
+    required_proficiency_pct: number
   }
 }
 
@@ -50,6 +61,8 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [activeSubTab, setActiveSubTab] = useState('active')
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 15
 
   useEffect(() => {
     loadInvitations()
@@ -59,13 +72,13 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
     try {
       setLoading(true)
       
+      console.log('Loading invitations for company:', companyId)
+      console.log('Active sub-tab:', activeSubTab)
+      
+      // Fetch invitations without joins (workaround for schema cache issue)
       let query = supabase
         .from('employer_invitations')
-        .select(`
-          *,
-          user:profiles!employer_invitations_user_id_fkey(first_name, last_name, avatar_url),
-          job:jobs!employer_invitations_job_id_fkey(title)
-        `)
+        .select('*')
         .eq('company_id', companyId)
 
       if (activeSubTab === 'active') {
@@ -74,16 +87,59 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
         query = query.eq('status', 'archived')
       }
 
-      const { data, error } = await query
+      const { data: invitationsData, error: invitationsError } = await query
 
-      if (error) throw error
-      setInvitations(data || [])
+      if (invitationsError) throw invitationsError
+      
+      if (!invitationsData || invitationsData.length === 0) {
+        console.log('No invitations found')
+        setInvitations([])
+        return
+      }
+
+      // Manually fetch related data
+      const userIds = Array.from(new Set(invitationsData.map(inv => inv.user_id)))
+      const jobIds = Array.from(new Set(invitationsData.map(inv => inv.job_id)))
+
+      const { data: users } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url, linkedin_url')
+        .in('id', userIds)
+
+      const { data: jobs } = await supabase
+        .from('jobs')
+        .select('id, title, required_proficiency_pct')
+        .in('id', jobIds)
+
+      // Combine the data
+      const enrichedInvitations = invitationsData.map(inv => ({
+        ...inv,
+        user: users?.find(u => u.id === inv.user_id) || null,
+        job: jobs?.find(j => j.id === inv.job_id) || null
+      }))
+      
+      console.log('📊 Loaded invitations:', enrichedInvitations)
+      console.log('📊 Invitation count:', enrichedInvitations.length)
+      console.log('📊 Users loaded:', users)
+      console.log('📊 Jobs loaded:', jobs)
+      
+      setInvitations(enrichedInvitations)
     } catch (error) {
       console.error('Error loading invitations:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      if (error instanceof Error) {
+        console.error('Error message:', error.message)
+        console.error('Error stack:', error.stack)
+      }
     } finally {
       setLoading(false)
     }
   }
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery, rolesFilter, readinessFilter, statusFilter])
 
   const filteredInvitations = invitations.filter(inv => {
     if (searchQuery) {
@@ -107,9 +163,15 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(new Set(filteredInvitations.map(i => i.id)))
+      // Select all on current page
+      const newSelected = new Set(selectedIds)
+      paginatedInvitations.forEach(inv => newSelected.add(inv.id))
+      setSelectedIds(newSelected)
     } else {
-      setSelectedIds(new Set())
+      // Deselect all on current page
+      const newSelected = new Set(selectedIds)
+      paginatedInvitations.forEach(inv => newSelected.delete(inv.id))
+      setSelectedIds(newSelected)
     }
   }
 
@@ -125,7 +187,7 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
 
   const handleSendInvite = async (invitationId: string) => {
     try {
-      await sendInvitation(invitationId)
+      await sendInvitationToCandidate(invitationId)
       loadInvitations()
     } catch (error) {
       console.error('Error sending invitation:', error)
@@ -134,7 +196,7 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
 
   const handleMarkHired = async (invitationId: string) => {
     try {
-      await markAsHired(invitationId)
+      await markCandidateAsHired(invitationId)
       loadInvitations()
     } catch (error) {
       console.error('Error marking as hired:', error)
@@ -143,7 +205,7 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
 
   const handleMarkUnqualified = async (invitationId: string) => {
     try {
-      await markAsUnqualified(invitationId)
+      await markCandidateAsUnqualified(invitationId)
       loadInvitations()
     } catch (error) {
       console.error('Error marking as unqualified:', error)
@@ -152,7 +214,7 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
 
   const handleArchive = async (invitationId: string) => {
     try {
-      await archiveInvitation(invitationId)
+      await archiveCandidate(invitationId)
       loadInvitations()
     } catch (error) {
       console.error('Error archiving invitation:', error)
@@ -161,65 +223,108 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
 
   const getReadinessBadge = (proficiency: number) => {
     if (proficiency >= 90) {
-      return <Badge className="bg-teal-100 text-teal-800 border-0">Ready</Badge>
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">
+          Ready
+        </span>
+      )
+    } else if (proficiency >= 85) {
+      return (
+        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800">
+          Almost There
+        </span>
+      )
     }
-    return <Badge className="bg-orange-100 text-orange-800 border-0">Building Skills</Badge>
+    return null
   }
 
   const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; className: string }> = {
-      pending: { label: 'Pending', className: 'bg-gray-100 text-gray-800' },
-      sent: { label: 'Sent', className: 'bg-blue-100 text-blue-800' },
-      applied: { label: 'Applied', className: 'bg-green-100 text-green-800' },
-      declined: { label: 'Declined', className: 'bg-red-100 text-red-800' },
-      hired: { label: 'Hired', className: 'bg-purple-100 text-purple-800' },
-      unqualified: { label: 'Unqualified', className: 'bg-gray-100 text-gray-800' },
-      archived: { label: 'Archived', className: 'bg-gray-100 text-gray-800' }
+    switch (status) {
+      case 'sent':
+        return (
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-gray-200 text-gray-700 min-w-[120px]">
+            Invite Sent
+          </span>
+        )
+      case 'applied':
+        return (
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-teal-100 text-teal-800 min-w-[120px] gap-1.5">
+            <Check className="w-3.5 h-3.5" />
+            Applied
+          </span>
+        )
+      case 'declined':
+        return (
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-red-100 text-red-800 min-w-[120px] gap-1.5">
+            <X className="w-3.5 h-3.5" />
+            Declined
+          </span>
+        )
+      case 'hired':
+        return (
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-purple-100 text-purple-800 min-w-[120px]">
+            Hired
+          </span>
+        )
+      case 'unqualified':
+        return (
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium border border-gray-300 bg-white text-gray-700 min-w-[120px]">
+            Unqualified
+          </span>
+        )
+      case 'archived':
+        return (
+          <span className="inline-flex items-center justify-center h-8 px-3 rounded-md text-xs font-medium bg-gray-200 text-gray-700 min-w-[120px]">
+            Archived
+          </span>
+        )
+      default:
+        return null
     }
-
-    const config = statusMap[status] || statusMap.pending
-    return <Badge className={`${config.className} border-0`}>{config.label}</Badge>
   }
 
-  const allSelected = filteredInvitations.length > 0 && selectedIds.size === filteredInvitations.length
-  const someSelected = selectedIds.size > 0 && selectedIds.size < filteredInvitations.length
+  // Pagination
+  const totalPages = Math.ceil(filteredInvitations.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedInvitations = filteredInvitations.slice(startIndex, endIndex)
+
+  const allSelected = paginatedInvitations.length > 0 && paginatedInvitations.every(inv => selectedIds.has(inv.id))
+  const someSelected = selectedIds.size > 0 && !allSelected
 
   if (loading) {
-    return <div className="text-center py-12">Loading invitations...</div>
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-gray-900">Manage Your Invites</h2>
+        <LoadingState variant="skeleton" count={6} size="lg" className="mt-6" />
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Manage Your Invites</h2>
 
-      {/* Sub-tabs for Active/Archived */}
-      <div className="border-b border-gray-200">
-        <div className="flex gap-8">
-          <button
-            onClick={() => setActiveSubTab('active')}
-            className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              activeSubTab === 'active'
-                ? 'border-teal-600 text-teal-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
+      <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
+        <TabsList className="w-full justify-start h-auto p-0 bg-transparent rounded-none border-b border-gray-200">
+          <TabsTrigger 
+            value="active"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0694A2] data-[state=active]:text-[#0694A2] data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-4 pt-0 text-sm font-medium text-gray-600 hover:text-gray-900 -mb-px"
           >
             Active
-          </button>
-          <button
-            onClick={() => setActiveSubTab('archived')}
-            className={`pb-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-              activeSubTab === 'archived'
-                ? 'border-teal-600 text-teal-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
+          </TabsTrigger>
+          <TabsTrigger 
+            value="archived"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-[#0694A2] data-[state=active]:text-[#0694A2] data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-4 pt-0 ml-4 text-sm font-medium text-gray-600 hover:text-gray-900 -mb-px"
           >
             Archived
-          </button>
-        </div>
-      </div>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value={activeSubTab} className="mt-6">
 
       {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
@@ -248,7 +353,7 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
             <SelectContent>
               <SelectItem value="all">Readiness: All</SelectItem>
               <SelectItem value="ready">Ready</SelectItem>
-              <SelectItem value="building">Building Skills</SelectItem>
+              <SelectItem value="building">Almost There</SelectItem>
             </SelectContent>
           </Select>
 
@@ -265,9 +370,14 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
           </Select>
 
           {selectedIds.size > 0 && (
-            <Button variant="outline" className="border-teal-600 text-teal-600">
-              Bulk Actions
-            </Button>
+            <EmployerBulkActions
+              selectedIds={Array.from(selectedIds)}
+              isArchived={activeSubTab === 'archived'}
+              onComplete={() => {
+                setSelectedIds(new Set())
+                loadInvitations()
+              }}
+            />
           )}
         </div>
       </div>
@@ -295,22 +405,22 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Role
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Proficiency
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Role Readiness
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="w-20 px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-center w-20 px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredInvitations.map((invitation) => (
+              {paginatedInvitations.map((invitation) => (
                 <tr key={invitation.id} className="hover:bg-gray-50">
                   <td className="px-4 py-4">
                     <input
@@ -335,42 +445,66 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
                           </span>
                         </div>
                       )}
-                      <span className="text-sm font-semibold text-gray-900">
-                        {invitation.user?.first_name} {invitation.user?.last_name}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-900">
+                          {invitation.user?.first_name} {invitation.user?.last_name}
+                        </span>
+                        {invitation.proficiency_pct >= 95 && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#0694A2]/10 text-teal-800 mt-1">
+                            Top Performer
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <span className="text-sm text-gray-900">
+                    <span className="text-sm font-medium text-gray-900">
                       {invitation.job?.title}
                     </span>
                   </td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 text-center">
                     <span className="text-sm text-gray-900">
                       {invitation.proficiency_pct}%
                     </span>
                   </td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 text-center">
                     {getReadinessBadge(invitation.proficiency_pct)}
                   </td>
-                  <td className="px-4 py-4">
-                    {getStatusBadge(invitation.status)}
+                  <td className="px-4 py-4 text-center">
+                    {invitation.status === 'pending' ? (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSendInvite(invitation.id)}
+                        className="bg-teal-600 hover:bg-[#114B5F] text-white min-w-[120px]"
+                      >
+                        Invite to Apply
+                      </Button>
+                    ) : (
+                      getStatusBadge(invitation.status)
+                    )}
                   </td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="w-48">
                         {invitation.status === 'pending' && (
                           <DropdownMenuItem onClick={() => handleSendInvite(invitation.id)}>
-                            Mark as Hired
+                            Invite to Apply
                           </DropdownMenuItem>
                         )}
-                        {invitation.status === 'sent' && (
+                        <DropdownMenuItem 
+                          onClick={() => invitation.user?.linkedin_url && window.open(invitation.user.linkedin_url, '_blank')}
+                          disabled={!invitation.user?.linkedin_url}
+                        >
+                          View LinkedIn
+                        </DropdownMenuItem>
+                        {invitation.status !== 'pending' && invitation.status !== 'hired' && invitation.status !== 'unqualified' && (
                           <>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => handleMarkHired(invitation.id)}>
                               Mark as Hired
                             </DropdownMenuItem>
@@ -379,11 +513,10 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
                             </DropdownMenuItem>
                           </>
                         )}
-                        {activeSubTab === 'active' && (
-                          <DropdownMenuItem onClick={() => handleArchive(invitation.id)}>
-                            Restore Candidate
-                          </DropdownMenuItem>
-                        )}
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleArchive(invitation.id)}>
+                          Archive Candidate
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </td>
@@ -400,9 +533,40 @@ export function EmployerInvitesTable({ companyId }: EmployerInvitesTableProps) {
         )}
       </div>
 
-      <div className="text-sm text-gray-600">
-        Showing {filteredInvitations.length} of {invitations.length} invitation{invitations.length !== 1 ? 's' : ''}
+      {/* Pagination and count */}
+      <div className="flex items-center justify-between mt-4">
+        <div className="text-sm text-gray-600">
+          Showing {startIndex + 1}-{Math.min(endIndex, filteredInvitations.length)} of {filteredInvitations.length} invitation{filteredInvitations.length !== 1 ? 's' : ''}
+        </div>
+        
+        {totalPages > 1 && (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="h-8 px-3 text-xs"
+            >
+              Previous
+            </Button>
+            <span className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="h-8 px-3 text-xs"
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

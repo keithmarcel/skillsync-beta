@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { LoadingState } from '@/components/ui/loading-state'
 import { supabase } from '@/lib/supabase/client'
 import { Badge } from '@/components/ui/badge'
 
@@ -109,7 +110,12 @@ export function EmployerRolesTable({ companyId }: EmployerRolesTableProps) {
   const someSelected = selectedIds.size > 0 && selectedIds.size < filteredJobs.length
 
   if (loading) {
-    return <div className="text-center py-12">Loading roles...</div>
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-gray-900">Manage Your Listed Roles</h2>
+        <LoadingState variant="skeleton" count={5} size="lg" className="mt-6" />
+      </div>
+    )
   }
 
   return (
