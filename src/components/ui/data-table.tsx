@@ -179,7 +179,8 @@ export default function DataTable({
     switch (type) {
       case 'programs': return 'Search programs by name, school, or category'
       case 'jobs': return 'Search jobs by title, company, or category'
-      case 'employer-invites': return 'Search by company, role, or status'
+      case 'employer-invites': return 'Search by name, role, or status'
+      case 'employer-roles': return 'Search roles by title or category'
       case 'occupations': return 'Search occupations by title or category'
       default: return 'Search...'
     }
