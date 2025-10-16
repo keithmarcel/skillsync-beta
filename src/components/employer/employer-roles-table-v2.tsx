@@ -67,9 +67,9 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         (jobsData || []).map(async (job) => {
           const requiredProficiency = job.required_proficiency_pct || 90
           
-          // Count invitations where candidate meets or exceeds required proficiency
+          // Count employer_invitations where candidate meets or exceeds required proficiency
           const { count: candidatesCount, error: candidatesError } = await supabase
-            .from('invitations')
+            .from('employer_invitations')
             .select('*', { count: 'exact', head: true })
             .eq('job_id', job.id)
             .gte('proficiency_pct', requiredProficiency)
@@ -80,7 +80,7 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
           
           // Count assessments taken for this role
           const { count: assessmentsCount, error: assessmentsError } = await supabase
-            .from('user_assessments')
+            .from('assessments')
             .select('*', { count: 'exact', head: true })
             .eq('job_id', job.id)
           
