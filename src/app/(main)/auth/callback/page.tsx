@@ -23,8 +23,27 @@ export default function AuthCallbackPage() {
         }
 
         if (data.session) {
-          // User is authenticated, redirect to home page
-          router.push('/')
+          // Fetch user profile to determine correct redirect
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('company_id, school_id, admin_role')
+            .eq('id', data.session.user.id)
+            .single()
+          
+          // Redirect based on user type
+          if (profile?.company_id) {
+            // Employer user - redirect to employer dashboard
+            router.push('/employer')
+          } else if (profile?.school_id) {
+            // Provider admin - redirect to admin
+            router.push('/admin')
+          } else if (profile?.admin_role) {
+            // Other admin - redirect to admin
+            router.push('/admin')
+          } else {
+            // Job seeker - redirect to homepage
+            router.push('/')
+          }
         } else {
           // No session, redirect to sign in
           router.push('/auth/signin')
