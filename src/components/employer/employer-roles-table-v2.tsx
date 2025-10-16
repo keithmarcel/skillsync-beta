@@ -206,28 +206,34 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         loadingText="Loading Roles"
       />
 
-      {/* Role Count Alert */}
-      <div className={`w-full px-4 py-3 rounded-lg text-sm ${
-        jobs.length >= 10 
-          ? 'bg-red-50 text-red-800 border border-red-200' 
-          : jobs.length >= 8 
-          ? 'bg-orange-50 text-orange-800 border border-orange-200'
-          : 'bg-blue-50 text-blue-800 border border-blue-200'
-      }`}>
-        <p className="font-medium">
-          {jobs.length >= 10 
-            ? `⚠️ You've reached your limit: ${jobs.length} of 10 featured roles used`
-            : `${jobs.length} of 10 featured roles used`
-          }
-        </p>
-        {jobs.length >= 10 && (
-          <p className="text-xs mt-1">
-            You've reached the maximum number of featured roles. Please archive or delete existing roles to add new ones.
+      {/* Role Count Alert with Progress Bar */}
+      <div className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-gray-900">
+            {jobs.length} of 10 featured roles used
           </p>
-        )}
-        {jobs.length >= 8 && jobs.length < 10 && (
-          <p className="text-xs mt-1">
-            You're approaching your limit. You can add {10 - jobs.length} more featured role{10 - jobs.length !== 1 ? 's' : ''}.
+          {jobs.length >= 10 && (
+            <span className="text-xs text-red-600 font-medium">⚠️ Limit reached</span>
+          )}
+        </div>
+        
+        {/* Progress Bar */}
+        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className={`h-full transition-all duration-300 ${
+              jobs.length >= 10 
+                ? 'bg-red-500' 
+                : jobs.length >= 7 
+                ? 'bg-yellow-500'
+                : 'bg-green-500'
+            }`}
+            style={{ width: `${(jobs.length / 10) * 100}%` }}
+          />
+        </div>
+        
+        {jobs.length >= 10 && (
+          <p className="text-xs text-gray-600 mt-2">
+            You've reached the maximum. Please archive or delete existing roles to add new ones.
           </p>
         )}
       </div>
