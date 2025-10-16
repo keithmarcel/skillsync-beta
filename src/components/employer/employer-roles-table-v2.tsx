@@ -244,9 +244,21 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
       />
 
       {/* Role Count Alert with Progress Bar */}
-      <div className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200">
+      <div className={`w-full px-4 py-3 rounded-lg border ${
+        jobs.length >= 10 
+          ? 'bg-red-50 border-red-200' 
+          : jobs.length >= 7 
+          ? 'bg-yellow-50 border-yellow-200'
+          : 'bg-green-50 border-green-200'
+      }`}>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-medium text-gray-900">
+          <p className={`text-sm font-medium ${
+            jobs.length >= 10 
+              ? 'text-red-900' 
+              : jobs.length >= 7 
+              ? 'text-yellow-900'
+              : 'text-green-900'
+          }`}>
             {jobs.length} of 10 featured roles used
           </p>
           {jobs.length >= 10 && (
@@ -255,7 +267,7 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         </div>
         
         {/* Progress Bar */}
-        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-white/50 rounded-full overflow-hidden">
           <div 
             className={`h-full transition-all duration-300 ${
               jobs.length >= 10 
@@ -269,7 +281,7 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         </div>
         
         {jobs.length >= 10 && (
-          <p className="text-xs text-gray-600 mt-2">
+          <p className="text-xs text-red-700 mt-2">
             You've reached the maximum. Please archive or delete existing roles to add new ones.
           </p>
         )}
