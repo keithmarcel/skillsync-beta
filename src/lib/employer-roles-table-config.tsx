@@ -38,6 +38,18 @@ const renderActionsDropdown = (value: any, row: any, isOnFavoritesTab?: boolean,
     }, 'Edit Role')
   )
   
+  // View Live Role (only if published)
+  if (row.is_published) {
+    menuItems.push(
+      React.createElement(DropdownMenuItem, {
+        key: 'view-live',
+        onClick: () => onRowAction?.('view-live', row)
+      }, 'View Live Role')
+    )
+  }
+  
+  menuItems.push(React.createElement(DropdownMenuSeparator, { key: 'sep0' }))
+  
   // Publish/Unpublish
   if (row.is_published) {
     menuItems.push(

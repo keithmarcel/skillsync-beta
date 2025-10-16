@@ -111,6 +111,11 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
           router.push(`/employer/roles/${row.id}/edit`)
           break
           
+        case 'view-live':
+          // Open the live role page in a new tab
+          window.open(`/jobs/${row.id}`, '_blank')
+          break
+          
         case 'view-candidates':
           // Navigate to invites tab filtered by this role
           router.push(`/employer?tab=invites&role=${row.id}`)
