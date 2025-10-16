@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import DataTable from '@/components/ui/data-table'
@@ -38,10 +39,28 @@ interface EmployerInvitesTableProps {
 }
 
 export function EmployerInvitesTableV2({ companyId }: EmployerInvitesTableProps) {
+  const searchParams = useSearchParams()
   const [invitations, setInvitations] = useState<Invitation[]>([])
+  const [filteredInvitations, setFilteredInvitations] = useState<Invitation[]>([])
   const [loading, setLoading] = useState(true)
   const [initialLoad, setInitialLoad] = useState(true)
   const [activeSubTab, setActiveSubTab] = useState('active')
+
+  // Apply URL filter whenever invitations or searchParams change
+  useEffect(() => {
+    const filterParam = searchParams.get('filter')
+    if (filterParam && invitations.length > 0) {
+      console.log('Applying filter from URL:', filterParam)
+      const filtered = invitations.filter(inv => {
+        if (filterParam === 'pending') return inv.status === 'pending'
+        if (filterParam === 'applied') return inv.status === 'applied'
+        return true
+      })
+      setFilteredInvitations(filtered)
+    } else {
+      setFilteredInvitations(invitations)
+    }
+  }, [invitations, searchParams])
 
   useEffect(() => {
     loadInvitations()
@@ -158,7 +177,7 @@ export function EmployerInvitesTableV2({ companyId }: EmployerInvitesTableProps)
 
         <TabsContent value="active" className="mt-6">
           <DataTable
-            data={invitations}
+            data={filteredInvitations}
             columns={employerInvitesTableColumns}
             tableType="employer-invites"
             onRowAction={handleRowAction}
@@ -170,7 +189,7 @@ export function EmployerInvitesTableV2({ companyId }: EmployerInvitesTableProps)
 
         <TabsContent value="archived" className="mt-6">
           <DataTable
-            data={invitations}
+            data={filteredInvitations}
             columns={employerInvitesTableColumns}
             tableType="employer-invites"
             onRowAction={handleRowAction}

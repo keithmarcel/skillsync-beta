@@ -13,6 +13,7 @@ import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } 
 import { useEffect, useState } from 'react'
 import { getJobById } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
+import { useRoleView } from '@/hooks/useRoleView'
 import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
 
 // No mock data - using real database data only
@@ -104,9 +105,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [showAllRoles, setShowAllRoles] = useState(false)
   const [showAllPrograms, setShowAllPrograms] = useState(false)
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
+  
+  // Track role view
+  useRoleView(params.id)
 
   useEffect(() => {
     async function loadJob() {

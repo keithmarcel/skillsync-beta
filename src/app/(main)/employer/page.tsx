@@ -7,7 +7,7 @@ import { useViewAs } from '@/contexts/ViewAsContext'
 import PageHeader from '@/components/ui/page-header'
 import StickyTabs from '@/components/ui/sticky-tabs'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import { EmployerDashboard } from '@/components/employer/employer-dashboard'
+import { EmployerDashboard } from '@/components/employer/employer-dashboard-new'
 import { EmployerRolesTable } from '@/components/employer/employer-roles-table'
 import { EmployerInvitesTableV2 as EmployerInvitesTable } from '@/components/employer/employer-invites-table-v2'
 import { EmployerSettings } from '@/components/employer/employer-settings'
@@ -17,8 +17,8 @@ interface Company {
   id: string
   name: string
   logo_url: string | null
-  city: string | null
-  state: string | null
+  hq_city: string | null
+  hq_state: string | null
 }
 
 export default function EmployerDashboardPage() {
@@ -132,16 +132,27 @@ export default function EmployerDashboardPage() {
     { id: 'settings', label: 'Settings', isActive: activeTab === 'settings' }
   ]
 
-  // Determine subtitle text
-  const subtitleText = company.city && company.state 
-    ? `Top High Demand Jobs in ${company.city}` 
-    : 'Manage your roles, invitations, and company settings'
+  // Determine subtitle text based on active tab
+  const getSubtitle = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return 'Track your hiring pipeline and candidate engagement'
+      case 'roles':
+        return 'Create and manage your featured role listings'
+      case 'invites':
+        return 'Review candidates and manage invitation workflow'
+      case 'settings':
+        return 'Update company profile and preferences'
+      default:
+        return 'Manage your roles, invitations, and company settings'
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <PageHeader
         title={`Welcome, ${company.name}!`}
-        subtitle={subtitleText}
+        subtitle={getSubtitle()}
         variant="split"
       />
 

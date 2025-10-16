@@ -5,8 +5,8 @@ interface EmployerSettingsProps {
     id: string
     name: string
     logo_url: string | null
-    city: string | null
-    state: string | null
+    hq_city: string | null
+    hq_state: string | null
   }
 }
 
