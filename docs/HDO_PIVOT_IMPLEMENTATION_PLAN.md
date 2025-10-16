@@ -1,8 +1,8 @@
 # High-Demand Occupations Pivot - Implementation Plan V2
 
-**Status:** Phase 3 Complete ✅ | Phase 4 Planning  
+**Status:** Phase 3 Complete ✅ | Employer Dashboard Complete ✅ | Phase 4 Planning  
 **Branch:** `feature/employer-dashboard-updates`  
-**Updated:** October 16, 2025 12:08 AM  
+**Updated:** October 16, 2025 3:41 AM  
 **Owner:** Keith + Claude
 
 ---
@@ -41,6 +41,7 @@ Transforming High-Demand Occupations from an assessment entry point into a disco
 - **3C:** SEO & Metadata (AI-generated fields)
 - **3D:** Proficiency Thresholds (required/visibility settings)
 - **3E:** Invitations V2 Refactor (unified DataTable architecture)
+- **3F:** Employer Dashboard V2 (metrics, recent activity, pipeline, quick actions)
 
 **See detailed accomplishments:** [Phase 1-3 Archive](#phase-1-3-archive)
 
@@ -406,6 +407,143 @@ Transforming High-Demand Occupations from an assessment entry point into a disco
 - Crosswalk tables exist
 - All required fields present
 - No schema migrations needed for Phase 4
+
+---
+
+## 📊 Phase 3F: Employer Dashboard V2 (COMPLETE ✅)
+
+**Completed:** October 16, 2025 3:41 AM
+
+### Overview
+Complete rebuild of employer dashboard with real-time metrics, pipeline visualization, and streamlined workflows.
+
+### Components Delivered
+
+#### 1. Dashboard Tab (employer-dashboard-new.tsx)
+**Metrics Cards (4):**
+- Active Roles count
+- Total Candidates count  
+- Applications Received count
+- Candidates Hired count
+
+**Recent Activity Widget:**
+- Shows last 5 candidate interactions
+- Displays: Avatar, Name, Role, Readiness Badge, Status Badge, Timestamp
+- Ordered by created_at DESC (most recent first)
+- All 7 status types supported: pending, sent, applied, hired, declined, unqualified, archived
+- Non-interactive readiness badges (no hover states)
+- Status passthrough from employer_invitations table
+
+**Pipeline Overview Widget:**
+- Visual funnel: Pending → Sent → Applied → Hired
+- Real-time counts for each stage
+- Stage-by-stage conversion tracking
+
+**Quick Actions (3 buttons):**
+- Create New Role (disabled at 10 role limit)
+- Invite Candidates (shows pending count)
+- Review Applications (shows application count)
+- Consistent dark teal hover states (#036672)
+
+#### 2. Listed Roles Tab (employer-roles-table-v2.tsx)
+**Table Columns:**
+- Role Title (40% width)
+- Category (15%, centered, badge)
+- Assessments (12%, centered, real count from assessments table)
+- Candidates (12%, centered, real count from employer_invitations)
+- Published (12%, centered, toggle switch with confirmation)
+- Actions (9%, centered, dropdown)
+
+**Actions Dropdown:**
+- Edit Role
+- View Live Role (published only)
+- Publish/Unpublish Role (with confirmation dialog)
+- Delete Role (with confirmation dialog, removes from favorites)
+
+**Features:**
+- Search by title or category
+- Sort by all columns
+- Filter by Category and Published status
+- Role count alert with color-coded progress bar (green/yellow/red)
+- Add New Role button (disabled at limit)
+- Real-time data from database
+
+#### 3. Invites Tab (employer-invites-table-v2.tsx)
+**Sub-tabs:**
+- Active Invites
+- Archived Invites
+
+**Table Columns:**
+- Name (with avatar, Top Performer badge)
+- Role
+- Role Readiness (Ready/Almost There badges)
+- Status (badges or action buttons)
+- Actions dropdown
+
+**Status Handling:**
+- pending → "Invite to Apply" button
+- sent → "Invite Sent" badge
+- applied → "Applied" badge with checkmark
+- hired → "Hired" badge
+- declined → "Declined" badge with X
+- unqualified → "Unqualified" badge with border
+- archived → Shows status_before_archive
+
+#### 4. Settings Tab (employer-settings.tsx)
+**Sub-tabs:**
+- Profile (company info, logo)
+- Account (credentials, visibility)
+- Notifications (email preferences)
+
+**Spacing:** 40px gap between subtabs and content
+
+### Technical Achievements
+
+**Database Integration:**
+- Real queries to employer_invitations, assessments, jobs tables
+- Proper foreign key handling
+- Graceful handling of deleted roles (shows "Role No Longer Available")
+
+**Auth & Routing:**
+- Fixed auth callback to route employers to /employer immediately
+- Added logout button in page header
+- No more refresh required after login
+
+**UI/UX Polish:**
+- Consistent teal color scheme (#0d9488 base, #036672 hover)
+- Professional confirmation dialogs (no browser alerts)
+- Toast notifications for all actions
+- Disabled states with proper hover prevention
+- Non-interactive badges where appropriate
+- Proper status passthrough from database
+
+**Error Handling:**
+- Unknown statuses show red "Unknown: {status}" badge
+- Console errors for debugging
+- Fallback displays for missing data
+- All 7 status types covered
+
+### Files Modified
+- `/src/components/employer/employer-dashboard-new.tsx`
+- `/src/components/employer/employer-roles-table-v2.tsx`
+- `/src/components/employer/employer-invites-table-v2.tsx`
+- `/src/components/employer/employer-settings.tsx`
+- `/src/lib/employer-roles-table-config.tsx`
+- `/src/lib/employer-invites-table-config.tsx`
+- `/src/lib/job-seeker-invites-table-config.tsx`
+- `/src/lib/services/employer-dashboard.ts`
+- `/src/app/(main)/employer/page.tsx`
+- `/src/app/(main)/auth/callback/page.tsx`
+- `/src/components/ui/section-with-tabs.tsx`
+- `/src/components/ui/data-table.tsx`
+
+### Production Ready
+- All features tested with Power Design test account
+- Real database queries working
+- Professional UX with proper confirmations
+- Consistent design system
+- Error handling in place
+- Ready for employer onboarding
 
 ---
 
