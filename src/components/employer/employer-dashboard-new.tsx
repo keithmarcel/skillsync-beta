@@ -101,8 +101,11 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
       unqualified: { bg: 'bg-white border border-gray-300', text: 'text-gray-700', label: 'Unqualified' }
     }
 
-    const statusConfig = config[status]
-    if (!statusConfig) return null
+    const statusConfig = config[status] || config['sent'] // Default to 'sent' if status not found
+    if (!statusConfig) {
+      console.warn(`Unknown status in Recent Activity: ${status}`)
+      return null
+    }
 
     // All badges are non-clickable status indicators
     const borderClass = status === 'unqualified' ? '' : 'border-0'
