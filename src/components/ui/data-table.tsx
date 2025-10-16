@@ -36,7 +36,7 @@ interface Column {
 interface DataTableProps {
   data: any[]
   columns: Column[]
-  tableType?: 'programs' | 'jobs' | 'assessments' | 'occupations' | 'employer-invites'
+  tableType?: 'programs' | 'jobs' | 'assessments' | 'occupations' | 'employer-invites' | 'employer-roles'
   isOnFavoritesTab?: boolean
   loadingText?: string
   onRowAction?: (action: string, row: any) => void
@@ -328,6 +328,13 @@ export default function DataTable({
                          index === 2 ? '17%' :  // Role Readiness (with proficiency)
                          index === 3 ? '20%' :  // Status
                          index === 4 ? '10%' : 'auto')  // Actions (more padding)
+                      : tableType === 'employer-roles'
+                      ? (index === 0 ? '40%' :  // Role Title (majority of space)
+                         index === 1 ? '15%' :  // Category
+                         index === 2 ? '12%' :  // Assessments
+                         index === 3 ? '12%' :  // Candidates
+                         index === 4 ? '12%' :  // Published
+                         index === 5 ? '9%' : 'auto')  // Actions
                       : (index === 0 ? '22%' :
                          index === 1 ? '30%' :
                          index === 2 ? '12%' :
@@ -372,6 +379,13 @@ export default function DataTable({
                              colIndex === 2 ? '17%' :
                              colIndex === 3 ? '20%' :
                              colIndex === 4 ? '10%' : 'auto')
+                          : tableType === 'employer-roles'
+                          ? (colIndex === 0 ? '40%' :  // Role Title (majority of space)
+                             colIndex === 1 ? '15%' :  // Category
+                             colIndex === 2 ? '12%' :  // Assessments
+                             colIndex === 3 ? '12%' :  // Candidates
+                             colIndex === 4 ? '12%' :  // Published
+                             colIndex === 5 ? '9%' : 'auto')  // Actions
                           : (colIndex === 0 ? '22%' :
                              colIndex === 1 ? '30%' :
                              colIndex === 2 ? '12%' :

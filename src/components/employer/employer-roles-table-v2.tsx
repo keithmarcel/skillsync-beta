@@ -202,6 +202,7 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         data={jobs}
         columns={employerRolesTableColumns}
         onRowAction={handleRowAction}
+        tableType="employer-roles"
         isLoading={loading}
         loadingText="Loading Roles"
       />
