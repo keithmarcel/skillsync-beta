@@ -1,7 +1,8 @@
 import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { MoreHorizontal, Check } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { MoreHorizontal } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,24 +12,20 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { renderCategoryBadge } from '@/lib/table-configs'
 
-// Helper to render published status
-const renderPublishedStatus = (isPublished: boolean) => {
+// Helper to render published status with Switch
+const renderPublishedSwitch = (isPublished: boolean, row: any, onToggle?: (row: any, newValue: boolean) => void) => {
   return React.createElement('div', {
     className: 'flex items-center justify-center'
-  }, isPublished ? React.createElement(Check, { className: 'w-4 h-4 text-green-600' }) : null)
+  }, React.createElement(Switch, {
+    checked: isPublished,
+    onCheckedChange: (checked: boolean) => onToggle?.(row, checked),
+    className: 'data-[state=checked]:bg-cyan-800'
+  }))
 }
 
 // Helper to render actions dropdown
 const renderActionsDropdown = (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
   const menuItems = []
-  
-  // View Details
-  menuItems.push(
-    React.createElement(DropdownMenuItem, {
-      key: 'view',
-      onClick: () => onRowAction?.('view-details', row)
-    }, 'View Details')
-  )
   
   // Edit Role
   menuItems.push(
@@ -38,34 +35,33 @@ const renderActionsDropdown = (value: any, row: any, isOnFavoritesTab?: boolean,
     }, 'Edit Role')
   )
   
+  // View Candidates
+  menuItems.push(
+    React.createElement(DropdownMenuItem, {
+      key: 'view-candidates',
+      onClick: () => onRowAction?.('view-candidates', row)
+    }, 'View Candidates')
+  )
+  
   menuItems.push(React.createElement(DropdownMenuSeparator, { key: 'sep1' }))
   
-  // Publish/Unpublish
-  if (row.is_published) {
-    menuItems.push(
-      React.createElement(DropdownMenuItem, {
-        key: 'unpublish',
-        onClick: () => onRowAction?.('unpublish', row)
-      }, 'Unpublish Role')
-    )
-  } else {
-    menuItems.push(
-      React.createElement(DropdownMenuItem, {
-        key: 'publish',
-        onClick: () => onRowAction?.('publish', row)
-      }, 'Publish Role')
-    )
-  }
+  // Duplicate Role
+  menuItems.push(
+    React.createElement(DropdownMenuItem, {
+      key: 'duplicate',
+      onClick: () => onRowAction?.('duplicate', row)
+    }, 'Duplicate Role')
+  )
   
   menuItems.push(React.createElement(DropdownMenuSeparator, { key: 'sep2' }))
   
-  // Delete
+  // Archive Role
   menuItems.push(
     React.createElement(DropdownMenuItem, {
-      key: 'delete',
-      onClick: () => onRowAction?.('delete', row),
+      key: 'archive',
+      onClick: () => onRowAction?.('archive', row),
       className: 'text-red-600'
-    }, 'Delete Role')
+    }, 'Archive Role')
   )
   
   return React.createElement(DropdownMenu, {}, [
@@ -88,20 +84,12 @@ const renderActionsDropdown = (value: any, row: any, isOnFavoritesTab?: boolean,
 export const employerRolesTableColumns = [
   {
     key: 'title',
-    label: 'Role',
+    label: 'Role Title',
     sortable: true,
     width: 'large' as const,
     render: (value: string) => React.createElement('span', {
       className: 'text-base font-semibold text-gray-900 font-source-sans-pro'
     }, value)
-  },
-  {
-    key: 'short_desc',
-    label: 'Summary',
-    width: 'large' as const,
-    render: (value: string) => React.createElement('span', {
-      className: 'text-sm text-gray-600 line-clamp-2'
-    }, value || 'No description')
   },
   {
     key: 'category',
@@ -144,7 +132,11 @@ export const employerRolesTableColumns = [
     filterable: true,
     filterOptions: ['Published', 'Unpublished'],
     width: 'small' as const,
-    render: (value: boolean) => renderPublishedStatus(value)
+    render: (value: boolean, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
+      return renderPublishedSwitch(value, row, (row, newValue) => {
+        onRowAction?.('toggle-publish', { ...row, newPublishState: newValue })
+      })
+    }
   },
   {
     key: 'actions',

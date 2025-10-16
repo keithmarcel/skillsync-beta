@@ -8,6 +8,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import DataTable from '@/components/ui/data-table'
 import { employerRolesTableColumns } from '@/lib/employer-roles-table-config'
 import { supabase } from '@/lib/supabase/client'
+import { useToast } from '@/hooks/use-toast'
 
 interface Job {
   id: string
@@ -25,6 +26,7 @@ interface EmployerRolesTableProps {
 
 export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -55,39 +57,83 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
   const handleRowAction = async (action: string, row: any) => {
     try {
       switch (action) {
-        case 'view-details':
-          router.push(`/employer/roles/${row.id}`)
-          break
         case 'edit':
           router.push(`/employer/roles/${row.id}/edit`)
           break
-        case 'publish':
-          await supabase
-            .from('jobs')
-            .update({ is_published: true })
-            .eq('id', row.id)
-          await loadJobs()
+          
+        case 'view-candidates':
+          // Navigate to invites tab filtered by this role
+          router.push(`/employer?tab=invites&role=${row.id}`)
           break
-        case 'unpublish':
-          await supabase
+          
+        case 'toggle-publish':
+          const newPublishState = row.newPublishState
+          const { error } = await supabase
             .from('jobs')
-            .update({ is_published: false })
+            .update({ is_published: newPublishState })
             .eq('id', row.id)
+            
+          if (error) throw error
+          
           await loadJobs()
+          toast({
+            title: 'Success',
+            description: `Role ${newPublishState ? 'published' : 'unpublished'} successfully.`
+          })
           break
-        case 'delete':
-          if (confirm('Are you sure you want to delete this role?')) {
-            await supabase
+          
+        case 'duplicate':
+          // Duplicate the role
+          const { data: originalRole } = await supabase
+            .from('jobs')
+            .select('*')
+            .eq('id', row.id)
+            .single()
+            
+          if (originalRole) {
+            const { id, created_at, updated_at, ...roleData } = originalRole
+            const { error } = await supabase
               .from('jobs')
-              .delete()
-              .eq('id', row.id)
+              .insert({
+                ...roleData,
+                title: `${roleData.title} (Copy)`,
+                is_published: false
+              })
+              
+            if (error) throw error
+            
             await loadJobs()
+            toast({
+              title: 'Success',
+              description: 'Role duplicated successfully.'
+            })
+          }
+          break
+          
+        case 'archive':
+          if (confirm('Are you sure you want to archive this role? It will be hidden from candidates.')) {
+            const { error } = await supabase
+              .from('jobs')
+              .update({ is_published: false })
+              .eq('id', row.id)
+              
+            if (error) throw error
+            
+            await loadJobs()
+            toast({
+              title: 'Success',
+              description: 'Role archived successfully.'
+            })
           }
           break
       }
     } catch (error) {
       console.error(`Error performing ${action}:`, error)
-      alert(`Failed to ${action.replace('-', ' ')}`)
+      toast({
+        title: 'Error',
+        description: `Failed to ${action.replace('-', ' ')}. Please try again.`,
+        variant: 'destructive'
+      })
     }
   }
 
