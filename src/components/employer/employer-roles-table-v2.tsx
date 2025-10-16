@@ -9,6 +9,14 @@ import DataTable from '@/components/ui/data-table'
 import { employerRolesTableColumns } from '@/lib/employer-roles-table-config'
 import { supabase } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 interface Job {
   id: string
@@ -17,6 +25,7 @@ interface Job {
   category: string | null
   required_proficiency_pct: number
   assessments_count: number
+  candidates_count: number
   is_published: boolean
 }
 
@@ -29,6 +38,11 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
   const { toast } = useToast()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
+  const [publishDialog, setPublishDialog] = useState<{ open: boolean; role: any; action: 'publish' | 'unpublish' | null }>({
+    open: false,
+    role: null,
+    action: null
+  })
 
   useEffect(() => {
     loadJobs()
@@ -67,18 +81,11 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
           break
           
         case 'toggle-publish':
-          const newPublishState = row.newPublishState
-          const { error } = await supabase
-            .from('jobs')
-            .update({ is_published: newPublishState })
-            .eq('id', row.id)
-            
-          if (error) throw error
-          
-          await loadJobs()
-          toast({
-            title: 'Success',
-            description: `Role ${newPublishState ? 'published' : 'unpublished'} successfully.`
+          // Open confirmation dialog
+          setPublishDialog({
+            open: true,
+            role: row,
+            action: row.newPublishState ? 'publish' : 'unpublish'
           })
           break
           
@@ -110,11 +117,15 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
           }
           break
           
-        case 'archive':
-          if (confirm('Are you sure you want to archive this role? It will be hidden from candidates.')) {
+        case 'manage-assessment':
+          router.push(`/employer/roles/${row.id}/assessment`)
+          break
+          
+        case 'delete':
+          if (confirm('Are you sure you want to delete this role? This action cannot be undone.')) {
             const { error } = await supabase
               .from('jobs')
-              .update({ is_published: false })
+              .delete()
               .eq('id', row.id)
               
             if (error) throw error
@@ -122,7 +133,7 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
             await loadJobs()
             toast({
               title: 'Success',
-              description: 'Role archived successfully.'
+              description: 'Role deleted successfully.'
             })
           }
           break
@@ -134,6 +145,35 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         description: `Failed to ${action.replace('-', ' ')}. Please try again.`,
         variant: 'destructive'
       })
+    }
+  }
+
+  const handleConfirmPublish = async () => {
+    if (!publishDialog.role) return
+    
+    try {
+      const newPublishState = publishDialog.action === 'publish'
+      const { error } = await supabase
+        .from('jobs')
+        .update({ is_published: newPublishState })
+        .eq('id', publishDialog.role.id)
+        
+      if (error) throw error
+      
+      await loadJobs()
+      toast({
+        title: 'Success',
+        description: `Role ${newPublishState ? 'published' : 'unpublished'} successfully.`
+      })
+    } catch (error) {
+      console.error('Error updating publish status:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to update role status. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      setPublishDialog({ open: false, role: null, action: null })
     }
   }
 
@@ -165,6 +205,34 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         isLoading={loading}
         loadingText="Loading Roles"
       />
+
+      {/* Publish/Unpublish Confirmation Dialog */}
+      <Dialog open={publishDialog.open} onOpenChange={(open) => !open && setPublishDialog({ open: false, role: null, action: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {publishDialog.action === 'publish' ? 'Publish Role?' : 'Unpublish Role?'}
+            </DialogTitle>
+            <DialogDescription>
+              {publishDialog.action === 'publish' 
+                ? `Publishing "${publishDialog.role?.title}" will make it visible to candidates and they can apply for this role.`
+                : `Unpublishing "${publishDialog.role?.title}" will hide it from candidates. Existing applications will remain accessible.`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPublishDialog({ open: false, role: null, action: null })}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleConfirmPublish}
+              className={publishDialog.action === 'publish' ? 'bg-cyan-800 hover:bg-cyan-900' : ''}
+            >
+              {publishDialog.action === 'publish' ? 'Publish' : 'Unpublish'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

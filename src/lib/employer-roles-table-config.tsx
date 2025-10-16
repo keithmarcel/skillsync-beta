@@ -12,13 +12,16 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { renderCategoryBadge } from '@/lib/table-configs'
 
-// Helper to render published status with Switch
+// Helper to render published status with Switch (opens dialog)
 const renderPublishedSwitch = (isPublished: boolean, row: any, onToggle?: (row: any, newValue: boolean) => void) => {
   return React.createElement('div', {
     className: 'flex items-center justify-center'
   }, React.createElement(Switch, {
     checked: isPublished,
-    onCheckedChange: (checked: boolean) => onToggle?.(row, checked),
+    onCheckedChange: (checked: boolean) => {
+      // Always open dialog for confirmation
+      onToggle?.(row, checked)
+    },
     className: 'data-[state=checked]:bg-cyan-800'
   }))
 }
@@ -27,23 +30,31 @@ const renderPublishedSwitch = (isPublished: boolean, row: any, onToggle?: (row: 
 const renderActionsDropdown = (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
   const menuItems = []
   
-  // Edit Role
+  // Edit Role Details
   menuItems.push(
     React.createElement(DropdownMenuItem, {
       key: 'edit',
       onClick: () => onRowAction?.('edit', row)
-    }, 'Edit Role')
+    }, 'Edit Role Details')
   )
   
-  // View Candidates
+  // View Matching Candidates
   menuItems.push(
     React.createElement(DropdownMenuItem, {
       key: 'view-candidates',
       onClick: () => onRowAction?.('view-candidates', row)
-    }, 'View Candidates')
+    }, 'View Matching Candidates')
   )
   
   menuItems.push(React.createElement(DropdownMenuSeparator, { key: 'sep1' }))
+  
+  // Manage Assessment
+  menuItems.push(
+    React.createElement(DropdownMenuItem, {
+      key: 'manage-assessment',
+      onClick: () => onRowAction?.('manage-assessment', row)
+    }, 'Manage Assessment')
+  )
   
   // Duplicate Role
   menuItems.push(
@@ -55,13 +66,13 @@ const renderActionsDropdown = (value: any, row: any, isOnFavoritesTab?: boolean,
   
   menuItems.push(React.createElement(DropdownMenuSeparator, { key: 'sep2' }))
   
-  // Archive Role
+  // Delete Role
   menuItems.push(
     React.createElement(DropdownMenuItem, {
-      key: 'archive',
-      onClick: () => onRowAction?.('archive', row),
+      key: 'delete',
+      onClick: () => onRowAction?.('delete', row),
       className: 'text-red-600'
-    }, 'Archive Role')
+    }, 'Delete Role')
   )
   
   return React.createElement(DropdownMenu, {}, [
@@ -97,7 +108,7 @@ export const employerRolesTableColumns = [
     sortable: true,
     filterable: true,
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
-    width: 'small' as const,
+    width: 'medium' as const,
     render: (value: string) => value ? renderCategoryBadge(value) : React.createElement(Badge, {
       style: { 
         backgroundColor: '#F3F4F6', 
@@ -109,17 +120,17 @@ export const employerRolesTableColumns = [
     }, 'N/A')
   },
   {
-    key: 'required_proficiency_pct',
-    label: 'Required Proficiency',
+    key: 'assessments_count',
+    label: 'Assessments',
     sortable: true,
     width: 'small' as const,
     render: (value: number) => React.createElement('span', {
       className: 'text-sm text-gray-900'
-    }, `${value || 90}%`)
+    }, `${value || 0}`)
   },
   {
-    key: 'assessments_count',
-    label: 'Assessments',
+    key: 'candidates_count',
+    label: 'Candidates',
     sortable: true,
     width: 'small' as const,
     render: (value: number) => React.createElement('span', {
