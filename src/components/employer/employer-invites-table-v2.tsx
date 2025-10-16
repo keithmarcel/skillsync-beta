@@ -167,7 +167,7 @@ export function EmployerInvitesTableV2({ companyId }: EmployerInvitesTableProps)
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Manage Your Invites</h2>
+      <h2 className="text-2xl font-bold text-gray-900 font-source-sans-pro">Manage Your Invites</h2>
 
       <Tabs value={activeSubTab} onValueChange={setActiveSubTab} className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-2">

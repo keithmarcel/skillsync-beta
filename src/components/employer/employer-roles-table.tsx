@@ -112,7 +112,7 @@ export function EmployerRolesTable({ companyId }: EmployerRolesTableProps) {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Manage Your Listed Roles</h2>
+        <h2 className="text-2xl font-bold text-gray-900 font-source-sans-pro">Manage Your Listed Roles</h2>
         <LoadingState variant="skeleton" count={5} size="lg" className="mt-6" />
       </div>
     )
@@ -120,7 +120,7 @@ export function EmployerRolesTable({ companyId }: EmployerRolesTableProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Manage Your Listed Roles</h2>
+      <h2 className="text-2xl font-bold text-gray-900 font-source-sans-pro">Manage Your Listed Roles</h2>
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">

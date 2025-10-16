@@ -1,39 +1,90 @@
 'use client'
 
-interface EmployerSettingsProps {
-  company: {
-    id: string
-    name: string
-    logo_url: string | null
-    hq_city: string | null
-    hq_state: string | null
-  }
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ProfileTab } from './settings/profile-tab-v2'
+import { AccountTab } from './settings/account-tab-v2'
+import { NotificationsTab } from './settings/notifications-tab-v2'
+import { supabase } from '@/lib/supabase/client'
+
+interface Company {
+  id: string
+  name: string
+  logo_url: string | null
+  featured_image_url: string | null
+  bio: string | null
+  hq_city: string | null
+  hq_state: string | null
+  industry: string | null
+  employee_range: string | null
+  revenue_range: string | null
+  is_published: boolean
+  is_trusted_partner: boolean
 }
 
-export function EmployerSettings({ company }: EmployerSettingsProps) {
+interface EmployerSettingsProps {
+  company: Company
+}
+
+export function EmployerSettings({ company: initialCompany }: EmployerSettingsProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [company, setCompany] = useState<Company>(initialCompany)
+  
+  const tabFromUrl = searchParams.get('subtab') || 'profile'
+  const [activeTab, setActiveTab] = useState(tabFromUrl)
+  
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('subtab') || 'profile'
+    setActiveTab(tabFromUrl)
+  }, [searchParams])
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('subtab', tabId)
+    router.push(`/employer?tab=settings&${params.toString()}`)
+  }
+
+  const handleCompanyUpdate = async () => {
+    // Refresh company data from database
+    const { data, error } = await supabase
+      .from('companies')
+      .select('*')
+      .eq('id', company.id)
+      .single()
+
+    if (!error && data) {
+      setCompany(data)
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
+      <h2 className="text-2xl font-bold text-gray-900 font-source-sans-pro">Manage Your Settings</h2>
       
-      {/* Placeholder for settings */}
-      <div className="bg-white rounded-lg border border-gray-200 p-12">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Settings
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Place useful settings for employer admins here
-          </p>
-          <ul className="text-sm text-gray-500 space-y-1 text-left max-w-md mx-auto">
-            <li>• Credentials</li>
-            <li>• Profile (Bio, Featured image, Logo, Company details, etc)</li>
-            <li>• Cancel</li>
-            <li>• Save Changes</li>
-            <li>• Dialogs</li>
-            <li>• Toasts</li>
-          </ul>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+        <TabsList>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        </TabsList>
+
+        <div className="flex justify-center mt-6">
+          <div className="w-full max-w-[672px]">
+            <TabsContent value="profile" className="mt-0">
+              <ProfileTab company={company} onUpdate={handleCompanyUpdate} />
+            </TabsContent>
+            <TabsContent value="account" className="mt-0">
+              <AccountTab company={company} onUpdate={handleCompanyUpdate} />
+            </TabsContent>
+            <TabsContent value="notifications" className="mt-0">
+              <NotificationsTab company={company} />
+            </TabsContent>
+          </div>
         </div>
-      </div>
+      </Tabs>
     </div>
   )
 }
