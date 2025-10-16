@@ -194,49 +194,79 @@ export const getRoleEditorTabs = (context: 'admin' | 'employer', options) => {
 
 ---
 
-## Open Questions
+## Decisions Made (October 16, 2025)
 
-### 1. Component Reusability
-- [ ] Extract into shared component or keep separate?
-- [ ] Use variant prop or separate implementations?
+### 1. Component Reusability ✅
+**Decision:** Extract shared configuration into reusable component with variant prop
+**Rationale:** Employer features will expand rapidly (AI tools, enhancements). Single source of truth prevents divergence and reduces maintenance burden. FAANG best practice: DRY principle with context-aware variants.
 
-### 2. Draft Visibility
-- [ ] Show drafts in Listed Roles table with badge?
-- [ ] Or hide drafts entirely until published?
-- [ ] Draft count in metrics?
+### 2. Permissions ✅
+**Decision:** 
+- Super Admin: Can edit ANY company's roles
+- Company Admin: Can only edit their own company's roles
+- Company field: Auto-populated from `profile.company_id`, hidden for employers
+**Rationale:** Security through RLS + UI enforcement. Employers never see/change company field.
 
-### 3. Tab Access
-- [ ] Should employers see ALL 6 tabs?
-- [ ] Any admin-only tabs?
-- [ ] Simplified view for employers?
+### 3. Draft/Publish Workflow ✅
+**Decision:** Use `is_published` boolean for draft state
+- `is_published = false` → Draft (can save partial data)
+- `is_published = true` → Published (visible to job seekers)
+- Draft roles show in Listed Roles table with "Draft" badge
+- Publish button disabled until all required fields complete
+- Dialog shows missing required fields when attempting to publish incomplete role
+**Rationale:** Boolean is simpler than tri-state. Keeps `status` field for other purposes. Allows incremental progress.
 
-### 4. Field Requirements
-- [ ] Confirm minimum required fields for publish
-- [ ] Block publish or show warnings?
-- [ ] Validation messages location?
+### 4. Breadcrumb Pattern ✅
+**Decision:** Follow main app pattern (jobs/[id] details pages)
+- Edit: `Employer Dashboard > Listed Roles > Edit: [Role Title]`
+- Create: `Employer Dashboard > Listed Roles > Create New Role`
+- Actions (Save, Publish, Delete) in breadcrumb area like admin tools
+**Rationale:** Consistent with existing UX patterns. Users already familiar with this navigation.
 
-### 5. Routing Pattern
-- [ ] `/employer/roles/[id]/edit` or `/employer/roles/[id]`?
-- [ ] Separate `/new` route or use `[id]` with 'new'?
+### 5. Required Fields for Publishing ✅
+**Decision:** ALL fields required EXCEPT SEO tab (but encouraged via AI generator)
+**Tabs Required:**
+- ✅ Basic Information (all fields)
+- ✅ Descriptions (short + long)
+- ✅ Skills (minimum 1 skill)
+- ✅ Assessments (auto-generated from skills)
+- ✅ Role Details (responsibilities, tasks, tools)
+- ⚠️ SEO & Metadata (optional but has AI generator to make it easy)
+**Rationale:** Complete roles provide better job seeker experience. AI tools make completion fast. SEO optional to avoid friction, but encouraged.
 
-### 6. Company Field
-- [ ] Hide completely for employers?
-- [ ] Show as read-only?
-- [ ] Auto-populate from profile.company_id?
+### 6. Tab Structure ✅
+**Decision:** Employers see same 6 tabs as admin (no "Advanced" tab found in current code)
+**Tabs:**
+1. Basic Information
+2. Descriptions
+3. Skills
+4. Assessments
+5. Role Details
+6. SEO & Metadata
+**Rationale:** Employers need full control. AI tools make complex tasks simple. No need to hide functionality.
 
-### 7. Save Behavior
-- [ ] Save and stay on page?
-- [ ] Save and return to list?
-- [ ] Toast notification?
+### 7. Routing Pattern ✅
+**Decision:** Use query params to match employer dashboard pattern
+- Edit: `/employer?tab=roles&action=edit&id=[roleId]`
+- Create: `/employer?tab=roles&action=new`
+- Alternative: Create dedicated routes `/employer/roles/[id]` and `/employer/roles/new` for cleaner URLs
+**Recommendation:** Use dedicated routes (`/employer/roles/[id]`, `/employer/roles/new`) - FAANG best practice for:
+- Better SEO
+- Cleaner URLs
+- Easier deep linking
+- Standard Next.js patterns
+- Can still navigate back to `?tab=roles` after save
 
 ---
 
 ## Technical Considerations
 
 ### Database
-- `jobs` table already has `status` field ('draft' | 'published' | 'archived')
-- `is_published` boolean also exists (legacy?)
-- Use `status` as source of truth
+- `jobs` table has both `status` field and `is_published` boolean
+- **Use `is_published` for draft/publish workflow** (simpler boolean logic)
+- `status` can be used for other purposes (archived, etc.)
+- Draft: `is_published = false`
+- Published: `is_published = true`
 
 ### Permissions
 - Check `profile.company_id` matches `job.company_id`
@@ -271,17 +301,259 @@ export const getRoleEditorTabs = (context: 'admin' | 'employer', options) => {
 
 ---
 
-## Next Steps
+## Implementation Plan
 
-1. **Answer open questions** (see above)
-2. **Extract shared configuration** into `/src/lib/role-editor-config.tsx`
-3. **Create RoleEditor component** with admin/employer variants
-4. **Implement employer routes** (`/employer/roles/[id]`, `/employer/roles/new`)
-5. **Add breadcrumbs** to employer role editor
-6. **Update Listed Roles table** to show draft badge
-7. **Test end-to-end** with Power Design account
-8. **Document** in technical architecture
+### Phase 1: Extract Shared Configuration (Day 1)
+**Goal:** Create reusable role editor configuration
+
+**Files to Create:**
+1. `/src/lib/role-editor-config.tsx` - Tab definitions, field configs, validation rules
+2. `/src/components/shared/RoleEditorForm.tsx` - Shared form component with variants
+
+**Approach:**
+```typescript
+// role-editor-config.tsx
+export const getRoleEditorTabs = (context: 'admin' | 'employer', options: {
+  companies: Company[],
+  skills: Skill[],
+  profile: Profile,
+  isNew: boolean
+}) => {
+  const tabs = [
+    // Basic Information tab
+    {
+      id: 'basic',
+      label: 'Basic Information',
+      fields: [
+        // Company field - hidden for employers
+        context === 'admin' ? {
+          key: 'company_id',
+          label: 'Company',
+          type: EntityFieldType.SELECT,
+          required: true,
+          disabled: options.profile?.company_id ? true : false,
+          options: options.companies.map(c => ({ value: c.id, label: c.name }))
+        } : null,
+        // ... other fields
+      ].filter(Boolean)
+    },
+    // ... other tabs
+  ]
+  
+  return tabs
+}
+
+export const validateRoleForPublish = (role: Job): { valid: boolean, missing: string[] } => {
+  const missing: string[] = []
+  
+  // Basic Information
+  if (!role.title) missing.push('Job Title')
+  if (!role.soc_code) missing.push('SOC Code')
+  if (!role.company_id) missing.push('Company')
+  if (!role.category) missing.push('Category')
+  if (!role.job_type) missing.push('Employment Type')
+  if (!role.work_location_type) missing.push('Work Location')
+  if (!role.location_city) missing.push('City')
+  if (!role.location_state) missing.push('State')
+  if (!role.education_level) missing.push('Education Requirements')
+  if (!role.median_wage_usd) missing.push('Median Salary')
+  if (!role.required_proficiency_pct) missing.push('Required Proficiency Score')
+  if (!role.visibility_threshold_pct) missing.push('Visibility Threshold')
+  if (!role.featured_image_url) missing.push('Featured Image')
+  
+  // Descriptions
+  if (!role.short_desc) missing.push('Short Description')
+  if (!role.long_desc) missing.push('Full Job Description')
+  
+  // Skills (check via API or assume validated)
+  // Will need to check if role has at least 1 skill
+  
+  // Role Details
+  if (!role.core_responsibilities || role.core_responsibilities.length === 0) {
+    missing.push('Core Responsibilities')
+  }
+  if (!role.tasks || role.tasks.length === 0) {
+    missing.push('Day-to-Day Tasks')
+  }
+  if (!role.tools_and_technology || role.tools_and_technology.length === 0) {
+    missing.push('Tools & Technology')
+  }
+  
+  return {
+    valid: missing.length === 0,
+    missing
+  }
+}
+```
+
+### Phase 2: Create Employer Routes (Day 2)
+**Goal:** Implement employer-specific role editing pages
+
+**Files to Create:**
+1. `/src/app/(main)/employer/roles/[id]/page.tsx` - Edit existing role
+2. `/src/app/(main)/employer/roles/new/page.tsx` - Create new role
+
+**Key Features:**
+- Use same `useAdminEntity` hook (or rename to `useRoleEntity`)
+- Apply employer styling (teal theme)
+- Add breadcrumbs with back navigation
+- Show "You're editing live data" alert
+- Auto-populate `company_id` from `profile.company_id`
+- Validate before publish
+- Show dialog with missing fields if publish attempted on incomplete role
+
+**Example Structure:**
+```typescript
+// /src/app/(main)/employer/roles/[id]/page.tsx
+'use client'
+
+import { RoleEditorForm } from '@/components/shared/RoleEditorForm'
+import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
+import Breadcrumb from '@/components/ui/breadcrumb'
+
+export default function EmployerRoleEditPage({ params }: { params: { id: string } }) {
+  const { profile } = useAuth()
+  const router = useRouter()
+  const isNew = params.id === 'new'
+  
+  const handleSave = async (data: Job) => {
+    // Ensure company_id is set
+    data.company_id = profile.company_id
+    // Save logic
+  }
+  
+  const handleCancel = () => {
+    router.push('/employer?tab=roles')
+  }
+  
+  return (
+    <div>
+      <Breadcrumb
+        items={[
+          { label: 'Employer Dashboard', href: '/employer' },
+          { label: 'Listed Roles', href: '/employer?tab=roles' },
+          { label: isNew ? 'Create New Role' : 'Edit Role' }
+        ]}
+      />
+      
+      <RoleEditorForm
+        roleId={isNew ? null : params.id}
+        context="employer"
+        companyId={profile.company_id}
+        onSave={handleSave}
+        onCancel={handleCancel}
+      />
+    </div>
+  )
+}
+```
+
+### Phase 3: Update Listed Roles Table (Day 2)
+**Goal:** Add draft badge and edit navigation
+
+**Files to Update:**
+1. `/src/components/employer/employer-roles-table-v2.tsx`
+2. `/src/lib/employer-roles-table-config.tsx`
+
+**Changes:**
+- Add "Draft" badge to role title when `is_published = false`
+- Update "Edit Role" action to navigate to `/employer/roles/[id]`
+- Update "Add New Role" button to navigate to `/employer/roles/new`
+- Show draft count in metrics
+
+**Example:**
+```typescript
+// In employer-roles-table-config.tsx
+{
+  key: 'title',
+  label: 'Role Title',
+  render: (value: string, row: any) => (
+    <div className="flex items-center gap-2">
+      <span className="font-semibold">{value}</span>
+      {!row.is_published && (
+        <Badge className="bg-gray-200 text-gray-700">Draft</Badge>
+      )}
+    </div>
+  )
+}
+```
+
+### Phase 4: Publish Validation Dialog (Day 3)
+**Goal:** Prevent publishing incomplete roles
+
+**Files to Create:**
+1. `/src/components/employer/PublishValidationDialog.tsx`
+
+**Features:**
+- Check all required fields before publish
+- Show dialog listing missing fields
+- Provide links to specific tabs with missing data
+- Only allow publish when all required fields complete
+
+**Example:**
+```typescript
+<Dialog open={showValidation} onOpenChange={setShowValidation}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Cannot Publish Role</DialogTitle>
+      <DialogDescription>
+        The following required fields are missing:
+      </DialogDescription>
+    </DialogHeader>
+    <div className="space-y-2">
+      {missingFields.map(field => (
+        <div key={field} className="text-sm text-red-600">
+          • {field}
+        </div>
+      ))}
+    </div>
+    <DialogFooter>
+      <Button onClick={() => setShowValidation(false)}>
+        Continue Editing
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Phase 5: Testing & Polish (Day 3)
+**Goal:** Ensure everything works end-to-end
+
+**Test Scenarios:**
+1. ✅ Create new role as employer (all fields empty)
+2. ✅ Save draft (partial completion)
+3. ✅ Return to edit draft
+4. ✅ Attempt to publish incomplete role (see validation dialog)
+5. ✅ Complete all required fields
+6. ✅ Publish role successfully
+7. ✅ Edit published role
+8. ✅ Unpublish role
+9. ✅ Delete role
+10. ✅ Verify role appears/disappears for job seekers based on publish status
+
+**Test Account:**
+- Email: employeradmin-powerdesign@skillsync.com
+- Password: ssbipass
+- Company: Power Design
 
 ---
 
-*Status: Awaiting clarification on open questions before implementation*
+## Next Steps
+
+### Immediate (This Session)
+1. ✅ Document architecture and decisions
+2. ⏳ Update ROLE_EDITOR_ARCHITECTURE.md with final decisions
+3. ⏳ Commit documentation
+
+### Next Session
+1. Extract shared role editor configuration
+2. Create employer role editor routes
+3. Update Listed Roles table with draft badge
+4. Implement publish validation
+5. Test end-to-end with Power Design account
+
+---
+
+*Status: Architecture finalized, ready for implementation*
+*Updated: October 16, 2025 3:56 AM*
