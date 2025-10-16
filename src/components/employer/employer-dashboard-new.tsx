@@ -98,15 +98,16 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
       applied: { bg: 'bg-teal-100', text: 'text-teal-800', label: 'Applied', icon: Check },
       hired: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Hired' },
       declined: { bg: 'bg-red-100', text: 'text-red-800', label: 'Declined', icon: X },
-      unqualified: { bg: 'border border-gray-300 bg-white', text: 'text-gray-700', label: 'Unqualified' }
+      unqualified: { bg: 'bg-white border border-gray-300', text: 'text-gray-700', label: 'Unqualified' }
     }
 
     const statusConfig = config[status]
     if (!statusConfig) return null
 
     // All badges are non-clickable status indicators
+    const borderClass = status === 'unqualified' ? '' : 'border-0'
     return (
-      <Badge className={`${statusConfig.bg} ${statusConfig.text} border-0 rounded-md shadow-none inline-flex items-center justify-center gap-1.5 px-2 py-0.5 pointer-events-none min-w-[100px]`} style={{ fontSize: '10px', height: '24px' }}>
+      <Badge className={`${statusConfig.bg} ${statusConfig.text} ${borderClass} rounded-md shadow-none inline-flex items-center justify-center gap-1.5 px-2 py-0.5 pointer-events-none min-w-[100px]`} style={{ fontSize: '10px', height: '24px' }}>
         {statusConfig.icon && <statusConfig.icon className="w-3 h-3" />}
         {statusConfig.label}
       </Badge>
@@ -117,7 +118,7 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
     const isReady = proficiency >= requiredProficiency
     if (isReady) {
       return (
-        <Badge className="bg-green-100 text-green-800 border-0 rounded-full shadow-none flex items-center gap-1" style={{ fontSize: '10px' }}>
+        <Badge className="bg-green-100 text-green-800 border-0 rounded-full shadow-none flex items-center gap-1 pointer-events-none" style={{ fontSize: '10px' }}>
           <span>Ready</span>
           <span className="text-green-600">|</span>
           <span className="font-semibold">{proficiency}%</span>
@@ -125,7 +126,7 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
       )
     } else {
       return (
-        <Badge className="bg-orange-100 text-orange-800 border-0 rounded-full shadow-none flex items-center gap-1" style={{ fontSize: '10px' }}>
+        <Badge className="bg-orange-100 text-orange-800 border-0 rounded-full shadow-none flex items-center gap-1 pointer-events-none" style={{ fontSize: '10px' }}>
           <span>Almost There</span>
           <span className="text-orange-600">|</span>
           <span className="font-semibold">{proficiency}%</span>

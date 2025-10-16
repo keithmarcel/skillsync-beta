@@ -43,6 +43,10 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
     role: null,
     action: null
   })
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; role: any }>({
+    open: false,
+    role: null
+  })
 
   useEffect(() => {
     loadJobs()
@@ -163,20 +167,11 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
           break
           
         case 'delete':
-          if (confirm('Are you sure you want to delete this role? This action cannot be undone.')) {
-            const { error } = await supabase
-              .from('jobs')
-              .delete()
-              .eq('id', row.id)
-              
-            if (error) throw error
-            
-            await loadJobs()
-            toast({
-              title: 'Success',
-              description: 'Role deleted successfully.'
-            })
-          }
+          // Open delete confirmation dialog
+          setDeleteDialog({
+            open: true,
+            role: row
+          })
           break
       }
     } catch (error) {
@@ -184,6 +179,33 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
       toast({
         title: 'Error',
         description: `Failed to ${action.replace('-', ' ')}. Please try again.`,
+        variant: 'destructive'
+      })
+    }
+  }
+
+  const handleDeleteRole = async () => {
+    if (!deleteDialog.role) return
+    
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', deleteDialog.role.id)
+        
+      if (error) throw error
+      
+      await loadJobs()
+      toast({
+        title: 'Success',
+        description: 'Role deleted successfully.'
+      })
+      setDeleteDialog({ open: false, role: null })
+    } catch (error) {
+      console.error('Error deleting role:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to delete role. Please try again.',
         variant: 'destructive'
       })
     }
@@ -316,6 +338,29 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
               className={publishDialog.action === 'publish' ? 'bg-cyan-800 hover:bg-cyan-900' : ''}
             >
               {publishDialog.action === 'publish' ? 'Publish' : 'Unpublish'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialog.open} onOpenChange={(open) => !open && setDeleteDialog({ open: false, role: null })}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Role?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{deleteDialog.role?.title}"? This action cannot be undone and will remove the role from all candidate favorites and applications.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialog({ open: false, role: null })}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleDeleteRole}
+              variant="destructive"
+            >
+              Delete Role
             </Button>
           </DialogFooter>
         </DialogContent>
