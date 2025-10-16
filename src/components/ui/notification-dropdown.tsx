@@ -115,8 +115,8 @@ export function NotificationDropdown() {
         data-testid="notification-dropdown"
       >
         {/* Header */}
-        <div className="px-4 py-2 border-b border-[#E5E5E5]">
-          <h3 className="text-base font-normal text-[#111928]">
+        <div className="px-4 py-2">
+          <h3 className="text-base font-semibold text-[#111928]">
             Recent Invite Notifications
           </h3>
         </div>
@@ -156,7 +156,7 @@ export function NotificationDropdown() {
                 <NotificationItem
                   key={invitation.id}
                   invitation={invitation}
-                  onClick={handleInvitationClick}
+                  onClick={() => handleInvitationClick(invitation)}
                 />
               ))}
             </>
@@ -169,7 +169,7 @@ export function NotificationDropdown() {
             <Button
               variant="outline"
               onClick={handleMarkAllAsRead}
-              className="flex-1 h-[34px] text-xs font-medium border-[#E5E7EB] text-[#111928] hover:bg-gray-50"
+              className="flex-1 h-[34px] text-xs font-medium border-[#036672] text-[#036672] hover:bg-[#036672] hover:text-white hover:border-[#036672]"
               disabled={unreadCount === 0}
             >
               Mark All As Read

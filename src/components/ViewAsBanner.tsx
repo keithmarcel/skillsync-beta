@@ -2,12 +2,14 @@
 
 import { useViewAs } from '@/contexts/ViewAsContext'
 import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 import { Eye, X } from 'lucide-react'
 import { Button } from './ui/button'
 
 export function ViewAsBanner() {
   const { viewAsMode, setViewAsMode, isViewingAs } = useViewAs()
   const { isSuperAdmin } = useAuth()
+  const router = useRouter()
 
   if (!isViewingAs || !isSuperAdmin) {
     return null
@@ -26,6 +28,11 @@ export function ViewAsBanner() {
     }
   }
 
+  const handleClose = () => {
+    setViewAsMode(null)
+    router.push('/admin')
+  }
+
   return (
     <div className="fixed bottom-4 right-4 z-50 max-w-sm">
       <div className="bg-amber-50 border border-amber-200 rounded-lg shadow-lg px-4 py-3">
@@ -39,7 +46,7 @@ export function ViewAsBanner() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setViewAsMode(null)}
+            onClick={handleClose}
             className="h-6 w-6 p-0 text-amber-700 hover:text-amber-900 hover:bg-amber-100"
           >
             <X className="h-4 w-4" />

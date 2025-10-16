@@ -36,7 +36,7 @@ interface Column {
 interface DataTableProps {
   data: any[]
   columns: Column[]
-  tableType?: 'programs' | 'jobs' | 'assessments' | 'occupations'
+  tableType?: 'programs' | 'jobs' | 'assessments' | 'occupations' | 'employer-invites'
   isOnFavoritesTab?: boolean
   loadingText?: string
   onRowAction?: (action: string, row: any) => void
@@ -88,6 +88,38 @@ export default function DataTable({
     Object.entries(filters).forEach(([column, value]) => {
       if (value) {
         filtered = filtered.filter((item: any) => {
+          // Special handling for proficiency_pct (Role Readiness) in employer-invites
+          if (tableType === 'employer-invites' && column === 'proficiency_pct') {
+            const proficiency = item.proficiency_pct
+            const requiredProficiency = item.job?.required_proficiency_pct || 90 // Default to 90 if not set
+            
+            if (value.toLowerCase() === 'ready') {
+              // Ready = meets or exceeds required proficiency
+              return proficiency >= requiredProficiency
+            } else if (value.toLowerCase() === 'almost there') {
+              // Almost There = below required proficiency
+              return proficiency < requiredProficiency
+            }
+            return false
+          }
+          
+          // Status filter mapping for employer-invites
+          if (tableType === 'employer-invites' && column === 'status') {
+            const status = item.status?.toLowerCase()
+            const filterValue = value.toLowerCase()
+            
+            // Map "Position Filled" to "unqualified" status
+            if (filterValue === 'position filled') {
+              return status === 'unqualified'
+            }
+            // Map "Pending" to both "sent" and "pending"
+            if (filterValue === 'pending') {
+              return status === 'sent' || status === 'pending'
+            }
+            return status === filterValue
+          }
+          
+          // Default filter behavior
           const itemValue = column.split('.').reduce((obj, key) => obj?.[key], item)
           return itemValue?.toString().toLowerCase() === value.toLowerCase()
         })
@@ -138,7 +170,18 @@ export default function DataTable({
       case 'jobs': return 'View Job Details'
       case 'programs': return 'View Program Details'
       case 'occupations': return 'View Occupation Details'
+      case 'employer-invites': return 'View Candidate'
       default: return 'View Details'
+    }
+  }
+
+  const getSearchPlaceholder = (type: string) => {
+    switch (type) {
+      case 'programs': return 'Search programs by name, school, or category'
+      case 'jobs': return 'Search jobs by title, company, or category'
+      case 'employer-invites': return 'Search by company, role, or status'
+      case 'occupations': return 'Search occupations by title or category'
+      default: return 'Search...'
     }
   }
 
@@ -165,7 +208,7 @@ export default function DataTable({
           <div className="relative w-full max-w-[420px]">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Search programs by name, school, or category"
+              placeholder={getSearchPlaceholder(tableType)}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -215,7 +258,53 @@ export default function DataTable({
       )}
 
       {/* Table Container */}
-      <div className="w-full max-w-[1232px] rounded-xl border border-[#E5E5E5] bg-[#FCFCFC] p-2 overflow-x-auto">
+      <div className={`w-full max-w-[1232px] rounded-xl border border-[#E5E5E5] bg-[#FCFCFC] p-2 overflow-x-auto ${
+        tableType === 'employer-invites' ? 'employer-invites-table' : ''
+      }`}>
+        {/* Mobile Card Layout (hidden by default, shown on mobile via CSS) */}
+        {tableType === 'employer-invites' && (
+          <div className="employer-invites-mobile-cards hidden space-y-4">
+            {paginatedData.map((row: any, rowIndex: number) => (
+              <div key={rowIndex} className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+                {/* Name with avatar */}
+                <div className="flex items-center gap-3">
+                  {columns[0]?.render ? columns[0].render(columns[0].key.split('.').reduce((obj, key) => obj?.[key], row), row, isOnFavoritesTab, onRowAction) : null}
+                </div>
+                
+                {/* Role */}
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Role</div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    {columns[1]?.render ? columns[1].render(columns[1].key.split('.').reduce((obj, key) => obj?.[key], row), row, isOnFavoritesTab, onRowAction) : columns[1].key.split('.').reduce((obj, key) => obj?.[key], row)}
+                  </div>
+                </div>
+
+                {/* Role Readiness */}
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Role Readiness</div>
+                  <div>
+                    {columns[2]?.render ? columns[2].render(columns[2].key.split('.').reduce((obj, key) => obj?.[key], row), row, isOnFavoritesTab, onRowAction) : null}
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Status</div>
+                  <div>
+                    {columns[3]?.render ? columns[3].render(columns[3].key.split('.').reduce((obj, key) => obj?.[key], row), row, isOnFavoritesTab, onRowAction) : null}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end pt-2 border-t border-gray-100">
+                  {columns[4]?.render ? columns[4].render(columns[4].key.split('.').reduce((obj, key) => obj?.[key], row), row, isOnFavoritesTab, onRowAction) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Desktop Table */}
         <table className="w-full border-collapse" style={{ tableLayout: 'fixed' }}>
           {/* Table Header */}
           <thead>
@@ -223,14 +312,28 @@ export default function DataTable({
               {columns.map((column, index) => (
                 <th 
                   key={column.key}
-                  className={`py-6 px-6 text-left ${index === columns.length - 1 ? 'text-center' : ''}`}
+                  className={`py-6 text-left ${
+                    index === columns.length - 1 ? 'text-center' : ''
+                  } ${
+                    tableType === 'employer-invites' && index >= 2 ? 'text-center' : ''
+                  } ${
+                    tableType === 'employer-invites' && index === 0 ? 'px-6 pr-8 sticky-col-left' : 'px-6'
+                  } ${
+                    tableType === 'employer-invites' && index === columns.length - 1 ? 'sticky-col-right' : ''
+                  }`}
                   style={{
-                    width: index === 0 ? '22%' :
-                           index === 1 ? '30%' :
-                           index === 2 ? '12%' :
-                           index === 3 ? '10%' :
-                           index === 4 ? '12%' :
-                           index === 5 ? '8%' : 'auto',
+                    width: tableType === 'employer-invites' 
+                      ? (index === 0 ? '23%' :  // Name
+                         index === 1 ? '30%' :  // Role (more space for long titles)
+                         index === 2 ? '17%' :  // Role Readiness (with proficiency)
+                         index === 3 ? '20%' :  // Status
+                         index === 4 ? '10%' : 'auto')  // Actions (more padding)
+                      : (index === 0 ? '22%' :
+                         index === 1 ? '30%' :
+                         index === 2 ? '12%' :
+                         index === 3 ? '10%' :
+                         index === 4 ? '12%' :
+                         index === 5 ? '8%' : 'auto'),
                   }}
                 >
                   {column.label}
@@ -249,14 +352,32 @@ export default function DataTable({
                   return (
                     <td 
                       key={column.key}
-                      className={`py-6 px-6 font-normal ${colIndex === columns.length - 1 ? 'text-center' : ''} ${column.key === 'category' || column.key === 'readiness' ? 'whitespace-nowrap' : ''}`}
+                      className={`py-6 font-normal ${
+                        colIndex === columns.length - 1 ? 'text-center' : ''
+                      } ${
+                        column.key === 'category' || column.key === 'readiness' ? 'whitespace-nowrap' : ''
+                      } ${
+                        tableType === 'employer-invites' && colIndex >= 2 ? 'text-center' : ''
+                      } ${
+                        tableType === 'employer-invites' && colIndex === 0 ? 'px-6 pr-8 sticky-col-left' : 'px-6'
+                      } ${
+                        tableType === 'employer-invites' && colIndex === 1 ? 'whitespace-nowrap' : ''
+                      } ${
+                        tableType === 'employer-invites' && colIndex === columns.length - 1 ? 'sticky-col-right' : ''
+                      }`}
                       style={{
-                        width: colIndex === 0 ? '22%' :
-                               colIndex === 1 ? '30%' :
-                               colIndex === 2 ? '12%' :
-                               colIndex === 3 ? '10%' :
-                               colIndex === 4 ? '12%' :
-                               colIndex === 5 ? '8%' : 'auto',
+                        width: tableType === 'employer-invites'
+                          ? (colIndex === 0 ? '23%' :
+                             colIndex === 1 ? '30%' :
+                             colIndex === 2 ? '17%' :
+                             colIndex === 3 ? '20%' :
+                             colIndex === 4 ? '10%' : 'auto')
+                          : (colIndex === 0 ? '22%' :
+                             colIndex === 1 ? '30%' :
+                             colIndex === 2 ? '12%' :
+                             colIndex === 3 ? '10%' :
+                             colIndex === 4 ? '12%' :
+                             colIndex === 5 ? '8%' : 'auto'),
                       }}
                     >
                       {colIndex === 0 ? (
@@ -271,6 +392,9 @@ export default function DataTable({
                             </Link>
                             {column.render(value, row, isOnFavoritesTab, onRowAction)}
                           </div>
+                        ) : tableType === 'employer-invites' && column.render ? (
+                          // Employer invites - no link, just render
+                          column.render(value, row, isOnFavoritesTab, onRowAction)
                         ) : (
                           // Jobs and other tables (render function handles everything)
                           <Link 
@@ -281,51 +405,56 @@ export default function DataTable({
                           </Link>
                         )
                       ) : colIndex === columns.length - 1 ? (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 mx-auto">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => onRowAction?.('details', row)}>
-                              {getActionLabel(tableType)}
-                            </DropdownMenuItem>
-                            {getSecondaryActionLabel(tableType) && (
-                              <DropdownMenuItem onClick={() => onRowAction?.('secondary', row)}>
-                                {getSecondaryActionLabel(tableType)}
+                        // Actions column - use custom render for employer-invites
+                        tableType === 'employer-invites' && column.render ? (
+                          column.render(value, row, isOnFavoritesTab, onRowAction)
+                        ) : (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0 mx-auto">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => onRowAction?.('details', row)}>
+                                {getActionLabel(tableType)}
                               </DropdownMenuItem>
-                            )}
-                            {getTertiaryActionLabel(tableType) && (
-                              <DropdownMenuItem onClick={() => onRowAction?.('tertiary', row)}>
-                                {getTertiaryActionLabel(tableType)}
-                              </DropdownMenuItem>
-                            )}
-                            {tableType === 'jobs' && (
-                              <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => onRowAction?.('resume', row)}>
-                                  Upload Your Resume
+                              {getSecondaryActionLabel(tableType) && (
+                                <DropdownMenuItem onClick={() => onRowAction?.('secondary', row)}>
+                                  {getSecondaryActionLabel(tableType)}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => onRowAction?.('assessment', row)}>
-                                  Take a Skills Assessment
+                              )}
+                              {getTertiaryActionLabel(tableType) && (
+                                <DropdownMenuItem onClick={() => onRowAction?.('tertiary', row)}>
+                                  {getTertiaryActionLabel(tableType)}
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                              </>
-                            )}
-                            <DropdownMenuItem onClick={() => {
-                              const entityKind = tableType === 'programs' ? 'program' : 'job'
-                              const action = isOnFavoritesTab ? 'unfavorite' : ((isFavorite && isFavorite(entityKind, row.id)) ? 'unfavorite' : 'favorite')
-                              onRowAction?.(action, row)
-                            }}>
-                              {(() => {
+                              )}
+                              {tableType === 'jobs' && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem onClick={() => onRowAction?.('resume', row)}>
+                                    Upload Your Resume
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => onRowAction?.('assessment', row)}>
+                                    Take a Skills Assessment
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                </>
+                              )}
+                              <DropdownMenuItem onClick={() => {
                                 const entityKind = tableType === 'programs' ? 'program' : 'job'
-                                const isCurrentlyFavorited = isOnFavoritesTab || (isFavorite && isFavorite(entityKind, row.id))
-                                return isCurrentlyFavorited ? 'Remove from Favorites' : 'Add to Favorites'
-                              })()}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                                const action = isOnFavoritesTab ? 'unfavorite' : ((isFavorite && isFavorite(entityKind, row.id)) ? 'unfavorite' : 'favorite')
+                                onRowAction?.(action, row)
+                              }}>
+                                {(() => {
+                                  const entityKind = tableType === 'programs' ? 'program' : 'job'
+                                  const isCurrentlyFavorited = isOnFavoritesTab || (isFavorite && isFavorite(entityKind, row.id))
+                                  return isCurrentlyFavorited ? 'Remove from Favorites' : 'Add to Favorites'
+                                })()}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        )
                       ) : (
                         column.render ? column.render(value, row, isOnFavoritesTab, onRowAction) : value
                       )}

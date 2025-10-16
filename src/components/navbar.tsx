@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { UserMenu } from '@/components/ui/user-menu'
 import { GiveFeedbackDialog } from '@/components/ui/give-feedback-dialog'
 import { NotificationDropdown } from '@/components/ui/notification-dropdown'
+import { EmployerNotificationDropdown } from '@/components/employer/employer-notification-dropdown'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, Heart, BookOpen, User, Home, Briefcase, GraduationCap, FileText, MessageSquare, LogIn, Settings, LogOut } from 'lucide-react'
@@ -25,7 +26,14 @@ const quickActions = [
   { name: 'Give Feedback', href: null, icon: MessageSquare, count: 0, isButton: true },
 ]
 
-export function Navbar() {
+interface NavbarProps {
+  companyId?: string // Optional: if provided, shows employer notifications instead of candidate
+  variant?: 'default' | 'employer' // Employer variant shows company logo instead of nav links
+  companyName?: string
+  companyLogo?: string | null
+}
+
+export function Navbar({ companyId, variant = 'default', companyName, companyLogo }: NavbarProps = {}) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const { user, profile, loading, signOut } = useAuth()
@@ -51,22 +59,48 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Navigation links */}
+          {/* Desktop Navigation links OR Company Logo (employer variant) */}
           <div className="hidden md:flex items-center gap-10 flex-1 justify-center">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex px-4 py-2 justify-center items-center gap-2 rounded-lg text-sm font-medium transition-colors ${
-                  pathname === item.href
-                    ? 'text-white'
-                    : 'text-gray-900 hover:bg-gray-50'
-                }`}
-                style={pathname === item.href ? { backgroundColor: '#0694A2' } : {}}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {variant === 'employer' ? (
+              // Show company logo for employer variant
+              <div className="flex items-center gap-3">
+                {companyLogo ? (
+                  <img 
+                    src={companyLogo} 
+                    alt={companyName || 'Company'} 
+                    className="h-10 sm:h-12 w-auto max-w-[200px] object-contain"
+                  />
+                ) : companyName ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                      <span className="text-lg font-bold text-teal-700">
+                        {companyName[0].toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-lg font-semibold text-gray-900">{companyName}</span>
+                  </div>
+                ) : (
+                  // Show skeleton while loading company data
+                  <Skeleton className="h-10 w-[200px] rounded-lg" />
+                )}
+              </div>
+            ) : (
+              // Show navigation links for default variant
+              navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`flex px-4 py-2 justify-center items-center gap-2 rounded-lg text-sm font-medium transition-colors ${
+                    pathname === item.href
+                      ? 'text-white'
+                      : 'text-gray-900 hover:bg-gray-50'
+                  }`}
+                  style={pathname === item.href ? { backgroundColor: '#0694A2' } : {}}
+                >
+                  {item.name}
+                </Link>
+              ))
+            )}
           </div>
 
           {/* Right side actions */}
@@ -76,7 +110,7 @@ export function Navbar() {
               <>
                 <Skeleton className="hidden sm:block h-10 w-[132px] rounded-lg" />
                 <Skeleton className="hidden sm:block h-10 w-10 rounded-full" />
-                <Skeleton className="hidden md:block h-10 w-10 rounded-full" />
+                {variant !== 'employer' && <Skeleton className="hidden md:block h-10 w-10 rounded-full" />}
               </>
             ) : user ? (
               <>
@@ -84,20 +118,27 @@ export function Navbar() {
                   <GiveFeedbackDialog />
                 </div>
                 <div className="hidden sm:block">
-                  <NotificationDropdown />
+                  {companyId ? (
+                    <EmployerNotificationDropdown companyId={companyId} />
+                  ) : (
+                    <NotificationDropdown />
+                  )}
                 </div>
-                <div className="hidden md:block">
-                  <UserMenu 
-                    user={{
-                      name: profile?.first_name && profile?.last_name 
-                        ? `${profile.first_name} ${profile.last_name}`
-                        : user.email || 'User',
-                      email: user.email || '',
-                      avatar: profile?.avatar_url
-                    }}
-                    onSignOut={signOut}
-                  />
-                </div>
+                {/* Only show user avatar menu for default variant, not employer */}
+                {variant !== 'employer' && (
+                  <div className="hidden md:block">
+                    <UserMenu 
+                      user={{
+                        name: profile?.first_name && profile?.last_name 
+                          ? `${profile.first_name} ${profile.last_name}`
+                          : user.email || 'User',
+                        email: user.email || '',
+                        avatar: profile?.avatar_url
+                      }}
+                      onSignOut={signOut}
+                    />
+                  </div>
+                )}
               </>
             ) : (
               <div className="flex items-center gap-2">

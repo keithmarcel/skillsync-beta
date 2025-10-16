@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
+import { checkEmployerAdminAuth } from '@/lib/utils/auth-helpers'
 
 export interface EmployerInvitation {
   id: string
@@ -390,17 +391,9 @@ export async function sendInvitationToCandidate(
   invitationId: string,
   message?: string
 ): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('company_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.company_id || profile.role !== 'employer_admin') {
-    throw new Error('Not authorized as employer admin')
+  const authCheck = await checkEmployerAdminAuth()
+  if (!authCheck.authorized) {
+    throw new Error(authCheck.error || 'Not authorized')
   }
 
   const { error } = await supabase
@@ -411,7 +404,7 @@ export async function sendInvitationToCandidate(
       invited_at: new Date().toISOString()
     })
     .eq('id', invitationId)
-    .eq('company_id', profile.company_id)
+    .eq('company_id', authCheck.company_id!)
 
   if (error) throw error
 }
@@ -420,24 +413,16 @@ export async function sendInvitationToCandidate(
  * Mark candidate as hired
  */
 export async function markCandidateAsHired(invitationId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('company_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.company_id || profile.role !== 'employer_admin') {
-    throw new Error('Not authorized as employer admin')
+  const authCheck = await checkEmployerAdminAuth()
+  if (!authCheck.authorized) {
+    throw new Error(authCheck.error || 'Not authorized')
   }
 
   const { error } = await supabase
     .from('employer_invitations')
     .update({ status: 'hired' })
     .eq('id', invitationId)
-    .eq('company_id', profile.company_id)
+    .eq('company_id', authCheck.company_id!)
 
   if (error) throw error
 }
@@ -446,24 +431,16 @@ export async function markCandidateAsHired(invitationId: string): Promise<void> 
  * Mark candidate as unqualified
  */
 export async function markCandidateAsUnqualified(invitationId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('company_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.company_id || profile.role !== 'employer_admin') {
-    throw new Error('Not authorized as employer admin')
+  const authCheck = await checkEmployerAdminAuth()
+  if (!authCheck.authorized) {
+    throw new Error(authCheck.error || 'Not authorized')
   }
 
   const { error } = await supabase
     .from('employer_invitations')
     .update({ status: 'unqualified' })
     .eq('id', invitationId)
-    .eq('company_id', profile.company_id)
+    .eq('company_id', authCheck.company_id!)
 
   if (error) throw error
 }
@@ -472,28 +449,29 @@ export async function markCandidateAsUnqualified(invitationId: string): Promise<
  * Archive candidate (employer side)
  */
 export async function archiveCandidate(invitationId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('company_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.company_id || profile.role !== 'employer_admin') {
-    throw new Error('Not authorized as employer admin')
+  const authCheck = await checkEmployerAdminAuth()
+  if (!authCheck.authorized) {
+    throw new Error(authCheck.error || 'Not authorized')
   }
+
+  // First get the current status
+  const { data: invitation } = await supabase
+    .from('employer_invitations')
+    .select('status')
+    .eq('id', invitationId)
+    .eq('company_id', authCheck.company_id!)
+    .single()
 
   const { error } = await supabase
     .from('employer_invitations')
     .update({
+      status_before_archive: invitation?.status,
       status: 'archived',
       archived_at: new Date().toISOString(),
       archived_by: 'employer'
     })
     .eq('id', invitationId)
-    .eq('company_id', profile.company_id)
+    .eq('company_id', authCheck.company_id!)
 
   if (error) throw error
 }
@@ -502,28 +480,29 @@ export async function archiveCandidate(invitationId: string): Promise<void> {
  * Reopen candidate (employer side)
  */
 export async function reopenCandidate(invitationId: string): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Not authenticated')
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('company_id, role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile?.company_id || profile.role !== 'employer_admin') {
-    throw new Error('Not authorized as employer admin')
+  const authCheck = await checkEmployerAdminAuth()
+  if (!authCheck.authorized) {
+    throw new Error(authCheck.error || 'Not authorized')
   }
+
+  // Get the status before archive
+  const { data: invitation } = await supabase
+    .from('employer_invitations')
+    .select('status_before_archive')
+    .eq('id', invitationId)
+    .eq('company_id', authCheck.company_id!)
+    .single()
 
   const { error } = await supabase
     .from('employer_invitations')
     .update({
-      status: 'pending',
+      status: invitation?.status_before_archive || 'pending',
       archived_at: null,
-      archived_by: null
+      archived_by: null,
+      status_before_archive: null
     })
     .eq('id', invitationId)
-    .eq('company_id', profile.company_id)
+    .eq('company_id', authCheck.company_id!)
 
   if (error) throw error
 }

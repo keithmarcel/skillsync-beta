@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Separator } from "@/components/ui/separator"
 import PageHeader from "@/components/ui/page-header"
 import { SkillSyncSnapshot } from "@/components/ui/skillsync-snapshot"
@@ -15,16 +16,28 @@ import { useEffect, useState } from 'react';
 
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
   
   useEffect(() => {
     setMounted(true)
   }, [])
 
   // All data fetching and state management is now handled by custom hooks.
-  const { user, profile } = useAuth();
+  const { user, profile, isEmployerAdmin, isProviderAdmin, isSuperAdmin } = useAuth();
   const { recentAssessments, loading: dashboardLoading } = useDashboardData();
   const { favoriteJobs, favoritePrograms, loading: favoritesLoading } = useFavorites();
   const { metrics, skillData, assessmentProgress, hasAssessments, loading: snapshotLoading } = useSnapshotData();
+
+  // Redirect employer/provider admins to their dashboards
+  useEffect(() => {
+    if (mounted && profile) {
+      if (isEmployerAdmin && !isSuperAdmin) {
+        router.push('/employer')
+      } else if (isProviderAdmin && !isSuperAdmin) {
+        router.push('/provider')
+      }
+    }
+  }, [mounted, profile, isEmployerAdmin, isProviderAdmin, isSuperAdmin, router])
 
   // The loading state is now derived from all data hooks, ensuring a smooth experience.
   const isLoading = !mounted || dashboardLoading || favoritesLoading || snapshotLoading;

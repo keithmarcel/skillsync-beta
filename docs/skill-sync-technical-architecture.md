@@ -494,6 +494,105 @@ src/components/ui/
 **Design Specifications:**
 - Width: 472px
 - Padding: 4px with 8px gap
+
+### Invitations V2 Refactor (October 2025)
+
+**Status:** ✅ Complete  
+**Documentation:** [INVITATIONS_V2_REFACTOR_COMPLETE.md](./features/INVITATIONS_V2_REFACTOR_COMPLETE.md)
+
+#### Overview
+Complete refactor of both employer and job seeker invitation management systems using unified DataTable architecture, proper tab patterns, and consistent UI/UX.
+
+#### Key Improvements
+
+**1. Unified DataTable Architecture**
+- Migrated to shared `DataTable` component for consistency
+- Created reusable table configurations:
+  - `/src/lib/employer-invites-table-config.tsx`
+  - `/src/lib/job-seeker-invites-table-config.tsx`
+- Eliminated duplicate table implementations
+
+**2. Tab Pattern Standardization**
+- **Primary Tabs (StickyTabs)**: Main page navigation, URL-synced
+- **Secondary Tabs (shadcn Tabs)**: Sub-content, pill/button style
+- Proper visual hierarchy and consistent patterns
+
+**3. Proficiency & Readiness System**
+- Combined badges: "Ready | 92%" or "Almost There | 88%"
+- Renamed "Building Skills" → "Almost There" across entire codebase
+- Centralized logic in `/src/lib/utils/proficiency-helpers.ts`:
+  ```typescript
+  export function isReady(proficiency: number, requiredProficiency: number = 90): boolean
+  export function isAlmostThere(proficiency: number, requiredProficiency: number = 90): boolean
+  export function isTopPerformer(proficiency: number, requiredProficiency: number = 90): boolean
+  export function getReadinessLabel(proficiency: number, requiredProficiency: number = 90): 'Ready' | 'Almost There'
+  export function getProficiencyStatus(proficiency: number, requiredProficiency: number = 90)
+  ```
+
+**4. Loading States Optimization**
+- Removed skeleton loading on tab switches
+- Descriptive loading text with diamond loader
+- Consistent `LoadingSpinner` usage
+
+**5. Filter & Search Improvements**
+- Context-aware search placeholders
+- Fixed Role Readiness filter (proficiency_pct column)
+- Status filter mapping ("Position Filled" → unqualified, "Pending" → sent/pending)
+
+**6. Archived Status Handling**
+- Shows `status_before_archive` when available
+- Falls back to "Archived" badge
+- Consistent across both employer and job seeker tables
+
+#### Component Architecture
+
+```
+src/
+├── lib/
+│   ├── employer-invites-table-config.tsx        # Employer table config
+│   ├── job-seeker-invites-table-config.tsx      # Job seeker table config
+│   └── utils/
+│       └── proficiency-helpers.ts                # Centralized proficiency logic
+├── components/
+│   ├── employer/
+│   │   └── employer-invites-table-v2.tsx        # Uses DataTable
+│   └── ui/
+│       └── data-table.tsx                        # Shared table component
+└── app/(main)/
+    ├── employer/page.tsx                        # Employer dashboard
+    └── invitations/page.tsx                     # Job seeker invitations
+```
+
+#### Status Flow (Updated)
+
+**Job Seeker:**
+```
+sent/pending → View Application button (teal)
+applied → Applied badge (teal) with checkmark
+declined → Declined badge (red) with X
+hired → Hired badge (green) with checkmark
+unqualified → Position Filled badge (gray)
+archived → Shows status_before_archive or "Archived"
+```
+
+**Employer:**
+```
+pending → Invite to Apply button (teal)
+sent → Invite Sent badge (gray)
+applied → Applied badge (teal) with checkmark
+declined → Declined badge (red) with X
+hired → Hired badge (purple)
+unqualified → Unqualified badge (white with border)
+archived → Shows status_before_archive or "Archived"
+```
+
+#### Technical Achievements
+- **Code Reduction**: 2 table implementations → 1 shared DataTable
+- **Consistency**: Same patterns across employer and job seeker views
+- **Maintainability**: Reusable configuration architecture
+- **Performance**: Reduced unnecessary re-renders
+
+**See full documentation:** [INVITATIONS_V2_REFACTOR_COMPLETE.md](./features/INVITATIONS_V2_REFACTOR_COMPLETE.md)
 - Border: #E5E5E5
 - Header: 16px normal weight, #111928
 - Items: 14px semibold title, 14px normal message

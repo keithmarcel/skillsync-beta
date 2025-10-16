@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { useViewAs } from '@/contexts/ViewAsContext'
 import PageHeader from '@/components/ui/page-header'
 import StickyTabs from '@/components/ui/sticky-tabs'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { EmployerDashboard } from '@/components/employer/employer-dashboard'
 import { EmployerRolesTable } from '@/components/employer/employer-roles-table'
-import { EmployerInvitesTable } from '@/components/employer/employer-invites-table'
+import { EmployerInvitesTableV2 as EmployerInvitesTable } from '@/components/employer/employer-invites-table-v2'
 import { EmployerSettings } from '@/components/employer/employer-settings'
 import { supabase } from '@/lib/supabase/client'
 
@@ -31,16 +32,35 @@ export default function EmployerDashboardPage() {
   const [company, setCompany] = useState<Company | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Force scroll to top immediately - multiple approaches for reliability
+  if (typeof window !== 'undefined') {
+    window.scrollTo(0, 0)
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }
+
+  useLayoutEffect(() => {
+    // Disable scroll restoration
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    
+    window.scrollTo(0, 0)
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [])
+
   // Update activeTab when URL changes
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab') || 'dashboard'
     setActiveTab(tabFromUrl)
   }, [searchParams])
 
-  // Load company data for employer
+  // Load company data for employer (only once)
   useEffect(() => {
     async function loadCompanyData() {
       if (!user || !profile) return
+      if (company) return // Already loaded, don't reload
 
       try {
         setLoading(true)
@@ -62,7 +82,7 @@ export default function EmployerDashboardPage() {
     }
 
     loadCompanyData()
-  }, [user, profile])
+  }, [user, profile, company])
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId)
@@ -73,9 +93,15 @@ export default function EmployerDashboardPage() {
 
   // Auth checks
   if (authLoading || loading) {
+    // Get company name - show actual name if loaded, otherwise show loading state
+    const companyName = company?.name || 'Power Design'
+    
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">Loading...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <LoadingSpinner 
+          size={80} 
+          text={`Loading Dashboard for ${companyName}`}
+        />
       </div>
     )
   }
@@ -106,16 +132,16 @@ export default function EmployerDashboardPage() {
     { id: 'settings', label: 'Settings', isActive: activeTab === 'settings' }
   ]
 
-  // Determine location text
-  const locationText = company.city && company.state 
+  // Determine subtitle text
+  const subtitleText = company.city && company.state 
     ? `Top High Demand Jobs in ${company.city}` 
-    : 'Manage your profile details such as name, avatar, email and bio.'
+    : 'Manage your roles, invitations, and company settings'
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <PageHeader
         title={`Welcome, ${company.name}!`}
-        subtitle={locationText}
+        subtitle={subtitleText}
         variant="split"
       />
 

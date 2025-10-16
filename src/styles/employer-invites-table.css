@@ -1,0 +1,100 @@
+/* Responsive sticky columns for employer invites table */
+
+/* Sticky columns only activate below 1140px */
+@media (max-width: 1140px) {
+  .employer-invites-table {
+    position: relative;
+  }
+
+  .employer-invites-table .sticky-col-left {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    background-color: #F9FAFB; /* Match header bg */
+  }
+
+  .employer-invites-table tbody .sticky-col-left {
+    background-color: white; /* Match row bg */
+  }
+
+  .employer-invites-table tbody tr:hover .sticky-col-left {
+    background-color: #F9FAFB; /* Match hover bg */
+  }
+
+  .employer-invites-table .sticky-col-right {
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    background-color: #F9FAFB; /* Match header bg */
+    padding-left: 3rem !important; /* Extra padding to cover gap */
+    padding-right: 1.5rem !important;
+    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05); /* Shadow on left side */
+  }
+
+  .employer-invites-table tbody .sticky-col-right {
+    background-color: white; /* Match row bg */
+  }
+
+  .employer-invites-table tbody tr:hover .sticky-col-right {
+    background-color: #F9FAFB; /* Match hover bg */
+  }
+
+  /* Add subtle shadow to indicate scrollable content */
+  .employer-invites-table .sticky-col-left::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -8px;
+    bottom: 0;
+    width: 8px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.05), transparent);
+    pointer-events: none;
+  }
+
+  .employer-invites-table .sticky-col-right::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    bottom: 0;
+    width: 8px;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.05), transparent);
+    pointer-events: none;
+  }
+
+  /* Ensure table has minimum width for scrolling */
+  .employer-invites-table table {
+    min-width: 1000px;
+  }
+
+  /* Prevent text wrapping in all cells */
+  .employer-invites-table td,
+  .employer-invites-table th {
+    white-space: nowrap;
+  }
+
+  /* Allow name column to wrap if needed */
+  .employer-invites-table .sticky-col-left {
+    white-space: normal;
+  }
+}
+
+/* Mobile card layout (below 768px) */
+@media (max-width: 768px) {
+  /* Hide the table */
+  .employer-invites-table table {
+    display: none;
+  }
+
+  /* Show card layout instead */
+  .employer-invites-mobile-cards {
+    display: block !important;
+  }
+}
+
+/* Remove small phone table styles since we use cards below 768px */
+@media (max-width: 480px) {
+  .employer-invites-mobile-cards {
+    padding: 0.5rem;
+  }
+}
