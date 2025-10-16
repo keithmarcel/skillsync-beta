@@ -30,41 +30,32 @@ const renderPublishedSwitch = (isPublished: boolean, row: any, onToggle?: (row: 
 const renderActionsDropdown = (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
   const menuItems = []
   
-  // Edit Role Details
+  // Edit Role
   menuItems.push(
     React.createElement(DropdownMenuItem, {
       key: 'edit',
       onClick: () => onRowAction?.('edit', row)
-    }, 'Edit Role Details')
+    }, 'Edit Role')
   )
   
-  // View Matching Candidates
-  menuItems.push(
-    React.createElement(DropdownMenuItem, {
-      key: 'view-candidates',
-      onClick: () => onRowAction?.('view-candidates', row)
-    }, 'View Matching Candidates')
-  )
+  // Publish/Unpublish
+  if (row.is_published) {
+    menuItems.push(
+      React.createElement(DropdownMenuItem, {
+        key: 'unpublish',
+        onClick: () => onRowAction?.('toggle-publish', { ...row, newPublishState: false })
+      }, 'Unpublish Role')
+    )
+  } else {
+    menuItems.push(
+      React.createElement(DropdownMenuItem, {
+        key: 'publish',
+        onClick: () => onRowAction?.('toggle-publish', { ...row, newPublishState: true })
+      }, 'Publish Role')
+    )
+  }
   
   menuItems.push(React.createElement(DropdownMenuSeparator, { key: 'sep1' }))
-  
-  // Manage Assessment
-  menuItems.push(
-    React.createElement(DropdownMenuItem, {
-      key: 'manage-assessment',
-      onClick: () => onRowAction?.('manage-assessment', row)
-    }, 'Manage Assessment')
-  )
-  
-  // Duplicate Role
-  menuItems.push(
-    React.createElement(DropdownMenuItem, {
-      key: 'duplicate',
-      onClick: () => onRowAction?.('duplicate', row)
-    }, 'Duplicate Role')
-  )
-  
-  menuItems.push(React.createElement(DropdownMenuSeparator, { key: 'sep2' }))
   
   // Delete Role
   menuItems.push(
