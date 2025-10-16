@@ -118,7 +118,7 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
     const isReady = proficiency >= requiredProficiency
     if (isReady) {
       return (
-        <Badge className="bg-green-100 text-green-800 border-0 rounded-full shadow-none flex items-center gap-1 pointer-events-none" style={{ fontSize: '10px' }}>
+        <Badge className="bg-green-100 hover:bg-green-100 text-green-800 border-0 rounded-full shadow-none flex items-center gap-1 pointer-events-none cursor-default" style={{ fontSize: '10px' }}>
           <span>Ready</span>
           <span className="text-green-600">|</span>
           <span className="font-semibold">{proficiency}%</span>
@@ -126,7 +126,7 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
       )
     } else {
       return (
-        <Badge className="bg-orange-100 text-orange-800 border-0 rounded-full shadow-none flex items-center gap-1 pointer-events-none" style={{ fontSize: '10px' }}>
+        <Badge className="bg-orange-100 hover:bg-orange-100 text-orange-800 border-0 rounded-full shadow-none flex items-center gap-1 pointer-events-none cursor-default" style={{ fontSize: '10px' }}>
           <span>Almost There</span>
           <span className="text-orange-600">|</span>
           <span className="font-semibold">{proficiency}%</span>
