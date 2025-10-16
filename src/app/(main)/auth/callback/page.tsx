@@ -35,10 +35,10 @@ export default function AuthCallbackPage() {
             // Employer user - redirect to employer dashboard
             router.push('/employer')
           } else if (profile?.school_id) {
-            // Provider admin - redirect to admin
-            router.push('/admin')
-          } else if (profile?.admin_role) {
-            // Other admin - redirect to admin
+            // Provider admin - redirect to provider dashboard
+            router.push('/provider')
+          } else if (profile?.admin_role === 'super_admin') {
+            // Super admin - redirect to admin
             router.push('/admin')
           } else {
             // Job seeker - redirect to homepage
