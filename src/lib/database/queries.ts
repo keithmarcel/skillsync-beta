@@ -46,6 +46,15 @@ export interface Job {
   created_at: string;
   updated_at: string;
   status: 'draft' | 'published' | 'archived';
+  is_published: boolean;
+  visibility_threshold_pct: number | null;
+  // SEO fields
+  seo_title: string | null;
+  meta_description: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image: string | null;
+  slug: string | null;
   company?: Company;
   skills?: JobSkill[];
 }
