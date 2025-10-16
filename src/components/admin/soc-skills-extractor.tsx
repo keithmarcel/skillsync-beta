@@ -10,6 +10,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { AIGenerateButton } from '@/components/admin/ai-generate-button';
 
 interface SOCSkillsExtractorProps {
+  jobId: string;
+  jobKind: 'featured_role' | 'occupation';
   socCode: string;
   onSkillsUpdated?: () => void;
 }
@@ -21,7 +23,7 @@ interface ExtractedSkill {
   curation_status?: string;
 }
 
-export function SOCSkillsExtractor({ socCode, onSkillsUpdated }: SOCSkillsExtractorProps) {
+export function SOCSkillsExtractor({ jobId, jobKind, socCode, onSkillsUpdated }: SOCSkillsExtractorProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedSkills, setExtractedSkills] = useState<ExtractedSkill[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set());
@@ -78,8 +80,13 @@ export function SOCSkillsExtractor({ socCode, onSkillsUpdated }: SOCSkillsExtrac
       return;
     }
 
-    if (!socCode) {
-      setError('SOC Code is required to save skills');
+    if (jobKind === 'featured_role' && !jobId) {
+      setError('Job ID is required');
+      return;
+    }
+
+    if (jobKind === 'occupation' && !socCode) {
+      setError('SOC Code is required');
       return;
     }
 
@@ -87,51 +94,95 @@ export function SOCSkillsExtractor({ socCode, onSkillsUpdated }: SOCSkillsExtrac
     setError(null);
 
     try {
-      // First, delete existing skills for this SOC code to replace them
-      const deleteResponse = await fetch(`/api/admin/soc-skills/${socCode}`, {
-        method: 'DELETE'
-      });
+      if (jobKind === 'featured_role') {
+        // Featured roles: Use job-specific skills API
+        // First, we need to find/create the skill IDs
+        const skillsToCreate = Array.from(selectedSkills).map(skillName => {
+          const extracted = extractedSkills.find(s => s.skill === skillName);
+          return {
+            name: skillName,
+            description: extracted?.description,
+            category: 'Technical', // Default category
+            soc_code: socCode,
+            source: 'AI_EXTRACTED'
+          };
+        });
 
-      if (!deleteResponse.ok) {
-        console.warn('Failed to delete existing skills, continuing anyway');
+        // Create or get skill IDs
+        const createResponse = await fetch('/api/admin/skills/create-or-get', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ skills: skillsToCreate })
+        });
+
+        const { skillIds } = await createResponse.json();
+
+        if (!createResponse.ok || !skillIds) {
+          throw new Error('Failed to create/get skills');
+        }
+
+        // Save to job_skills
+        const response = await fetch('/api/admin/job-skills', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jobId,
+            skillIds,
+            importanceLevel: 3
+          })
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to save skills');
+        }
+
+        setSuccess(`Successfully saved ${selectedSkills.size} skills for this role!`);
+      } else {
+        // High-demand occupations: Use SOC-based skills API (legacy)
+        const deleteResponse = await fetch(`/api/admin/soc-skills/${socCode}`, {
+          method: 'DELETE'
+        });
+
+        if (!deleteResponse.ok) {
+          console.warn('Failed to delete existing skills, continuing anyway');
+        }
+
+        const skillsToSave = extractedSkills
+          .filter(s => selectedSkills.has(s.skill))
+          .map((s, index) => ({
+            skill_name: s.skill,
+            description: s.description,
+            confidence: s.confidence,
+            display_order: index + 1,
+            weight: (s.confidence || 50) / 100
+          }));
+
+        const response = await fetch('/api/admin/soc-skills/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            socCode,
+            skills: skillsToSave
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to save skills');
+        }
+
+        setSuccess(`Successfully saved ${selectedSkills.size} skills!`);
       }
 
-      // Prepare skills to save
-      const skillsToSave = extractedSkills
-        .filter(s => selectedSkills.has(s.skill))
-        .map((s, index) => ({
-          skill_name: s.skill,
-          description: s.description,
-          confidence: s.confidence,
-          display_order: index + 1,
-          weight: (s.confidence || 50) / 100 // Convert confidence to weight (0-1)
-        }));
-
-      // Save new skills to soc_skills table
-      const response = await fetch('/api/admin/soc-skills/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          socCode,
-          skills: skillsToSave
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to save skills');
-      }
-
-      setSuccess(`Successfully saved ${selectedSkills.size} skills! The skills above will update shortly.`);
       setExtractedSkills([]);
       setSelectedSkills(new Set());
       
-      // Trigger refresh of skills display
       if (onSkillsUpdated) {
         setTimeout(() => {
           onSkillsUpdated();
-        }, 500); // Small delay to ensure DB is updated
+        }, 500);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save skills');

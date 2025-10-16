@@ -1,51 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Play, Users, BookOpen, Target, TrendingUp, Award } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
-import { getQuizBySocCode, getQuizById, type Quiz, type Assessment } from '@/lib/database/queries'
-import { supabase } from '@/lib/supabase/client'
-import Link from 'next/link'
-import { DestructiveDialog } from '@/components/ui/destructive-dialog'
-import { useToastActions } from '@/hooks/use-toast-actions'
-
-interface QuizWithStats extends Quiz {
-  total_assessments?: number
-  avg_readiness?: number
-  job?: {
-    id: string
-    title: string
-    soc_code: string
-  }
-}
+import { useRouter } from 'next/navigation'
+import PageHeader from '@/components/ui/page-header'
+import { EmployerAssessmentsTab } from '@/components/employer/employer-assessments-tab'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function AdminAssessmentsPage() {
-  const [quizzes, setQuizzes] = useState<QuizWithStats[]>([])
-  const [assessments, setAssessments] = useState<Assessment[]>([])
+  const router = useRouter()
+  const { user, profile, loading: authLoading, isSuperAdmin } = useAuth()
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [readinessFilter, setReadinessFilter] = useState<string>('all')
-  const toastActions = useToastActions()
 
   useEffect(() => {
     loadAllData()

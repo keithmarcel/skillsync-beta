@@ -9,6 +9,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Search, X, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface ManualSkillsSelectorProps {
+  jobId: string;
+  jobKind: 'featured_role' | 'occupation';
   socCode: string;
   onSkillsUpdated?: () => void;
 }
@@ -20,7 +22,7 @@ interface Skill {
   description?: string;
 }
 
-export function ManualSkillsSelector({ socCode, onSkillsUpdated }: ManualSkillsSelectorProps) {
+export function ManualSkillsSelector({ jobId, jobKind, socCode, onSkillsUpdated }: ManualSkillsSelectorProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Skill[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>([]);
@@ -75,7 +77,12 @@ export function ManualSkillsSelector({ socCode, onSkillsUpdated }: ManualSkillsS
       return;
     }
 
-    if (!socCode) {
+    if (jobKind === 'featured_role' && !jobId) {
+      setError('Job ID is required');
+      return;
+    }
+
+    if (jobKind === 'occupation' && !socCode) {
       setError('SOC Code is required');
       return;
     }
@@ -85,40 +92,61 @@ export function ManualSkillsSelector({ socCode, onSkillsUpdated }: ManualSkillsS
     setSuccess(null);
 
     try {
-      // Delete existing skills
-      const deleteResponse = await fetch(`/api/admin/soc-skills/${socCode}`, {
-        method: 'DELETE'
-      });
+      if (jobKind === 'featured_role') {
+        // Featured roles: Use job-specific skills API
+        const response = await fetch('/api/admin/job-skills', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jobId,
+            skillIds: selectedSkills.map(s => s.id),
+            importanceLevel: 3 // Default importance
+          })
+        });
 
-      if (!deleteResponse.ok) {
-        console.warn('Failed to delete existing skills');
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to save skills');
+        }
+
+        setSuccess(`Successfully saved ${selectedSkills.length} skills for this role!`);
+      } else {
+        // High-demand occupations: Use SOC-based skills API (legacy)
+        const deleteResponse = await fetch(`/api/admin/soc-skills/${socCode}`, {
+          method: 'DELETE'
+        });
+
+        if (!deleteResponse.ok) {
+          console.warn('Failed to delete existing skills');
+        }
+
+        const skillsToSave = selectedSkills.map((skill, index) => ({
+          skill_id: skill.id,
+          skill_name: skill.name,
+          description: skill.description,
+          display_order: index + 1,
+          weight: 0.8
+        }));
+
+        const response = await fetch('/api/admin/soc-skills/save-manual', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            socCode,
+            skills: skillsToSave
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to save skills');
+        }
+
+        setSuccess(`Successfully saved ${selectedSkills.length} skills!`);
       }
-
-      // Save selected skills
-      const skillsToSave = selectedSkills.map((skill, index) => ({
-        skill_id: skill.id,
-        skill_name: skill.name,
-        description: skill.description,
-        display_order: index + 1,
-        weight: 0.8 // Default weight for manually selected skills
-      }));
-
-      const response = await fetch('/api/admin/soc-skills/save-manual', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          socCode,
-          skills: skillsToSave
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to save skills');
-      }
-
-      setSuccess(`Successfully saved ${selectedSkills.length} skills! The skills above will update shortly.`);
+      
       setSelectedSkills([]);
       
       if (onSkillsUpdated) {

@@ -470,7 +470,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <TooltipProvider>
                   <div className="flex flex-wrap gap-2">
                     {job.skills && job.skills.length > 0 ? job.skills.map((skill: any, index: number) => {
-                      const skillData = skill.skill || skill;
+                      const skillData = skill.skill || skill.skills || skill;
                       return (
                         <Tooltip key={index}>
                           <TooltipTrigger asChild>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -17,6 +18,7 @@ import { ImageUpload } from './ImageUpload'
 import { PageLoader, InlineSpinner } from '@/components/ui/loading-spinner'
 import { toast } from '@/hooks/use-toast'
 import { DestructiveDialog } from '@/components/ui/destructive-dialog'
+import Breadcrumb from '@/components/ui/breadcrumb'
 
 export const EntityFieldType = {
   TEXT: 'text',
@@ -95,6 +97,7 @@ export interface EntityDetailViewProps<T extends { id: string; status?: string; 
   customTitle?: string
   alertMessage?: string
   hasExternalChanges?: boolean
+  context?: 'admin' | 'employer'
 }
 
 export function EntityDetailView<T extends { id: string; status?: string; is_featured?: boolean }>({
@@ -112,7 +115,8 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
   viewHref,
   customTitle,
   alertMessage,
-  hasExternalChanges = false
+  hasExternalChanges = false,
+  context = 'admin'
 }: EntityDetailViewProps<T>) {
   const router = useRouter()
   const { user } = useAuth()
@@ -608,17 +612,34 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with breadcrumb and actions */}
-      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+    <div className={context === 'employer' ? 'min-h-screen bg-gray-50 pt-24 pb-12' : 'space-y-6'}>
+      <div className={context === 'employer' ? 'max-w-[1280px] mx-auto px-6 space-y-6' : 'space-y-6'}>
+        {/* Back link for employer context */}
+        {context === 'employer' && (
+          <div className="py-3">
+            <Link 
+              href={backHref}
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Listed Roles
+            </Link>
+          </div>
+        )}
+        
+        {/* Header with breadcrumb and actions */}
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => router.push(backHref)}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          {/* Back button only for admin context */}
+          {context === 'admin' && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => router.push(backHref)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          )}
           <div>
             <h1 className="text-2xl font-bold">
               {customTitle || (isNew ? `Create New ${entityType}` : `Edit ${entityType}`)}
@@ -639,102 +660,162 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
           </div>
         </div>
         
-        <div className="flex items-center space-x-2">
-          {viewHref && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.open(viewHref, '_blank')}
-            >
-              <ExternalLink className="mr-2 h-4 w-4" />
-              View
-            </Button>
-          )}
-          
-          {onDelete && !isNew && (
-            <DestructiveDialog
-              title={`Delete ${entityType}`}
-              description={`Are you sure you want to delete this ${entityType.toLowerCase()}? This action cannot be undone.`}
-              actionLabel="Delete"
-              onConfirm={handleDeleteConfirm}
-              onSuccess={() => {}}
-              onError={(error) => {}}
-            >
+        <div className="flex items-center gap-3">
+          {context === 'employer' ? (
+            /* Employer context - main app styling */
+            <>
+              {viewHref && (
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(viewHref, '_blank')}
+                  className="flex h-9 px-3 py-2 items-center gap-2 rounded-lg border border-[#00A6AE] bg-transparent text-[#00A6AE] hover:bg-[#00A6AE] hover:text-white"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  View Live
+                </Button>
+              )}
+              
+              {onDelete && !isNew && (
+                <DestructiveDialog
+                  title={`Delete ${entityType}`}
+                  description={`Are you sure you want to delete this ${entityType.toLowerCase()}? This action cannot be undone.`}
+                  actionLabel="Delete"
+                  onConfirm={handleDeleteConfirm}
+                  onSuccess={() => {}}
+                  onError={(error) => {}}
+                >
+                  <Button
+                    variant="outline"
+                    disabled={isDeleting}
+                    className="flex h-9 px-3 py-2 items-center gap-2 rounded-lg border border-red-500 bg-transparent text-red-500 hover:bg-red-500 hover:text-white"
+                  >
+                    {isDeleting ? (
+                      <InlineSpinner size={16} />
+                    ) : (
+                      <>
+                        <X className="w-4 h-4" />
+                        Delete
+                      </>
+                    )}
+                  </Button>
+                </DestructiveDialog>
+              )}
+              
               <Button
-                variant="destructive"
-                size="sm"
-                disabled={isDeleting}
+                onClick={handleSave}
+                disabled={isSaving || (!isDirty && !hasExternalChanges)}
+                className="flex h-9 px-4 py-2 items-center gap-2 rounded-lg bg-[#0694A2] text-white hover:bg-[#036672]"
               >
-                {isDeleting ? (
+                {isSaving ? (
                   <InlineSpinner size={16} />
                 ) : (
-                  <X className="mr-2 h-4 w-4" />
+                  <>
+                    <Save className="w-4 h-4" />
+                    Save Changes
+                  </>
                 )}
-                Delete
               </Button>
-            </DestructiveDialog>
-          )}
-          
-          {onFeatureToggle && user?.email === 'keith-woods@bisk.com' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleFeatureToggle}
-              disabled={isFeaturing}
-            >
-              {isFeaturing ? (
-                <InlineSpinner size={16} />
-              ) : formData.is_featured ? (
-                'Unfeature'
-              ) : (
-                'Feature'
+            </>
+          ) : (
+            /* Admin context - keep existing styling */
+            <>
+              {viewHref && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(viewHref, '_blank')}
+                >
+                  <ExternalLink className="mr-2 h-4 w-4" />
+                  View
+                </Button>
               )}
-            </Button>
-          )}
-          
-          {onPublish && formData.status !== 'published' && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handlePublish}
-              disabled={isPublishing}
-            >
-              {isPublishing ? (
-                <InlineSpinner size={16} />
-              ) : (
-                formData.status === 'draft' ? (
-                  'Publish'
+              
+              {onDelete && !isNew && (
+                <DestructiveDialog
+                  title={`Delete ${entityType}`}
+                  description={`Are you sure you want to delete this ${entityType.toLowerCase()}? This action cannot be undone.`}
+                  actionLabel="Delete"
+                  onConfirm={handleDeleteConfirm}
+                  onSuccess={() => {}}
+                  onError={(error) => {}}
+                >
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? (
+                      <InlineSpinner size={16} />
+                    ) : (
+                      <X className="mr-2 h-4 w-4" />
+                    )}
+                    Delete
+                  </Button>
+                </DestructiveDialog>
+              )}
+              
+              {onFeatureToggle && user?.email === 'keith-woods@bisk.com' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleFeatureToggle}
+                  disabled={isFeaturing}
+                >
+                  {isFeaturing ? (
+                    <InlineSpinner size={16} />
+                  ) : formData.is_featured ? (
+                    'Unfeature'
+                  ) : (
+                    'Feature'
+                  )}
+                </Button>
+              )}
+              
+              {onPublish && formData.status !== 'published' && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handlePublish}
+                  disabled={isPublishing}
+                >
+                  {isPublishing ? (
+                    <InlineSpinner size={16} />
+                  ) : (
+                    formData.status === 'draft' ? (
+                      'Publish'
+                    ) : (
+                      'Update'
+                    )
+                  )}
+                </Button>
+              )}
+              {!isNew && onUnpublish && formData.status === 'published' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleUnpublish}
+                  disabled={isPublishing}
+                >
+                  {isPublishing ? (
+                    <InlineSpinner size={16} />
+                  ) : (
+                    'Unpublish'
+                  )}
+                </Button>
+              )}
+              <Button
+                size="sm"
+                onClick={handleSave}
+                disabled={isSaving || (!isDirty && !hasExternalChanges)}
+              >
+                {isSaving ? (
+                  <InlineSpinner size={16} />
                 ) : (
-                  'Update'
-                )
-              )}
-            </Button>
+                  'Save'
+                )}
+              </Button>
+            </>
           )}
-          {!isNew && onUnpublish && formData.status === 'published' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleUnpublish}
-              disabled={isPublishing}
-            >
-              {isPublishing ? (
-                <InlineSpinner size={16} />
-              ) : (
-                'Unpublish'
-              )}
-            </Button>
-          )}
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={isSaving || (!isDirty && !hasExternalChanges)}
-          >
-            {isSaving ? (
-              <InlineSpinner size={16} />
-            ) : (
-              'Save'
-            )}
-          </Button>
         </div>
       </div>
       {/* Alert Banner */}
@@ -766,6 +847,7 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
         
         {tabs.map(tab => renderTabContent(tab))}
       </Tabs>
+      </div>
     </div>
   )
 }

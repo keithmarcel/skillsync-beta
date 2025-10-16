@@ -21,7 +21,13 @@ import { ManualSkillsSelector } from '@/components/admin/manual-skills-selector'
 import { DraggableCardEditor } from '@/components/admin/draggable-card-editor';
 import type { Job } from '@/lib/database/queries';
 
-export default function RoleDetailPage({ params }: { params: { id: string } }) {
+interface RoleDetailPageProps {
+  params: { id: string };
+  context?: 'admin' | 'employer';
+  companyId?: string;
+}
+
+export default function RoleDetailPage({ params, context = 'admin', companyId }: RoleDetailPageProps) {
   const router = useRouter();
   const { profile, isCompanyAdmin, isSuperAdmin } = useAuth();
   const { 
@@ -33,6 +39,13 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
   } = useAdminEntity<Job>('jobs', params.id === 'new' ? null : params.id);
   
   const [localChanges, setLocalChanges] = React.useState<Record<string, any>>({});
+  const [assessmentData, setAssessmentData] = React.useState<{
+    quiz: any;
+    questionCount: number;
+    avgScore: number | null;
+    assessmentCount: number;
+  } | null>(null);
+  const [loadingAssessment, setLoadingAssessment] = React.useState(false);
   
   // Track if there are unsaved card editor changes
   const hasLocalChanges = Object.keys(localChanges).length > 0;
@@ -50,8 +63,69 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
         location_state: role.location_state,
         education_level: role.education_level,
       });
+      
+      // Load assessment data for this role
+      loadAssessmentData();
     }
   }, [role]);
+  
+  const loadAssessmentData = async () => {
+    if (!role?.id) return;
+    
+    setLoadingAssessment(true);
+    try {
+      const { supabase } = await import('@/lib/supabase/client');
+      
+      // Get quiz for this role
+      const { data: quizzes } = await supabase
+        .from('quizzes')
+        .select('id, title, status, created_at, updated_at')
+        .eq('job_id', role.id)
+        .limit(1);
+      
+      const quiz = quizzes?.[0] || null;
+      
+      if (!quiz) {
+        setAssessmentData(null);
+        return;
+      }
+      
+      // Get question count
+      const { data: sections } = await supabase
+        .from('quiz_sections')
+        .select('id')
+        .eq('quiz_id', quiz.id);
+      
+      const sectionIds = sections?.map(s => s.id) || [];
+      
+      const { count: questionCount } = await supabase
+        .from('quiz_questions')
+        .select('*', { count: 'exact', head: true })
+        .in('section_id', sectionIds);
+      
+      // Get assessment stats
+      const { data: assessments } = await supabase
+        .from('assessments')
+        .select('readiness_pct')
+        .eq('quiz_id', quiz.id);
+      
+      const avgScore = assessments && assessments.length > 0
+        ? assessments.reduce((sum, a) => sum + (a.readiness_pct || 0), 0) / assessments.length
+        : null;
+      
+      setAssessmentData({
+        quiz,
+        questionCount: questionCount || 0,
+        avgScore,
+        assessmentCount: assessments?.length || 0
+      });
+    } catch (error) {
+      console.error('Error loading assessment data:', error);
+      setAssessmentData(null);
+    } finally {
+      setLoadingAssessment(false);
+    }
+  };
   
   const { companies, isLoading: isLoadingCompanies } = useCompaniesList();
   const { skills, isLoading: isLoadingSkills } = useSkillsList();
@@ -65,7 +139,7 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     job_kind: 'featured_role',
     status: 'draft',
     is_featured: false,
-    company_id: isCompanyAdmin ? profile?.company_id || null : null,
+    company_id: context === 'employer' ? companyId || null : (isCompanyAdmin ? profile?.company_id || null : null),
     soc_code: null,
     job_type: null,
     category: '',
@@ -82,7 +156,9 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     on_job_training: null,
     job_openings_annual: null,
     growth_rate_percent: null,
-    required_proficiency_pct: null,
+    required_proficiency_pct: 90,
+    visibility_threshold_pct: 85,
+    is_published: false,
     // O*NET enrichment fields
     core_responsibilities: null,
     tasks: null,
@@ -94,6 +170,13 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
     video_url: null,
     // Work location
     work_location_type: null,
+    // SEO fields
+    seo_title: null,
+    meta_description: null,
+    og_title: null,
+    og_description: null,
+    og_image: null,
+    slug: null,
     // Legacy company-specific fields (may remove later)
     growth_opportunities: null,
     team_structure: null,
@@ -147,7 +230,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             )
           }
         },
-        {
+        // Hide company field for employers (auto-populated from profile)
+        ...(context === 'employer' ? [] : [{
           key: 'company_id',
           label: 'Company',
           type: EntityFieldType.SELECT,
@@ -159,12 +243,13 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             value: company.id,
             label: company.name
           }))
-        },
+        }]),
         {
           key: 'job_kind',
           label: 'Role Type',
           type: EntityFieldType.SELECT,
           required: true,
+          disabled: context === 'employer', // Employers can only create featured roles
           description: 'Shown on: Backend only (determines listing category)',
           options: [
             { value: 'featured_role', label: 'Featured Role' },
@@ -610,6 +695,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             
             return (
               <SOCSkillsExtractor
+                jobId={(formData as any).id || ''}
+                jobKind={(formData as any).job_kind || 'featured_role'}
                 socCode={(formData as any).soc_code || ''}
                 onSkillsUpdated={() => {
                   // Refresh the skills display above
@@ -632,6 +719,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
             
             return (
               <ManualSkillsSelector
+                jobId={(formData as any).id || ''}
+                jobKind={(formData as any).job_kind || 'featured_role'}
                 socCode={(formData as any).soc_code || ''}
                 onSkillsUpdated={() => {
                   // Refresh the skills display above
@@ -655,17 +744,93 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
           key: 'assessment_info',
           label: 'Role Assessment',
           type: EntityFieldType.CUSTOM,
-          render: () => (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Assessment Management</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                View and manage the skills assessment for this role. The assessment is automatically generated based on the required skills.
-              </p>
-              <Button variant="outline" className="w-full">
-                View/Edit Assessment Questions
-              </Button>
-            </div>
-          )
+          render: () => {
+            const handleNavigateToAssessment = () => {
+              if (assessmentData?.quiz?.id) {
+                router.push(`/employer/assessments/${assessmentData.quiz.id}/edit`);
+              }
+            };
+            
+            const handleCreateAssessment = () => {
+              router.push(`/employer?tab=assessments`);
+              toast({
+                title: "Create Assessment",
+                description: "Create a new assessment and link it to this role.",
+              });
+            };
+            
+            if (loadingAssessment) {
+              return (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                  </div>
+                </div>
+              );
+            }
+            
+            if (!assessmentData) {
+              return (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                  <h3 className="font-semibold text-gray-900 mb-2">No Assessment Found</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    This role doesn't have an assessment yet. Create one to start evaluating candidates.
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={handleCreateAssessment}
+                  >
+                    Create Assessment
+                  </Button>
+                </div>
+              );
+            }
+            
+            const { quiz, questionCount, avgScore, assessmentCount } = assessmentData;
+            const statusColor = quiz.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
+            
+            return (
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{quiz.title}</h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Created {new Date(quiz.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor}`}>
+                    {quiz.status === 'published' ? 'Published' : 'Draft'}
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-2xl font-bold text-gray-900">{questionCount}</div>
+                    <div className="text-xs text-gray-600">Questions</div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-2xl font-bold text-gray-900">{assessmentCount}</div>
+                    <div className="text-xs text-gray-600">Taken</div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-2xl font-bold text-gray-900">
+                      {avgScore !== null ? `${Math.round(avgScore)}%` : '—'}
+                    </div>
+                    <div className="text-xs text-gray-600">Avg Score</div>
+                  </div>
+                </div>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleNavigateToAssessment}
+                >
+                  Edit Assessment
+                </Button>
+              </div>
+            );
+          }
         }
       ]
     },
@@ -1013,7 +1178,10 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       }
       
       if (savedRole && isNew) {
-        router.push(`/admin/roles/${savedRole.id}`);
+        const redirectPath = context === 'employer' 
+          ? `/employer/roles/${savedRole.id}/edit`
+          : `/admin/roles/${savedRole.id}`;
+        router.push(redirectPath);
       }
       
       return savedRole;
@@ -1027,7 +1195,8 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
   const onDelete = async () => {
     const success = await handleDelete();
     if (success) {
-      router.push('/admin/roles');
+      const redirectPath = context === 'employer' ? '/employer?tab=roles' : '/admin/roles';
+      router.push(redirectPath);
     }
   };
 
@@ -1070,13 +1239,14 @@ export default function RoleDetailPage({ params }: { params: { id: string } }) {
       onDelete={!isNew ? onDelete : undefined}
       onPublish={!isNew ? onPublish : undefined}
       onUnpublish={!isNew && role?.status === 'published' ? onUnpublish : undefined}
-      onFeatureToggle={!isNew && isSuperAdmin ? onFeatureToggle : undefined}
+      onFeatureToggle={!isNew && isSuperAdmin && context === 'admin' ? onFeatureToggle : undefined}
       isNew={isNew}
-      backHref="/admin/roles"
+      backHref={context === 'employer' ? '/employer?tab=roles' : '/admin/roles'}
       customTitle={customTitle}
       alertMessage="You're editing live data. Changes will be reflected immediately after saving."
       viewHref={!isNew ? `/jobs/${role?.id}` : undefined}
       hasExternalChanges={hasLocalChanges}
+      context={context}
     />
   )
 }

@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { EmployerDashboard } from '@/components/employer/employer-dashboard-new'
 import { EmployerRolesTableV2 as EmployerRolesTable } from '@/components/employer/employer-roles-table-v2'
 import { EmployerInvitesTableV2 as EmployerInvitesTable } from '@/components/employer/employer-invites-table-v2'
+import { EmployerAssessmentsTab } from '@/components/employer/employer-assessments-tab'
 import { EmployerSettings } from '@/components/employer/employer-settings'
 import { supabase } from '@/lib/supabase/client'
 
@@ -128,6 +129,7 @@ export default function EmployerDashboardPage() {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', isActive: activeTab === 'dashboard' },
     { id: 'roles', label: 'Listed Roles', isActive: activeTab === 'roles' },
+    { id: 'assessments', label: 'Assessments', isActive: activeTab === 'assessments' },
     { id: 'invites', label: 'Invites', isActive: activeTab === 'invites' },
     { id: 'settings', label: 'Settings', isActive: activeTab === 'settings' }
   ]
@@ -139,6 +141,8 @@ export default function EmployerDashboardPage() {
         return 'Track your hiring pipeline and candidate engagement'
       case 'roles':
         return 'Create and manage your featured role listings'
+      case 'assessments':
+        return 'Create and manage assessments for your roles'
       case 'invites':
         return 'Review candidates and manage invitation workflow'
       case 'settings':
@@ -180,6 +184,10 @@ export default function EmployerDashboardPage() {
           
           {activeTab === 'roles' && (
             <EmployerRolesTable companyId={company.id} />
+          )}
+          
+          {activeTab === 'assessments' && (
+            <EmployerAssessmentsTab companyId={company.id} />
           )}
           
           {activeTab === 'invites' && (

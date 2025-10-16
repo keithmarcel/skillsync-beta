@@ -49,7 +49,7 @@ function SkillBar({ skill }: { skill: any }) {
     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1">
-          <span className="font-medium">{skill.skills.name}</span>
+          <span className="font-medium">{skill.skill?.name || 'Unknown Skill'}</span>
           <span className="text-sm font-semibold">{skill.score_pct}%</span>
         </div>
         <div className="flex items-center gap-2">

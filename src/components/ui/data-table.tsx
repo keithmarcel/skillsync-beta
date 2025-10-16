@@ -30,6 +30,7 @@ interface Column {
   sortable?: boolean
   filterable?: boolean
   filterOptions?: string[]
+  linkTo?: (row: any) => string
   render?: (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => React.ReactNode
 }
 
@@ -404,7 +405,7 @@ export default function DataTable({
                           // Programs table with custom render (includes badge below title)
                           <div className="flex flex-col gap-1.5">
                             <Link 
-                              href={`/${tableType}/${row.id}`}
+                              href={column.linkTo ? column.linkTo(row) : `/${tableType}/${row.id}`}
                               className="text-inherit group-hover:text-[#0694A2] group-hover:underline transition-colors font-semibold text-base w-fit font-source-sans-pro"
                             >
                               {value}
@@ -417,7 +418,7 @@ export default function DataTable({
                         ) : (
                           // Jobs and other tables (render function handles everything)
                           <Link 
-                            href={`/${tableType}/${row.id}`}
+                            href={column.linkTo ? column.linkTo(row) : `/${tableType}/${row.id}`}
                             className="text-inherit group-hover:text-[#0694A2] group-hover:underline transition-colors font-semibold text-base w-fit font-source-sans-pro"
                           >
                             {column.render ? column.render(value, row, isOnFavoritesTab, onRowAction) : value}

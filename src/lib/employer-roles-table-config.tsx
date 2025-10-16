@@ -100,6 +100,7 @@ export const employerRolesTableColumns = [
     key: 'title',
     label: 'Role Title',
     sortable: true,
+    linkTo: (row: any) => `/employer/roles/${row.id}/edit`,
     render: (value: string) => React.createElement('span', {
       className: 'text-base font-semibold text-gray-900 font-source-sans-pro whitespace-nowrap'
     }, value)

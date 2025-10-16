@@ -1777,7 +1777,37 @@ Questions          + AI Evaluation       Filtering             Recommendations
 **Solution:** Include all dependencies and use proper memoization
 **Prevention:** ESLint rules for exhaustive-deps
 
-## Environment Configuration
+#### Issue: Featured role skills missing after migration
+**Root Cause:** Migration `20251016000001_recreate_job_skills.sql` dropped existing `job_skills` table and failed to properly restore data for featured roles
+**Solution:**
+- Restore skills using SOC-based mapping: `INSERT INTO job_skills SELECT DISTINCT j.id, ss.skill_id, CASE WHEN ss.weight >= 0.8 THEN 5 WHEN ss.weight >= 0.6 THEN 4 WHEN ss.weight >= 0.4 THEN 3 ELSE 2 END FROM jobs j CROSS JOIN soc_skills ss WHERE j.job_kind = 'featured_role' AND j.soc_code = ss.soc_code AND j.soc_code IS NOT NULL ON CONFLICT DO NOTHING;`
+- Fixed job details page to handle both `skill.skill` and `skill.skills` property patterns
+**Prevention:** Always include data migration logic in schema-changing migrations
+
+#### Issue: Occupation skills not displaying in job details
+**Root Cause:** Occupations use `soc_skills` table but job details expected `job_skills` structure
+**Solution:** Updated `getJobById` to handle both featured roles (`job_skills`) and occupations (`soc_skills`) via SOC code lookup
+**Prevention:** Test all job kinds when implementing skill display logic
+
+#### Issue: 400 errors on quiz loading in admin
+**Root Cause:** `.single()` call failed when no quiz exists for a role
+**Solution:** Changed to `.limit(1)` and handle null results gracefully
+**Prevention:** Use `.single()` only when guaranteed exactly one result exists
+
+#### Issue: Question creation fails with "choices" constraint violation
+**Root Cause:** Non-multiple-choice questions weren't setting required `choices` column
+**Solution:** Set `choices = JSON.stringify([])` for all question types that don't use choices
+**Prevention:** Include all required database fields when creating records
+
+#### Issue: Skills dropdown empty in assessment question modal
+**Root Cause:** Query used incorrect foreign key relation syntax
+**Solution:** Fixed `skills!job_skills_skill_id_fkey(*)` syntax in assessment questions tab
+**Prevention:** Test foreign key relations in Supabase SQL editor before implementing
+
+#### Issue: Favorites summary showing empty text
+**Root Cause:** Jobs used `short_desc` but some lacked this field
+**Solution:** Added fallback: `job.short_desc || job.long_desc?.substring(0, 150) || ''`
+**Prevention:** Provide fallbacks for optional database fields in UI components
 
 ### Required Environment Variables
 
@@ -3075,5 +3105,5 @@ const { count } = await supabase
 
 ---
 
-*Last Updated: October 16, 2025 - 3:46 AM*
-*Status: Employer Dashboard V2 complete and production-ready, Phase 4 (Crosswalk UI) ready to start*
+*Last Updated: October 16, 2025 - 4:32 PM EST - Added major assessment fixes and skills restoration documentation*
+*Status: Assessment Editor complete, all major data loading issues resolved, production-ready*

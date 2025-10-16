@@ -233,7 +233,7 @@ export async function getFeaturedRoles(): Promise<Job[]> {
       *,
       company:companies(*),
       skills:job_skills(
-        weight,
+        importance_level,
         skill:skills(*)
       )
     `)
@@ -266,7 +266,7 @@ export async function getFeaturedRoles(): Promise<Job[]> {
       .select(`
         soc_code,
         weight,
-        skill:skills(*)
+        skills!soc_skills_skill_id_fkey(*)
       `)
       .in('soc_code', socCodes)
       .order('weight', { ascending: false })
@@ -279,7 +279,7 @@ export async function getFeaturedRoles(): Promise<Job[]> {
       }
       skillsBySoc.get(item.soc_code)!.push({
         weight: item.weight,
-        skill: item.skill
+        skills: item.skills
       })
     })
 
@@ -303,7 +303,7 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
     .select(`
       *,
       skills:job_skills(
-        weight,
+        importance_level,
         skill:skills(*)
       )
     `)
@@ -333,7 +333,7 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
       .select(`
         soc_code,
         weight,
-        skill:skills(*)
+        skills!soc_skills_skill_id_fkey(*)
       `)
       .in('soc_code', socCodes)
       .order('weight', { ascending: false }) : Promise.resolve({ data: [] }),
@@ -361,7 +361,7 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
     }
     skillsBySoc.get(item.soc_code)!.push({
       weight: item.weight,
-      skill: item.skill
+      skills: item.skills
     })
   })
 
@@ -406,7 +406,7 @@ export async function getJobById(id: string): Promise<Job | null> {
       *,
       company:companies(*),
       skills:job_skills(
-        weight,
+        importance_level,
         skill:skills(*)
       )
     `)
@@ -432,7 +432,7 @@ export async function getJobById(id: string): Promise<Job | null> {
       .from('soc_skills')
       .select(`
         weight,
-        skill:skills(*)
+        skills!soc_skills_skill_id_fkey(*)
       `)
       .eq('soc_code', data.soc_code)
       .order('weight', { ascending: false })
@@ -530,7 +530,7 @@ export async function getProgramById(id: string): Promise<Program | null> {
       school:schools(*),
       skills:program_skills(
         weight,
-        skill:skills(*)
+        skills!program_skills_skill_id_fkey(*)
       )
     `)
     .eq('id', id)
@@ -553,7 +553,7 @@ export async function getUserAssessments(userId: string): Promise<Assessment[]> 
       job:jobs(*),
       skill_results:assessment_skill_results(
         *,
-        skill:skills(*)
+        skills!assessment_skill_results_skill_id_fkey(*)
       )
     `)
     .eq('user_id', userId)
@@ -575,7 +575,7 @@ export async function getAssessmentById(id: string): Promise<Assessment | null> 
       job:jobs(*),
       skill_results:assessment_skill_results(
         *,
-        skill:skills(*)
+        skills!assessment_skill_results_skill_id_fkey(*)
       )
     `)
     .eq('id', id)
@@ -987,7 +987,7 @@ export async function getQuizBySocCode(socCode: string, companyId?: string): Pro
       company:companies(*),
       sections:quiz_sections(
         *,
-        skill:skills(*),
+        skills!quiz_sections_skill_id_fkey(*),
         questions:quiz_questions(count)
       )
     `)
@@ -1013,7 +1013,7 @@ export async function getQuizById(id: string): Promise<Quiz | null> {
       company:companies(*),
       sections:quiz_sections(
         *,
-        skill:skills(*)
+        skills!quiz_sections_skill_id_fkey(*)
       )
     `)
     .eq('id', id)
