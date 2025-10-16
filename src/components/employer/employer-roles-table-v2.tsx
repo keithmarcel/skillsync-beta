@@ -253,7 +253,7 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900 font-source-sans-pro">Manage Your Roles</h2>
         <Button 
-          className="bg-teal-600 hover:bg-teal-700"
+          className="bg-teal-600 hover:bg-[#036672]"
           onClick={() => router.push('/employer/roles/new')}
           disabled={jobs.length >= 10}
         >
