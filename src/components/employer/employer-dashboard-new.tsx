@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -98,13 +98,18 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
       applied: { bg: 'bg-teal-100', text: 'text-teal-800', label: 'Applied', icon: Check },
       hired: { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Hired' },
       declined: { bg: 'bg-red-100', text: 'text-red-800', label: 'Declined', icon: X },
-      unqualified: { bg: 'bg-white border border-gray-300', text: 'text-gray-700', label: 'Unqualified' }
+      unqualified: { bg: 'bg-white border border-gray-300', text: 'text-gray-700', label: 'Unqualified' },
+      archived: { bg: 'bg-gray-200', text: 'text-gray-700', label: 'Archived' }
     }
 
-    const statusConfig = config[status] || config['sent'] // Default to 'sent' if status not found
+    const statusConfig = config[status]
     if (!statusConfig) {
-      console.warn(`Unknown status in Recent Activity: ${status}`)
-      return null
+      console.error(`Unknown status in Recent Activity: "${status}". Expected one of: pending, sent, applied, hired, declined, unqualified, archived`)
+      // Return a visible error badge instead of defaulting
+      return React.createElement(Badge, {
+        className: 'bg-red-100 text-red-800 border-0 rounded-md shadow-none inline-flex items-center justify-center gap-1.5 px-2 py-0.5 pointer-events-none min-w-[100px]',
+        style: { fontSize: '10px', height: '24px' }
+      }, `Unknown: ${status}`)
     }
 
     // All badges are non-clickable status indicators
