@@ -107,7 +107,10 @@ export const employerRolesTableColumns = [
     sortable: true,
     filterable: true,
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
-    render: (value: string) => value ? renderCategoryBadge(value) : React.createElement(Badge, {
+    align: 'right' as const,
+    render: (value: string) => React.createElement('div', {
+      className: 'flex justify-end'
+    }, value ? renderCategoryBadge(value) : React.createElement(Badge, {
       style: { 
         backgroundColor: '#F3F4F6', 
         color: '#374151',
@@ -115,36 +118,32 @@ export const employerRolesTableColumns = [
         boxShadow: 'none'
       },
       className: 'font-medium border-0'
-    }, 'N/A')
+    }, 'N/A'))
   },
   {
     key: 'assessments_count',
     label: 'Assessments',
     sortable: true,
-    centered: true,
-    render: (value: number) => React.createElement('div', {
-      className: 'flex items-center justify-center'
-    }, React.createElement('span', {
+    align: 'center' as const,
+    render: (value: number) => React.createElement('span', {
       className: 'text-sm text-gray-900'
-    }, `${value || 0}`))
+    }, `${value || 0}`)
   },
   {
     key: 'candidates_count',
     label: 'Candidates',
     sortable: true,
-    centered: true,
-    render: (value: number) => React.createElement('div', {
-      className: 'flex items-center justify-center'
-    }, React.createElement('span', {
+    align: 'center' as const,
+    render: (value: number) => React.createElement('span', {
       className: 'text-sm text-gray-900'
-    }, `${value || 0}`))
+    }, `${value || 0}`)
   },
   {
     key: 'is_published',
     label: 'Published',
     filterable: true,
     filterOptions: ['Published', 'Unpublished'],
-    centered: true,
+    align: 'center' as const,
     render: (value: boolean, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
       return renderPublishedSwitch(value, row, (row, newValue) => {
         onRowAction?.('toggle-publish', { ...row, newPublishState: newValue })
@@ -155,6 +154,7 @@ export const employerRolesTableColumns = [
     key: 'actions',
     label: 'Actions',
     width: 'small' as const,
+    align: 'right' as const,
     render: (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => renderActionsDropdown(value, row, isOnFavoritesTab, onRowAction)
   }
 ]
