@@ -324,7 +324,6 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
                       </div>
                       <div className="flex items-center gap-3 mt-1.5">
                         {getReadinessBadge(activity.proficiencyPct)}
-                        <span className="text-xs text-gray-400">•</span>
                         <span className="text-xs text-gray-500 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}

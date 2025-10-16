@@ -206,12 +206,12 @@ export async function getDashboardMetrics(companyId: string): Promise<DashboardM
  */
 export async function getRecentActivity(companyId: string, limit: number = 10): Promise<RecentActivity[]> {
   try {
-    // Get invitations first - order by updated_at to show most recent activity
+    // Get invitations first - order by created_at to show most recent activity
     const { data: invitations, error: invError } = await supabase
       .from('employer_invitations')
       .select('*')
       .eq('company_id', companyId)
-      .order('updated_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(limit)
 
     if (invError) {
