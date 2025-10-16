@@ -206,6 +206,32 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         loadingText="Loading Roles"
       />
 
+      {/* Role Count Alert */}
+      <div className={`w-full px-4 py-3 rounded-lg text-sm ${
+        jobs.length >= 10 
+          ? 'bg-red-50 text-red-800 border border-red-200' 
+          : jobs.length >= 8 
+          ? 'bg-orange-50 text-orange-800 border border-orange-200'
+          : 'bg-blue-50 text-blue-800 border border-blue-200'
+      }`}>
+        <p className="font-medium">
+          {jobs.length >= 10 
+            ? `⚠️ You've reached your limit: ${jobs.length} of 10 featured roles used`
+            : `${jobs.length} of 10 featured roles used`
+          }
+        </p>
+        {jobs.length >= 10 && (
+          <p className="text-xs mt-1">
+            You've reached the maximum number of featured roles. Please archive or delete existing roles to add new ones.
+          </p>
+        )}
+        {jobs.length >= 8 && jobs.length < 10 && (
+          <p className="text-xs mt-1">
+            You're approaching your limit. You can add {10 - jobs.length} more featured role{10 - jobs.length !== 1 ? 's' : ''}.
+          </p>
+        )}
+      </div>
+
       {/* Publish/Unpublish Confirmation Dialog */}
       <Dialog open={publishDialog.open} onOpenChange={(open) => !open && setPublishDialog({ open: false, role: null, action: null })}>
         <DialogContent>
