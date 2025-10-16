@@ -312,10 +312,12 @@ export default function DataTable({
               {columns.map((column, index) => (
                 <th 
                   key={column.key}
-                  className={`py-6 text-left ${
-                    index === columns.length - 1 ? 'text-center' : ''
+                  className={`py-6 ${
+                    tableType === 'employer-roles' && index >= 1 && index <= 4 ? 'text-center' : 'text-left'
                   } ${
                     tableType === 'employer-invites' && index >= 2 ? 'text-center' : ''
+                  } ${
+                    index === columns.length - 1 ? 'text-center' : ''
                   } ${
                     tableType === 'employer-invites' && index === 0 ? 'px-6 pr-8 sticky-col-left' : 'px-6'
                   } ${
@@ -360,11 +362,13 @@ export default function DataTable({
                     <td 
                       key={column.key}
                       className={`py-6 font-normal ${
+                        tableType === 'employer-roles' && colIndex >= 1 && colIndex <= 4 ? 'text-center' : ''
+                      } ${
+                        tableType === 'employer-invites' && colIndex >= 2 ? 'text-center' : ''
+                      } ${
                         colIndex === columns.length - 1 ? 'text-center' : ''
                       } ${
                         column.key === 'category' || column.key === 'readiness' ? 'whitespace-nowrap' : ''
-                      } ${
-                        tableType === 'employer-invites' && colIndex >= 2 ? 'text-center' : ''
                       } ${
                         tableType === 'employer-invites' && colIndex === 0 ? 'px-6 pr-8 sticky-col-left' : 'px-6'
                       } ${
