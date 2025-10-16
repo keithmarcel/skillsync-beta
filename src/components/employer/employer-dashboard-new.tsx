@@ -226,7 +226,8 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Button 
               onClick={() => router.push('/employer?tab=roles&action=new')}
-              className="bg-teal-600 hover:bg-[#036672] text-white justify-start h-auto py-4"
+              className="flex items-center justify-start h-auto py-4 px-4 bg-teal-600 hover:bg-teal-700 text-white"
+              disabled={(metrics?.activeRoles || 0) + (metrics?.draftRoles || 0) >= 10}
             >
               <Plus className="w-5 h-5 mr-3" />
               <div className="text-left">

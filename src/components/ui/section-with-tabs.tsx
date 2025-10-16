@@ -44,7 +44,7 @@ export function SectionWithTabs({
           ))}
         </TabsList>
 
-        <div className={`mt-6 ${centerContent ? 'flex justify-center' : ''}`}>
+        <div className={`mt-10 ${centerContent ? 'flex justify-center' : ''}`}>
           <div className={`w-full ${contentMaxWidth}`}>
             {tabs.map((tab) => (
               <TabsContent key={tab.id} value={tab.id} className="mt-0">

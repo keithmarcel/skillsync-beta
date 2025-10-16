@@ -233,6 +233,7 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
         <Button 
           className="bg-teal-600 hover:bg-teal-700"
           onClick={() => router.push('/employer/roles/new')}
+          disabled={jobs.length >= 10}
         >
           <Plus className="w-4 h-4 mr-2" />
           Add New Role
