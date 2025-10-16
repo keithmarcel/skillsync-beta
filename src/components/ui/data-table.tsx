@@ -423,8 +423,8 @@ export default function DataTable({
                           </Link>
                         )
                       ) : colIndex === columns.length - 1 ? (
-                        // Actions column - use custom render for employer-invites
-                        tableType === 'employer-invites' && column.render ? (
+                        // Actions column - use custom render for employer-invites and employer-roles
+                        (tableType === 'employer-invites' || tableType === 'employer-roles') && column.render ? (
                           column.render(value, row, isOnFavoritesTab, onRowAction)
                         ) : (
                           <DropdownMenu>
