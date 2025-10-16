@@ -2874,5 +2874,206 @@ JSON array with stem, choices, correct_answer, explanation
 
 ---
 
-*Last Updated: October 8, 2025 - 11:59 PM*
-*Status: AI content generation system complete, job/program details enhanced, invitation system operational*
+## Employer Dashboard Architecture
+
+**Status:** ✅ Production Ready (October 16, 2025)
+
+### Overview
+Complete employer dashboard with real-time metrics, pipeline visualization, and role management.
+
+### Components
+
+#### 1. Dashboard Service Layer
+**File:** `/src/lib/services/employer-dashboard.ts`
+
+**Functions:**
+- `getDashboardMetrics(companyId)` - Returns 4 key metrics (activeRoles, draftRoles, totalCandidates, etc.)
+- `getRecentActivity(companyId, limit)` - Returns recent candidate interactions ordered by created_at DESC
+- `getRolePerformance(companyId)` - Returns role-by-role performance metrics
+
+**Data Sources:**
+- `jobs` table (filtered by company_id, job_kind='featured_role')
+- `employer_invitations` table (all invitation statuses)
+- `assessments` table (assessment completion data)
+
+#### 2. Dashboard UI Components
+
+**Main Dashboard** (`/src/components/employer/employer-dashboard-new.tsx`):
+- 4 Metrics Cards (Active Roles, Candidates, Applications, Hired)
+- Recent Activity Widget (last 5 interactions with status badges)
+- Pipeline Overview (visual funnel: Pending → Sent → Applied → Hired)
+- Quick Actions (Create Role, Invite Candidates, Review Applications)
+
+**Listed Roles Table** (`/src/components/employer/employer-roles-table-v2.tsx`):
+- Columns: Title (40%), Category (15%), Assessments (12%), Candidates (12%), Published (12%), Actions (9%)
+- Real-time counts from database
+- Actions: Edit, View Live, Publish/Unpublish, Delete
+- Search/Sort/Filter functionality
+- Role limit enforcement (10 max)
+
+**Invites Table** (`/src/components/employer/employer-invites-table-v2.tsx`):
+- Active/Archived sub-tabs
+- Columns: Name, Role, Role Readiness, Status, Actions
+- Status handling: pending → button, others → badges
+- Archive/Restore workflow
+
+**Settings** (`/src/components/employer/employer-settings.tsx`):
+- Profile, Account, Notifications sub-tabs
+- Company info management
+- Visibility controls
+
+#### 3. Table Configurations
+
+**Employer Roles Config** (`/src/lib/employer-roles-table-config.tsx`):
+- Column definitions with render functions
+- Actions dropdown with conditional logic
+- Category badge rendering
+- Publish toggle with confirmation
+
+**Employer Invites Config** (`/src/lib/employer-invites-table-config.tsx`):
+- Status badge configurations (7 types)
+- Readiness badge rendering
+- Action menu with status-based options
+
+**Job Seeker Invites Config** (`/src/lib/job-seeker-invites-table-config.tsx`):
+- Handles deleted roles gracefully
+- Shows "Role No Longer Available" for null job_id
+- Preserves assessment data
+
+#### 4. Status System
+
+**7 Status Types:**
+1. `pending` - Orange "Pending" badge (or "Invite to Apply" button in invites table)
+2. `sent` - Gray "Invite Sent" badge
+3. `applied` - Teal "Applied" badge with checkmark
+4. `hired` - Purple "Hired" badge
+5. `declined` - Red "Declined" badge with X
+6. `unqualified` - White "Unqualified" badge with border
+7. `archived` - Gray "Archived" badge (shows status_before_archive)
+
+**Status Passthrough:**
+- Database → Service Layer → UI Components
+- Same status values across all contexts
+- Different presentations based on context (badges vs buttons)
+
+#### 5. Authentication & Routing
+
+**Auth Callback** (`/src/app/(main)/auth/callback/page.tsx`):
+- Role-based routing after login
+- Employer users (company_id) → `/employer`
+- Provider users (school_id) → `/provider`
+- Super admin (admin_role) → `/admin`
+- Job seekers → `/`
+
+**Logout:**
+- Button in page header (PageHeader component)
+- Calls `supabase.auth.signOut()`
+- Redirects to `/auth/signin`
+
+#### 6. Data Integrity
+
+**Deleted Role Handling:**
+- Job seeker invites show "Role No Longer Available"
+- View Role Details action hidden when job_id is null
+- Assessment data preserved via assessment_id
+- Company data preserved via company_id
+
+**Error Handling:**
+- Unknown statuses show red "Unknown: {status}" badge
+- Console errors for debugging
+- Fallback displays for missing data
+- Toast notifications for all actions
+
+#### 7. UI/UX Patterns
+
+**Color Scheme:**
+- Base: `bg-teal-600` (#0d9488)
+- Hover: `bg-[#036672]` (dark teal)
+- Never use `teal-700` (has green tint)
+
+**Confirmation Dialogs:**
+- Publish/Unpublish: Shows impact message
+- Delete: Warns about removal from favorites
+- No browser alerts - professional Dialog components
+
+**Disabled States:**
+- Create Role buttons disabled at 10 role limit
+- Hover states prevented on disabled buttons
+- Visual feedback with opacity
+
+**Badge Styling:**
+- Consistent sizing: 10px font, 24px height
+- No shadows (shadow-none)
+- Border only for unqualified status
+- Non-interactive (pointer-events-none)
+
+### Database Queries
+
+**Metrics Query Pattern:**
+```typescript
+// Count active roles
+const { count } = await supabase
+  .from('jobs')
+  .select('*', { count: 'exact', head: true })
+  .eq('company_id', companyId)
+  .eq('job_kind', 'featured_role')
+  .eq('is_published', true)
+```
+
+**Recent Activity Query:**
+```typescript
+// Get recent invitations with related data
+const { data } = await supabase
+  .from('employer_invitations')
+  .select('*')
+  .eq('company_id', companyId)
+  .order('created_at', { ascending: false })
+  .limit(10)
+```
+
+**Candidate Count Query:**
+```typescript
+// Count qualified candidates for a role
+const { count } = await supabase
+  .from('employer_invitations')
+  .select('*', { count: 'exact', head: true })
+  .eq('job_id', jobId)
+  .gte('proficiency_pct', requiredProficiency)
+```
+
+### Performance Considerations
+
+- Parallel queries for metrics (Promise.all)
+- Count queries use `head: true` for efficiency
+- Limited result sets (Recent Activity: 5 items)
+- No N+1 queries - batch related data fetches
+- Proper indexes on company_id, job_id, status columns
+
+### Testing
+
+**Test Account:**
+- Email: employeradmin-powerdesign@skillsync.com
+- Password: ssbipass
+- Company: Power Design
+- Has mock invitation data for testing
+
+### Production Readiness
+
+✅ Real database integration  
+✅ Professional confirmation dialogs  
+✅ Toast notifications  
+✅ Error handling  
+✅ Deleted role handling  
+✅ Status passthrough working  
+✅ Auth routing fixed  
+✅ Consistent design system  
+✅ All 7 status types supported  
+✅ Role limit enforcement  
+✅ Search/sort/filter working  
+
+**See detailed documentation:** `docs/HDO_PIVOT_IMPLEMENTATION_PLAN.md` - Phase 3F
+
+---
+
+*Last Updated: October 16, 2025 - 3:46 AM*
+*Status: Employer Dashboard V2 complete and production-ready, Phase 4 (Crosswalk UI) ready to start*
