@@ -114,10 +114,10 @@ export default function AssessmentAnalyzingPage() {
             {/* SkillSync Logo */}
             <div className="mb-8">
               <Image
-                src="/app/logo_skillsync_hirestpeteway_lockup.svg"
-                alt="SkillSync by HireSt. Pete"
-                width={200}
-                height={50}
+                src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
+                alt="SkillSync - Powered by Bisk Amplified"
+                width={244}
+                height={48}
                 priority
               />
             </div>
