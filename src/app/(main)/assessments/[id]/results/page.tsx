@@ -401,21 +401,15 @@ export default function AssessmentResultsPage() {
                     <div className="w-full max-w-[352px] border-t border-dashed border-gray-300 mb-4" />
                     <div className="w-full flex items-center justify-between gap-4">
                       {/* School Logo */}
-                      <div className="h-12 w-[140px] flex items-center justify-start">
-                        {program.school?.logo_url ? (
+                      {program.school?.logo_url && (
+                        <div className="h-12 w-[140px] flex items-center justify-start">
                           <img 
                             src={program.school.logo_url} 
                             alt={program.school.name}
                             className="h-10 w-auto max-w-[160px] object-contain object-left"
                           />
-                        ) : (
-                          <div className="h-8 w-8 bg-gray-200 rounded flex items-center justify-center">
-                            <span className="text-xs font-medium text-gray-600">
-                              {program.school?.name?.[0] || 'S'}
-                            </span>
-                          </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
                       
                       {/* Explore Button */}
                       <button className="flex flex-row justify-center items-center px-4 py-2 gap-2 h-10 bg-secondary text-teal-800 shadow-sm hover:bg-secondary/80 hover:shadow-md rounded-lg transition-all duration-300 ease-in-out hover:scale-105 transform-gpu backface-visibility-hidden">
