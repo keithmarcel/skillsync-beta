@@ -57,8 +57,8 @@ interface SkillMappingResult {
  */
 export async function fetchONETSkills(socCode: string): Promise<any[]> {
   try {
-    // Use our existing O*NET API integration
-    const response = await fetch(`https://services.onetcenter.org/ws/online/occupations/${socCode}/skills`, {
+    // Use O*NET API with correct endpoint: /details/skills
+    const response = await fetch(`https://services.onetcenter.org/ws/online/occupations/${socCode}/details/skills`, {
       headers: {
         'Authorization': `Basic ${Buffer.from(`${process.env.ONET_USERNAME}:${process.env.ONET_PASSWORD}`).toString('base64')}`,
         'Accept': 'application/json'
@@ -71,7 +71,17 @@ export async function fetchONETSkills(socCode: string): Promise<any[]> {
     }
 
     const data = await response.json()
-    return data.skill || []
+    // O*NET returns skills in data.element array
+    const skills = data.element || []
+    
+    // Transform to consistent format with importance values
+    return skills.map((skill: any) => ({
+      id: skill.id,
+      name: skill.name,
+      description: skill.description,
+      importance: skill.score?.value ? skill.score.value / 20 : 3.0, // Convert 0-100 scale to 1-5
+      category: 'O*NET Skill'
+    }))
   } catch (error) {
     console.error('Error fetching O*NET skills:', error)
     return []
