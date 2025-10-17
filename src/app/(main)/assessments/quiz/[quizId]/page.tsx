@@ -353,11 +353,17 @@ export default function QuizPage() {
 
                   {/* Testing Mode: Show Correct Answer (Super Admin Only) */}
                   {isSuperAdmin && currentQuestion.answer_key && (
-                    <Alert className="mt-4 bg-green-50 border-green-200">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <AlertTitle className="text-green-900 font-semibold">Correct Answer (Testing Mode)</AlertTitle>
-                      <AlertDescription className="text-green-800">
-                        {currentQuestion.choices[currentQuestion.answer_key]}
+                    <Alert className="mt-6 bg-amber-50 border-2 border-amber-300">
+                      <CheckCircle className="h-5 w-5 text-amber-600" />
+                      <AlertTitle className="text-amber-900 font-bold text-lg">🧪 TESTING MODE - Correct Answer</AlertTitle>
+                      <AlertDescription className="text-amber-900 font-medium text-base mt-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">Answer {currentQuestion.answer_key}:</span>
+                          <span>{currentQuestion.choices[currentQuestion.answer_key]}</span>
+                        </div>
+                        <p className="text-sm text-amber-700 mt-2">
+                          This alert only appears for super admins. Pick any answer to test different scenarios.
+                        </p>
                       </AlertDescription>
                     </Alert>
                   )}
