@@ -12,7 +12,6 @@ export default function AssessmentAnalyzingPage() {
   const params = useParams();
   const router = useRouter();
   const assessmentId = params.id as string;
-  const [dots, setDots] = useState('');
   const [job, setJob] = useState<any>(null);
   const [analysisTriggered, setAnalysisTriggered] = useState(false);
 
@@ -33,14 +32,6 @@ export default function AssessmentAnalyzingPage() {
     loadAssessmentData();
   }, [assessmentId]);
 
-  useEffect(() => {
-    // Animated dots effect
-    const dotsInterval = setInterval(() => {
-      setDots((prev) => (prev.length >= 3 ? '' : prev + '.'));
-    }, 500);
-
-    return () => clearInterval(dotsInterval);
-  }, []);
 
   useEffect(() => {
     // Trigger AI analysis once
@@ -123,10 +114,10 @@ export default function AssessmentAnalyzingPage() {
             {/* SkillSync Logo */}
             <div className="mb-8">
               <Image
-                src="/logo-skillsync-lockup.svg"
-                alt="SkillSync by HireSt. Pete"
-                width={200}
-                height={60}
+                src="/logo-skillsync.svg"
+                alt="SkillSync"
+                width={180}
+                height={40}
                 priority
               />
             </div>
@@ -138,7 +129,7 @@ export default function AssessmentAnalyzingPage() {
 
             {/* Message */}
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              Analyzing your assessment{dots}
+              Analyzing your assessment
             </h2>
             <p className="text-gray-600 max-w-md">
               Our AI is reviewing your responses and calculating your role readiness score. This typically takes 30-60 seconds.
