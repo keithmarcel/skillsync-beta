@@ -18,6 +18,13 @@ export default function AssessmentResultsPage() {
   const [programs, setPrograms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
+  const scrollToPrograms = () => {
+    const programsSection = document.getElementById('upskilling-programs')
+    if (programsSection) {
+      programsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
   useEffect(() => {
     loadAssessmentResults()
   }, [assessmentId])
@@ -259,6 +266,7 @@ export default function AssessmentResultsPage() {
                 </p>
                 <Button 
                   variant="outline" 
+                  onClick={scrollToPrograms}
                   className="bg-transparent border-[#AFECEF] text-[#AFECEF] hover:bg-white/10 text-sm whitespace-nowrap ml-4"
                 >
                   View Upskilling Programs →
@@ -338,7 +346,7 @@ export default function AssessmentResultsPage() {
         </div>
 
         {/* Education Program Matches - Always show - No border */}
-        <div className="bg-white rounded-xl p-8">
+        <div id="upskilling-programs" className="bg-white rounded-xl p-8">
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-2 font-source-sans-pro">Upskilling Programs</h2>
             <p className="text-gray-600">Build the skills you need to advance your career and close any gaps.</p>
