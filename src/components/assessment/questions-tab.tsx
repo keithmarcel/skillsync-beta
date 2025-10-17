@@ -626,7 +626,7 @@ export function QuestionsTab({ quizId, jobId, onQuestionCountChange }: Questions
                 )}
                 {generationStep === totalSteps - 2 && "Saving questions with answers and choices to database..."}
                 {generationStep === totalSteps - 1 && "Finalizing and validating questions..."}
-                {generationStep === totalSteps && "✅ Generation complete! Questions are ready."}
+                {generationStep === totalSteps && "Generation complete! Questions are ready."}
               </div>
             </div>
           </div>
