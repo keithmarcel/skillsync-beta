@@ -330,33 +330,42 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
         <Card>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performers</h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {analytics.topPerformers.map((performer, idx) => (
-                <div key={performer.userId} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <div key={performer.userId} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {performer.avatarUrl ? (
                       <Image
                         src={performer.avatarUrl}
                         alt={`${performer.firstName} ${performer.lastName}`}
-                        width={40}
-                        height={40}
+                        width={48}
+                        height={48}
                         className="rounded-full"
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <Users className="w-5 h-5 text-gray-400" />
+                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                        <Users className="w-6 h-6 text-gray-400" />
                       </div>
                     )}
                     <div>
                       <p className="font-medium text-gray-900">{performer.firstName} {performer.lastName}</p>
+                      {performer.readiness >= 90 && (
+                        <p className="text-xs text-teal-600 font-medium">Top Performer</p>
+                      )}
                       <p className="text-xs text-gray-500">
                         {new Date(performer.completedAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <Badge className="bg-green-100 text-green-800 border-0 rounded-full shadow-none">
-                      {Math.round(performer.readiness)}%
+                    <Badge className={`${
+                      performer.readiness >= 90 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-orange-100 text-orange-800'
+                    } border-0 rounded-full shadow-none flex items-center gap-1`} style={{ fontSize: '10px' }}>
+                      <span>{performer.readiness >= 90 ? 'Ready' : 'Almost There'}</span>
+                      <span className={performer.readiness >= 90 ? 'text-green-600' : 'text-orange-600'}>|</span>
+                      <span className="font-semibold">{Math.round(performer.readiness)}%</span>
                     </Badge>
                   </div>
                 </div>
