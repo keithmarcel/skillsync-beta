@@ -272,14 +272,14 @@ export async function POST(request: NextRequest) {
 }
 
 // Helper functions
-function getBand(score: number, customThreshold?: number): 'developing' | 'proficient' | 'expert' {
+function getBand(score: number, customThreshold?: number): 'needs_development' | 'building_proficiency' | 'proficient' {
   // Use custom threshold for featured roles, or default thresholds for high-demand occupations
   const proficientThreshold = customThreshold || 80;
-  const expertThreshold = 90;
+  const buildingThreshold = 60;
   
-  if (score >= expertThreshold) return 'expert';
   if (score >= proficientThreshold) return 'proficient';
-  return 'developing';
+  if (score >= buildingThreshold) return 'building_proficiency';
+  return 'needs_development';
 }
 
 function getStatusTag(proficiency: number): 'role_ready' | 'close_gaps' | 'needs_development' {
