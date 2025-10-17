@@ -1,23 +1,27 @@
 -- Fix skill_band enum to match code expectations
 -- The code uses: 'developing', 'proficient', 'expert'
--- But the enum currently has: 'developing', 'proficient', 'expert' (should already be correct)
--- Let's verify and update if needed
+-- The database currently has old values like 'building', 'needs_dev' in the data
 
--- First, check current enum values
--- If this migration fails, it means the enum already has the correct values
+-- Step 1: Convert the column to text temporarily
+ALTER TABLE assessment_skill_results 
+  ALTER COLUMN band TYPE text;
 
--- Drop the old enum type and recreate with correct values
-ALTER TYPE skill_band RENAME TO skill_band_old;
+-- Step 2: Update existing data to use new values
+UPDATE assessment_skill_results
+SET band = CASE 
+  WHEN band = 'building' THEN 'developing'
+  WHEN band = 'needs_dev' THEN 'developing'
+  ELSE band
+END;
 
+-- Step 3: Drop and recreate the enum with correct values
+DROP TYPE IF EXISTS skill_band CASCADE;
 CREATE TYPE skill_band AS ENUM ('developing', 'proficient', 'expert');
 
--- Update the table to use the new enum
+-- Step 4: Convert the column back to the enum type
 ALTER TABLE assessment_skill_results 
   ALTER COLUMN band TYPE skill_band 
-  USING band::text::skill_band;
-
--- Drop the old enum
-DROP TYPE skill_band_old;
+  USING band::skill_band;
 
 -- Add comment for documentation
 COMMENT ON TYPE skill_band IS 'Skill proficiency bands: developing (<80%), proficient (80-89%), expert (90%+)';
