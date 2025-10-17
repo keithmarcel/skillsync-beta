@@ -354,46 +354,63 @@ export default function AssessmentResultsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayPrograms.map((program) => (
-                <div key={program.id} className="border border-gray-200 rounded-lg p-6 hover:border-teal-500 hover:shadow-md transition-all">
-                  {program.school?.logo_url && (
-                    <div className="mb-4">
-                      <img 
-                        src={program.school.logo_url} 
-                        alt={program.school.name}
-                        className="h-8 object-contain"
-                      />
-                    </div>
-                  )}
-                  <h3 className="font-bold text-lg mb-2 line-clamp-2">{program.name}</h3>
-                  <p className="text-sm text-gray-600 mb-3">{program.school?.name}</p>
+                <div key={program.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300 ease-in-out">
+                  {/* Title and School */}
+                  <div className="mb-4">
+                    <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2 mb-1">
+                      {program.name}
+                    </h3>
+                    <p className="text-sm text-gray-500">{program.school?.name}</p>
+                  </div>
+
+                  {/* Pills/Badges */}
                   <div className="flex flex-wrap gap-2 mb-4">
                     {program.program_type && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-md font-medium">
                         {program.program_type}
                       </span>
                     )}
                     {program.delivery_format && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-md font-medium">
                         {program.delivery_format}
                       </span>
                     )}
                     {program.duration_text && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-md font-medium">
                         {program.duration_text}
                       </span>
                     )}
                   </div>
+
+                  {/* Description */}
                   {program.short_description && (
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                    <p className="text-sm text-gray-600 leading-relaxed mb-6 line-clamp-3">
                       {program.short_description}
                     </p>
                   )}
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      About the Program
-                    </Button>
-                    <Button size="sm" className="bg-[#0694A2] hover:bg-[#057A85] text-white">
-                      Inquire Now →
+
+                  {/* Divider */}
+                  <div className="border-t border-dashed border-gray-300 my-4" />
+
+                  {/* School Logo and Button */}
+                  <div className="flex items-center justify-between gap-4">
+                    {program.school?.logo_url && (
+                      <div className="h-10 w-[120px] flex items-center">
+                        <img 
+                          src={program.school.logo_url} 
+                          alt={program.school.name}
+                          className="h-8 w-auto max-w-full object-contain object-left"
+                        />
+                      </div>
+                    )}
+                    <Button 
+                      size="sm" 
+                      className="bg-secondary text-teal-800 shadow-sm hover:bg-secondary/80 hover:shadow-md transition-all duration-300 ease-in-out hover:scale-105"
+                    >
+                      <span className="font-medium text-sm">Explore</span>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1">
+                        <path d="M3.33334 8H12.6667M12.6667 8L8.00001 3.33333M12.6667 8L8.00001 12.6667" stroke="currentColor" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </Button>
                   </div>
                 </div>
