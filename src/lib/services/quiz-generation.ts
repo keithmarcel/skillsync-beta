@@ -11,6 +11,10 @@ import {
   calculateSkillWeighting
 } from './enhanced-ai-context'
 import { fetchONETSkills } from './skills-taxonomy-mapper'
+import { CareerOneStopApiService } from './careeronestop-api'
+
+// Initialize CareerOneStop service
+const cosService = new CareerOneStopApiService()
 
 // Use server-side Supabase client for service operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -91,6 +95,21 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
     console.log('⚠️ No O*NET match for skill:', skillName)
   }
 
+  // **NEW: Fetch CareerOneStop data for labor market intelligence**
+  console.log('🏢 Fetching CareerOneStop data for SOC:', socCode)
+  const cosData = await cosService.getComprehensiveOccupationData(socCode)
+  
+  if (cosData) {
+    console.log('✅ CareerOneStop data found:', {
+      title: cosData.title,
+      tasksCount: cosData.tasks?.length || 0,
+      toolsCount: cosData.toolsAndTechnology?.length || 0,
+      hasLMI: !!cosData.lmi
+    })
+  } else {
+    console.log('⚠️ No CareerOneStop data for SOC:', socCode)
+  }
+
   // Get job examples for this SOC code to provide context
   const { data: jobs } = await supabase
     .from('jobs')
@@ -123,7 +142,8 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
         socCode: options.socCode,
         companyId: options.companyId,
         sessionId: options.sessionId,
-        onetData: onetMatch // Pass O*NET data for enhanced context
+        onetData: onetMatch, // Pass O*NET data for enhanced context
+        cosData: cosData // Pass CareerOneStop data for labor market context
       })
 
       console.log(`✅ Batch generated ${batchQuestions.length} questions`)
@@ -150,7 +170,8 @@ async function generateQuestionBatch({
   socCode,
   companyId,
   sessionId,
-  onetData
+  onetData,
+  cosData
 }: {
   skill: any
   proficiencyLevel: string
@@ -161,6 +182,7 @@ async function generateQuestionBatch({
   companyId?: string
   sessionId?: string
   onetData?: any
+  cosData?: any
 }): Promise<GeneratedQuestion[]> {
 
   const existingStems = existingQuestions.map(q => q.stem.toLowerCase())
@@ -220,6 +242,28 @@ async function generateQuestionBatch({
 
   console.log('📝 Enhanced prompt generated, length:', enhancedPrompt.length)
 
+  // **ENHANCED: Add CareerOneStop context to prompt**
+  let cosContext = ''
+  if (cosData) {
+    const tasks = cosData.tasks?.slice(0, 3).map((t: any) => `- ${t.Task || t}`).join('\n') || ''
+    const tools = cosData.toolsAndTechnology?.slice(0, 5).map((t: any) => t.Example || t).join(', ') || ''
+    
+    cosContext = `
+
+### REAL-WORLD JOB CONTEXT (CareerOneStop):
+**Typical Tasks for this Occupation:**
+${tasks || '- Standard occupational tasks'}
+
+**Tools & Technology Used:**
+${tools || 'Standard industry tools'}
+
+${cosData.lmi ? `**Labor Market Intelligence:**
+- Average Pay: $${cosData.lmi.averagePayState?.toLocaleString() || 'N/A'} (State) / $${cosData.lmi.averagePayNational?.toLocaleString() || 'N/A'} (National)
+- Career Outlook: ${cosData.lmi.careerOutlook || 'Stable'}
+- Typical Training: ${cosData.lmi.typicalTraining || 'On-the-job training'}` : ''}
+`
+  }
+
   const prompt = `You are an Instructional Designer and Workforce Assessment Specialist working inside the SkillSync platform. You are creating quiz questions to evaluate a learner's readiness for a specific occupation.
 
 This quiz will be taken by jobseekers, career changers, and upskilling employees. Your goal is to measure true competency—not surface knowledge.
@@ -259,7 +303,7 @@ Your task is to generate **high-quality multiple-choice questions (MCQs)** for t
 - Be inclusive and culturally neutral.
 
 ### CONTEXT:
-${enhancedPrompt}
+${enhancedPrompt}${cosContext}
 
 ### OUTPUT FORMAT:
 Return a JSON array structured like this:
