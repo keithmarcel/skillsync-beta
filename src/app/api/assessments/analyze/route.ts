@@ -177,12 +177,13 @@ export async function POST(request: NextRequest) {
     console.log('✅ Successfully saved', insertedData?.length, 'skill results');
 
     // 8. Update assessment with final results
-    const statusTag = getStatusTag(roleReadiness.overallProficiency);
+    const readinessPct = Math.round(roleReadiness.overallProficiency); // Whole number
+    const statusTag = getStatusTag(readinessPct);
 
     const { error: updateError } = await supabase
       .from('assessments')
       .update({
-        readiness_pct: roleReadiness.overallProficiency,
+        readiness_pct: readinessPct,
         status_tag: statusTag,
         analyzed_at: new Date().toISOString()
       })
@@ -196,11 +197,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 9. Auto-Invite Trigger: Create invite if proficiency meets threshold
+    // 9. Check if proficiency meets threshold for auto-invite
     const visibilityThreshold = assessment.job?.visibility_threshold_pct || 85;
     
-    if (roleReadiness.overallProficiency >= visibilityThreshold) {
-      console.log(`🎯 Proficiency ${roleReadiness.overallProficiency}% meets threshold ${visibilityThreshold}% - creating auto-invite...`);
+    if (readinessPct >= visibilityThreshold) {
+      console.log(`🎯 Proficiency ${readinessPct}% meets threshold ${visibilityThreshold}% - creating auto-invite...`);
       
       // Check if invite already exists for this assessment
       const { data: existingInvite } = await supabase
@@ -217,7 +218,7 @@ export async function POST(request: NextRequest) {
             company_id: assessment.job.company_id,
             job_id: assessment.job_id,
             assessment_id: assessmentId,
-            proficiency_pct: roleReadiness.overallProficiency,
+            proficiency_pct: readinessPct,
             application_url: assessment.job.application_url,
             status: 'sent',
             invited_at: new Date().toISOString()
@@ -235,19 +236,19 @@ export async function POST(request: NextRequest) {
         console.log('⚠️ Missing company_id or application_url - cannot create invite');
       }
     } else {
-      console.log(`ℹ️ Proficiency ${roleReadiness.overallProficiency}% below threshold ${visibilityThreshold}% - no invite created`);
+      console.log(`ℹ️ Proficiency ${readinessPct}% below threshold ${visibilityThreshold}% - no invite created`);
     }
 
     // 10. Return success with results
     const response = {
       success: true,
-      readiness_pct: roleReadiness.overallProficiency,
+      readiness_pct: readinessPct,
       status_tag: statusTag,
       role_readiness: roleReadiness.roleReadiness,
       skill_results: skillResults,
       analyzed_at: new Date().toISOString(),
       summary: {
-        overall_proficiency: roleReadiness.overallProficiency,
+        overall_proficiency: readinessPct,
         strength_areas: roleReadiness.strengthAreas || [],
         development_areas: roleReadiness.developmentAreas || [],
         critical_gaps: roleReadiness.criticalGaps || [],

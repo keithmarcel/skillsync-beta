@@ -48,11 +48,26 @@ export default function QuizPage() {
 
   const [quizState, setQuizState] = useState<QuizState>('loading')
   const [quiz, setQuiz] = useState<any>(null)
-  const [job, setJob] = useState<any>(null)
-  const [sections, setSections] = useState<any[]>([])
   const [questions, setQuestions] = useState<any[]>([])
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [sections, setSections] = useState<any[]>([])
   const [responses, setResponses] = useState<Record<string, string>>({})
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const { toast } = useToast()
+  const { user } = useAuth()
+  const isSuperAdmin = user?.email === 'keith-woods@bisk.com'
+
+  // Warn user before leaving assessment in progress
+  useEffect(() => {
+    if (quizState === 'in-progress') {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+      
+      window.addEventListener('beforeunload', handleBeforeUnload)
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [quizState])
 
   useEffect(() => {
     loadQuizData()
