@@ -53,6 +53,7 @@ export default function AssessmentAnalyzingPage() {
         
         if (!response.ok) {
           console.error('AI analysis failed:', result);
+          console.error('Error details:', JSON.stringify(result, null, 2));
         }
       } catch (error) {
         console.error('Error triggering analysis:', error);
