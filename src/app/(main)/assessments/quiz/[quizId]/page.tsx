@@ -357,7 +357,7 @@ export default function QuizPage() {
         )}
 
         {quizState === 'in-progress' && currentQuestion && (
-          <div className="max-w-3xl mx-auto">
+          <div>
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between mb-4">
