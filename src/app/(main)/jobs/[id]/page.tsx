@@ -124,6 +124,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null)
   const [showAllPrograms, setShowAllPrograms] = useState(false)
   const [recommendedPrograms, setRecommendedPrograms] = useState<any[]>([])
+  const [quizId, setQuizId] = useState<string | null>(null)
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
   
   // Track role view
@@ -164,6 +165,21 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           if (crosswalk) {
             setRecommendedPrograms(crosswalk)
             console.log('Recommended programs loaded:', crosswalk.length)
+          }
+          
+          // Load quiz for this job (if exists)
+          const { data: quiz } = await supabase
+            .from('quizzes')
+            .select('id')
+            .eq('job_id', params.id)
+            .eq('status', 'published')
+            .single()
+          
+          if (quiz) {
+            setQuizId(quiz.id)
+            console.log('Quiz found for job:', quiz.id)
+          } else {
+            console.log('No quiz found for job')
           }
         } else {
           setError('Job not found')
@@ -488,11 +504,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 </Link>
               </p>
             </div>
-            <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
-              <Link href={`/assessments/quiz/${job.id}`}>
-                Start Assessment →
-              </Link>
-            </Button>
+            {quizId ? (
+              <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
+                <Link href={`/assessments/quiz/${quizId}`}>
+                  Start Assessment →
+                </Link>
+              </Button>
+            ) : (
+              <Button disabled className="bg-gray-400 text-white px-6 py-3 rounded-lg flex-shrink-0 cursor-not-allowed">
+                Assessment Coming Soon
+              </Button>
+            )}
           </div>
         )}
 
