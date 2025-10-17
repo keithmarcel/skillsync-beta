@@ -209,7 +209,7 @@ export default function AssessmentResultsPage() {
 
       <div className="max-w-[1232px] mx-auto px-6 pb-8">
         {/* Hero Section - Figma: #002F3F background, shadow, 48px padding */}
-        <div className="bg-[#002F3F] rounded-xl shadow-lg mb-8">
+        <div className="bg-[#002F3F] rounded-xl shadow-lg mb-12">
           {/* Main content area - 48px 48px 32px padding */}
           <div className="flex items-center px-12 pt-12 pb-8 gap-8">
             {/* Left side - 2/3 width, pl-8 for inner padding */}
@@ -277,7 +277,7 @@ export default function AssessmentResultsPage() {
         </div>
 
         {/* Skills Gap Analysis - White bg with shadow */}
-        <div className="bg-white rounded-xl p-8 mb-8 shadow-md hover:shadow-lg transition-shadow duration-200">
+        <div className="bg-white rounded-xl p-8 mb-12 shadow-md hover:shadow-lg transition-shadow duration-200">
           <div className="mb-4">
             <h2 className="text-2xl font-bold text-[#1F2937] mb-4 font-source-sans-pro">Skills Gap Analysis</h2>
             <p className="text-base text-[#1F2A37]">
