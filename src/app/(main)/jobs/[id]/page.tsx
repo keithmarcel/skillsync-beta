@@ -213,9 +213,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         )}
 
         {/* Job Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2">
-            <Card className="rounded-2xl bg-[#114B5F] text-white border-0">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 lg:items-stretch">
+          <div className="lg:col-span-2 flex">
+            <Card className="rounded-2xl bg-[#114B5F] text-white border-0 w-full">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
@@ -361,8 +361,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Featured Image */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 h-full min-h-[400px] rounded-2xl overflow-hidden">
+          <div className="lg:col-span-1 flex">
+            <div className="sticky top-8 w-full min-h-[400px] rounded-2xl overflow-hidden">
               <Image 
                 src={job.featured_image_url || '/assets/hero_occupations.jpg'} 
                 alt={job.title} 
