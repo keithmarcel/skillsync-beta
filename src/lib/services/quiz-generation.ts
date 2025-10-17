@@ -53,12 +53,16 @@ export interface GeneratedQuestion {
 export async function generateSkillQuestions(options: QuizGenerationOptions): Promise<GeneratedQuestion[]> {
   const { socCode, skillId, skillName, proficiencyLevel, questionCount } = options
 
+  console.log('🔍 Starting skill question generation for:', { skillId, skillName, proficiencyLevel, questionCount })
+
   // Get skill context from database
   const { data: skill } = await supabase
     .from('skills')
     .select('*')
     .eq('id', skillId)
     .single()
+
+  console.log('📊 Skill lookup result:', { found: !!skill, skill })
 
   if (!skill) {
     throw new Error(`Skill ${skillId} not found`)
@@ -73,12 +77,18 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
 
   const jobContext = jobs?.map(job => `${job.title}: ${job.long_desc?.substring(0, 200)}...`).join('\n\n') || ''
 
+  console.log('🏢 Job context found:', { jobCount: jobs?.length || 0 })
+
   // Generate questions in batches to avoid token limits
   const questions: GeneratedQuestion[] = []
   const batchSize = 3 // Generate 3 questions per API call
 
+  console.log('🔄 Starting batch generation, total questions needed:', questionCount)
+
   for (let i = 0; i < questionCount; i += batchSize) {
     const batchCount = Math.min(batchSize, questionCount - i)
+
+    console.log(`📦 Processing batch ${Math.floor(i/batchSize) + 1}, generating ${batchCount} questions`)
 
     try {
       const batchQuestions = await generateQuestionBatch({
@@ -92,13 +102,15 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
         sessionId: options.sessionId
       })
 
+      console.log(`✅ Batch generated ${batchQuestions.length} questions`)
       questions.push(...batchQuestions)
     } catch (error) {
-      console.error(`Failed to generate question batch ${i/batchSize + 1}:`, error)
+      console.error(`❌ Failed to generate question batch ${i/batchSize + 1}:`, error)
       // Continue with next batch rather than failing entirely
     }
   }
 
+  console.log('🎯 Final result: generated', questions.length, 'questions total')
   return questions
 }
 
@@ -127,10 +139,22 @@ async function generateQuestionBatch({
 
   const existingStems = existingQuestions.map(q => q.stem.toLowerCase())
 
+  console.log('🤖 Starting OpenAI generation for batch:', { count, skillName: skill.name, proficiencyLevel })
+
   // Get enhanced context data
   const marketData = await getMarketIntelligence(socCode || '', skill.name)
-  const companyData = await getCompanyContext(companyId || null)
-  
+  const companyData = companyId ? await getCompanyContext(companyId) : {
+    roleLevel: 'mid',
+    teamSize: '5-15 people',
+    budgetSize: '$500K-2M',
+    industry: 'Technology Services',
+    regulatoryEnvironment: 'Standard compliance',
+    performanceMetrics: ['Revenue growth', 'Team productivity', 'Customer satisfaction'],
+    organizationValues: ['Innovation', 'Collaboration', 'Results-driven']
+  }
+
+  console.log('📊 Context data loaded:', { marketData: !!marketData, companyData: !!companyData })
+
   // Calculate skill weighting for enhanced difficulty
   const skillWeighting = calculateSkillWeighting(
     skill.importance_level === 'critical' ? 4.5 :
@@ -139,6 +163,8 @@ async function generateQuestionBatch({
     3.0, // Default company weight
     0.75 // Default performance correlation
   )
+
+  console.log('⚖️ Skill weighting calculated:', skillWeighting)
 
   // Generate enhanced AI context
   const enhancedPrompt = await generateEnhancedAIContext(
@@ -152,8 +178,11 @@ async function generateQuestionBatch({
       jobZone: { education: 'Post-secondary', experience: 'Moderate' }
     },
     marketData,
+    companyData,
     sessionId
   )
+
+  console.log('📝 Enhanced prompt generated, length:', enhancedPrompt.length)
 
   const prompt = `You are an Instructional Designer and Workforce Assessment Specialist working inside the SkillSync platform. You are creating quiz questions to evaluate a learner's readiness for a specific occupation.
 
@@ -181,6 +210,13 @@ Your task is to generate **high-quality multiple-choice questions (MCQs)** for t
 - Provide a one-sentence explanation of why it's correct.
 - Ensure **each question and answer can be reused in a randomized quiz rotation system**.
 
+### UNIQUENESS REQUIREMENTS:
+- **Each question must be substantially different** from the others in this batch.
+- **Vary question formats**: Mix scenario-based, definition-based, and application-based questions.
+- **Avoid similar wording**: Don't use the same verbs, nouns, or sentence structures repeatedly.
+- **Different contexts**: Use varied professional contexts (meetings, projects, client interactions, etc.).
+- **Progressive complexity**: If generating multiple questions, make them progressively more challenging.
+
 ### TONE AND ACCESSIBILITY:
 - Keep reading level appropriate for a postsecondary audience (10th–12th grade).
 - Avoid jargon unless it is essential to the skill or occupation.
@@ -200,7 +236,9 @@ Return a JSON array structured like this:
   "difficulty": "${proficiencyLevel}"
 }]
 
-Remember: Vary correct_answer between A, B, C, and D across the ${count} questions.`
+Remember: Vary correct_answer between A, B, C, and D across the ${count} questions. Ensure all questions are unique and test different aspects of the skill.`
+
+  console.log('📤 Calling OpenAI API...')
 
   const response = await openai.chat.completions.create({
     model: process.env.OPENAI_MODEL_EXTRACTOR || 'gpt-4o-mini',
@@ -209,31 +247,94 @@ Remember: Vary correct_answer between A, B, C, and D across the ${count} questio
     max_tokens: 2000
   })
 
+  console.log('📥 OpenAI response received, choices:', response.choices.length)
+
   const content = response.choices[0].message.content
   if (!content) {
     throw new Error('No content in OpenAI response')
   }
 
+  console.log('📄 Raw OpenAI content length:', content.length)
+
   // Parse JSON from response
   const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-  const questions: GeneratedQuestion[] = JSON.parse(cleanContent)
+  console.log('🧹 Cleaned content length:', cleanContent.length)
 
-  // FORCE randomize answer keys to prevent AI bias (all B's issue)
-  const answerKeys = ['A', 'B', 'C', 'D']
-  questions.forEach((q, index) => {
-    const currentCorrect = q.correct_answer
-    const targetKey = answerKeys[index % 4] // Cycle through A, B, C, D
+  let questions: GeneratedQuestion[]
+  try {
+    questions = JSON.parse(cleanContent)
+    console.log('✅ Successfully parsed JSON, questions:', questions.length)
     
-    if (currentCorrect !== targetKey) {
-      // Swap the correct answer with target position
-      const temp = q.choices[targetKey]
-      q.choices[targetKey] = q.choices[currentCorrect]
-      q.choices[currentCorrect] = temp
-      q.correct_answer = targetKey
+    // DEBUG: Log first question structure
+    if (questions.length > 0) {
+      console.log('🔍 First question structure:', {
+        stem: questions[0].stem?.substring(0, 50),
+        choices: questions[0].choices,
+        choicesType: typeof questions[0].choices,
+        choicesKeys: questions[0].choices ? Object.keys(questions[0].choices) : 'undefined',
+        correct_answer: questions[0].correct_answer,
+        explanation: questions[0].explanation?.substring(0, 50)
+      })
     }
-  })
+  } catch (parseError) {
+    console.error('❌ Failed to parse JSON:', parseError)
+    console.error('Raw content:', cleanContent.substring(0, 500))
+    throw new Error('Failed to parse OpenAI response as JSON')
+  }
 
-  return questions
+  // Post-processing deduplication - check for very similar questions only
+  const deduplicatedQuestions: GeneratedQuestion[] = []
+  const usedStems = new Set<string>()
+
+  console.log(`🔍 Starting deduplication for ${questions.length} questions`)
+
+  for (const question of questions) {
+    const stem = question.stem.toLowerCase().trim()
+
+    // Skip if exact duplicate
+    if (usedStems.has(stem)) {
+      console.log('⚠️ Skipping exact duplicate question:', stem.substring(0, 50))
+      continue
+    }
+
+    // Check for very similar questions (only filter out near-duplicates)
+    let isTooSimilar = false
+    for (const usedStem of Array.from(usedStems)) {
+      // Simple similarity check: only filter if more than 85% of significant words overlap
+      const stemWords = stem.split(/\s+/).filter((word: string) => word.length > 3)
+      const usedWords = usedStem.split(/\s+/).filter((word: string) => word.length > 3)
+      
+      if (stemWords.length === 0 || usedWords.length === 0) continue
+      
+      const overlap = stemWords.filter((word: string) => usedWords.includes(word)).length
+      const similarity = overlap / Math.max(stemWords.length, usedWords.length)
+
+      if (similarity > 0.85) { // 85% word overlap threshold - very strict
+        console.log('⚠️ Skipping very similar question:', {
+          new: stem.substring(0, 50),
+          existing: usedStem.substring(0, 50),
+          similarity: Math.round(similarity * 100) + '%'
+        })
+        isTooSimilar = true
+        break
+      }
+    }
+
+    if (!isTooSimilar) {
+      deduplicatedQuestions.push(question)
+      usedStems.add(stem)
+      console.log(`✅ Keeping question: "${stem.substring(0, 50)}..."`)
+    }
+  }
+
+  console.log(`🔄 Deduplication complete: ${questions.length} → ${deduplicatedQuestions.length} questions`)
+
+  if (deduplicatedQuestions.length === 0 && questions.length > 0) {
+    console.error('❌ WARNING: All questions were filtered out by deduplication! Returning original questions.')
+    return questions // Fallback to prevent empty results
+  }
+
+  return deduplicatedQuestions
 }
 
 /**

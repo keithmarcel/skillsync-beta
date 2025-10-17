@@ -144,18 +144,40 @@ export function QuestionCard({ question, index, onEdit, onDelete, isDragging }: 
             {question.question_type === 'multiple_choice' && question.choices && (
               <div className="mt-3 pt-3 border-t">
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  {(typeof question.choices === 'string' ? JSON.parse(question.choices) : question.choices).map((choice: string, idx: number) => (
-                    <div 
-                      key={idx}
-                      className={`px-2 py-1 rounded ${
-                        String.fromCharCode(65 + idx) === question.answer_key 
-                          ? 'bg-green-50 text-green-700 font-medium' 
-                          : 'bg-gray-50 text-gray-600'
-                      }`}
-                    >
-                      {String.fromCharCode(65 + idx)}. {choice}
-                    </div>
-                  ))}
+                  {(() => {
+                    let choicesArray: string[] = []
+                    try {
+                      if (typeof question.choices === 'string') {
+                        choicesArray = JSON.parse(question.choices)
+                      } else if (Array.isArray(question.choices)) {
+                        choicesArray = question.choices
+                      } else if (typeof question.choices === 'object' && question.choices !== null) {
+                        // Handle object format {A: "Option A", B: "Option B", ...}
+                        choicesArray = Object.values(question.choices)
+                      }
+                    } catch (e) {
+                      console.error('Error parsing choices:', e, 'raw data:', question.choices)
+                      choicesArray = []
+                    }
+
+                    // Ensure we have an array before mapping
+                    if (!Array.isArray(choicesArray) || choicesArray.length === 0) {
+                      return [<div key="no-choices" className="text-gray-500 italic">No choices available</div>]
+                    }
+
+                    return choicesArray.map((choice: string, idx: number) => (
+                      <div 
+                        key={idx}
+                        className={`px-2 py-1 rounded ${
+                          String.fromCharCode(65 + idx) === question.answer_key 
+                            ? 'bg-green-50 text-green-700 font-medium' 
+                            : 'bg-gray-50 text-gray-600'
+                        }`}
+                      >
+                        {String.fromCharCode(65 + idx)}. {choice}
+                      </div>
+                    ))
+                  })()}
                 </div>
               </div>
             )}
@@ -166,7 +188,7 @@ export function QuestionCard({ question, index, onEdit, onDelete, isDragging }: 
                 <div className="text-sm">
                   <span className="text-gray-500">Correct Answer: </span>
                   <span className="font-medium text-gray-900">
-                    {question.answer_key === true || question.answer_key === 'true' ? 'True' : 'False'}
+                    {String(question.answer_key).toLowerCase() === 'true' ? 'True' : 'False'}
                   </span>
                 </div>
               </div>

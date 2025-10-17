@@ -49,7 +49,34 @@ export function QuestionModal({ open, onOpenChange, onSave, editQuestion, skills
       setStep('details')
       setQuestionType(editQuestion.question_type)
       setStem(editQuestion.stem)
-      setChoices(editQuestion.choices ? (typeof editQuestion.choices === 'string' ? JSON.parse(editQuestion.choices) : editQuestion.choices) : ['', '', '', ''])
+
+      // Robust choices parsing
+      let parsedChoices: string[] = ['', '', '', '']
+      try {
+        if (editQuestion.choices) {
+          if (typeof editQuestion.choices === 'string') {
+            parsedChoices = JSON.parse(editQuestion.choices)
+          } else if (Array.isArray(editQuestion.choices)) {
+            parsedChoices = editQuestion.choices
+          } else if (typeof editQuestion.choices === 'object' && editQuestion.choices !== null) {
+            parsedChoices = Object.values(editQuestion.choices)
+          }
+        }
+        // Ensure it's always an array of strings
+        if (!Array.isArray(parsedChoices)) {
+          parsedChoices = ['', '', '', '']
+        }
+        // Filter out non-string values and ensure we have at least 4 options
+        parsedChoices = parsedChoices.filter(c => typeof c === 'string').slice(0, 4)
+        while (parsedChoices.length < 4) {
+          parsedChoices.push('')
+        }
+      } catch (e) {
+        console.error('Error parsing choices for edit:', e, 'raw data:', editQuestion.choices)
+        parsedChoices = ['', '', '', '']
+      }
+      setChoices(parsedChoices)
+
       setAnswerKey(editQuestion.answer_key)
       setGoodAnswerExample(editQuestion.good_answer_example || '')
       setSkillId(editQuestion.skill_id || '')
@@ -240,7 +267,7 @@ export function QuestionModal({ open, onOpenChange, onSave, editQuestion, skills
               <div>
                 <Label>Answer Options *</Label>
                 <div className="space-y-2 mt-1">
-                  {choices.map((choice, idx) => (
+                  {Array.isArray(choices) && choices.length > 0 ? choices.map((choice, idx) => (
                     <div key={idx} className="flex items-center gap-2">
                       <span className="text-sm font-medium text-gray-600 w-6">
                         {String.fromCharCode(65 + idx)}.
@@ -262,7 +289,9 @@ export function QuestionModal({ open, onOpenChange, onSave, editQuestion, skills
                         className="w-4 h-4 text-teal-600"
                       />
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-gray-500 italic">No choices available</div>
+                  )}
                 </div>
                 <p className="text-sm text-gray-500 mt-1">Select the correct answer</p>
               </div>
