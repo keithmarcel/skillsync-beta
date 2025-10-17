@@ -367,17 +367,17 @@ export default function AssessmentResultsPage() {
                     {/* Pills/Badges - mt-4 */}
                     <div className="mt-4 flex flex-wrap gap-1.5">
                       {program.program_type && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                           {program.program_type}
                         </span>
                       )}
                       {program.delivery_format && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                           {program.delivery_format}
                         </span>
                       )}
                       {program.duration_text && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
                           {program.duration_text}
                         </span>
                       )}
