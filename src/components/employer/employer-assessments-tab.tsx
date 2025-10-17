@@ -215,12 +215,7 @@ export function EmployerAssessmentsTab({ companyId }: EmployerAssessmentsTabProp
     <div className="space-y-6">
       {/* Header with Create Button */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Assessments</h2>
-          <p className="text-gray-600 mt-1">
-            Manage assessments for your roles
-          </p>
-        </div>
+        <h2 className="text-2xl font-bold text-gray-900 font-source-sans-pro">Manage Your Assessments</h2>
         <Button 
           onClick={handleCreateAssessment}
           className="bg-[#0694A2] hover:bg-[#047481] text-white"
