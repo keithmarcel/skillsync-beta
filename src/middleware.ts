@@ -38,7 +38,41 @@ export async function middleware(request: NextRequest) {
 
   // 2. If user is logged in and trying to access an auth route (like signin page)
   if (user && authRoutes.includes(pathname)) {
+    // Fetch profile to determine correct dashboard
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, admin_role')
+      .eq('id', user.id)
+      .single();
+
+    // Redirect to appropriate dashboard based on role
+    if (profile?.role === 'employer_admin' || profile?.admin_role === 'company_admin') {
+      return NextResponse.redirect(new URL('/employer', request.url));
+    } else if (profile?.role === 'provider_admin' || profile?.admin_role === 'provider_admin') {
+      return NextResponse.redirect(new URL('/provider', request.url));
+    } else if (profile?.admin_role === 'super_admin') {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
+    // Default to home page for regular users
     return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  // 2b. If employer/provider admin tries to access home page, redirect to their dashboard
+  if (user && pathname === '/') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, admin_role')
+      .eq('id', user.id)
+      .single();
+
+    // Redirect admins to their dashboards (unless they're super admin who can see everything)
+    if (profile?.admin_role !== 'super_admin') {
+      if (profile?.role === 'employer_admin' || profile?.admin_role === 'company_admin') {
+        return NextResponse.redirect(new URL('/employer', request.url));
+      } else if (profile?.role === 'provider_admin' || profile?.admin_role === 'provider_admin') {
+        return NextResponse.redirect(new URL('/provider', request.url));
+      }
+    }
   }
 
   // 3. If user is trying to access an admin route, check for admin role
