@@ -164,30 +164,30 @@ export default function AssessmentResultsPage() {
     },
     {
       id: 'placeholder-4',
-      name: 'Project Management Pro with PMI PMP Prep + Externship',
-      school: { name: 'Auburn University', logo_url: '/schools/auburn.svg' },
+      name: 'Business Essentials',
+      school: { name: 'Nexford University', logo_url: '/schools/nexford.svg' },
       program_type: 'Certificate',
       delivery_format: 'Online',
-      duration_text: 'Self-paced',
-      short_description: 'Gain project management skills in planning, risk analysis, and certification exam preparation for industry-recognized PMP credential.'
+      duration_text: '1-2 years',
+      short_description: 'Gain practical skills in marketing, process automation, global operations, and impactful communication for business success.'
     },
     {
       id: 'placeholder-5',
-      name: 'Project Management for CAPM',
-      school: { name: 'Austin Peay State University', logo_url: '/schools/apsu.svg' },
+      name: 'Building Construction Technologies Certificate',
+      school: { name: 'Pinellas Technical College', logo_url: '/schools/pinellas-tech.svg' },
       program_type: 'Certificate',
       delivery_format: 'Online',
-      duration_text: 'Self-paced',
-      short_description: 'Gain essential project management skills using proven techniques and modern practices aligned with CAPM certification standards.'
+      duration_text: '12 Weeks',
+      short_description: 'Prepare learners for entry- and mid-level roles in the construction industry by teaching core skills.'
     },
     {
       id: 'placeholder-6',
-      name: 'CompTIA Project+',
-      school: { name: 'Austin Peay State University', logo_url: '/schools/apsu.svg' },
+      name: 'Skills: Process Improvement: Data Analysis',
+      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
       program_type: 'Certificate',
       delivery_format: 'Online',
-      duration_text: 'Self-paced',
-      short_description: 'Gain essential project management skills, including risk assessment, agile processes, and team leadership for CompTIA certification.'
+      duration_text: '12 Weeks',
+      short_description: 'Build: Process Improvement: Data Analysis'
     }
   ]
 
