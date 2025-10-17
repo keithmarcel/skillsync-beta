@@ -165,7 +165,7 @@ export default function AssessmentResultsPage() {
     {
       id: 'placeholder-4',
       name: 'Business Essentials',
-      school: { name: 'Nexford University', logo_url: '/schools/nexford.svg' },
+      school: { name: 'Nexford University', logo_url: '/schools/Nexford-logo-horizontal-color.svg' },
       program_type: 'Certificate',
       delivery_format: 'Online',
       duration_text: '1-2 years',
@@ -174,7 +174,7 @@ export default function AssessmentResultsPage() {
     {
       id: 'placeholder-5',
       name: 'Building Construction Technologies Certificate',
-      school: { name: 'Pinellas Technical College', logo_url: '/schools/pinellas-tech.svg' },
+      school: { name: 'Pinellas Technical College', logo_url: '/schools/ptec.png' },
       program_type: 'Certificate',
       delivery_format: 'Online',
       duration_text: '12 Weeks',
