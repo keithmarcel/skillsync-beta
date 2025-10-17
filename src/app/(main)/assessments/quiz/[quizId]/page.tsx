@@ -284,7 +284,7 @@ export default function QuizPage() {
         {quizState === 'intro' && (
           <div>
             {/* Main Intro Card with Image */}
-            <Card className="mb-8">
+            <Card className="mb-8 border-0 shadow-none">
               <CardContent className="p-12">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                   {/* Left: Content */}
@@ -331,7 +331,7 @@ export default function QuizPage() {
             {/* Bottom Info Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left: Assessment Details */}
-              <Card>
+              <Card className="border-0 shadow-none">
                 <CardHeader>
                   <CardTitle className="text-xl font-bold font-source-sans-pro">What to Expect</CardTitle>
                   <CardDescription className="text-base">
@@ -360,7 +360,7 @@ export default function QuizPage() {
               </Card>
 
               {/* Right: Skills Covered */}
-              <Card>
+              <Card className="border-0 shadow-none">
                 <CardHeader>
                   <CardTitle className="text-xl font-bold font-source-sans-pro">Skills Covered</CardTitle>
                 </CardHeader>
@@ -383,7 +383,7 @@ export default function QuizPage() {
 
         {quizState === 'in-progress' && currentQuestion && (
           <div>
-            <Card>
+            <Card className="border-0 shadow-none">
               <CardHeader>
                 <div className="flex items-center justify-between mb-4">
                   <div>

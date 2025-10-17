@@ -109,7 +109,7 @@ export default function AssessmentAnalyzingPage() {
         { label: job.title, href: `/jobs/${job.id}` },
         { label: 'Assessment Analysis', isActive: true }
       ]}>
-        <div className="bg-white rounded-lg shadow-sm p-12">
+        <div className="bg-white rounded-lg p-12">
           <div className="flex flex-col items-center justify-center text-center">
             {/* SkillSync Logo */}
             <div className="mb-8">
