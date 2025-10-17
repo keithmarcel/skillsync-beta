@@ -251,8 +251,8 @@ export default function AssessmentResultsPage() {
 
               {/* Percentage - 72px font, 8px gap */}
               <div className="text-center pt-1">
-                <div className="text-[72px] font-bold leading-none text-white" style={{fontFamily: 'Inter'}}>{readiness}%</div>
-                <div className="text-base text-white/70 mt-2 font-source-sans-pro">Role Readiness</div>
+                <div className="text-[72px] font-bold leading-none text-white">{readiness}%</div>
+                <div className="text-base text-white/70 mt-2">Role Readiness</div>
               </div>
             </div>
           </div>
