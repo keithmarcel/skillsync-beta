@@ -18,6 +18,8 @@ export default function AssessmentResultsPage() {
 
   const [assessment, setAssessment] = useState<any>(null)
   const [skillResults, setSkillResults] = useState<any[]>([])
+  const [programs, setPrograms] = useState<any[]>([])
+  const [inviteSent, setInviteSent] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -48,6 +50,39 @@ export default function AssessmentResultsPage() {
 
       if (!skillsError && skillsData) {
         setSkillResults(skillsData)
+      }
+
+      // Check if auto-invite was sent
+      if (assessmentData.readiness_pct >= 85) {
+        const { data: invite } = await supabase
+          .from('employer_invitations')
+          .select('id, status')
+          .eq('assessment_id', assessmentId)
+          .eq('status', 'sent')
+          .single()
+        
+        if (invite) {
+          setInviteSent(true)
+        }
+      }
+
+      // Load programs for low proficiency (<85%)
+      if (assessmentData.readiness_pct < 85 && assessmentData.job?.soc_code) {
+        const { data: programsData } = await supabase
+          .from('programs')
+          .select(`
+            id,
+            name,
+            program_type,
+            duration_text,
+            school:schools(name)
+          `)
+          .eq('status', 'published')
+          .limit(6)
+        
+        if (programsData) {
+          setPrograms(programsData)
+        }
       }
     } catch (error) {
       console.error('Error loading results:', error)
@@ -231,53 +266,133 @@ export default function AssessmentResultsPage() {
           </CardContent>
         </Card>
 
-        {/* Next Steps */}
+        {/* Auto-Invite Notification */}
+        {inviteSent && readiness >= 85 && (
+          <Card className="mb-8 bg-blue-50 border-blue-200">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">🎯</div>
+                <div>
+                  <h3 className="text-lg font-bold text-blue-900">Invitation Sent!</h3>
+                  <p className="text-blue-800">
+                    Great news! {assessment.job?.company?.name} has been notified of your strong performance. Check your invitations to see their message.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Next Steps - Conditional Based on Proficiency */}
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-4">Next Steps</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Role Ready */}
-            {readiness >= 80 && (
+          
+          {/* HIGH PROFICIENCY (≥90%): Role Ready */}
+          {readiness >= 90 && (
+            <div className="space-y-6">
               <Card className="bg-green-50 border-green-200">
                 <CardContent className="p-6">
-                  <div className="text-2xl mb-2">🎉 You're Role Ready!</div>
-                  <p className="text-green-900 mb-4">
-                    Your skills align well with this role. Consider applying or preparing your application materials.
+                  <div className="text-3xl mb-3">🎉 You're Role Ready!</div>
+                  <p className="text-green-900 mb-4 text-lg">
+                    Congratulations! Your skills align exceptionally well with this role. You're qualified to apply and would be a strong candidate.
+                  </p>
+                  <div className="flex gap-3">
+                    <Button className="bg-green-600 hover:bg-green-700 text-white">
+                      View Application
+                    </Button>
+                    <Button variant="outline" className="bg-white">
+                      Explore Similar Roles
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="p-6">
+                  <div className="text-2xl mb-2">📈 Keep Growing</div>
+                  <p className="text-blue-900 mb-4">
+                    Consider advanced certifications or specialized training to further enhance your expertise and career prospects.
                   </p>
                   <Button variant="outline" className="bg-white">
-                    Explore Similar Jobs
+                    Explore Advanced Training
                   </Button>
                 </CardContent>
               </Card>
-            )}
+            </div>
+          )}
 
-            {/* Close Gaps */}
-            {readiness >= 50 && readiness < 80 && (
+          {/* MEDIUM PROFICIENCY (85-89%): Building Skills */}
+          {readiness >= 85 && readiness < 90 && (
+            <div className="space-y-6">
+              <Card className="bg-teal-50 border-teal-200">
+                <CardContent className="p-6">
+                  <div className="text-3xl mb-3">💪 You're Building Skills!</div>
+                  <p className="text-teal-900 mb-4 text-lg">
+                    You're very close to being role-ready! Focus on your development areas and you'll be fully qualified soon.
+                  </p>
+                  <div className="flex gap-3">
+                    <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+                      Find Training Programs
+                    </Button>
+                    <Button variant="outline" className="bg-white">
+                      Retake Assessment
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* LOW PROFICIENCY (<85%): Close Gaps */}
+          {readiness < 85 && (
+            <div className="space-y-6">
               <Card className="bg-orange-50 border-orange-200">
                 <CardContent className="p-6">
-                  <div className="text-2xl mb-2">📚 Close Your Gaps</div>
-                  <p className="text-orange-900 mb-4">
-                    You're close! Focus on developing your weaker skills to become role-ready.
+                  <div className="text-3xl mb-3">📚 Close Your Skills Gaps</div>
+                  <p className="text-orange-900 mb-4 text-lg">
+                    You have some skill gaps to address. The good news? We've identified training programs that can help you get role-ready.
                   </p>
-                  <Button variant="outline" className="bg-white">
-                    Find Training Programs
-                  </Button>
                 </CardContent>
               </Card>
-            )}
 
-            {/* Retake */}
-            <Card className="bg-gray-50 border-gray-200">
-              <CardContent className="p-6">
-                <div className="text-2xl mb-2">🔄 Retake Assessment</div>
-                <p className="text-gray-700 mb-4">
-                  Skills develop over time. Retake this assessment in a few months to track your progress.
-                </p>
-                <Button variant="outline" className="bg-white">
-                  Schedule Follow-up
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+              {/* Programs to Close Gaps */}
+              {programs.length > 0 && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-bold mb-4">Recommended Training Programs</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {programs.map((program) => (
+                        <Card key={program.id} className="border hover:border-teal-500 transition-colors">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-2">
+                              <h4 className="font-semibold text-sm">{program.name}</h4>
+                              <Badge variant="outline" className="text-xs">
+                                {program.program_type}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-gray-600 mb-2">
+                              {program.school?.name}
+                            </p>
+                            {program.duration_text && (
+                              <p className="text-xs text-gray-500 mb-3">
+                                Duration: {program.duration_text}
+                              </p>
+                            )}
+                            <Button size="sm" variant="outline" className="w-full text-xs">
+                              Learn More
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    <Button className="mt-4 w-full" variant="outline">
+                      View All Programs
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

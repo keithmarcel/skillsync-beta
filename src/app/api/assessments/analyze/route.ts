@@ -197,7 +197,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 9. Return success with results
+    // 9. Auto-Invite Trigger: Create invite if proficiency meets threshold
+    const visibilityThreshold = assessment.job?.visibility_threshold_pct || 85;
+    
+    if (roleReadiness.overallProficiency >= visibilityThreshold) {
+      console.log(`🎯 Proficiency ${roleReadiness.overallProficiency}% meets threshold ${visibilityThreshold}% - creating auto-invite...`);
+      
+      // Check if invite already exists for this assessment
+      const { data: existingInvite } = await supabase
+        .from('employer_invitations')
+        .select('id')
+        .eq('assessment_id', assessmentId)
+        .single();
+      
+      if (!existingInvite && assessment.job?.company_id && assessment.job?.application_url) {
+        const { error: inviteError } = await supabase
+          .from('employer_invitations')
+          .insert({
+            user_id: assessment.user_id,
+            company_id: assessment.job.company_id,
+            job_id: assessment.job_id,
+            assessment_id: assessmentId,
+            proficiency_pct: roleReadiness.overallProficiency,
+            application_url: assessment.job.application_url,
+            status: 'sent',
+            invited_at: new Date().toISOString()
+          });
+        
+        if (inviteError) {
+          console.error('⚠️ Failed to create auto-invite:', inviteError);
+          // Don't fail the whole request - just log the error
+        } else {
+          console.log('✅ Auto-invite created successfully');
+        }
+      } else if (existingInvite) {
+        console.log('ℹ️ Invite already exists for this assessment');
+      } else {
+        console.log('⚠️ Missing company_id or application_url - cannot create invite');
+      }
+    } else {
+      console.log(`ℹ️ Proficiency ${roleReadiness.overallProficiency}% below threshold ${visibilityThreshold}% - no invite created`);
+    }
+
+    // 10. Return success with results
     const response = {
       success: true,
       readiness_pct: roleReadiness.overallProficiency,
