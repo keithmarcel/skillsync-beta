@@ -13,6 +13,9 @@ import { supabase } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { PageLoader } from '@/components/ui/loading-spinner'
 import { Clock, CheckCircle } from 'lucide-react'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useAuth } from '@/hooks/useAuth'
 
 type QuizState = 'loading' | 'intro' | 'in-progress' | 'submitting'
 
@@ -21,6 +24,7 @@ export default function QuizPage() {
   const router = useRouter()
   const { user } = useAuth()
   const quizId = params.quizId as string
+  const isSuperAdmin = user?.email === 'keith-woods@bisk.com'
 
   const [quizState, setQuizState] = useState<QuizState>('loading')
   const [quiz, setQuiz] = useState<any>(null)
@@ -321,6 +325,17 @@ export default function QuizPage() {
                       ))}
                     </div>
                   </RadioGroup>
+
+                  {/* Testing Mode: Show Correct Answer (Super Admin Only) */}
+                  {isSuperAdmin && currentQuestion.answer_key && (
+                    <Alert className="mt-4 bg-green-50 border-green-200">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <AlertTitle className="text-green-900 font-semibold">Correct Answer (Testing Mode)</AlertTitle>
+                      <AlertDescription className="text-green-800">
+                        {currentQuestion.choices[currentQuestion.answer_key]}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
 
                 <div className="flex justify-between pt-4">
