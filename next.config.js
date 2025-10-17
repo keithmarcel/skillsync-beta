@@ -1,9 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Use standalone for server-side rendering
-  // output: 'standalone',
+  // Production optimizations
+  reactStrictMode: true,
+  swcMinify: true,
   
   // Temporarily disable TypeScript and ESLint checks for deployment
+  // TODO: Fix TypeScript errors and re-enable strict checking
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -11,6 +13,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
+  // Image optimization configuration
   images: {
     domains: [
       'localhost',
@@ -20,35 +23,58 @@ const nextConfig = {
       'supabase.co',
       'your-supabase-project.supabase.co'
     ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  // Disable static page generation for dynamic routes
+  // Experimental features
   experimental: {
-    // This helps with Supabase auth and dynamic content
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
   
-  // Skip static generation for auth-protected pages
+  // Security headers (also defined in netlify.toml for redundancy)
   async headers() {
     return [
       {
         source: '/:path*',
         headers: [
           {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow',
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
           },
         ],
       },
     ]
   },
 
-  // Environment variables
-  env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  // Webpack optimizations
+  webpack: (config, { isServer }) => {
+    // Optimize bundle size
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    return config;
   },
 }
 
