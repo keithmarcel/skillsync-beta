@@ -15,6 +15,7 @@ import { PageLoader } from '@/components/ui/loading-spinner'
 import { Clock, CheckCircle } from 'lucide-react'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAuth } from '@/hooks/useAuth'
 
 type QuizState = 'loading' | 'intro' | 'in-progress' | 'submitting'
@@ -334,16 +335,27 @@ export default function QuizPage() {
                   <CardTitle className="text-xl font-bold font-source-sans-pro">Skills Covered</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {sections.map((section, index) => (
-                      <div key={section.id} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                          {index + 1}
-                        </div>
-                        <span className="text-xs text-gray-700 font-medium leading-tight">{section.skill?.name}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <TooltipProvider delayDuration={200}>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {sections.map((section, index) => (
+                        <Tooltip key={section.id}>
+                          <TooltipTrigger asChild>
+                            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-help hover:bg-gray-100 transition-colors">
+                              <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                {index + 1}
+                              </div>
+                              <span className="text-xs text-gray-700 font-medium leading-tight">{section.skill?.name}</span>
+                            </div>
+                          </TooltipTrigger>
+                          {section.skill?.description && (
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p className="text-sm">{section.skill.description}</p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      ))}
+                    </div>
+                  </TooltipProvider>
                 </CardContent>
               </Card>
             </div>
