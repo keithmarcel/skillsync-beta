@@ -337,16 +337,22 @@ export function QuestionsTab({ quizId, jobId, onQuestionCountChange }: Questions
 
       setGenerationStep(3)
 
-      // Get quiz job information
+      // Get quiz job information including SOC code and company
       const { data: quiz } = await supabase
         .from('quizzes')
-        .select('job_id')
+        .select('job_id, company_id, soc_code, job:jobs(soc_code, company_id, title, long_desc)')
         .eq('id', quizId)
         .single()
 
       if (!quiz?.job_id) {
         throw new Error('Quiz job information not found')
       }
+
+      // Extract context for AI generation
+      const socCode = quiz.soc_code || quiz.job?.soc_code
+      const companyId = quiz.company_id || quiz.job?.company_id
+
+      console.log('🎯 Quiz context for AI generation:', { socCode, companyId, jobTitle: quiz.job?.title })
 
       setGenerationStep(4)
 
@@ -388,7 +394,7 @@ export function QuestionsTab({ quizId, jobId, onQuestionCountChange }: Questions
 
           if (questionCount <= 0) continue
 
-          // Use API route for server-side generation
+          // Use API route for server-side generation with full context
           const response = await fetch('/api/admin/quizzes/generate', {
             method: 'POST',
             headers: {
@@ -399,7 +405,9 @@ export function QuestionsTab({ quizId, jobId, onQuestionCountChange }: Questions
               skillName: skill.name,
               proficiencyLevel: proficiencyLevel as any,
               questionCount,
-              sectionId
+              sectionId,
+              socCode, // Pass SOC code for O*NET context
+              companyId // Pass company ID for company-specific context
             })
           })
 

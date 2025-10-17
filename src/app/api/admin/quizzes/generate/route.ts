@@ -3,9 +3,9 @@ import { generateSkillQuestions } from '@/lib/services/quiz-generation'
 
 export async function POST(request: NextRequest) {
   try {
-    const { skillId, skillName, proficiencyLevel, questionCount, sectionId } = await request.json()
+    const { skillId, skillName, proficiencyLevel, questionCount, sectionId, socCode, companyId } = await request.json()
 
-    console.log('🎯 API Route called with:', { skillId, skillName, proficiencyLevel, questionCount, sectionId })
+    console.log('🎯 API Route called with:', { skillId, skillName, proficiencyLevel, questionCount, sectionId, socCode, companyId })
 
     if (!skillId || !skillName || !proficiencyLevel || !questionCount || !sectionId) {
       return NextResponse.json({
@@ -14,15 +14,16 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    console.log('🚀 Calling generateSkillQuestions...')
+    console.log('🚀 Calling generateSkillQuestions with context:', { socCode, companyId })
 
-    // Generate questions using the server-side service
+    // Generate questions using the server-side service with full context
     const questions = await generateSkillQuestions({
-      socCode: '', // Not needed for individual skill generation
+      socCode: socCode || '', // Pass SOC code for O*NET/job context
       skillId,
       skillName,
       proficiencyLevel,
       questionCount,
+      companyId, // Pass company ID for company-specific context
       sessionId: `api-generate-${Date.now()}`
     })
 
