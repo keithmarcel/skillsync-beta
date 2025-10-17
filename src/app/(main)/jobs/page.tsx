@@ -558,7 +558,7 @@ export default function JobsPage() {
                       return {
                         id: job.id,
                         title: job.title,
-                        description: job.short_desc || '',
+                        description: job.short_desc || job.long_desc?.substring(0, 150) || '',
                         category: getProperCategory(job),
                         median_wage_usd: job.median_wage_usd || 0,
                         readiness: determineRoleReadiness(job.id, userAssessments),

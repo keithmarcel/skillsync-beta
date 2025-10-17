@@ -30,13 +30,14 @@ interface Column {
   sortable?: boolean
   filterable?: boolean
   filterOptions?: string[]
+  linkTo?: (row: any) => string
   render?: (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => React.ReactNode
 }
 
 interface DataTableProps {
   data: any[]
   columns: Column[]
-  tableType?: 'programs' | 'jobs' | 'assessments' | 'occupations' | 'employer-invites'
+  tableType?: 'programs' | 'jobs' | 'assessments' | 'occupations' | 'employer-invites' | 'employer-roles'
   isOnFavoritesTab?: boolean
   loadingText?: string
   onRowAction?: (action: string, row: any) => void
@@ -179,7 +180,8 @@ export default function DataTable({
     switch (type) {
       case 'programs': return 'Search programs by name, school, or category'
       case 'jobs': return 'Search jobs by title, company, or category'
-      case 'employer-invites': return 'Search by company, role, or status'
+      case 'employer-invites': return 'Search by name, role, or status'
+      case 'employer-roles': return 'Search roles by title or category'
       case 'occupations': return 'Search occupations by title or category'
       default: return 'Search...'
     }
@@ -312,10 +314,12 @@ export default function DataTable({
               {columns.map((column, index) => (
                 <th 
                   key={column.key}
-                  className={`py-6 text-left ${
-                    index === columns.length - 1 ? 'text-center' : ''
+                  className={`py-6 ${
+                    tableType === 'employer-roles' && index >= 1 && index <= 4 ? 'text-center' : 'text-left'
                   } ${
                     tableType === 'employer-invites' && index >= 2 ? 'text-center' : ''
+                  } ${
+                    index === columns.length - 1 ? 'text-center' : ''
                   } ${
                     tableType === 'employer-invites' && index === 0 ? 'px-6 pr-8 sticky-col-left' : 'px-6'
                   } ${
@@ -328,6 +332,13 @@ export default function DataTable({
                          index === 2 ? '17%' :  // Role Readiness (with proficiency)
                          index === 3 ? '20%' :  // Status
                          index === 4 ? '10%' : 'auto')  // Actions (more padding)
+                      : tableType === 'employer-roles'
+                      ? (index === 0 ? '40%' :  // Role Title (majority of space)
+                         index === 1 ? '15%' :  // Category
+                         index === 2 ? '12%' :  // Assessments
+                         index === 3 ? '12%' :  // Candidates
+                         index === 4 ? '12%' :  // Published
+                         index === 5 ? '9%' : 'auto')  // Actions
                       : (index === 0 ? '22%' :
                          index === 1 ? '30%' :
                          index === 2 ? '12%' :
@@ -353,11 +364,13 @@ export default function DataTable({
                     <td 
                       key={column.key}
                       className={`py-6 font-normal ${
+                        tableType === 'employer-roles' && colIndex >= 1 && colIndex <= 4 ? 'text-center' : ''
+                      } ${
+                        tableType === 'employer-invites' && colIndex >= 2 ? 'text-center' : ''
+                      } ${
                         colIndex === columns.length - 1 ? 'text-center' : ''
                       } ${
                         column.key === 'category' || column.key === 'readiness' ? 'whitespace-nowrap' : ''
-                      } ${
-                        tableType === 'employer-invites' && colIndex >= 2 ? 'text-center' : ''
                       } ${
                         tableType === 'employer-invites' && colIndex === 0 ? 'px-6 pr-8 sticky-col-left' : 'px-6'
                       } ${
@@ -372,6 +385,13 @@ export default function DataTable({
                              colIndex === 2 ? '17%' :
                              colIndex === 3 ? '20%' :
                              colIndex === 4 ? '10%' : 'auto')
+                          : tableType === 'employer-roles'
+                          ? (colIndex === 0 ? '40%' :  // Role Title (majority of space)
+                             colIndex === 1 ? '15%' :  // Category
+                             colIndex === 2 ? '12%' :  // Assessments
+                             colIndex === 3 ? '12%' :  // Candidates
+                             colIndex === 4 ? '12%' :  // Published
+                             colIndex === 5 ? '9%' : 'auto')  // Actions
                           : (colIndex === 0 ? '22%' :
                              colIndex === 1 ? '30%' :
                              colIndex === 2 ? '12%' :
@@ -385,7 +405,7 @@ export default function DataTable({
                           // Programs table with custom render (includes badge below title)
                           <div className="flex flex-col gap-1.5">
                             <Link 
-                              href={`/${tableType}/${row.id}`}
+                              href={column.linkTo ? column.linkTo(row) : `/${tableType}/${row.id}`}
                               className="text-inherit group-hover:text-[#0694A2] group-hover:underline transition-colors font-semibold text-base w-fit font-source-sans-pro"
                             >
                               {value}
@@ -398,15 +418,15 @@ export default function DataTable({
                         ) : (
                           // Jobs and other tables (render function handles everything)
                           <Link 
-                            href={`/${tableType}/${row.id}`}
+                            href={column.linkTo ? column.linkTo(row) : `/${tableType}/${row.id}`}
                             className="text-inherit group-hover:text-[#0694A2] group-hover:underline transition-colors font-semibold text-base w-fit font-source-sans-pro"
                           >
                             {column.render ? column.render(value, row, isOnFavoritesTab, onRowAction) : value}
                           </Link>
                         )
                       ) : colIndex === columns.length - 1 ? (
-                        // Actions column - use custom render for employer-invites
-                        tableType === 'employer-invites' && column.render ? (
+                        // Actions column - use custom render for employer-invites and employer-roles
+                        (tableType === 'employer-invites' || tableType === 'employer-roles') && column.render ? (
                           column.render(value, row, isOnFavoritesTab, onRowAction)
                         ) : (
                           <DropdownMenu>

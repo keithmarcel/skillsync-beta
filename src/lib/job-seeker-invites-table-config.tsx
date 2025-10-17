@@ -102,6 +102,7 @@ export const renderJobSeekerStatus = (status: string, row: any, isOnFavoritesTab
 export const renderJobSeekerActions = (value: any, row: any, isOnFavoritesTab?: boolean, onRowAction?: (action: string, row: any) => void) => {
   const menuItems = []
   const isArchived = row.status === 'archived'
+  const isRoleDeleted = !row.job
   
   if (isArchived) {
     // Archived actions
@@ -111,12 +112,15 @@ export const renderJobSeekerActions = (value: any, row: any, isOnFavoritesTab?: 
         onClick: () => onRowAction?.('restore', row)
       }, 'Restore Invite')
     )
-    menuItems.push(
-      React.createElement(DropdownMenuItem, {
-        key: 'role-details',
-        onClick: () => onRowAction?.('view-role', row)
-      }, 'View Role Details')
-    )
+    // Only show View Role Details if role still exists
+    if (!isRoleDeleted) {
+      menuItems.push(
+        React.createElement(DropdownMenuItem, {
+          key: 'role-details',
+          onClick: () => onRowAction?.('view-role', row)
+        }, 'View Role Details')
+      )
+    }
     menuItems.push(
       React.createElement(DropdownMenuItem, {
         key: 'assessment',
@@ -155,12 +159,15 @@ export const renderJobSeekerActions = (value: any, row: any, isOnFavoritesTab?: 
       )
     }
 
-    menuItems.push(
-      React.createElement(DropdownMenuItem, {
-        key: 'role-details',
-        onClick: () => onRowAction?.('view-role', row)
-      }, 'View Role Details')
-    )
+    // Only show View Role Details if role still exists
+    if (!isRoleDeleted) {
+      menuItems.push(
+        React.createElement(DropdownMenuItem, {
+          key: 'role-details',
+          onClick: () => onRowAction?.('view-role', row)
+        }, 'View Role Details')
+      )
+    }
     menuItems.push(
       React.createElement(DropdownMenuItem, {
         key: 'assessment',
@@ -207,9 +214,17 @@ export const jobSeekerInvitesTableColumns = [
     key: 'job.title',
     label: 'Role',
     sortable: true,
-    render: (value: string) => React.createElement('span', {
-      className: 'text-sm font-semibold text-gray-900'
-    }, value)
+    render: (value: string, row: any) => {
+      // Handle deleted roles
+      if (!value || !row.job) {
+        return React.createElement('span', {
+          className: 'text-sm font-medium text-gray-500 italic'
+        }, 'Role No Longer Available')
+      }
+      return React.createElement('span', {
+        className: 'text-sm font-semibold text-gray-900'
+      }, value)
+    }
   },
   {
     key: 'proficiency_pct',

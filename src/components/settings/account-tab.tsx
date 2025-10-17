@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
 import { type Profile } from '@/hooks/useAuth'
 import { ChangeEmailDialog } from './change-email-dialog'
+import { ChangePasswordDialog } from './change-password-dialog'
 import { DeleteAccountDialog } from './delete-account-dialog'
 import { Save } from 'lucide-react'
 
@@ -104,6 +105,17 @@ export function AccountTab({ profile }: AccountTabProps) {
           </Button>
         </div>
       </form>
+
+      {/* Account Security */}
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-gray-900">Account Security</h3>
+          <p className="text-sm text-gray-600">
+            Manage your password and security settings.
+          </p>
+          <ChangePasswordDialog />
+        </div>
+      </div>
 
       {/* Delete Account Section */}
       <div className="mt-12 pt-6 border-t border-gray-200">

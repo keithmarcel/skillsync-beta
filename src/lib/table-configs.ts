@@ -132,10 +132,11 @@ export const renderJobTitleWithBadges = (item: any, isOnFavoritesTab: boolean = 
   // Only featured roles get "Hiring Now" badge in Job Title column below the title
   // Occupations show just the title with no badges
   if (jobKind === 'featured_role') {
+    const badge = renderHiringNowBadge()
     return React.createElement('div', { className: 'flex flex-col gap-1.5' }, [
       React.createElement('span', { key: 'title' }, title),
-      renderHiringNowBadge()
-    ])
+      badge ? React.cloneElement(badge, { key: 'badge' }) : null
+    ].filter(Boolean))
   }
   
   // Occupations show just the title

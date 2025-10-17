@@ -7,9 +7,10 @@ import { useViewAs } from '@/contexts/ViewAsContext'
 import PageHeader from '@/components/ui/page-header'
 import StickyTabs from '@/components/ui/sticky-tabs'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
-import { EmployerDashboard } from '@/components/employer/employer-dashboard'
-import { EmployerRolesTable } from '@/components/employer/employer-roles-table'
+import { EmployerDashboard } from '@/components/employer/employer-dashboard-new'
+import { EmployerRolesTableV2 as EmployerRolesTable } from '@/components/employer/employer-roles-table-v2'
 import { EmployerInvitesTableV2 as EmployerInvitesTable } from '@/components/employer/employer-invites-table-v2'
+import { EmployerAssessmentsTab } from '@/components/employer/employer-assessments-tab'
 import { EmployerSettings } from '@/components/employer/employer-settings'
 import { supabase } from '@/lib/supabase/client'
 
@@ -17,8 +18,8 @@ interface Company {
   id: string
   name: string
   logo_url: string | null
-  city: string | null
-  state: string | null
+  hq_city: string | null
+  hq_state: string | null
 }
 
 export default function EmployerDashboardPage() {
@@ -128,21 +129,46 @@ export default function EmployerDashboardPage() {
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', isActive: activeTab === 'dashboard' },
     { id: 'roles', label: 'Listed Roles', isActive: activeTab === 'roles' },
+    { id: 'assessments', label: 'Assessments', isActive: activeTab === 'assessments' },
     { id: 'invites', label: 'Invites', isActive: activeTab === 'invites' },
     { id: 'settings', label: 'Settings', isActive: activeTab === 'settings' }
   ]
 
-  // Determine subtitle text
-  const subtitleText = company.city && company.state 
-    ? `Top High Demand Jobs in ${company.city}` 
-    : 'Manage your roles, invitations, and company settings'
+  // Determine subtitle text based on active tab
+  const getSubtitle = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return 'Track your hiring pipeline and candidate engagement'
+      case 'roles':
+        return 'Create and manage your featured role listings'
+      case 'assessments':
+        return 'Create and manage assessments for your roles'
+      case 'invites':
+        return 'Review candidates and manage invitation workflow'
+      case 'settings':
+        return 'Update company profile and preferences'
+      default:
+        return 'Manage your roles, invitations, and company settings'
+    }
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/auth/signin')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
       <PageHeader
         title={`Welcome, ${company.name}!`}
-        subtitle={subtitleText}
+        subtitle={getSubtitle()}
         variant="split"
+        primaryAction={{
+          label: 'Log Out',
+          onClick: handleLogout,
+          variant: 'outline'
+        }}
+        showPrimaryAction={true}
       />
 
       <main className="max-w-[1280px] mx-auto px-6">
@@ -158,6 +184,10 @@ export default function EmployerDashboardPage() {
           
           {activeTab === 'roles' && (
             <EmployerRolesTable companyId={company.id} />
+          )}
+          
+          {activeTab === 'assessments' && (
+            <EmployerAssessmentsTab companyId={company.id} />
           )}
           
           {activeTab === 'invites' && (

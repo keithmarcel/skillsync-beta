@@ -10,8 +10,7 @@ export async function listJobs(kind?: JobKind, region?: string) {
       .from('jobs')
       .select(`
         *,
-        companies(name, logo_url, is_trusted_partner),
-        job_skills(skill_id, weight)
+        companies(name, logo_url, is_trusted_partner)
       `)
 
     if (kind) {

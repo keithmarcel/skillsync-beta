@@ -1,51 +1,34 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Play, Users, BookOpen, Target, TrendingUp, Award } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
-import { getQuizBySocCode, getQuizById, type Quiz, type Assessment } from '@/lib/database/queries'
+import { useRouter } from 'next/navigation'
+import PageHeader from '@/components/ui/page-header'
+import { EmployerAssessmentsTab } from '@/components/employer/employer-assessments-tab'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase/client'
-import Link from 'next/link'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { DestructiveDialog } from '@/components/ui/destructive-dialog'
-import { useToastActions } from '@/hooks/use-toast-actions'
-
-interface QuizWithStats extends Quiz {
-  total_assessments?: number
-  avg_readiness?: number
-  job?: {
-    id: string
-    title: string
-    soc_code: string
-  }
-}
+import { Input } from '@/components/ui/input'
+import { useToast } from '@/hooks/use-toast'
+import { BookOpen, Users, Search, Plus, Eye, Edit, Play, MoreHorizontal, Trash2, Award, Target, TrendingUp } from 'lucide-react'
+import Link from 'next/link'
 
 export default function AdminAssessmentsPage() {
-  const [quizzes, setQuizzes] = useState<QuizWithStats[]>([])
-  const [assessments, setAssessments] = useState<Assessment[]>([])
+  const router = useRouter()
+  const { user, profile, loading: authLoading, isSuperAdmin } = useAuth()
+  const { toast } = useToast()
   const [loading, setLoading] = useState(true)
+  const [quizzes, setQuizzes] = useState<any[]>([])
+  const [assessments, setAssessments] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [readinessFilter, setReadinessFilter] = useState<string>('all')
-  const toastActions = useToastActions()
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [readinessFilter, setReadinessFilter] = useState('all')
 
   useEffect(() => {
     loadAllData()
@@ -188,10 +171,17 @@ export default function AdminAssessmentsPage() {
 
       if (error) throw error
       await loadQuizzes()
-      toastActions.updateSuccess('Quiz status')
+      toast({
+        title: 'Success',
+        description: 'Quiz status updated successfully'
+      })
     } catch (error) {
       console.error('Error updating quiz status:', error)
-      toastActions.updateError('Quiz status')
+      toast({
+        title: 'Error',
+        description: 'Failed to update quiz status',
+        variant: 'destructive'
+      })
     }
   }
 
@@ -436,8 +426,15 @@ export default function AdminAssessmentsPage() {
                               description={`Are you sure you want to delete "${quiz.job?.title}" quiz? This will permanently delete all questions and cannot be undone.`}
                               actionLabel="Delete Quiz"
                               onConfirm={() => handleDeleteQuiz(quiz.id)}
-                              onSuccess={() => toastActions.deleteSuccess('Quiz')}
-                              onError={(error) => toastActions.deleteError('Quiz', error.message)}
+                              onSuccess={() => toast({
+                                title: 'Success',
+                                description: 'Quiz deleted successfully'
+                              })}
+                              onError={(error) => toast({
+                                title: 'Error',
+                                description: `Failed to delete quiz: ${error.message}`,
+                                variant: 'destructive'
+                              })}
                             >
                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                 <Trash2 className="h-4 w-4 mr-2 text-red-600" />
@@ -603,8 +600,15 @@ export default function AdminAssessmentsPage() {
                               description="Are you sure you want to delete this assessment? This will permanently delete all results and responses and cannot be undone."
                               actionLabel="Delete Assessment"
                               onConfirm={() => handleDeleteAssessment(assessment.id)}
-                              onSuccess={() => toastActions.deleteSuccess('Assessment')}
-                              onError={(error) => toastActions.deleteError('Assessment', error.message)}
+                              onSuccess={() => toast({
+                                title: 'Success',
+                                description: 'Assessment deleted successfully'
+                              })}
+                              onError={(error) => toast({
+                                title: 'Error',
+                                description: `Failed to delete assessment: ${error.message}`,
+                                variant: 'destructive'
+                              })}
                             >
                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                 <Trash2 className="h-4 w-4 mr-2 text-red-600" />
