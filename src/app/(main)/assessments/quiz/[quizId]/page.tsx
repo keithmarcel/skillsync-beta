@@ -264,14 +264,6 @@ export default function QuizPage() {
                     <p className="text-gray-600 mb-8 leading-relaxed text-base">
                       Complete this quiz to discover how your current skills align with the role of {job.title}. We'll assess your technical knowledge, decision-making, and soft skills across key areas.
                     </p>
-                    
-                    {/* Time Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 rounded-lg mb-8 self-start">
-                      <Clock className="h-4 w-4 text-teal-600" />
-                      <span className="text-sm text-teal-900 font-medium">
-                        This assessment takes ~{quiz.estimated_minutes || 5} minutes
-                      </span>
-                    </div>
 
                     <Button 
                       onClick={handleStartQuiz} 
@@ -342,13 +334,13 @@ export default function QuizPage() {
                   <CardTitle className="text-xl font-bold font-source-sans-pro">Skills Covered</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2.5">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {sections.map((section, index) => (
-                      <div key={section.id} className="flex items-center gap-3">
+                      <div key={section.id} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                           {index + 1}
                         </div>
-                        <span className="text-sm text-gray-700">{section.skill?.name}</span>
+                        <span className="text-xs text-gray-700 font-medium leading-tight">{section.skill?.name}</span>
                       </div>
                     ))}
                   </div>
