@@ -173,6 +173,14 @@ export default function QuizPage() {
 
     try {
       // Create assessment record
+      console.log('Creating assessment with:', {
+        user_id: user.id,
+        job_id: job.id,
+        quiz_id: quizId,
+        method: 'quiz',
+        status_tag: 'pending'
+      });
+
       const { data: assessment, error: assessmentError } = await supabase
         .from('assessments')
         .insert({
@@ -185,7 +193,10 @@ export default function QuizPage() {
         .select()
         .single()
 
-      if (assessmentError) throw assessmentError
+      if (assessmentError) {
+        console.error('Assessment creation error:', assessmentError);
+        throw assessmentError;
+      }
 
       // Save quiz responses
       const responsesToSave = questions.map(q => {
