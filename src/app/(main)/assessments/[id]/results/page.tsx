@@ -4,11 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { PageLoader } from '@/components/ui/loading-spinner'
-import { Award, Clock, Calendar, RefreshCw, Lightbulb, ArrowLeft, Target } from 'lucide-react'
+import { CheckCircle, AlertCircle, XCircle, ArrowLeft, ArrowRight, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import Link from 'next/link'
 
 export default function AssessmentResultsPage() {
@@ -19,7 +16,6 @@ export default function AssessmentResultsPage() {
   const [assessment, setAssessment] = useState<any>(null)
   const [skillResults, setSkillResults] = useState<any[]>([])
   const [programs, setPrograms] = useState<any[]>([])
-  const [inviteSent, setInviteSent] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,7 +29,7 @@ export default function AssessmentResultsPage() {
         .from('assessments')
         .select(`
           *,
-          job:jobs(id, title, soc_code, company:companies(name))
+          job:jobs(id, title, soc_code, company:companies(name, logo_url))
         `)
         .eq('id', assessmentId)
         .single()
@@ -52,36 +48,29 @@ export default function AssessmentResultsPage() {
         setSkillResults(skillsData)
       }
 
-      // Check if auto-invite was sent
-      if (assessmentData.readiness_pct >= 85) {
-        const { data: invite } = await supabase
-          .from('employer_invitations')
-          .select('id, status')
-          .eq('assessment_id', assessmentId)
-          .eq('status', 'sent')
-          .single()
+      // Load recommended programs based on skill gaps
+      if (assessmentData.job?.soc_code) {
+        // Get skills that need development (< 75%)
+        const gapSkills = skillsData?.filter(s => s.score_pct < 75).map(s => s.skill_id) || []
         
-        if (invite) {
-          setInviteSent(true)
-        }
-      }
-
-      // Load programs for low proficiency (<85%)
-      if (assessmentData.readiness_pct < 85 && assessmentData.job?.soc_code) {
-        const { data: programsData } = await supabase
-          .from('programs')
-          .select(`
-            id,
-            name,
-            program_type,
-            duration_text,
-            school:schools(name)
-          `)
-          .eq('status', 'published')
-          .limit(6)
-        
-        if (programsData) {
-          setPrograms(programsData)
+        if (gapSkills.length > 0) {
+          const { data: programsData } = await supabase
+            .from('programs')
+            .select(`
+              id,
+              name,
+              program_type,
+              duration_text,
+              delivery_format,
+              short_description,
+              school:schools(name, logo_url)
+            `)
+            .eq('status', 'published')
+            .limit(6)
+          
+          if (programsData) {
+            setPrograms(programsData)
+          }
         }
       }
     } catch (error) {
@@ -91,24 +80,37 @@ export default function AssessmentResultsPage() {
     }
   }
 
-  const getStatusBadge = (readiness: number) => {
-    if (readiness >= 80) {
-      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-lg px-4 py-1">Role Ready</Badge>
-    } else if (readiness >= 50) {
-      return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100 text-lg px-4 py-1">Close Gaps</Badge>
-    } else {
-      return <Badge className="bg-red-100 text-red-800 hover:bg-red-100 text-lg px-4 py-1">Needs Development</Badge>
+  const getReadinessStatus = (readiness: number) => {
+    if (readiness >= 80) return { 
+      icon: CheckCircle, 
+      text: "You're role ready.", 
+      color: 'text-teal-400',
+      bgColor: 'bg-teal-500/10'
+    }
+    if (readiness >= 60) return { 
+      icon: AlertCircle, 
+      text: "You're close to being role ready.", 
+      color: 'text-orange-400',
+      bgColor: 'bg-orange-500/10'
+    }
+    return { 
+      icon: XCircle, 
+      text: "You need more skill development.", 
+      color: 'text-pink-400',
+      bgColor: 'bg-pink-500/10'
     }
   }
 
-  const getSkillColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500'
-    if (score >= 60) return 'bg-orange-500'
-    return 'bg-red-500'
+  const getSkillBarColor = (score: number) => {
+    if (score >= 80) return 'bg-teal-400'
+    if (score >= 60) return 'bg-orange-400'
+    return 'bg-pink-400'
   }
 
-  const getGapPct = (score: number) => {
-    return Math.max(0, 100 - score)
+  const getSkillLabel = (score: number) => {
+    if (score >= 80) return { text: 'Proficient', color: 'text-teal-700', bg: 'bg-teal-100' }
+    if (score >= 60) return { text: 'Building Proficiency', color: 'text-orange-700', bg: 'bg-orange-100' }
+    return { text: 'Needs Development', color: 'text-pink-700', bg: 'bg-pink-100' }
   }
 
   if (loading) {
@@ -132,268 +134,237 @@ export default function AssessmentResultsPage() {
     )
   }
 
-  const readiness = assessment.readiness_pct || 0
-  const completedDate = new Date(assessment.analyzed_at || assessment.created_at).toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric'
-  })
+  const readiness = Math.round(assessment.readiness_pct || 0)
+  const status = getReadinessStatus(readiness)
+  const StatusIcon = status.icon
+  const filledBlocks = Math.round(readiness / 10)
+  const programCount = programs.length
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
-        <div className="max-w-[1280px] mx-auto px-6 py-6">
+        <div className="max-w-[1200px] mx-auto px-6 py-4">
           <Button
             variant="ghost"
             onClick={() => router.push('/my-assessments')}
-            className="mb-4"
+            className="text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Assessments
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Assessment Results</h1>
-            <p className="text-gray-600 mt-1">
-              {assessment.job?.title} • Completed {completedDate}
-            </p>
-          </div>
         </div>
       </div>
 
-      <div className="max-w-[1280px] mx-auto px-6 py-8">
-        {/* Large Readiness Score Card */}
-        <Card className="mb-8 bg-[#0694A2] text-white border-0">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-6xl font-bold mb-2">{readiness}%</div>
-                <div className="text-xl text-white/90">Overall Readiness Score</div>
-              </div>
-              <div>
-                {getStatusBadge(readiness)}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Info Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Assessment Type */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Target className="h-6 w-6 text-gray-600" />
+      <div className="max-w-[1200px] mx-auto px-6 py-8">
+        {/* Hero Section - Dark Teal Background */}
+        <div className="bg-[#0B4F56] rounded-2xl p-8 mb-8 text-white">
+          <div className="flex items-start justify-between gap-8">
+            {/* Left Side - Status and Copy */}
+            <div className="flex-1">
+              {/* Status Icon + Headline */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className={`p-2 rounded-full ${status.bgColor}`}>
+                  <StatusIcon className={`h-6 w-6 ${status.color}`} />
                 </div>
-                <div className="flex-1">
-                  <div className="text-sm text-gray-600 mb-1">Assessment Type</div>
-                  <div className="text-2xl font-bold">Quiz</div>
-                  <div className="text-sm text-gray-500">Skills Assessment</div>
-                </div>
+                <h1 className="text-3xl font-bold">{status.text}</h1>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Skills Assessed */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Lightbulb className="h-6 w-6 text-gray-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm text-gray-600 mb-1">Skills Assessed</div>
-                  <div className="text-2xl font-bold">{skillResults.length}</div>
-                  <div className="text-sm text-gray-500">Competencies evaluated</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              {/* Match Percentage Text */}
+              <p className="text-lg mb-4 text-white/90">
+                Based on your assessment, you have a <span className="font-bold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s <span className="font-bold">{assessment.job?.title}</span> role.
+              </p>
 
-          {/* Completion Date */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Clock className="h-6 w-6 text-gray-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm text-gray-600 mb-1">Completion Date</div>
-                  <div className="text-2xl font-bold">{completedDate}</div>
-                  <div className="text-sm text-gray-500">Assessment completed</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              {/* Personalized Feedback Copy */}
+              <p className="text-white/80 leading-relaxed mb-6">
+                {readiness >= 80 && "You excel in strategic planning and leadership, critical skills for driving business success in the dynamic project management market. To further grow, focus on enhancing your project management, data analysis, and process improvement abilities. Engaging in business analytics and operations programs will support your role readiness."}
+                {readiness >= 60 && readiness < 80 && "You demonstrate strong foundational skills but have opportunities to strengthen key competencies. Focus on developing your weaker areas through targeted training and practice. With dedication, you'll be fully role-ready soon."}
+                {readiness < 60 && "You're building your skills in this area. Focus on the development areas identified below, and consider enrolling in recommended training programs to accelerate your growth and become role-ready."}
+              </p>
 
-        {/* Skill-by-Skill Results */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <Award className="h-5 w-5 text-gray-700" />
-              <h2 className="text-xl font-bold">Skill-by-Skill Results</h2>
-            </div>
-
-            {skillResults.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No skill results available</p>
-            ) : (
-              <div className="space-y-4">
-                {skillResults.map((result, index) => {
-                  const score = result.score_pct || 0
-                  const gap = getGapPct(score)
-                  return (
-                    <div key={`${result.assessment_id}-${result.skill_id}-${index}`} className="border-b last:border-0 pb-4 last:pb-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium">{result.skill?.name}</div>
-                        <div className="text-sm font-semibold">{score}%</div>
-                      </div>
-                      <Progress 
-                        value={score} 
-                        className="h-2"
-                      />
-                      {gap > 20 && (
-                        <div className="text-sm text-gray-600 mt-1">
-                          Gap: {gap}% to reach proficiency
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Auto-Invite Notification */}
-        {inviteSent && readiness >= 85 && (
-          <Card className="mb-8 bg-blue-50 border-blue-200">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-3">
-                <div className="text-3xl">🎯</div>
-                <div>
-                  <h3 className="text-lg font-bold text-blue-900">Invitation Sent!</h3>
-                  <p className="text-blue-800">
-                    Great news! {assessment.job?.company?.name} has been notified of your strong performance. Check your invitations to see their message.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Next Steps - Conditional Based on Proficiency */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">Next Steps</h2>
-          
-          {/* HIGH PROFICIENCY (≥90%): Role Ready */}
-          {readiness >= 90 && (
-            <div className="space-y-6">
-              <Card className="bg-green-50 border-green-200">
-                <CardContent className="p-6">
-                  <div className="text-3xl mb-3">🎉 You're Role Ready!</div>
-                  <p className="text-green-900 mb-4 text-lg">
-                    Congratulations! Your skills align exceptionally well with this role. You're qualified to apply and would be a strong candidate.
-                  </p>
-                  <div className="flex gap-3">
-                    <Button className="bg-green-600 hover:bg-green-700 text-white">
-                      View Application
-                    </Button>
-                    <Button variant="outline" className="bg-white">
-                      Explore Similar Roles
+              {/* Conditional Info Cards */}
+              <div className="space-y-3">
+                {readiness >= 80 && (
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-between">
+                    <p className="text-white/90">
+                      You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with the employer.
+                    </p>
+                    <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 whitespace-nowrap">
+                      View Upskilling Programs →
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                
+                {programCount > 0 && (
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-between">
+                    <p className="text-white/90">
+                      You matched with <span className="font-semibold">{programCount} education programs</span> that have the skills you need.
+                    </p>
+                    <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 whitespace-nowrap">
+                      View Your Program Matches →
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right Side - Stacked Bar Chart + Percentage */}
+            <div className="flex flex-col items-center gap-4">
+              {/* Stacked Bar Chart - 10 blocks */}
+              <div className="flex flex-col gap-1.5">
+                {[...Array(10)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-32 h-3 rounded-sm ${
+                      i < filledBlocks ? 'bg-[#0694A2]' : 'bg-white/20'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Large Percentage */}
+              <div className="text-center">
+                <div className="text-6xl font-bold">{readiness}%</div>
+                <div className="text-sm text-white/70 mt-1">Role Readiness</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Skills Gap Analysis */}
+        <div className="bg-white rounded-xl p-8 mb-8">
+          <h2 className="text-2xl font-bold mb-2">Skills Gap Analysis</h2>
+          <p className="text-gray-600 mb-6">
+            Here's how <span className="font-semibold">your skills</span> compare to what employers expect for this role.
+          </p>
+
+          {/* Legend */}
+          <div className="flex items-center gap-6 mb-6 text-sm">
+            <div className="flex items-center gap-2">
+              <Settings className="h-4 w-4 text-gray-400" />
+              <span className="text-gray-600">Benchmark</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-teal-400" />
+              <span className="text-gray-600">Proficient</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-orange-400" />
+              <span className="text-gray-600">Building Proficiency</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded bg-pink-400" />
+              <span className="text-gray-600">Needs Development</span>
+            </div>
+          </div>
+
+          {/* Skill Bars */}
+          <div className="space-y-6">
+            {skillResults.map((result) => {
+              const score = Math.round(result.score_pct || 0)
+              const barColor = getSkillBarColor(score)
               
-              <Card className="bg-blue-50 border-blue-200">
-                <CardContent className="p-6">
-                  <div className="text-2xl mb-2">📈 Keep Growing</div>
-                  <p className="text-blue-900 mb-4">
-                    Consider advanced certifications or specialized training to further enhance your expertise and career prospects.
-                  </p>
-                  <Button variant="outline" className="bg-white">
-                    Explore Advanced Training
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+              return (
+                <div key={result.skill_id}>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900">{result.skill?.name}</h3>
+                  </div>
+                  <div className="relative">
+                    {/* Background bar (benchmark) */}
+                    <div className="w-full h-8 bg-gray-200 rounded-full relative">
+                      {/* Filled bar (user score) */}
+                      <div
+                        className={`h-8 ${barColor} rounded-full flex items-center justify-end pr-3 transition-all duration-500`}
+                        style={{ width: `${score}%` }}
+                      >
+                        <span className="text-sm font-bold text-gray-900">{score}%</span>
+                      </div>
+                      {/* 100% marker */}
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">100%</span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
 
-          {/* MEDIUM PROFICIENCY (85-89%): Building Skills */}
-          {readiness >= 85 && readiness < 90 && (
-            <div className="space-y-6">
-              <Card className="bg-teal-50 border-teal-200">
-                <CardContent className="p-6">
-                  <div className="text-3xl mb-3">💪 You're Building Skills!</div>
-                  <p className="text-teal-900 mb-4 text-lg">
-                    You're very close to being role-ready! Focus on your development areas and you'll be fully qualified soon.
-                  </p>
-                  <div className="flex gap-3">
-                    <Button className="bg-teal-600 hover:bg-teal-700 text-white">
-                      Find Training Programs
+        {/* Education Program Matches */}
+        {programs.length > 0 && (
+          <div className="bg-white rounded-xl p-8">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="p-3 bg-teal-100 rounded-lg">
+                <svg className="w-6 h-6 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold mb-1">Relevant Education & Training Programs</h2>
+                <p className="text-gray-600">Programs that align with the skills and requirements for this role.</p>
+              </div>
+            </div>
+
+            {/* Program Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {programs.map((program) => (
+                <div key={program.id} className="border border-gray-200 rounded-lg p-6 hover:border-teal-500 hover:shadow-md transition-all">
+                  {/* School Logo */}
+                  {program.school?.logo_url && (
+                    <div className="mb-4">
+                      <img 
+                        src={program.school.logo_url} 
+                        alt={program.school.name}
+                        className="h-8 object-contain"
+                      />
+                    </div>
+                  )}
+
+                  {/* Program Title */}
+                  <h3 className="font-bold text-lg mb-2 line-clamp-2">{program.name}</h3>
+                  
+                  {/* School Name */}
+                  <p className="text-sm text-gray-600 mb-3">{program.school?.name}</p>
+
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {program.program_type && (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                        {program.program_type}
+                      </span>
+                    )}
+                    {program.delivery_format && (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                        {program.delivery_format}
+                      </span>
+                    )}
+                    {program.duration_text && (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                        {program.duration_text}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {program.short_description && (
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                      {program.short_description}
+                    </p>
+                  )}
+
+                  {/* CTA Buttons */}
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1">
+                      About the Program
                     </Button>
-                    <Button variant="outline" className="bg-white">
-                      Retake Assessment
+                    <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white">
+                      Inquire Now →
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              ))}
             </div>
-          )}
-
-          {/* LOW PROFICIENCY (<85%): Close Gaps */}
-          {readiness < 85 && (
-            <div className="space-y-6">
-              <Card className="bg-orange-50 border-orange-200">
-                <CardContent className="p-6">
-                  <div className="text-3xl mb-3">📚 Close Your Skills Gaps</div>
-                  <p className="text-orange-900 mb-4 text-lg">
-                    You have some skill gaps to address. The good news? We've identified training programs that can help you get role-ready.
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Programs to Close Gaps */}
-              {programs.length > 0 && (
-                <Card>
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-bold mb-4">Recommended Training Programs</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {programs.map((program) => (
-                        <Card key={program.id} className="border hover:border-teal-500 transition-colors">
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between mb-2">
-                              <h4 className="font-semibold text-sm">{program.name}</h4>
-                              <Badge variant="outline" className="text-xs">
-                                {program.program_type}
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-gray-600 mb-2">
-                              {program.school?.name}
-                            </p>
-                            {program.duration_text && (
-                              <p className="text-xs text-gray-500 mb-3">
-                                Duration: {program.duration_text}
-                              </p>
-                            )}
-                            <Button size="sm" variant="outline" className="w-full text-xs">
-                              Learn More
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                    <Button className="mt-4 w-full" variant="outline">
-                      View All Programs
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   )
