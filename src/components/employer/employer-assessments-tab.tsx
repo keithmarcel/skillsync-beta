@@ -61,7 +61,7 @@ export function EmployerAssessmentsTab({ companyId }: EmployerAssessmentsTabProp
     try {
       setLoading(true)
 
-      // Get all quizzes for this company's roles
+      // Get all quizzes for this company
       const { data: quizzes, error: quizzesError } = await supabase
         .from('quizzes')
         .select(`
@@ -73,7 +73,7 @@ export function EmployerAssessmentsTab({ companyId }: EmployerAssessmentsTabProp
             company_id
           )
         `)
-        .eq('job.company_id', companyId)
+        .eq('company_id', companyId)
         .order('created_at', { ascending: false })
 
       if (quizzesError) throw quizzesError
