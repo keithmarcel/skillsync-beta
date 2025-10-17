@@ -445,7 +445,8 @@ export async function getJobById(id: string): Promise<Job | null> {
     }
   }
 
-    // Fetch BLS employment projections data
+  // Fetch BLS employment projections data
+  if (data?.soc_code) {
     const { data: blsData, error: blsError } = await supabase
       .from('bls_employment_projections')
       .select('growth_rate, change_number, change_percent, employment_2022, employment_2032')
