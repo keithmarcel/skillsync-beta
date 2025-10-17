@@ -338,11 +338,16 @@ export function QuestionsTab({ quizId, jobId, onQuestionCountChange }: Questions
       setGenerationStep(3)
 
       // Get quiz job information including SOC code and company
-      const { data: quiz } = await supabase
+      const { data: quiz, error: quizError } = await supabase
         .from('quizzes')
-        .select('job_id, company_id, soc_code, job:jobs(soc_code, company_id, title, long_desc)')
+        .select('job_id, company_id, soc_code, job:jobs!quizzes_job_id_fkey(soc_code, company_id, title, long_desc)')
         .eq('id', quizId)
         .single()
+
+      if (quizError) {
+        console.error('❌ Failed to load quiz:', quizError)
+        throw new Error(`Failed to load quiz: ${quizError.message}`)
+      }
 
       if (!quiz?.job_id) {
         throw new Error('Quiz job information not found')
