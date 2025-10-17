@@ -335,31 +335,16 @@ export default function QuizPage() {
                   <CardTitle className="text-xl font-bold font-source-sans-pro">Skills Covered</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <TooltipProvider delayDuration={200}>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {sections.map((section, index) => (
-                        <Tooltip key={section.id}>
-                          <TooltipTrigger asChild>
-                            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-help hover:border-teal-300 hover:shadow-sm transition-all duration-200">
-                              <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                                {index + 1}
-                              </div>
-                              <span className="text-xs text-gray-700 font-medium leading-tight">{section.skill?.name}</span>
-                            </div>
-                          </TooltipTrigger>
-                          {section.skill?.description ? (
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p className="text-sm">{section.skill.description}</p>
-                            </TooltipContent>
-                          ) : (
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p className="text-sm text-gray-500 italic">No description available</p>
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
-                      ))}
-                    </div>
-                  </TooltipProvider>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {sections.map((section, index) => (
+                      <div key={section.id} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-teal-300 hover:shadow-sm transition-all duration-200">
+                        <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                          {index + 1}
+                        </div>
+                        <span className="text-xs text-gray-700 font-medium leading-tight">{section.skill?.name}</span>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             </div>
