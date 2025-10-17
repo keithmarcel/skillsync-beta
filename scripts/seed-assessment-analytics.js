@@ -11,19 +11,14 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Use the actual existing user (Sarah Mitchell - Power Design employer admin)
-// In production, these would be real job seeker users who took assessments
-const EXISTING_USER_ID = '8ddf2dc3-b6c0-4000-8a30-86d814429049'; // Sarah Mitchell
-
-const mockAssessments = [
-  { name: 'Assessment 1', proficiency: 'high' },
-  { name: 'Assessment 2', proficiency: 'high' },
-  { name: 'Assessment 3', proficiency: 'medium' },
-  { name: 'Assessment 4', proficiency: 'medium' },
-  { name: 'Assessment 5', proficiency: 'medium' },
-  { name: 'Assessment 6', proficiency: 'low' },
-  { name: 'Assessment 7', proficiency: 'low' },
-  { name: 'Assessment 8', proficiency: 'high' },
+// Use actual demo users with avatars for realistic analytics
+const demoUsers = [
+  { id: '3bcfef07-2c6b-4f3f-9c0f-8e5a4d3b2c1a', name: 'Naomi Blake', proficiency: 'high' },
+  { id: '00f89334-5e6d-4a2b-8c9f-1a2b3c4d5e6f', name: 'Elias Thorne', proficiency: 'high' },
+  { id: '269391cb-7f8e-4b3c-9d0e-2b3c4d5e6f7a', name: 'Emanuel Highgate', proficiency: 'high' },
+  { id: 'b25fed7f-8a9b-4c5d-9e0f-3c4d5e6f7a8b', name: 'Aaliyah Ramirez', proficiency: 'medium' },
+  { id: '61533338-9b0c-4d6e-9f1a-4d5e6f7a8b9c', name: 'Fatima Nguyen', proficiency: 'medium' },
+  { id: '8ddf2dc3-b6c0-4000-8a30-86d814429049', name: 'Sarah Mitchell', proficiency: 'medium' },
 ];
 
 function getReadinessScore(proficiency) {
@@ -79,19 +74,18 @@ async function seedAnalytics() {
         continue;
       }
 
-      // Create 5-8 assessments using the existing user
-      const numAssessments = 5 + Math.floor(Math.random() * 4);
-      const selectedAssessments = mockAssessments.slice(0, numAssessments);
+      // Create assessments for demo users
+      const selectedUsers = demoUsers.slice(0, Math.min(6, demoUsers.length));
 
-      for (const mockAssessment of selectedAssessments) {
-        const readiness = getReadinessScore(mockAssessment.proficiency);
+      for (const user of selectedUsers) {
+        const readiness = getReadinessScore(user.proficiency);
         const statusTag = getStatusTag(readiness);
 
         // Create assessment
         const { data: assessment, error: assessmentError } = await supabase
           .from('assessments')
           .insert({
-            user_id: EXISTING_USER_ID,
+            user_id: user.id,
             quiz_id: quiz.id,
             job_id: quiz.job_id,
             method: 'quiz', // Required field
@@ -111,9 +105,9 @@ async function seedAnalytics() {
         const responses = questions.map(q => {
           // Determine if answer is correct based on proficiency
           let isCorrect;
-          if (mockAssessment.proficiency === 'high') {
+          if (user.proficiency === 'high') {
             isCorrect = Math.random() > 0.1; // 90% correct
-          } else if (mockAssessment.proficiency === 'medium') {
+          } else if (user.proficiency === 'medium') {
             isCorrect = Math.random() > 0.25; // 75% correct
           } else {
             isCorrect = Math.random() > 0.4; // 60% correct
@@ -137,7 +131,7 @@ async function seedAnalytics() {
         if (responsesError) {
           console.error(`   ❌ Error creating responses:`, responsesError.message);
         } else {
-          console.log(`   ✅ ${mockAssessment.name}: ${Math.round(readiness)}% (${statusTag})`);
+          console.log(`   ✅ ${user.name}: ${Math.round(readiness)}% (${statusTag})`);
         }
 
         // Create skill scores
@@ -169,14 +163,14 @@ async function seedAnalytics() {
         }
       }
 
-      console.log(`   📈 Created ${selectedAssessments.length} assessments\n`);
+      console.log(`   📈 Created ${selectedUsers.length} assessments\n`);
     }
 
     console.log('✅ Analytics seeding complete!\n');
     console.log('📊 Summary:');
     console.log(`   - ${quizzes.length} quizzes with analytics`);
-    console.log(`   - ${mockAssessments.length} mock assessment attempts`);
-    console.log(`   - Proficiency distribution: High (3), Medium (3), Low (2)`);
+    console.log(`   - ${demoUsers.length} demo users with avatars`);
+    console.log(`   - Proficiency distribution: High (3), Medium (3)`);
     console.log(`   - Assessments taken over last 7 days\n`);
 
   } catch (error) {

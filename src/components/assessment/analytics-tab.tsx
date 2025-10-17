@@ -25,6 +25,7 @@ interface AnalyticsData {
   questionPerformance: Array<{
     questionId: string
     questionText: string
+    skillName: string
     correctRate: number
     totalAttempts: number
   }>
@@ -98,10 +99,10 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
         }
       })
 
-      // Get questions for this quiz
+      // Get questions for this quiz with skill information
       const { data: sections } = await supabase
         .from('quiz_sections')
-        .select('id')
+        .select('id, skill_id, skill:skills(id, name)')
         .eq('quiz_id', quizId)
 
       let questionPerformance: any[] = []
@@ -114,6 +115,7 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
             id,
             stem,
             skill_id,
+            section_id,
             importance_level,
             skills (
               id,
@@ -122,14 +124,31 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
           `)
           .in('section_id', sections.map(s => s.id))
 
-        // For now, we'll show placeholder data since we don't have assessment_answers table yet
-        // In production, you'd query assessment_answers to get actual performance
-        questionPerformance = (questions || []).map((q: any) => ({
-          questionId: q.id,
-          questionText: q.stem,
-          correctRate: Math.random() * 100, // Placeholder
-          totalAttempts: totalAssessments
-        }))
+        // Get actual response data
+        const assessmentIds = (assessments || []).map(a => a.id)
+        const { data: responses } = await supabase
+          .from('quiz_responses')
+          .select('question_id, is_correct')
+          .in('assessment_id', assessmentIds)
+
+        // Calculate actual performance per question
+        questionPerformance = (questions || []).map((q: any) => {
+          const questionResponses = responses?.filter(r => r.question_id === q.id) || []
+          const correctCount = questionResponses.filter(r => r.is_correct).length
+          const correctRate = questionResponses.length > 0 ? (correctCount / questionResponses.length) * 100 : 0
+          
+          // Get skill name from section
+          const section = sections.find(s => s.id === q.section_id)
+          const skillName = section?.skill?.name || 'Unknown Skill'
+          
+          return {
+            questionId: q.id,
+            questionText: q.stem,
+            skillName: skillName,
+            correctRate: correctRate,
+            totalAttempts: questionResponses.length
+          }
+        })
 
         // Calculate skill gaps
         const skillMap = new Map()
@@ -336,7 +355,7 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
                     </div>
                   </div>
                   <div className="text-right">
-                    <Badge className="bg-green-100 text-green-800 border-0 hover:bg-green-100">
+                    <Badge className="bg-green-100 text-green-800 border-0 rounded-full shadow-none">
                       {Math.round(performer.readiness)}%
                     </Badge>
                   </div>
@@ -376,30 +395,49 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
         </Card>
       </div>
 
-      {/* Question Performance */}
+      {/* Question Performance - Organized by Skill */}
       <Card>
         <CardContent className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Question Performance</h3>
-          <div className="space-y-3">
-            {analytics.questionPerformance.slice(0, 10).map((question) => (
-              <div key={question.questionId} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900 line-clamp-1">{question.questionText}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {question.totalAttempts} attempts
-                  </p>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Question Performance by Skill</h3>
+          <div className="space-y-6">
+            {(() => {
+              // Group questions by skill
+              const questionsBySkill = analytics.questionPerformance.reduce((acc: any, q) => {
+                if (!acc[q.skillName]) acc[q.skillName] = []
+                acc[q.skillName].push(q)
+                return acc
+              }, {})
+              
+              return Object.entries(questionsBySkill).map(([skillName, questions]: [string, any]) => (
+                <div key={skillName} className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
+                    <h4 className="text-sm font-semibold text-gray-900">{skillName}</h4>
+                    <Badge className="bg-gray-100 text-gray-700 border-0 rounded-full shadow-none text-xs">
+                      {questions.length} questions
+                    </Badge>
+                  </div>
+                  {questions.slice(0, 5).map((question: any) => (
+                    <div key={question.questionId} className="flex items-start justify-between gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-900 line-clamp-2">{question.questionText}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {question.totalAttempts} {question.totalAttempts === 1 ? 'attempt' : 'attempts'}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <Badge className={`${
+                          question.correctRate >= 80 ? 'bg-green-100 text-green-800' :
+                          question.correctRate >= 60 ? 'bg-orange-100 text-orange-800' :
+                          'bg-red-100 text-red-800'
+                        } border-0 rounded-md shadow-none text-xs font-medium min-w-[60px] justify-center`}>
+                          {Math.round(question.correctRate)}%
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="ml-4 text-right">
-                  <Badge className={`${
-                    question.correctRate >= 80 ? 'bg-green-100 text-green-800' :
-                    question.correctRate >= 60 ? 'bg-orange-100 text-orange-800' :
-                    'bg-red-100 text-red-800'
-                  } border-0 hover:bg-current`}>
-                    {Math.round(question.correctRate)}%
-                  </Badge>
-                </div>
-              </div>
-            ))}
+              ))
+            })()}
           </div>
         </CardContent>
       </Card>
