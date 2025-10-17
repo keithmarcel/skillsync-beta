@@ -303,7 +303,7 @@ export default function QuizPage() {
               {/* Left: Assessment Details */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold font-source-sans-pro">Ready to Test Your Skills?</CardTitle>
+                  <CardTitle className="text-xl font-bold font-source-sans-pro">What to Expect</CardTitle>
                   <CardDescription className="text-base">
                     This assessment will evaluate your knowledge across {sections.length} key skill areas for {job.title}.
                   </CardDescription>
