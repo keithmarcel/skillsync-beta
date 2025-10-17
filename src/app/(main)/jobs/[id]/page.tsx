@@ -101,6 +101,21 @@ const cleanRegionalIndicators = (text: string | null | undefined): string => {
   return text.replace(/\s*\((National|Regional|State|Local)\)/gi, '').trim();
 }
 
+// Helper function to ensure array fields are properly parsed
+const ensureArray = (field: any): any[] => {
+  if (!field) return [];
+  if (Array.isArray(field)) return field;
+  if (typeof field === 'string') {
+    try {
+      const parsed = JSON.parse(field);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -543,7 +558,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       {(() => {
                         // Handle both old format (TaskDescription) and new format (task)
                         const taskText = (task: any) => task.TaskDescription || task.task || task;
-                        const uniqueTasks = job.tasks.filter((task: any, index: number, self: any[]) => 
+                        const tasksArray = ensureArray(job.tasks);
+                        const uniqueTasks = tasksArray.filter((task: any, index: number, self: any[]) => 
                           index === self.findIndex((t: any) => taskText(t) === taskText(task))
                         );
                         return uniqueTasks.slice(0, 8).map((task: any, index: number) => (
