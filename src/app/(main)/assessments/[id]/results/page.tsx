@@ -126,6 +126,66 @@ export default function AssessmentResultsPage() {
   const StatusIcon = status.icon
   const filledBlocks = Math.round(readiness / 10)
 
+  // Placeholder programs - always show at least these
+  const placeholderPrograms = [
+    {
+      id: 'placeholder-1',
+      name: 'Project Management Professional (PMP) Certification',
+      school: { name: 'Project Management Institute', logo_url: null },
+      program_type: 'Certificate',
+      delivery_format: 'Online',
+      duration_text: '3-6 Months',
+      short_description: 'Gain project management skills in planning, risk analysis, and certification exam preparation for industry-recognized PMP credential.'
+    },
+    {
+      id: 'placeholder-2',
+      name: 'Business Analytics and Operations',
+      school: { name: 'Coursera Business School', logo_url: null },
+      program_type: 'Certificate',
+      delivery_format: 'Online',
+      duration_text: '4-6 Months',
+      short_description: 'Develop analytical skills for data-driven decision making, process optimization, and business intelligence.'
+    },
+    {
+      id: 'placeholder-3',
+      name: 'Leadership and Strategic Management',
+      school: { name: 'Harvard Extension School', logo_url: null },
+      program_type: 'Certificate',
+      delivery_format: 'Hybrid',
+      duration_text: '6-12 Months',
+      short_description: 'Build leadership capabilities, strategic thinking, and organizational management skills for senior roles.'
+    },
+    {
+      id: 'placeholder-4',
+      name: 'Data Analysis and Visualization',
+      school: { name: 'General Assembly', logo_url: null },
+      program_type: 'Certificate',
+      delivery_format: 'Online',
+      duration_text: '10 Weeks',
+      short_description: 'Master data analysis tools, statistical methods, and visualization techniques for business insights.'
+    },
+    {
+      id: 'placeholder-5',
+      name: 'Agile Project Management',
+      school: { name: 'Scrum Alliance', logo_url: null },
+      program_type: 'Certificate',
+      delivery_format: 'Online',
+      duration_text: '2-3 Months',
+      short_description: 'Learn agile methodologies, scrum practices, and iterative project delivery for modern teams.'
+    },
+    {
+      id: 'placeholder-6',
+      name: 'Process Improvement and Six Sigma',
+      school: { name: 'ASQ - American Society for Quality', logo_url: null },
+      program_type: 'Certificate',
+      delivery_format: 'Self-paced',
+      duration_text: '3-4 Months',
+      short_description: 'Gain expertise in process optimization, quality management, and continuous improvement methodologies.'
+    }
+  ]
+
+  const displayPrograms = programs.length > 0 ? programs : placeholderPrograms
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header - No background, just spacing like other pages */}
@@ -277,23 +337,22 @@ export default function AssessmentResultsPage() {
           </div>
         </div>
 
-        {/* Education Program Matches */}
-        {programs.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-8">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="p-3 bg-teal-100 rounded-lg">
-                <svg className="w-6 h-6 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold mb-1">Relevant Education & Training Programs</h2>
-                <p className="text-gray-600">Programs that align with the skills and requirements for this role.</p>
-              </div>
+        {/* Education Program Matches - Always show */}
+        <div className="bg-white rounded-xl border border-gray-200 p-8">
+          <div className="flex items-start gap-4 mb-6">
+            <div className="p-3 bg-teal-100 rounded-lg">
+              <svg className="w-6 h-6 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
             </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-1">Relevant Education & Training Programs</h2>
+              <p className="text-gray-600">Programs that align with the skills and requirements for this role.</p>
+            </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {programs.map((program) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayPrograms.map((program) => (
                 <div key={program.id} className="border border-gray-200 rounded-lg p-6 hover:border-teal-500 hover:shadow-md transition-all">
                   {program.school?.logo_url && (
                     <div className="mb-4">
@@ -340,7 +399,6 @@ export default function AssessmentResultsPage() {
               ))}
             </div>
           </div>
-        )}
       </div>
     </div>
   )
