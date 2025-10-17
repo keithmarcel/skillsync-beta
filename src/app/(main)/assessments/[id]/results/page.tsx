@@ -212,7 +212,7 @@ export default function AssessmentResultsPage() {
                 <div className="p-1.5 bg-[#00A6AE] rounded-full">
                   <StatusIcon className={`h-4 w-4 text-[#AFECEF]`} />
                 </div>
-                <h1 className="text-3xl font-semibold text-white">{status.text}</h1>
+                <h1 className="text-3xl font-semibold text-white font-source-sans-pro">{status.text}</h1>
               </div>
 
               {/* Match Percentage Text - 18px font */}
@@ -229,7 +229,7 @@ export default function AssessmentResultsPage() {
             </div>
 
             {/* Right side - Stacked bars + percentage, centered */}
-            <div className="flex flex-col items-center gap-3 flex-shrink-0">
+            <div className="flex flex-col items-center justify-center gap-3 flex-shrink-0 min-w-[280px]">
               {/* Stacked bars - 200px wide, 12px height, 8px gap */}
               <div className="flex flex-col gap-2">
                 {[...Array(10)].map((_, i) => (
@@ -244,8 +244,8 @@ export default function AssessmentResultsPage() {
 
               {/* Percentage - 72px font, 8px gap */}
               <div className="text-center pt-1">
-                <div className="text-[72px] font-bold leading-none text-white">{readiness}%</div>
-                <div className="text-base text-white/70 mt-2">Role Readiness</div>
+                <div className="text-[72px] font-bold leading-none text-white font-source-sans-pro">{readiness}%</div>
+                <div className="text-base text-white/70 mt-2 font-source-sans-pro">Role Readiness</div>
               </div>
             </div>
           </div>
@@ -271,7 +271,7 @@ export default function AssessmentResultsPage() {
         {/* Skills Gap Analysis - Figma: #FCFCFC bg, #E5E5E5 border */}
         <div className="bg-[#FCFCFC] border border-[#E5E5E5] rounded-xl p-8 mb-6">
           <div className="mb-4">
-            <h2 className="text-2xl font-bold text-[#1F2937] mb-4">Skills Gap Analysis</h2>
+            <h2 className="text-2xl font-bold text-[#1F2937] mb-4 font-source-sans-pro">Skills Gap Analysis</h2>
             <p className="text-base text-[#1F2A37]">
               Here's how <span className="font-semibold">your skills</span> compare to what employers expect for this role.
             </p>
@@ -339,16 +339,9 @@ export default function AssessmentResultsPage() {
 
         {/* Education Program Matches - Always show */}
         <div className="bg-white rounded-xl border border-gray-200 p-8">
-          <div className="flex items-start gap-4 mb-6">
-            <div className="p-3 bg-teal-100 rounded-lg">
-              <svg className="w-6 h-6 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-1">Relevant Education & Training Programs</h2>
-              <p className="text-gray-600">Programs that align with the skills and requirements for this role.</p>
-            </div>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2 font-source-sans-pro">Upskilling Programs</h2>
+            <p className="text-gray-600">Build the skills you need to advance your career and close any gaps.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -391,7 +384,7 @@ export default function AssessmentResultsPage() {
                     <Button variant="outline" size="sm" className="flex-1">
                       About the Program
                     </Button>
-                    <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white">
+                    <Button size="sm" className="bg-[#0694A2] hover:bg-[#057A85] text-white">
                       Inquire Now →
                     </Button>
                   </div>
