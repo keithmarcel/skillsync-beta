@@ -189,7 +189,7 @@ export default function AssessmentResultsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header - No background, just spacing like other pages */}
-      <div className="max-w-[1232px] mx-auto px-6 pt-6 pb-4">
+      <div className="max-w-[1232px] mx-auto px-6 pt-8 pb-6">
         <Button
           variant="ghost"
           onClick={() => router.push('/my-assessments')}
@@ -212,7 +212,7 @@ export default function AssessmentResultsPage() {
                 <div className="p-1.5 bg-[#00A6AE] rounded-full">
                   <StatusIcon className={`h-4 w-4 text-[#AFECEF]`} />
                 </div>
-                <h1 className="text-3xl font-semibold text-white font-source-sans-pro">{status.text}</h1>
+                <h1 className="text-4xl font-bold text-white font-source-sans-pro">{status.text}</h1>
               </div>
 
               {/* Match Percentage Text - 18px font */}
@@ -230,8 +230,8 @@ export default function AssessmentResultsPage() {
 
             {/* Right side - Stacked bars + percentage, centered */}
             <div className="flex flex-col items-center justify-center gap-3 flex-shrink-0 min-w-[280px]">
-              {/* Stacked bars - 200px wide, 12px height, 8px gap */}
-              <div className="flex flex-col gap-2">
+              {/* Stacked bars - 200px wide, 12px height, 8px gap - BOTTOM TO TOP */}
+              <div className="flex flex-col-reverse gap-2">
                 {[...Array(10)].map((_, i) => (
                   <div
                     key={i}
@@ -244,7 +244,7 @@ export default function AssessmentResultsPage() {
 
               {/* Percentage - 72px font, 8px gap */}
               <div className="text-center pt-1">
-                <div className="text-[72px] font-bold leading-none text-white font-source-sans-pro">{readiness}%</div>
+                <div className="text-[72px] font-bold leading-none text-white" style={{fontFamily: 'Inter'}}>{readiness}%</div>
                 <div className="text-base text-white/70 mt-2 font-source-sans-pro">Role Readiness</div>
               </div>
             </div>
@@ -268,8 +268,8 @@ export default function AssessmentResultsPage() {
           )}
         </div>
 
-        {/* Skills Gap Analysis - Figma: #FCFCFC bg, #E5E5E5 border */}
-        <div className="bg-[#FCFCFC] border border-[#E5E5E5] rounded-xl p-8 mb-6">
+        {/* Skills Gap Analysis - No border */}
+        <div className="bg-[#FCFCFC] rounded-xl p-8 mb-6">
           <div className="mb-4">
             <h2 className="text-2xl font-bold text-[#1F2937] mb-4 font-source-sans-pro">Skills Gap Analysis</h2>
             <p className="text-base text-[#1F2A37]">
@@ -337,8 +337,8 @@ export default function AssessmentResultsPage() {
           </div>
         </div>
 
-        {/* Education Program Matches - Always show */}
-        <div className="bg-white rounded-xl border border-gray-200 p-8">
+        {/* Education Program Matches - Always show - No border */}
+        <div className="bg-white rounded-xl p-8">
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-2 font-source-sans-pro">Upskilling Programs</h2>
             <p className="text-gray-600">Build the skills you need to advance your career and close any gaps.</p>
