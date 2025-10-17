@@ -187,14 +187,15 @@ export default function QuizPage() {
           user_id: user.id,
           job_id: job.id,
           quiz_id: quizId,
-          method: 'quiz',
-          status_tag: 'pending'
+          method: 'quiz'
+          // status_tag will be set after analysis
         })
         .select()
         .single()
 
       if (assessmentError) {
-        console.error('Assessment creation error:', assessmentError);
+        console.error('Assessment creation error:', JSON.stringify(assessmentError, null, 2));
+        console.error('Error details:', assessmentError);
         throw assessmentError;
       }
 
