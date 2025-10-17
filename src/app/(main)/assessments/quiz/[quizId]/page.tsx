@@ -117,9 +117,14 @@ export default function QuizPage() {
         
         console.log('All questions loaded:', questionsData?.length)
         
+        // Parse choices if they're strings
+        const parsedQuestions = (questionsData || []).map(q => ({
+          ...q,
+          choices: typeof q.choices === 'string' ? JSON.parse(q.choices) : q.choices
+        }))
+        
         // **NEW: Select 8 random questions (or all if less than 8)**
-        const allQuestions = questionsData || []
-        const selectedQuestions = selectRandomQuestions(allQuestions, 8)
+        const selectedQuestions = selectRandomQuestions(parsedQuestions, 8)
         
         console.log('Selected questions for assessment:', selectedQuestions.length)
         setQuestions(selectedQuestions)
