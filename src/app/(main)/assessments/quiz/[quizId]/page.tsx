@@ -19,6 +19,25 @@ import { useAuth } from '@/hooks/useAuth'
 
 type QuizState = 'loading' | 'intro' | 'in-progress' | 'submitting'
 
+/**
+ * Randomly select N questions from the pool
+ * Ensures even distribution across skills/sections
+ */
+function selectRandomQuestions(allQuestions: any[], targetCount: number): any[] {
+  if (allQuestions.length <= targetCount) {
+    return allQuestions
+  }
+  
+  // Shuffle array using Fisher-Yates algorithm
+  const shuffled = [...allQuestions]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  
+  return shuffled.slice(0, targetCount)
+}
+
 export default function QuizPage() {
   const params = useParams()
   const router = useRouter()
@@ -95,8 +114,14 @@ export default function QuizPage() {
           throw questionsError
         }
         
-        console.log('Questions loaded:', questionsData?.length)
-        setQuestions(questionsData || [])
+        console.log('All questions loaded:', questionsData?.length)
+        
+        // **NEW: Select 8 random questions (or all if less than 8)**
+        const allQuestions = questionsData || []
+        const selectedQuestions = selectRandomQuestions(allQuestions, 8)
+        
+        console.log('Selected questions for assessment:', selectedQuestions.length)
+        setQuestions(selectedQuestions)
       }
 
       console.log('Quiz data loaded successfully, setting state to intro')
