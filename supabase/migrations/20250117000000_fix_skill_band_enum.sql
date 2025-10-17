@@ -1,27 +1,31 @@
 -- Fix skill_band enum to match code expectations
--- The code uses: 'developing', 'proficient', 'expert'
--- The database currently has old values like 'building', 'needs_dev' in the data
+-- The code uses: 'proficient', 'building_proficiency', 'needs_development'
 
--- Step 1: Convert the column to text temporarily
-ALTER TABLE assessment_skill_results 
-  ALTER COLUMN band TYPE text;
-
--- Step 2: Update existing data to use new values
-UPDATE assessment_skill_results
-SET band = CASE 
-  WHEN band = 'building' THEN 'developing'
-  WHEN band = 'needs_dev' THEN 'developing'
-  ELSE band
-END;
-
--- Step 3: Drop and recreate the enum with correct values
+-- Create or replace the enum type
 DROP TYPE IF EXISTS skill_band CASCADE;
-CREATE TYPE skill_band AS ENUM ('developing', 'proficient', 'expert');
 
--- Step 4: Convert the column back to the enum type
-ALTER TABLE assessment_skill_results 
-  ALTER COLUMN band TYPE skill_band 
-  USING band::skill_band;
+CREATE TYPE skill_band AS ENUM (
+  'proficient',
+  'building_proficiency', 
+  'needs_development'
+);
 
--- Add comment for documentation
-COMMENT ON TYPE skill_band IS 'Skill proficiency bands: developing (<80%), proficient (80-89%), expert (90%+)';
+-- Add band column to assessment_skill_results if it doesn't exist
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public'
+    AND table_name = 'assessment_skill_results' 
+    AND column_name = 'band'
+  ) THEN
+    ALTER TABLE public.assessment_skill_results 
+      ADD COLUMN band skill_band;
+    
+    RAISE NOTICE 'Added band column to assessment_skill_results';
+  ELSE
+    RAISE NOTICE 'Band column already exists';
+  END IF;
+END $$;
+
+COMMENT ON TYPE skill_band IS 'Skill proficiency bands: proficient (80%+), building_proficiency (60-79%), needs_development (<60%)';
