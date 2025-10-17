@@ -250,31 +250,23 @@ export default function QuizPage() {
         { label: job.title, href: `/jobs/${job.id}` },
         { label: 'Assessment', isActive: true }
       ]}>
-        {/* Assessment Stepper */}
-        <div className="mb-8">
-          <AssessmentStepper steps={[
-            { id: '1', label: 'Assess Your Skills', status: quizState === 'intro' ? 'current' : 'completed' },
-            { id: '2', label: 'SkillSync Readiness Score', status: 'upcoming' },
-            { id: '3', label: 'Education Program Matches', status: 'upcoming' }
-          ]} />
-        </div>
         {quizState === 'intro' && (
           <div className="max-w-5xl mx-auto">
             {/* Main Intro Card with Image */}
             <Card className="mb-8">
-              <CardContent className="p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <CardContent className="p-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                   {/* Left: Content */}
-                  <div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  <div className="flex flex-col justify-center">
+                    <h2 className="text-4xl font-bold text-gray-900 mb-6 font-source-sans-pro">
                       See How Your Skills Stack Up
                     </h2>
-                    <p className="text-gray-600 mb-6 leading-relaxed">
+                    <p className="text-gray-600 mb-8 leading-relaxed text-base">
                       Complete this quiz to discover how your current skills align with the role of {job.title}. We'll assess your technical knowledge, decision-making, and soft skills across key areas.
                     </p>
                     
                     {/* Time Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 rounded-lg mb-6">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 rounded-lg mb-8">
                       <Clock className="h-4 w-4 text-teal-600" />
                       <span className="text-sm text-teal-900 font-medium">
                         This assessment takes ~{quiz.estimated_minutes || 5} minutes
@@ -283,9 +275,9 @@ export default function QuizPage() {
 
                     <Button 
                       onClick={handleStartQuiz} 
-                      className="bg-[#0694A2] hover:bg-[#057A85] text-white px-8 py-6 text-lg w-full lg:w-auto"
+                      className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 text-base font-medium w-full lg:w-auto inline-flex items-center justify-center gap-2"
                     >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       Start Quiz
@@ -298,10 +290,10 @@ export default function QuizPage() {
                       <img 
                         src={job.featured_image_url} 
                         alt={job.title}
-                        className="w-full h-64 object-cover rounded-lg shadow-lg"
+                        className="w-full h-80 object-cover rounded-lg shadow-lg"
                       />
                     ) : (
-                      <div className="w-full h-64 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg shadow-lg flex items-center justify-center">
+                      <div className="w-full h-80 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg shadow-lg flex items-center justify-center">
                         <div className="text-center text-white p-8">
                           <div className="text-6xl mb-4">💼</div>
                           <p className="text-xl font-semibold">{job.title}</p>
@@ -318,8 +310,8 @@ export default function QuizPage() {
               {/* Left: Assessment Details */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Ready to Test Your Skills?</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-xl font-bold font-source-sans-pro">Ready to Test Your Skills?</CardTitle>
+                  <CardDescription className="text-base">
                     This assessment will evaluate your knowledge across {sections.length} key skill areas for {job.title}.
                   </CardDescription>
                 </CardHeader>
@@ -347,7 +339,7 @@ export default function QuizPage() {
               {/* Right: Skills Covered */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Skills Covered</CardTitle>
+                  <CardTitle className="text-xl font-bold font-source-sans-pro">Skills Covered</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2.5">
