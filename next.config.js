@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Disable static optimization for pages that use Supabase/dynamic data
-  output: 'standalone',
+  // Use standalone for server-side rendering
+  // output: 'standalone',
   
   // Temporarily disable TypeScript and ESLint checks for deployment
   typescript: {
@@ -25,6 +25,24 @@ const nextConfig = {
   // Disable static page generation for dynamic routes
   experimental: {
     // This helps with Supabase auth and dynamic content
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  
+  // Skip static generation for auth-protected pages
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+        ],
+      },
+    ]
   },
 
   // Environment variables
