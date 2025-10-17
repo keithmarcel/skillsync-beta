@@ -64,25 +64,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Get quiz ID and details from job
-    const { data: quiz } = await supabase
-      .from('quizzes')
-      .select('id, job_id, soc_code, company_id')
-      .eq('job_id', assessment.job_id)
-      .single();
-
-    if (!quiz) {
+    // 3. Get quiz ID from assessment
+    const quizId = assessment.quiz_id;
+    
+    if (!quizId) {
       return NextResponse.json(
-        { success: false, error: 'Quiz not found for this job' },
+        { success: false, error: 'No quiz associated with this assessment' },
         { status: 404 }
       );
     }
+
+    // Get company_id from job
+    const companyId = assessment.job?.company_id || null;
 
     // 4. Get skill weightings for this quiz/job
     const { data: skillWeightings } = await supabase
       .from('skill_weightings')
       .select('*')
-      .eq('quiz_id', quiz.id);
+      .eq('quiz_id', quizId);
 
     // 5. Transform responses for assessment engine with full context
     console.log('Sample response structure:', JSON.stringify(responses[0], null, 2));
@@ -109,15 +108,15 @@ export async function POST(request: NextRequest) {
     // 6. Calculate weighted scores using assessment engine
     console.log('🎯 Starting weighted score calculation...');
     console.log(`  - Assessment ID: ${assessmentId}`);
-    console.log(`  - Quiz ID: ${quiz.id}`);
-    console.log(`  - SOC Code: ${quiz.soc_code}`);
+    console.log(`  - Quiz ID: ${quizId}`);
+    console.log(`  - Job ID: ${assessment.job_id}`);
     console.log(`  - Total Responses: ${userResponses.length}`);
     console.log(`  - Skill Weightings Available: ${skillWeightings?.length || 0}`);
 
     const skillScores = await calculateWeightedScore(
       userResponses,
-      quiz.id,
-      quiz.company_id
+      quizId,
+      companyId
     );
 
     console.log('✅ Weighted scores calculated:');
