@@ -137,57 +137,57 @@ export default function AssessmentResultsPage() {
   const placeholderPrograms = [
     {
       id: 'placeholder-1',
-      name: 'Project Management Professional (PMP) Certification',
-      school: { name: 'Project Management Institute', logo_url: null },
+      name: 'Project Management Certificate',
+      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
       program_type: 'Certificate',
       delivery_format: 'Online',
-      duration_text: '3-6 Months',
-      short_description: 'Gain project management skills in planning, risk analysis, and certification exam preparation for industry-recognized PMP credential.'
+      duration_text: '12 Weeks',
+      short_description: 'Develop essential project management skills using Agile methodologies and effective team leadership.'
     },
     {
       id: 'placeholder-2',
-      name: 'Business Analytics and Operations',
-      school: { name: 'Coursera Business School', logo_url: null },
-      program_type: 'Certificate',
-      delivery_format: 'Online',
-      duration_text: '4-6 Months',
-      short_description: 'Develop analytical skills for data-driven decision making, process optimization, and business intelligence.'
+      name: 'Construction Management A.S.',
+      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
+      program_type: "Associate's",
+      delivery_format: 'Hybrid',
+      duration_text: '2 Years',
+      short_description: 'Prepare for leadership roles in construction management, design, and construction estimating for roles in the construction industry by teaching core skills.'
     },
     {
       id: 'placeholder-3',
-      name: 'Leadership and Strategic Management',
-      school: { name: 'Harvard Extension School', logo_url: null },
-      program_type: 'Certificate',
-      delivery_format: 'Hybrid',
-      duration_text: '6-12 Months',
-      short_description: 'Build leadership capabilities, strategic thinking, and organizational management skills for senior roles.'
+      name: 'Business Administration A.S.',
+      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
+      program_type: "Associate's",
+      delivery_format: 'Online',
+      duration_text: '2 Years',
+      short_description: 'Build broad business skills in communication, decision making, and other core areas.'
     },
     {
       id: 'placeholder-4',
-      name: 'Data Analysis and Visualization',
-      school: { name: 'General Assembly', logo_url: null },
+      name: 'Project Management Pro with PMI PMP Prep + Externship',
+      school: { name: 'Auburn University', logo_url: '/schools/auburn.svg' },
       program_type: 'Certificate',
       delivery_format: 'Online',
-      duration_text: '10 Weeks',
-      short_description: 'Master data analysis tools, statistical methods, and visualization techniques for business insights.'
+      duration_text: 'Self-paced',
+      short_description: 'Gain project management skills in planning, risk analysis, and certification exam preparation for industry-recognized PMP credential.'
     },
     {
       id: 'placeholder-5',
-      name: 'Agile Project Management',
-      school: { name: 'Scrum Alliance', logo_url: null },
+      name: 'Project Management for CAPM',
+      school: { name: 'Austin Peay State University', logo_url: '/schools/apsu.svg' },
       program_type: 'Certificate',
       delivery_format: 'Online',
-      duration_text: '2-3 Months',
-      short_description: 'Learn agile methodologies, scrum practices, and iterative project delivery for modern teams.'
+      duration_text: 'Self-paced',
+      short_description: 'Gain essential project management skills using proven techniques and modern practices aligned with CAPM certification standards.'
     },
     {
       id: 'placeholder-6',
-      name: 'Process Improvement and Six Sigma',
-      school: { name: 'ASQ - American Society for Quality', logo_url: null },
+      name: 'CompTIA Project+',
+      school: { name: 'Austin Peay State University', logo_url: '/schools/apsu.svg' },
       program_type: 'Certificate',
-      delivery_format: 'Self-paced',
-      duration_text: '3-4 Months',
-      short_description: 'Gain expertise in process optimization, quality management, and continuous improvement methodologies.'
+      delivery_format: 'Online',
+      duration_text: 'Self-paced',
+      short_description: 'Gain essential project management skills, including risk assessment, agile processes, and team leadership for CompTIA certification.'
     }
   ]
 
@@ -401,15 +401,21 @@ export default function AssessmentResultsPage() {
                     <div className="w-full max-w-[352px] border-t border-dashed border-gray-300 mb-4" />
                     <div className="w-full flex items-center justify-between gap-4">
                       {/* School Logo */}
-                      {program.school?.logo_url && (
-                        <div className="h-12 w-[140px] flex items-center justify-start">
+                      <div className="h-12 w-[140px] flex items-center justify-start">
+                        {program.school?.logo_url ? (
                           <img 
                             src={program.school.logo_url} 
                             alt={program.school.name}
                             className="h-10 w-auto max-w-[160px] object-contain object-left"
                           />
-                        </div>
-                      )}
+                        ) : (
+                          <div className="h-8 w-8 bg-gray-200 rounded flex items-center justify-center">
+                            <span className="text-xs font-medium text-gray-600">
+                              {program.school?.name?.[0] || 'S'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                       
                       {/* Explore Button */}
                       <button className="flex flex-row justify-center items-center px-4 py-2 gap-2 h-10 bg-secondary text-teal-800 shadow-sm hover:bg-secondary/80 hover:shadow-md rounded-lg transition-all duration-300 ease-in-out hover:scale-105 transform-gpu backface-visibility-hidden">
