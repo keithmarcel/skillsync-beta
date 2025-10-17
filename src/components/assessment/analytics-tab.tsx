@@ -326,10 +326,10 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Performers */}
+        {/* Highest Scores */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performers</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Highest Scores</h3>
             <div className="space-y-4">
               {analytics.topPerformers.map((performer, idx) => (
                 <div key={performer.userId} className="flex items-center justify-between">
@@ -349,9 +349,6 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
                     )}
                     <div>
                       <p className="font-medium text-gray-900">{performer.firstName} {performer.lastName}</p>
-                      {performer.readiness >= 90 && (
-                        <p className="text-xs text-teal-600 font-medium">Top Performer</p>
-                      )}
                       <p className="text-xs text-gray-500">
                         {new Date(performer.completedAt).toLocaleDateString()}
                       </p>
@@ -410,14 +407,27 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Question Performance by Skill</h3>
           <div className="space-y-6">
             {(() => {
-              // Group questions by skill
+              // Group questions by skill and filter out skills with no questions
               const questionsBySkill = analytics.questionPerformance.reduce((acc: any, q) => {
                 if (!acc[q.skillName]) acc[q.skillName] = []
                 acc[q.skillName].push(q)
                 return acc
               }, {})
               
-              return Object.entries(questionsBySkill).map(([skillName, questions]: [string, any]) => (
+              // Filter out skills with no questions (totalAttempts = 0)
+              const skillsWithQuestions = Object.entries(questionsBySkill).filter(
+                ([_, questions]: [string, any]) => questions.some((q: any) => q.totalAttempts > 0)
+              )
+              
+              if (skillsWithQuestions.length === 0) {
+                return (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No question data available yet</p>
+                  </div>
+                )
+              }
+              
+              return skillsWithQuestions.map(([skillName, questions]: [string, any]) => (
                 <div key={skillName} className="space-y-3">
                   <div className="flex items-center gap-2 pb-3 mb-3 border-b-2 border-gray-300">
                     <h4 className="text-base font-bold text-gray-900">{skillName}</h4>
