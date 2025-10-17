@@ -1,6 +1,9 @@
 -- Fix fn_compute_readiness to use importance_level instead of weight
 -- The job_skills table was updated to use importance_level, but the function still references weight
 
+-- Drop the existing function first
+DROP FUNCTION IF EXISTS public.fn_compute_readiness(uuid);
+
 CREATE OR REPLACE FUNCTION public.fn_compute_readiness(p_assessment_id uuid)
 RETURNS numeric
 LANGUAGE plpgsql
