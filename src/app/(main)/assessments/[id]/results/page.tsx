@@ -249,9 +249,9 @@ export default function AssessmentResultsPage() {
                 ))}
               </div>
 
-              {/* Percentage - 72px font, 8px gap */}
+              {/* Percentage - 64px font, 8px gap */}
               <div className="text-center pt-1">
-                <div className="text-[72px] font-bold leading-none text-white">{readiness}%</div>
+                <div className="text-[64px] font-bold leading-none text-white">{readiness}%</div>
                 <div className="text-base text-white/70 mt-2">Role Readiness</div>
               </div>
             </div>
