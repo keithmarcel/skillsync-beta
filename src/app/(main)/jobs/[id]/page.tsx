@@ -650,15 +650,11 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <h3 className="text-xl font-semibold text-gray-900">
                   Relevant Education & Training Programs
                 </h3>
-                {recommendedPrograms.length > 0 ? (
-                  <p className="text-gray-500 text-sm mt-2">
-                    AI-recommended programs to prepare for this role (based on {(recommendedPrograms[0]?.confidence_score * 100).toFixed(0)}%+ match confidence)
-                  </p>
-                ) : (
-                  <p className="text-gray-500 text-sm mt-2">
-                    No matching programs are currently available. We're continuously adding new education partners and training opportunities.
-                  </p>
-                )}
+                <p className="text-gray-500 text-sm mt-2">
+                  {recommendedPrograms.length > 0 
+                    ? "Programs that align with the skills and requirements for this role."
+                    : "No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities."}
+                </p>
               </div>
             </div>
 
@@ -676,12 +672,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     programType={rec.program.program_type || 'Certificate'}
                     format={rec.program.format || 'Online'}
                     duration={rec.program.duration_text || 'Self-paced'}
-                    description={rec.match_reasoning || rec.program.short_desc || 'AI-recommended program for this role'}
-                    skillsCallout={{
-                      type: 'jobs',
-                      label: `${(rec.confidence_score * 100).toFixed(0)}% AI Match Confidence`,
-                      count: 0
-                    }}
+                    description={rec.program.short_desc || rec.match_reasoning || 'Recommended program for this role'}
+                    skillsCallout={undefined}
                     href={`/programs/${rec.program.id}`}
                     isFavorited={false}
                     onAddFavorite={() => {}}
