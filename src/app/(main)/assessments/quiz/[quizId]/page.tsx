@@ -259,54 +259,104 @@ export default function QuizPage() {
           ]} />
         </div>
         {quizState === 'intro' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
+          <div className="max-w-5xl mx-auto">
+            {/* Main Intro Card with Image */}
+            <Card className="mb-8">
+              <CardContent className="p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                  {/* Left: Content */}
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                      See How Your Skills Stack Up
+                    </h2>
+                    <p className="text-gray-600 mb-6 leading-relaxed">
+                      Complete this quiz to discover how your current skills align with the role of {job.title}. We'll assess your technical knowledge, decision-making, and soft skills across key areas.
+                    </p>
+                    
+                    {/* Time Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 rounded-lg mb-6">
+                      <Clock className="h-4 w-4 text-teal-600" />
+                      <span className="text-sm text-teal-900 font-medium">
+                        This assessment takes ~{quiz.estimated_minutes || 5} minutes
+                      </span>
+                    </div>
+
+                    <Button 
+                      onClick={handleStartQuiz} 
+                      className="bg-[#0694A2] hover:bg-[#057A85] text-white px-8 py-6 text-lg w-full lg:w-auto"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Start Quiz
+                    </Button>
+                  </div>
+
+                  {/* Right: Role Image */}
+                  <div className="order-first lg:order-last">
+                    {job.featured_image_url ? (
+                      <img 
+                        src={job.featured_image_url} 
+                        alt={job.title}
+                        className="w-full h-64 object-cover rounded-lg shadow-lg"
+                      />
+                    ) : (
+                      <div className="w-full h-64 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg shadow-lg flex items-center justify-center">
+                        <div className="text-center text-white p-8">
+                          <div className="text-6xl mb-4">💼</div>
+                          <p className="text-xl font-semibold">{job.title}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bottom Info Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Assessment Details */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl">Ready to Test Your Skills?</CardTitle>
+                  <CardTitle className="text-lg">Ready to Test Your Skills?</CardTitle>
                   <CardDescription>
                     This assessment will evaluate your knowledge across {sections.length} key skill areas for {job.title}.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
-                    <Clock className="h-5 w-5 text-blue-600" />
+                <CardContent className="space-y-4">
+                  {/* Estimated Time */}
+                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                    <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-blue-900">Estimated Time</p>
-                      <p className="text-sm text-blue-700">{quiz.estimated_minutes || 15} minutes</p>
+                      <p className="font-semibold text-blue-900 text-sm">Estimated Time</p>
+                      <p className="text-sm text-blue-700">{quiz.estimated_minutes || 5} minutes</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  {/* Total Questions */}
+                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-green-900">Total Questions</p>
+                      <p className="font-semibold text-green-900 text-sm">Total Questions</p>
                       <p className="text-sm text-green-700">{questions.length} questions across {sections.length} skills</p>
                     </div>
                   </div>
-
-                  <div className="pt-4">
-                    <Button onClick={handleStartQuiz} className="bg-[#114B5F] hover:bg-[#0d3a4a] text-white w-full">
-                      Start Assessment →
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
-            </div>
 
-            <div className="lg:col-span-1">
+              {/* Right: Skills Covered */}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Skills Covered</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {sections.map((section, index) => (
-                      <div key={section.id} className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-medium">
+                      <div key={section.id} className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                           {index + 1}
                         </div>
-                        <span className="text-sm">{section.skill?.name}</span>
+                        <span className="text-sm text-gray-700">{section.skill?.name}</span>
                       </div>
                     ))}
                   </div>
