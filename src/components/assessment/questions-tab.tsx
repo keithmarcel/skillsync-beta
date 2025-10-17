@@ -519,7 +519,7 @@ export function QuestionsTab({ quizId, jobId, onQuestionCountChange }: Questions
   }
 
   // Empty state
-  if (questions.length === 0) {
+  if (questions.length === 0 && !generating) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex flex-col items-center justify-center py-12">
@@ -558,6 +558,79 @@ export function QuestionsTab({ quizId, jobId, onQuestionCountChange }: Questions
           editQuestion={editingQuestion}
           skills={skills}
         />
+      </div>
+    )
+  }
+
+  // Generating state (from empty)
+  if (questions.length === 0 && generating && totalSteps > 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        {/* AI Generation Progress */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mb-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="relative w-12 h-12 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-200 border-t-blue-600"></div>
+              </div>
+              <div>
+                <span className="text-blue-800 font-semibold text-lg">Generating AI Questions</span>
+                <p className="text-blue-600 text-sm">This may take up to 2 minutes...</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-blue-600 text-2xl font-bold">
+                {generationStep}/{totalSteps}
+              </span>
+              <p className="text-blue-500 text-sm">steps completed</p>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-blue-100 rounded-full h-3 mb-4 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500 ease-out relative"
+              style={{ width: `${(generationStep / totalSteps) * 100}%` }}
+            >
+              <div className="absolute inset-0 bg-white opacity-30 animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Step Description */}
+          <div className="bg-white rounded-lg p-4 border border-blue-100">
+            <div className="flex items-center gap-3">
+              {generationStep === 0 && <Rocket className="w-4 h-4 text-blue-600" />}
+              {generationStep === 1 && <CheckCircle className="w-4 h-4 text-blue-600" />}
+              {generationStep === 2 && <Trash2 className="w-4 h-4 text-blue-600" />}
+              {generationStep === 3 && <Database className="w-4 h-4 text-blue-600" />}
+              {generationStep === 4 && <Target className="w-4 h-4 text-blue-600" />}
+              {generationStep === 5 && <Brain className="w-4 h-4 text-blue-600" />}
+              {generationStep >= 6 && generationStep < totalSteps - 2 && <Bot className="w-4 h-4 text-blue-600 animate-pulse" />}
+              {generationStep === totalSteps - 2 && <Save className="w-4 h-4 text-blue-600" />}
+              {generationStep === totalSteps - 1 && <PartyPopper className="w-4 h-4 text-blue-600" />}
+              {generationStep === totalSteps && <CheckCircle className="w-4 h-4 text-green-600" />}
+              <div className="text-sm text-gray-700 font-medium">
+                {generationStep === 0 && "Initializing AI generation pipeline..."}
+                {generationStep === 1 && "Confirming generation parameters..."}
+                {generationStep === 2 && "Preparing workspace (removing existing questions if needed)..."}
+                {generationStep === 3 && "Loading quiz and job information..."}
+                {generationStep === 4 && "Retrieving relevant skills for this role..."}
+                {generationStep === 5 && "Analyzing skills and preparing AI prompts..."}
+                {generationStep >= 6 && generationStep < totalSteps - 2 && (
+                  <>
+                    Generating questions for skill {(generationStep - 5)} of {totalSteps - 7}...
+                    <span className="text-blue-600 ml-2">
+                      (This step may take 10-15 seconds per skill)
+                    </span>
+                  </>
+                )}
+                {generationStep === totalSteps - 2 && "Saving questions with answers and choices to database..."}
+                {generationStep === totalSteps - 1 && "Finalizing and validating questions..."}
+                {generationStep === totalSteps && "✅ Generation complete! Questions are ready."}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
