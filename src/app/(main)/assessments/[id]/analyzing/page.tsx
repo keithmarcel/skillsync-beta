@@ -116,8 +116,8 @@ export default function AssessmentAnalyzingPage() {
               <Image
                 src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
                 alt="SkillSync - Powered by Bisk Amplified"
-                width={244}
-                height={48}
+                width={122}
+                height={24}
                 priority
               />
             </div>
