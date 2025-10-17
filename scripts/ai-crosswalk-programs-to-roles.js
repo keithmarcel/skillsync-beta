@@ -80,7 +80,11 @@ If no programs are relevant, return an empty array: []`;
         max_tokens: 200
       });
 
-      const content = completion.choices[0].message.content;
+      let content = completion.choices[0].message.content;
+      
+      // Remove markdown code blocks if present
+      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      
       const programIndices = JSON.parse(content);
 
       if (programIndices.length > 0) {
