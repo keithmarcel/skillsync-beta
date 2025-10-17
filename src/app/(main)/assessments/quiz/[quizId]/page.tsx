@@ -251,7 +251,7 @@ export default function QuizPage() {
         { label: 'Assessment', isActive: true }
       ]}>
         {quizState === 'intro' && (
-          <div className="max-w-5xl mx-auto">
+          <div>
             {/* Main Intro Card with Image */}
             <Card className="mb-8">
               <CardContent className="p-12">
@@ -266,7 +266,7 @@ export default function QuizPage() {
                     </p>
                     
                     {/* Time Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 rounded-lg mb-8">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 rounded-lg mb-8 self-start">
                       <Clock className="h-4 w-4 text-teal-600" />
                       <span className="text-sm text-teal-900 font-medium">
                         This assessment takes ~{quiz.estimated_minutes || 5} minutes
@@ -275,7 +275,7 @@ export default function QuizPage() {
 
                     <Button 
                       onClick={handleStartQuiz} 
-                      className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 text-base font-medium w-full lg:w-auto inline-flex items-center justify-center gap-2"
+                      className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 text-base font-medium inline-flex items-center gap-2 self-start"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
