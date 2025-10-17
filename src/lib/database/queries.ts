@@ -239,6 +239,7 @@ export async function getFeaturedRoles(): Promise<Job[]> {
     `)
     .eq('job_kind', 'featured_role')
     .eq('is_featured', true)
+    .eq('is_published', true)
     .order('title')
 
   if (error) {
@@ -251,7 +252,7 @@ export async function getFeaturedRoles(): Promise<Job[]> {
     return []
   }
 
-  // Filter by published status (skip if column doesn't exist yet)
+  // Filter by published company status
   const filteredData = data?.filter(job => {
     const company = job.company as any
     return company?.is_published !== false // Allow null/undefined (column doesn't exist yet)
