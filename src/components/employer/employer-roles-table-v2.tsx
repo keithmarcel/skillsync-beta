@@ -24,6 +24,7 @@ interface Job {
   short_desc: string | null
   category: string | null
   required_proficiency_pct: number
+  skills_count: number
   assessments_count: number
   candidates_count: number
   is_published: boolean
@@ -92,8 +93,19 @@ export function EmployerRolesTableV2({ companyId }: EmployerRolesTableProps) {
             console.error(`Error counting assessments for job ${job.id}:`, assessmentsError)
           }
           
+          // Count skills linked to this job
+          const { count: skillsCount, error: skillsError } = await supabase
+            .from('job_skills')
+            .select('*', { count: 'exact', head: true })
+            .eq('job_id', job.id)
+          
+          if (skillsError) {
+            console.error(`Error counting skills for job ${job.id}:`, skillsError)
+          }
+          
           return {
             ...job,
+            skills_count: skillsCount || 0,
             candidates_count: candidatesCount || 0,
             assessments_count: assessmentsCount || 0
           }
