@@ -4,6 +4,9 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   
+  // Disable static page generation - use SSR for all pages
+  output: 'standalone',
+  
   // Temporarily disable TypeScript and ESLint checks for deployment
   // TODO: Fix TypeScript errors and re-enable strict checking
   typescript: {
