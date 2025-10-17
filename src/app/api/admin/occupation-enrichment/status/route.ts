@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Use server-side Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+// Initialize Supabase client at runtime
+function getSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  return createClient(supabaseUrl, supabaseServiceKey)
+}
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getSupabaseClient()
+    
     // Get all occupations with their enrichment status
-    const { data: occupations, error: occupationsError } = await supabase
+    const { data: occupations, error: occupationsError} = await supabase
       .from('jobs')
       .select('id, title, soc_code')
       .eq('job_kind', 'occupation')
