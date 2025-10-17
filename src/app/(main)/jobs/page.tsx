@@ -28,6 +28,8 @@ import { PageLoader } from '@/components/ui/loading-spinner'
 export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 export const revalidate = 0
+export const fetchCache = 'force-no-store'
+export const runtime = 'nodejs'
 
 // Function to determine role readiness based on REAL user assessment data
 function determineRoleReadiness(jobId: string, userAssessments?: any[]): string {
