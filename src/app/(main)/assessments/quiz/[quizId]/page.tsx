@@ -207,7 +207,6 @@ export default function QuizPage() {
         return {
           assessment_id: assessment.id,
           question_id: q.id,
-          skill_id: sections.find(s => s.id === q.section_id)?.skill_id,
           selected: selectedAnswer,
           is_correct: isCorrect
         }
