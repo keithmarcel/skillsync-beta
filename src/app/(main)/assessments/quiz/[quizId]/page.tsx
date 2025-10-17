@@ -43,18 +43,17 @@ export default function QuizPage() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
+  const { toast } = useToast()
   const quizId = params.quizId as string
   const isSuperAdmin = user?.email === 'keith-woods@bisk.com'
 
   const [quizState, setQuizState] = useState<QuizState>('loading')
   const [quiz, setQuiz] = useState<any>(null)
+  const [job, setJob] = useState<any>(null)
   const [questions, setQuestions] = useState<any[]>([])
   const [sections, setSections] = useState<any[]>([])
   const [responses, setResponses] = useState<Record<string, string>>({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const { toast } = useToast()
-  const { user } = useAuth()
-  const isSuperAdmin = user?.email === 'keith-woods@bisk.com'
 
   // Warn user before leaving assessment in progress
   useEffect(() => {
