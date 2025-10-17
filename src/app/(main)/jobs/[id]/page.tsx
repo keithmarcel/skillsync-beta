@@ -16,6 +16,7 @@ import { useFavorites } from '@/hooks/useFavorites'
 import { useRoleView } from '@/hooks/useRoleView'
 import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
 import { supabase } from '@/lib/supabase/client'
+import { FeaturedProgramCard } from '@/components/ui/featured-program-card'
 
 // No mock data - using real database data only
 
@@ -664,45 +665,28 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             {recommendedPrograms.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recommendedPrograms.map((rec: any, index: number) => (
-                  <Card key={index} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-base leading-tight">{rec.program.name}</CardTitle>
-                        <Badge variant="secondary" className="text-xs shrink-0">
-                          {(rec.confidence_score * 100).toFixed(0)}% match
-                        </Badge>
-                      </div>
-                      <CardDescription className="text-sm">
-                        {rec.program.school?.name}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex flex-wrap gap-2">
-                        {rec.program.discipline && (
-                          <Badge variant="outline" className="text-xs">{rec.program.discipline}</Badge>
-                        )}
-                        {rec.program.program_type && (
-                          <Badge variant="outline" className="text-xs">{rec.program.program_type}</Badge>
-                        )}
-                      </div>
-                      {rec.program.duration_text && (
-                        <p className="text-sm text-gray-600">
-                          <Clock className="inline h-3 w-3 mr-1" />
-                          {rec.program.duration_text}
-                        </p>
-                      )}
-                      {rec.match_reasoning && (
-                        <p className="text-xs text-gray-500 italic">
-                          "{rec.match_reasoning}"
-                        </p>
-                      )}
-                      <Button asChild className="w-full bg-[#0694A2] hover:bg-[#057A85]">
-                        <Link href={`/programs/${rec.program.id}`}>
-                          View Program Details →
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <FeaturedProgramCard
+                    key={index}
+                    id={rec.program.id}
+                    name={rec.program.name}
+                    school={{
+                      name: rec.program.school?.name || 'School',
+                      logo: rec.program.school?.logo_url || null
+                    }}
+                    programType={rec.program.program_type || 'Certificate'}
+                    format={rec.program.format || 'Online'}
+                    duration={rec.program.duration_text || 'Self-paced'}
+                    description={rec.match_reasoning || rec.program.short_desc || 'AI-recommended program for this role'}
+                    skillsCallout={{
+                      type: 'jobs',
+                      label: `${(rec.confidence_score * 100).toFixed(0)}% AI Match Confidence`,
+                      count: 0
+                    }}
+                    href={`/programs/${rec.program.id}`}
+                    isFavorited={false}
+                    onAddFavorite={() => {}}
+                    onRemoveFavorite={() => {}}
+                  />
                 ))}
               </div>
             )}
