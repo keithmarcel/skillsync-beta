@@ -1,9 +1,6 @@
-// @ts-nocheck
 'use client';
 
 import React from 'react';
-
-export const dynamic = 'force-dynamic';
 import { useRouter } from 'next/navigation';
 import { EntityDetailView, EntityFieldType } from '@/components/admin/EntityDetailView';
 import { Button } from '@/components/ui/button';
@@ -26,11 +23,11 @@ import type { Job } from '@/lib/database/queries';
 
 interface RoleDetailPageProps {
   params: { id: string };
+  context?: 'admin' | 'employer';
+  companyId?: string;
 }
 
-export default function RoleDetailPage({ params }: RoleDetailPageProps) {
-  const context = 'admin';
-  const companyId = undefined;
+export default function RoleDetailPage({ params, context = 'admin', companyId }: RoleDetailPageProps) {
   const router = useRouter();
   const { profile, isCompanyAdmin, isSuperAdmin } = useAuth();
   const { 
