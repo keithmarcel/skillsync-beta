@@ -102,9 +102,9 @@ export default function AssessmentResultsPage() {
   }
 
   const getSkillBarColor = (score: number) => {
-    if (score >= 80) return 'bg-teal-400'
-    if (score >= 60) return 'bg-orange-400'
-    return 'bg-pink-400'
+    if (score >= 80) return 'bg-[#14B8A6]' // Bright teal/cyan
+    if (score >= 60) return 'bg-[#FB923C]' // Orange
+    return 'bg-[#FB7185]' // Pink/rose
   }
 
   const getSkillLabel = (score: number) => {
@@ -158,65 +158,50 @@ export default function AssessmentResultsPage() {
 
       <div className="max-w-[1200px] mx-auto px-6 py-8">
         {/* Hero Section - Dark Teal Background */}
-        <div className="bg-[#0B4F56] rounded-2xl p-8 mb-8 text-white">
-          <div className="flex items-start justify-between gap-8">
+        <div className="bg-[#1A5F66] rounded-xl p-10 mb-6 text-white">
+          <div className="flex items-start justify-between gap-12">
             {/* Left Side - Status and Copy */}
-            <div className="flex-1">
+            <div className="flex-1 max-w-2xl">
               {/* Status Icon + Headline */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className={`p-2 rounded-full ${status.bgColor}`}>
-                  <StatusIcon className={`h-6 w-6 ${status.color}`} />
-                </div>
-                <h1 className="text-3xl font-bold">{status.text}</h1>
+              <div className="flex items-center gap-3 mb-4">
+                <StatusIcon className="h-7 w-7 text-teal-300" />
+                <h1 className="text-2xl font-bold">{status.text}</h1>
               </div>
 
               {/* Match Percentage Text */}
-              <p className="text-lg mb-4 text-white/90">
+              <p className="text-base mb-4 text-white/95 leading-relaxed">
                 Based on your assessment, you have a <span className="font-bold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s <span className="font-bold">{assessment.job?.title}</span> role.
               </p>
 
               {/* Personalized Feedback Copy */}
-              <p className="text-white/80 leading-relaxed mb-6">
+              <p className="text-sm text-white/80 leading-relaxed mb-6">
                 {readiness >= 80 && "You excel in strategic planning and leadership, critical skills for driving business success in the dynamic project management market. To further grow, focus on enhancing your project management, data analysis, and process improvement abilities. Engaging in business analytics and operations programs will support your role readiness."}
                 {readiness >= 60 && readiness < 80 && "You demonstrate strong foundational skills but have opportunities to strengthen key competencies. Focus on developing your weaker areas through targeted training and practice. With dedication, you'll be fully role-ready soon."}
                 {readiness < 60 && "You're building your skills in this area. Focus on the development areas identified below, and consider enrolling in recommended training programs to accelerate your growth and become role-ready."}
               </p>
 
-              {/* Conditional Info Cards */}
-              <div className="space-y-3">
-                {readiness >= 80 && (
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-between">
-                    <p className="text-white/90">
-                      You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with the employer.
-                    </p>
-                    <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 whitespace-nowrap">
-                      View Upskilling Programs →
-                    </Button>
-                  </div>
-                )}
-                
-                {programCount > 0 && (
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-between">
-                    <p className="text-white/90">
-                      You matched with <span className="font-semibold">{programCount} education programs</span> that have the skills you need.
-                    </p>
-                    <Button variant="outline" className="bg-white/10 border-white/30 text-white hover:bg-white/20 whitespace-nowrap">
-                      View Your Program Matches →
-                    </Button>
-                  </div>
-                )}
-              </div>
+              {/* Single Info Card */}
+              {readiness >= 80 && (
+                <div className="bg-[#2A6F76] rounded-lg p-4 flex items-center justify-between">
+                  <p className="text-sm text-white/95">
+                    You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with the employer.
+                  </p>
+                  <Button variant="outline" className="bg-transparent border-white/40 text-white hover:bg-white/10 text-sm whitespace-nowrap ml-4">
+                    View Upskilling Programs →
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Right Side - Stacked Bar Chart + Percentage */}
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-6 flex-shrink-0">
               {/* Stacked Bar Chart - 10 blocks */}
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-2">
                 {[...Array(10)].map((_, i) => (
                   <div
                     key={i}
-                    className={`w-32 h-3 rounded-sm ${
-                      i < filledBlocks ? 'bg-[#0694A2]' : 'bg-white/20'
+                    className={`w-28 h-2.5 rounded-sm ${
+                      i < filledBlocks ? 'bg-[#0EA5E9]' : 'bg-white/15'
                     }`}
                   />
                 ))}
@@ -224,8 +209,8 @@ export default function AssessmentResultsPage() {
 
               {/* Large Percentage */}
               <div className="text-center">
-                <div className="text-6xl font-bold">{readiness}%</div>
-                <div className="text-sm text-white/70 mt-1">Role Readiness</div>
+                <div className="text-7xl font-bold leading-none">{readiness}%</div>
+                <div className="text-xs text-white/60 mt-2">Role Readiness</div>
               </div>
             </div>
           </div>
@@ -259,28 +244,28 @@ export default function AssessmentResultsPage() {
           </div>
 
           {/* Skill Bars */}
-          <div className="space-y-6">
+          <div className="space-y-5">
             {skillResults.map((result) => {
               const score = Math.round(result.score_pct || 0)
               const barColor = getSkillBarColor(score)
               
               return (
                 <div key={result.skill_id}>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900">{result.skill?.name}</h3>
+                  <div className="mb-2">
+                    <h3 className="font-semibold text-gray-900 text-sm">{result.skill?.name}</h3>
                   </div>
                   <div className="relative">
                     {/* Background bar (benchmark) */}
-                    <div className="w-full h-8 bg-gray-200 rounded-full relative">
+                    <div className="w-full h-9 bg-gray-200 rounded-full relative flex items-center">
                       {/* Filled bar (user score) */}
                       <div
-                        className={`h-8 ${barColor} rounded-full flex items-center justify-end pr-3 transition-all duration-500`}
+                        className={`h-9 ${barColor} rounded-full flex items-center justify-end pr-4 transition-all duration-500`}
                         style={{ width: `${score}%` }}
                       >
                         <span className="text-sm font-bold text-gray-900">{score}%</span>
                       </div>
                       {/* 100% marker */}
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">100%</span>
+                      <span className="absolute right-4 text-sm text-gray-500 font-medium">100%</span>
                     </div>
                   </div>
                 </div>
