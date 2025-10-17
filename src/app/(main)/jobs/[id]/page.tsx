@@ -15,6 +15,7 @@ import { getJobById } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useRoleView } from '@/hooks/useRoleView'
 import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
+import { supabase } from '@/lib/supabase/client'
 
 // No mock data - using real database data only
 
@@ -121,6 +122,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAllPrograms, setShowAllPrograms] = useState(false)
+  const [recommendedPrograms, setRecommendedPrograms] = useState<any[]>([])
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
   
   // Track role view
@@ -136,6 +138,31 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           console.log('Company data:', jobData.company)
           console.log('Company logo_url:', jobData.company?.logo_url)
           setJob(jobData)
+          
+          // Load recommended programs from crosswalk
+          const { data: crosswalk } = await supabase
+            .from('role_program_crosswalk')
+            .select(`
+              confidence_score,
+              match_reasoning,
+              program:programs(
+                id,
+                name,
+                discipline,
+                program_type,
+                short_desc,
+                duration_text,
+                school:schools(name)
+              )
+            `)
+            .eq('job_id', params.id)
+            .order('confidence_score', { ascending: false })
+            .limit(6)
+          
+          if (crosswalk) {
+            setRecommendedPrograms(crosswalk)
+            console.log('Recommended programs loaded:', crosswalk.length)
+          }
         } else {
           setError('Job not found')
         }
@@ -615,19 +642,70 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">
                   Relevant Education & Training Programs
                 </h3>
-                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
-                <p className="text-gray-500 text-sm mt-2">
-                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
-                </p>
+                {recommendedPrograms.length > 0 ? (
+                  <p className="text-gray-500 text-sm mt-2">
+                    AI-recommended programs to prepare for this role (based on {(recommendedPrograms[0]?.confidence_score * 100).toFixed(0)}%+ match confidence)
+                  </p>
+                ) : (
+                  <p className="text-gray-500 text-sm mt-2">
+                    No matching programs are currently available. We're continuously adding new education partners and training opportunities.
+                  </p>
+                )}
               </div>
             </div>
+
+            {recommendedPrograms.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recommendedPrograms.map((rec: any, index: number) => (
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-base leading-tight">{rec.program.name}</CardTitle>
+                        <Badge variant="secondary" className="text-xs shrink-0">
+                          {(rec.confidence_score * 100).toFixed(0)}% match
+                        </Badge>
+                      </div>
+                      <CardDescription className="text-sm">
+                        {rec.program.school?.name}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {rec.program.discipline && (
+                          <Badge variant="outline" className="text-xs">{rec.program.discipline}</Badge>
+                        )}
+                        {rec.program.program_type && (
+                          <Badge variant="outline" className="text-xs">{rec.program.program_type}</Badge>
+                        )}
+                      </div>
+                      {rec.program.duration_text && (
+                        <p className="text-sm text-gray-600">
+                          <Clock className="inline h-3 w-3 mr-1" />
+                          {rec.program.duration_text}
+                        </p>
+                      )}
+                      {rec.match_reasoning && (
+                        <p className="text-xs text-gray-500 italic">
+                          "{rec.match_reasoning}"
+                        </p>
+                      )}
+                      <Button asChild className="w-full bg-[#0694A2] hover:bg-[#057A85]">
+                        <Link href={`/programs/${rec.program.id}`}>
+                          View Program Details →
+                        </Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
