@@ -1,11 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { useToast } from '@/hooks/use-toast'
-import { Users, TrendingUp, Award, Target, BarChart3 } from 'lucide-react'
+import { Users, TrendingUp, Award, Target, BarChart3, CheckCircle } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase/client'
+import Image from 'next/image'
 
 interface AnalyticsTabProps {
   quizId: string
@@ -23,6 +25,7 @@ interface AnalyticsData {
   questionPerformance: Array<{
     questionId: string
     questionText: string
+    skillName: string
     correctRate: number
     totalAttempts: number
   }>
@@ -34,7 +37,9 @@ interface AnalyticsData {
   }>
   topPerformers: Array<{
     userId: string
-    userName: string
+    firstName: string
+    lastName: string
+    avatarUrl: string | null
     readiness: number
     completedAt: string
   }>
@@ -75,18 +80,29 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
       const good = assessments?.filter(a => (a.readiness_pct || 0) >= 85 && (a.readiness_pct || 0) < 90).length || 0
       const developing = assessments?.filter(a => (a.readiness_pct || 0) < 85).length || 0
 
-      // Get top performers (top 10) - showing user IDs for now
-      const topPerformers = (assessments || []).slice(0, 10).map((a: any) => ({
-        userId: a.user_id,
-        userName: `User ${a.user_id.substring(0, 8)}...`, // Simplified for now
-        readiness: a.readiness_pct || 0,
-        completedAt: a.analyzed_at || ''
-      }))
+      // Get top performers with user profile data
+      const userIds = (assessments || []).slice(0, 10).map(a => a.user_id)
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url')
+        .in('id', userIds)
+      
+      const topPerformers = (assessments || []).slice(0, 10).map((a: any) => {
+        const profile = profiles?.find(p => p.id === a.user_id)
+        return {
+          userId: a.user_id,
+          firstName: profile?.first_name || 'Unknown',
+          lastName: profile?.last_name || 'User',
+          avatarUrl: profile?.avatar_url || null,
+          readiness: a.readiness_pct || 0,
+          completedAt: a.analyzed_at || ''
+        }
+      })
 
-      // Get questions for this quiz
+      // Get questions for this quiz with skill information
       const { data: sections } = await supabase
         .from('quiz_sections')
-        .select('id')
+        .select('id, skill_id, skill:skills(id, name)')
         .eq('quiz_id', quizId)
 
       let questionPerformance: any[] = []
@@ -99,6 +115,7 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
             id,
             stem,
             skill_id,
+            section_id,
             importance_level,
             skills (
               id,
@@ -107,14 +124,31 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
           `)
           .in('section_id', sections.map(s => s.id))
 
-        // For now, we'll show placeholder data since we don't have assessment_answers table yet
-        // In production, you'd query assessment_answers to get actual performance
-        questionPerformance = (questions || []).map((q: any) => ({
-          questionId: q.id,
-          questionText: q.stem,
-          correctRate: Math.random() * 100, // Placeholder
-          totalAttempts: totalAssessments
-        }))
+        // Get actual response data
+        const assessmentIds = (assessments || []).map(a => a.id)
+        const { data: responses } = await supabase
+          .from('quiz_responses')
+          .select('question_id, is_correct')
+          .in('assessment_id', assessmentIds)
+
+        // Calculate actual performance per question
+        questionPerformance = (questions || []).map((q: any) => {
+          const questionResponses = responses?.filter(r => r.question_id === q.id) || []
+          const correctCount = questionResponses.filter(r => r.is_correct).length
+          const correctRate = questionResponses.length > 0 ? (correctCount / questionResponses.length) * 100 : 0
+          
+          // Get skill name from section
+          const section = sections.find(s => s.id === q.section_id)
+          const skillName = section?.skill?.name || 'Unknown Skill'
+          
+          return {
+            questionId: q.id,
+            questionText: q.stem,
+            skillName: skillName,
+            correctRate: correctRate,
+            totalAttempts: questionResponses.length
+          }
+        })
 
         // Calculate skill gaps
         const skillMap = new Map()
@@ -185,82 +219,68 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total Assessments</p>
-                <p className="text-2xl font-bold text-gray-900">{analytics.totalAssessments}</p>
-              </div>
-              <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-teal-600" />
-              </div>
+      {/* Metrics Cards - Match Employer Dashboard Style */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardContent className="flex flex-col p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-gray-700">Total Assessments</p>
+              <Users className="w-4 h-4 text-gray-400" />
             </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{analytics.totalAssessments}</div>
+            <p className="text-xs text-gray-500">Completed</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Avg Readiness</p>
-                <p className="text-2xl font-bold text-gray-900">{analytics.avgReadiness}%</p>
-              </div>
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
-              </div>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardContent className="flex flex-col p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-gray-700">Avg Readiness</p>
+              <TrendingUp className="w-4 h-4 text-gray-400" />
             </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{analytics.avgReadiness}%</div>
+            <p className="text-xs text-gray-500">Overall score</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Ready (90%+)</p>
-                <p className="text-2xl font-bold text-green-600">{analytics.readinessDistribution.excellent}</p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Award className="w-6 h-6 text-green-600" />
-              </div>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardContent className="flex flex-col p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-gray-700">Role Ready</p>
+              <CheckCircle className="w-4 h-4 text-gray-400" />
             </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{analytics.readinessDistribution.excellent}</div>
+            <p className="text-xs text-gray-500">90%+ proficiency</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Developing</p>
-                <p className="text-2xl font-bold text-orange-600">{analytics.readinessDistribution.developing}</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Target className="w-6 h-6 text-orange-600" />
-              </div>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardContent className="flex flex-col p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-gray-700">Developing</p>
+              <Target className="w-4 h-4 text-gray-400" />
             </div>
+            <div className="text-3xl font-bold text-gray-900 mb-1">{analytics.readinessDistribution.developing}</div>
+            <p className="text-xs text-gray-500">Below 85%</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Readiness Distribution */}
       <Card>
-        <CardHeader>
-          <CardTitle>Readiness Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Readiness Distribution</h3>
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Excellent (90%+)</span>
+                <span className="text-sm font-medium text-gray-700">Role Ready (90%+)</span>
                 <span className="text-sm text-gray-600">
                   {analytics.readinessDistribution.excellent} candidates
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div
-                  className="bg-green-500 h-2 rounded-full"
+                  className="bg-green-500 h-2.5 rounded-full transition-all"
                   style={{
                     width: `${(analytics.readinessDistribution.excellent / analytics.totalAssessments) * 100}%`
                   }}
@@ -270,14 +290,14 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Good (85-89%)</span>
+                <span className="text-sm font-medium text-gray-700">Close Gaps (85-89%)</span>
                 <span className="text-sm text-gray-600">
                   {analytics.readinessDistribution.good} candidates
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div
-                  className="bg-blue-500 h-2 rounded-full"
+                  className="bg-teal-500 h-2.5 rounded-full transition-all"
                   style={{
                     width: `${(analytics.readinessDistribution.good / analytics.totalAssessments) * 100}%`
                   }}
@@ -287,14 +307,14 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Developing (&lt;85%)</span>
+                <span className="text-sm font-medium text-gray-700">Build Foundation (&lt;85%)</span>
                 <span className="text-sm text-gray-600">
                   {analytics.readinessDistribution.developing} candidates
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div
-                  className="bg-orange-500 h-2 rounded-full"
+                  className="bg-orange-500 h-2.5 rounded-full transition-all"
                   style={{
                     width: `${(analytics.readinessDistribution.developing / analytics.totalAssessments) * 100}%`
                   }}
@@ -306,28 +326,44 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Performers */}
+        {/* Highest Scores */}
         <Card>
-          <CardHeader>
-            <CardTitle>Top Performers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Highest Scores</h3>
+            <div className="space-y-4">
               {analytics.topPerformers.map((performer, idx) => (
-                <div key={performer.userId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={performer.userId} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-semibold text-teal-700">#{idx + 1}</span>
-                    </div>
+                    {performer.avatarUrl ? (
+                      <Image
+                        src={performer.avatarUrl}
+                        alt={`${performer.firstName} ${performer.lastName}`}
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                        <Users className="w-6 h-6 text-gray-400" />
+                      </div>
+                    )}
                     <div>
-                      <p className="font-medium text-gray-900">{performer.userName}</p>
+                      <p className="font-medium text-gray-900">{performer.firstName} {performer.lastName}</p>
                       <p className="text-xs text-gray-500">
                         {new Date(performer.completedAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-teal-600">{performer.readiness}%</p>
+                    <Badge className={`${
+                      performer.readiness >= 90 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-orange-100 text-orange-800'
+                    } border-0 rounded-full shadow-none flex items-center gap-1`} style={{ fontSize: '10px' }}>
+                      <span>{performer.readiness >= 90 ? 'Ready' : 'Almost There'}</span>
+                      <span className={performer.readiness >= 90 ? 'text-green-600' : 'text-orange-600'}>|</span>
+                      <span className="font-semibold">{Math.round(performer.readiness)}%</span>
+                    </Badge>
                   </div>
                 </div>
               ))}
@@ -337,29 +373,22 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
 
         {/* Skill Gaps */}
         <Card>
-          <CardHeader>
-            <CardTitle>Skill Gaps</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Skills Needing Development</h3>
+            <div className="space-y-4">
               {analytics.skillGaps.slice(0, 5).map((skill) => (
                 <div key={skill.skillId} className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900">{skill.skillName}</span>
-                      <span className="text-xs text-gray-500">
-                        {'⭐'.repeat(skill.importance)}
-                      </span>
-                    </div>
+                    <span className="text-sm font-medium text-gray-900">{skill.skillName}</span>
                     <span className="text-sm font-semibold text-gray-700">
                       {Math.round(skill.avgScore)}%
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div
-                      className={`h-2 rounded-full ${
+                      className={`h-2.5 rounded-full transition-all ${
                         skill.avgScore >= 80 ? 'bg-green-500' :
-                        skill.avgScore >= 60 ? 'bg-yellow-500' :
+                        skill.avgScore >= 60 ? 'bg-orange-500' :
                         'bg-red-500'
                       }`}
                       style={{ width: `${skill.avgScore}%` }}
@@ -372,32 +401,62 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
         </Card>
       </div>
 
-      {/* Question Performance */}
+      {/* Question Performance - Organized by Skill */}
       <Card>
-        <CardHeader>
-          <CardTitle>Question Performance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {analytics.questionPerformance.slice(0, 10).map((question) => (
-              <div key={question.questionId} className="flex items-center justify-between p-3 border-b last:border-b-0">
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900 line-clamp-1">{question.questionText}</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {question.totalAttempts} attempts
-                  </p>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Question Performance by Skill</h3>
+          <div className="space-y-6">
+            {(() => {
+              // Group questions by skill and filter out skills with no questions
+              const questionsBySkill = analytics.questionPerformance.reduce((acc: any, q) => {
+                if (!acc[q.skillName]) acc[q.skillName] = []
+                acc[q.skillName].push(q)
+                return acc
+              }, {})
+              
+              // Filter out skills with no questions (totalAttempts = 0)
+              const skillsWithQuestions = Object.entries(questionsBySkill).filter(
+                ([_, questions]: [string, any]) => questions.some((q: any) => q.totalAttempts > 0)
+              )
+              
+              if (skillsWithQuestions.length === 0) {
+                return (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No question data available yet</p>
+                  </div>
+                )
+              }
+              
+              return skillsWithQuestions.map(([skillName, questions]: [string, any]) => (
+                <div key={skillName} className="space-y-3">
+                  <div className="flex items-center gap-2 pb-3 mb-3 border-b-2 border-gray-300">
+                    <h4 className="text-base font-bold text-gray-900">{skillName}</h4>
+                    <Badge className="bg-gray-100 text-gray-700 border-0 rounded-full shadow-none text-xs pointer-events-none">
+                      {questions.length} questions
+                    </Badge>
+                  </div>
+                  {questions.map((question: any) => (
+                    <div key={question.questionId} className="flex items-start justify-between gap-4 py-3 border-b border-gray-100 last:border-0">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-900 line-clamp-2">{question.questionText}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {question.totalAttempts} {question.totalAttempts === 1 ? 'attempt' : 'attempts'}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0">
+                        <Badge className={`${
+                          question.correctRate >= 80 ? 'bg-green-100 text-green-800' :
+                          question.correctRate >= 60 ? 'bg-orange-100 text-orange-800' :
+                          'bg-red-100 text-red-800'
+                        } border-0 rounded-md shadow-none text-xs font-medium min-w-[60px] justify-center pointer-events-none`}>
+                          {Math.round(question.correctRate)}%
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="ml-4 text-right">
-                  <p className={`text-sm font-semibold ${
-                    question.correctRate >= 80 ? 'text-green-600' :
-                    question.correctRate >= 60 ? 'text-yellow-600' :
-                    'text-red-600'
-                  }`}>
-                    {Math.round(question.correctRate)}% correct
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))
+            })()}
           </div>
         </CardContent>
       </Card>

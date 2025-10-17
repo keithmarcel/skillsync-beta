@@ -245,14 +245,43 @@ export async function getCompanyContext(
   jobDescription?: string
 ): Promise<CompanyContext> {
   
-  // TODO: Integrate with company profiles and job posting analysis
-  // For now, return structured context
+  // Fetch actual company data if companyId provided
+  if (companyId) {
+    try {
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+      
+      const { data: company } = await supabase
+        .from('companies')
+        .select('name, industry, employee_range, revenue_range, bio')
+        .eq('id', companyId)
+        .single()
+      
+      if (company) {
+        return {
+          roleLevel: 'mid',
+          teamSize: company.employee_range || '5-15 people',
+          budgetSize: company.revenue_range || '$500K-2M',
+          industry: company.industry || 'Professional Services',
+          regulatoryEnvironment: 'Standard compliance',
+          performanceMetrics: ['Revenue growth', 'Team productivity', 'Customer satisfaction'],
+          organizationValues: ['Quality', 'Safety', 'Excellence']
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch company context:', error)
+    }
+  }
   
+  // Fallback to generic context
   return {
     roleLevel: 'mid',
     teamSize: '5-15 people',
     budgetSize: '$500K-2M',
-    industry: 'Technology Services',
+    industry: 'Professional Services',
     regulatoryEnvironment: 'Standard compliance',
     performanceMetrics: ['Revenue growth', 'Team productivity', 'Customer satisfaction'],
     organizationValues: ['Innovation', 'Collaboration', 'Results-driven']

@@ -15,6 +15,8 @@ import { getJobById } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useRoleView } from '@/hooks/useRoleView'
 import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
+import { supabase } from '@/lib/supabase/client'
+import { FeaturedProgramCard } from '@/components/ui/featured-program-card'
 
 // No mock data - using real database data only
 
@@ -101,11 +103,28 @@ const cleanRegionalIndicators = (text: string | null | undefined): string => {
   return text.replace(/\s*\((National|Regional|State|Local)\)/gi, '').trim();
 }
 
+// Helper function to ensure array fields are properly parsed
+const ensureArray = (field: any): any[] => {
+  if (!field) return [];
+  if (Array.isArray(field)) return field;
+  if (typeof field === 'string') {
+    try {
+      const parsed = JSON.parse(field);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showAllPrograms, setShowAllPrograms] = useState(false)
+  const [recommendedPrograms, setRecommendedPrograms] = useState<any[]>([])
+  const [quizId, setQuizId] = useState<string | null>(null)
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
   
   // Track role view
@@ -121,6 +140,47 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           console.log('Company data:', jobData.company)
           console.log('Company logo_url:', jobData.company?.logo_url)
           setJob(jobData)
+          
+          // Load recommended programs from crosswalk
+          const { data: crosswalk } = await supabase
+            .from('role_program_crosswalk')
+            .select(`
+              confidence_score,
+              match_reasoning,
+              program:programs(
+                id,
+                name,
+                discipline,
+                program_type,
+                short_desc,
+                duration_text,
+                format,
+                school:schools(name, logo_url)
+              )
+            `)
+            .eq('job_id', params.id)
+            .order('confidence_score', { ascending: false })
+            .limit(6)
+          
+          if (crosswalk) {
+            setRecommendedPrograms(crosswalk)
+            console.log('Recommended programs loaded:', crosswalk.length)
+          }
+          
+          // Load quiz for this job (if exists)
+          const { data: quiz } = await supabase
+            .from('quizzes')
+            .select('id')
+            .eq('job_id', params.id)
+            .eq('status', 'published')
+            .single()
+          
+          if (quiz) {
+            setQuizId(quiz.id)
+            console.log('Quiz found for job:', quiz.id)
+          } else {
+            console.log('No quiz found for job')
+          }
         } else {
           setError('Job not found')
         }
@@ -213,9 +273,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         )}
 
         {/* Job Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2">
-            <Card className="rounded-2xl bg-[#114B5F] text-white border-0">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 lg:items-stretch">
+          <div className="lg:col-span-2 flex">
+            <Card className="rounded-2xl bg-[#114B5F] text-white border-0 w-full">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
@@ -361,8 +421,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Featured Image */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8 h-full min-h-[400px] rounded-2xl overflow-hidden">
+          <div className="lg:col-span-1 flex">
+            <div className="sticky top-8 w-full min-h-[400px] rounded-2xl overflow-hidden">
               <Image 
                 src={job.featured_image_url || '/assets/hero_occupations.jpg'} 
                 alt={job.title} 
@@ -444,11 +504,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 </Link>
               </p>
             </div>
-            <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
-              <Link href={`/assessments/quiz/${job.id}`}>
-                Start Assessment →
-              </Link>
-            </Button>
+            {quizId ? (
+              <Button asChild className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 rounded-lg flex-shrink-0">
+                <Link href={`/assessments/quiz/${quizId}`}>
+                  Start Assessment →
+                </Link>
+              </Button>
+            ) : (
+              <Button disabled className="bg-gray-400 text-white px-6 py-3 rounded-lg flex-shrink-0 cursor-not-allowed">
+                Assessment Coming Soon
+              </Button>
+            )}
           </div>
         )}
 
@@ -543,7 +609,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       {(() => {
                         // Handle both old format (TaskDescription) and new format (task)
                         const taskText = (task: any) => task.TaskDescription || task.task || task;
-                        const uniqueTasks = job.tasks.filter((task: any, index: number, self: any[]) => 
+                        const tasksArray = ensureArray(job.tasks);
+                        const uniqueTasks = tasksArray.filter((task: any, index: number, self: any[]) => 
                           index === self.findIndex((t: any) => taskText(t) === taskText(task))
                         );
                         return uniqueTasks.slice(0, 8).map((task: any, index: number) => (
@@ -599,19 +666,45 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900">
                   Relevant Education & Training Programs
                 </h3>
-                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
                 <p className="text-gray-500 text-sm mt-2">
-                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+                  {recommendedPrograms.length > 0 
+                    ? "Programs that align with the skills and requirements for this role."
+                    : "No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities."}
                 </p>
               </div>
             </div>
+
+            {recommendedPrograms.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recommendedPrograms.map((rec: any, index: number) => (
+                  <FeaturedProgramCard
+                    key={index}
+                    id={rec.program.id}
+                    name={rec.program.name}
+                    school={{
+                      name: rec.program.school?.name || 'School',
+                      logo: rec.program.school?.logo_url || null
+                    }}
+                    programType={rec.program.program_type || 'Certificate'}
+                    format={rec.program.format || 'Online'}
+                    duration={rec.program.duration_text || 'Self-paced'}
+                    description={rec.program.short_desc || rec.match_reasoning || 'Recommended program for this role'}
+                    skillsCallout={undefined}
+                    href={`/programs/${rec.program.id}`}
+                    isFavorited={false}
+                    onAddFavorite={() => {}}
+                    onRemoveFavorite={() => {}}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 

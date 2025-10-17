@@ -239,6 +239,7 @@ export async function getFeaturedRoles(): Promise<Job[]> {
     `)
     .eq('job_kind', 'featured_role')
     .eq('is_featured', true)
+    .eq('is_published', true)
     .order('title')
 
   if (error) {
@@ -251,7 +252,7 @@ export async function getFeaturedRoles(): Promise<Job[]> {
     return []
   }
 
-  // Filter by published status (skip if column doesn't exist yet)
+  // Filter by published company status
   const filteredData = data?.filter(job => {
     const company = job.company as any
     return company?.is_published !== false // Allow null/undefined (column doesn't exist yet)
@@ -426,8 +427,9 @@ export async function getJobById(id: string): Promise<Job | null> {
     }
   }
 
-  // Check for curated skills if job has a SOC code
-  if (data?.soc_code) {
+  // Check for curated skills ONLY for high-demand occupations (not featured roles)
+  // Featured roles use job_skills (role-specific), occupations use soc_skills (SOC-based)
+  if (data?.soc_code && data?.job_kind === 'occupation') {
     const { data: curatedSkills, error: curatedError } = await supabase
       .from('soc_skills')
       .select(`
@@ -441,8 +443,10 @@ export async function getJobById(id: string): Promise<Job | null> {
     if (!curatedError && curatedSkills && curatedSkills.length > 0) {
       data.skills = curatedSkills
     }
+  }
 
-    // Fetch BLS employment projections data
+  // Fetch BLS employment projections data
+  if (data?.soc_code) {
     const { data: blsData, error: blsError } = await supabase
       .from('bls_employment_projections')
       .select('growth_rate, change_number, change_percent, employment_2022, employment_2032')

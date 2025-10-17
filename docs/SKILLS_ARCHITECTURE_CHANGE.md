@@ -184,11 +184,19 @@ A: Yes - high-demand occupations continue to use SOC-based skills. Featured role
 **Q: Does this affect assessments?**
 A: Yes - assessments will now use role-specific skills for featured roles, providing more accurate evaluations.
 
+**Q: How does this relate to the enhanced AI question generation?**
+A: The AI question generation pipeline (O*NET + CareerOneStop integration) uses BOTH:
+- **Database skills** (from `job_skills` or SOC-based) for skill selection
+- **O*NET API** for real-time skill importance ratings and work activities
+- **CareerOneStop API** for real-world tasks and tools
+- See: `ASSESSMENT_QUICK_REFERENCE.md` and `skill-sync-technical-architecture.md` for details
+
 ## Implementation Status
 
 - [x] Database migration created
 - [x] Query functions created
 - [x] Documentation complete
+- [x] Enhanced AI question generation with O*NET/COS (Oct 17, 2025)
 - [ ] Update admin role editor
 - [ ] Update employer role editor
 - [ ] Update skill extraction components

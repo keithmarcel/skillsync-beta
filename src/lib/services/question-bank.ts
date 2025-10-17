@@ -204,9 +204,9 @@ export async function assembleDynamicAssessment(
 }> {
   
   const {
-    maxSkills = 7,
-    questionsPerSkill = 3,
-    targetTotal = 25
+    maxSkills = 4,           // Reduced from 7 to focus on key skills
+    questionsPerSkill = 2,   // 2 questions per skill
+    targetTotal = 8          // Changed from 25 to 8 for manageable assessments
   } = options
 
   console.log(`\n🎯 Assembling dynamic assessment for job ${jobId}`)

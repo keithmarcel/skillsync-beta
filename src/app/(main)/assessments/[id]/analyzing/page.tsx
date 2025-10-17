@@ -6,12 +6,12 @@ import Image from 'next/image';
 import { supabase } from '@/lib/supabase/client';
 import PageHeader from '@/components/ui/page-header';
 import BreadcrumbLayout from '@/components/ui/breadcrumb-layout';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function AssessmentAnalyzingPage() {
   const params = useParams();
   const router = useRouter();
   const assessmentId = params.id as string;
-  const [dots, setDots] = useState('');
   const [job, setJob] = useState<any>(null);
   const [analysisTriggered, setAnalysisTriggered] = useState(false);
 
@@ -32,14 +32,6 @@ export default function AssessmentAnalyzingPage() {
     loadAssessmentData();
   }, [assessmentId]);
 
-  useEffect(() => {
-    // Animated dots effect
-    const dotsInterval = setInterval(() => {
-      setDots((prev) => (prev.length >= 3 ? '' : prev + '.'));
-    }, 500);
-
-    return () => clearInterval(dotsInterval);
-  }, []);
 
   useEffect(() => {
     // Trigger AI analysis once
@@ -61,6 +53,7 @@ export default function AssessmentAnalyzingPage() {
         
         if (!response.ok) {
           console.error('AI analysis failed:', result);
+          console.error('Error details:', JSON.stringify(result, null, 2));
         }
       } catch (error) {
         console.error('Error triggering analysis:', error);
@@ -117,28 +110,27 @@ export default function AssessmentAnalyzingPage() {
         { label: job.title, href: `/jobs/${job.id}` },
         { label: 'Assessment Analysis', isActive: true }
       ]}>
-        <div className="bg-white rounded-lg shadow-sm p-12">
+        <div className="bg-white rounded-lg p-12">
           <div className="flex flex-col items-center justify-center text-center">
             {/* SkillSync Logo */}
             <div className="mb-8">
               <Image
-                src="/logo_skillsync_hirestpeteway_lockup.svg"
-                alt="SkillSync by HireSt. Pete"
-                width={200}
-                height={60}
+                src="/app/logo_skillsync-powered-by-bisk-amplified.svg"
+                alt="SkillSync - Powered by Bisk Amplified"
+                width={122}
+                height={24}
                 priority
               />
             </div>
 
-            {/* Spinner */}
-            <div className="relative w-24 h-24 mb-8">
-              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-[#0694A2] rounded-full border-t-transparent animate-spin"></div>
+            {/* Diamond Loader */}
+            <div className="mb-8">
+              <LoadingSpinner size={80} />
             </div>
 
             {/* Message */}
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              Analyzing your assessment{dots}
+              Analyzing your assessment
             </h2>
             <p className="text-gray-600 max-w-md">
               Our AI is reviewing your responses and calculating your role readiness score. This typically takes 30-60 seconds.

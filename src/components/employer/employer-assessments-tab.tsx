@@ -61,7 +61,7 @@ export function EmployerAssessmentsTab({ companyId }: EmployerAssessmentsTabProp
     try {
       setLoading(true)
 
-      // Get all quizzes for this company's roles
+      // Get all quizzes for this company
       const { data: quizzes, error: quizzesError } = await supabase
         .from('quizzes')
         .select(`
@@ -73,7 +73,7 @@ export function EmployerAssessmentsTab({ companyId }: EmployerAssessmentsTabProp
             company_id
           )
         `)
-        .eq('job.company_id', companyId)
+        .eq('company_id', companyId)
         .order('created_at', { ascending: false })
 
       if (quizzesError) throw quizzesError
@@ -215,12 +215,7 @@ export function EmployerAssessmentsTab({ companyId }: EmployerAssessmentsTabProp
     <div className="space-y-6">
       {/* Header with Create Button */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Assessments</h2>
-          <p className="text-gray-600 mt-1">
-            Manage assessments for your roles
-          </p>
-        </div>
+        <h2 className="text-2xl font-bold text-gray-900 font-source-sans-pro">Manage Your Assessments</h2>
         <Button 
           onClick={handleCreateAssessment}
           className="bg-[#0694A2] hover:bg-[#047481] text-white"

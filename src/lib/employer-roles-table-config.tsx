@@ -122,6 +122,14 @@ export const employerRolesTableColumns = [
     }, 'N/A')
   },
   {
+    key: 'skills_count',
+    label: 'Skills',
+    sortable: true,
+    render: (value: number) => React.createElement('span', {
+      className: 'text-sm text-gray-900'
+    }, `${value || 0}`)
+  },
+  {
     key: 'assessments_count',
     label: 'Assessments',
     sortable: true,

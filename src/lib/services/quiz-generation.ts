@@ -10,6 +10,11 @@ import {
   getCompanyContext,
   calculateSkillWeighting
 } from './enhanced-ai-context'
+import { fetchONETSkills } from './skills-taxonomy-mapper'
+import { CareerOneStopApiService } from './careeronestop-api'
+
+// Initialize CareerOneStop service
+const cosService = new CareerOneStopApiService()
 
 // Use server-side Supabase client for service operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -68,6 +73,43 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
     throw new Error(`Skill ${skillId} not found`)
   }
 
+  // **NEW: Fetch O*NET skills for this SOC code**
+  console.log('🌐 Fetching O*NET data for SOC:', socCode)
+  const onetSkills = await fetchONETSkills(socCode)
+  console.log(`📚 Found ${onetSkills.length} O*NET skills`)
+
+  // Find matching O*NET skill for enhanced context
+  const onetMatch = onetSkills.find((onet: any) => 
+    onet.name?.toLowerCase() === skillName.toLowerCase() ||
+    onet.name?.toLowerCase().includes(skillName.toLowerCase()) ||
+    skillName.toLowerCase().includes(onet.name?.toLowerCase())
+  )
+
+  if (onetMatch) {
+    console.log('✅ O*NET match found:', {
+      name: onetMatch.name,
+      importance: onetMatch.importance,
+      category: onetMatch.category
+    })
+  } else {
+    console.log('⚠️ No O*NET match for skill:', skillName)
+  }
+
+  // **NEW: Fetch CareerOneStop data for labor market intelligence**
+  console.log('🏢 Fetching CareerOneStop data for SOC:', socCode)
+  const cosData = await cosService.getComprehensiveOccupationData(socCode)
+  
+  if (cosData) {
+    console.log('✅ CareerOneStop data found:', {
+      title: cosData.title,
+      tasksCount: cosData.tasks?.length || 0,
+      toolsCount: cosData.toolsAndTechnology?.length || 0,
+      hasLMI: !!cosData.lmi
+    })
+  } else {
+    console.log('⚠️ No CareerOneStop data for SOC:', socCode)
+  }
+
   // Get job examples for this SOC code to provide context
   const { data: jobs } = await supabase
     .from('jobs')
@@ -99,7 +141,9 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
         existingQuestions: questions, // Avoid duplicates
         socCode: options.socCode,
         companyId: options.companyId,
-        sessionId: options.sessionId
+        sessionId: options.sessionId,
+        onetData: onetMatch, // Pass O*NET data for enhanced context
+        cosData: cosData // Pass CareerOneStop data for labor market context
       })
 
       console.log(`✅ Batch generated ${batchQuestions.length} questions`)
@@ -125,7 +169,9 @@ async function generateQuestionBatch({
   existingQuestions,
   socCode,
   companyId,
-  sessionId
+  sessionId,
+  onetData,
+  cosData
 }: {
   skill: any
   proficiencyLevel: string
@@ -135,6 +181,8 @@ async function generateQuestionBatch({
   socCode?: string
   companyId?: string
   sessionId?: string
+  onetData?: any
+  cosData?: any
 }): Promise<GeneratedQuestion[]> {
 
   const existingStems = existingQuestions.map(q => q.stem.toLowerCase())
@@ -166,23 +214,55 @@ async function generateQuestionBatch({
 
   console.log('⚖️ Skill weighting calculated:', skillWeighting)
 
-  // Generate enhanced AI context
+  // **ENHANCED: Use O*NET data if available**
+  const onetImportance = onetData?.importance || 
+    (skill.importance_level === 'critical' ? 4.5 :
+     skill.importance_level === 'important' ? 3.5 : 2.5)
+
+  // Generate enhanced AI context with O*NET data
   const enhancedPrompt = await generateEnhancedAIContext(
     socCode || '',
     skill.name,
     {
-      importance: skill.importance_level === 'critical' ? 4.5 :
-                  skill.importance_level === 'important' ? 3.5 : 2.5,
-      workActivities: ['Standard occupational tasks'],
-      knowledge: ['Domain expertise required'],
-      jobZone: { education: 'Post-secondary', experience: 'Moderate' }
+      importance: onetImportance,
+      workActivities: onetData?.workActivities || ['Standard occupational tasks'],
+      knowledge: onetData?.knowledge || ['Domain expertise required'],
+      jobZone: onetData?.jobZone || { education: 'Post-secondary', experience: 'Moderate' }
     },
     marketData,
     companyData,
     sessionId
   )
 
+  console.log('📝 Enhanced prompt generated with O*NET data:', {
+    hasOnetData: !!onetData,
+    importance: onetImportance,
+    promptLength: enhancedPrompt.length
+  })
+
   console.log('📝 Enhanced prompt generated, length:', enhancedPrompt.length)
+
+  // **ENHANCED: Add CareerOneStop context to prompt**
+  let cosContext = ''
+  if (cosData) {
+    const tasks = cosData.tasks?.slice(0, 3).map((t: any) => `- ${t.Task || t}`).join('\n') || ''
+    const tools = cosData.toolsAndTechnology?.slice(0, 5).map((t: any) => t.Example || t).join(', ') || ''
+    
+    cosContext = `
+
+### REAL-WORLD JOB CONTEXT (CareerOneStop):
+**Typical Tasks for this Occupation:**
+${tasks || '- Standard occupational tasks'}
+
+**Tools & Technology Used:**
+${tools || 'Standard industry tools'}
+
+${cosData.lmi ? `**Labor Market Intelligence:**
+- Average Pay: $${cosData.lmi.averagePayState?.toLocaleString() || 'N/A'} (State) / $${cosData.lmi.averagePayNational?.toLocaleString() || 'N/A'} (National)
+- Career Outlook: ${cosData.lmi.careerOutlook || 'Stable'}
+- Typical Training: ${cosData.lmi.typicalTraining || 'On-the-job training'}` : ''}
+`
+  }
 
   const prompt = `You are an Instructional Designer and Workforce Assessment Specialist working inside the SkillSync platform. You are creating quiz questions to evaluate a learner's readiness for a specific occupation.
 
@@ -223,7 +303,7 @@ Your task is to generate **high-quality multiple-choice questions (MCQs)** for t
 - Be inclusive and culturally neutral.
 
 ### CONTEXT:
-${enhancedPrompt}
+${enhancedPrompt}${cosContext}
 
 ### OUTPUT FORMAT:
 Return a JSON array structured like this:

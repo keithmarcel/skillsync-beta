@@ -4,11 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { PageLoader } from '@/components/ui/loading-spinner'
-import { Award, Clock, Calendar, RefreshCw, Lightbulb, ArrowLeft, Target } from 'lucide-react'
+import { CheckCircle, AlertCircle, XCircle, ArrowLeft, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import Link from 'next/link'
 
 export default function AssessmentResultsPage() {
@@ -18,7 +15,15 @@ export default function AssessmentResultsPage() {
 
   const [assessment, setAssessment] = useState<any>(null)
   const [skillResults, setSkillResults] = useState<any[]>([])
+  const [programs, setPrograms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+
+  const scrollToPrograms = () => {
+    const programsSection = document.getElementById('upskilling-programs')
+    if (programsSection) {
+      programsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   useEffect(() => {
     loadAssessmentResults()
@@ -26,12 +31,11 @@ export default function AssessmentResultsPage() {
 
   const loadAssessmentResults = async () => {
     try {
-      // Load assessment with job details
       const { data: assessmentData, error: assessmentError } = await supabase
         .from('assessments')
         .select(`
           *,
-          job:jobs(id, title, soc_code, company:companies(name))
+          job:jobs(id, title, soc_code, company:companies(name, logo_url))
         `)
         .eq('id', assessmentId)
         .single()
@@ -39,7 +43,6 @@ export default function AssessmentResultsPage() {
       if (assessmentError) throw assessmentError
       setAssessment(assessmentData)
 
-      // Load skill results
       const { data: skillsData, error: skillsError } = await supabase
         .from('assessment_skill_results')
         .select('*, skill:skills(name, category)')
@@ -49,6 +52,30 @@ export default function AssessmentResultsPage() {
       if (!skillsError && skillsData) {
         setSkillResults(skillsData)
       }
+
+      if (assessmentData.job?.soc_code) {
+        const gapSkills = skillsData?.filter(s => s.score_pct < 75).map(s => s.skill_id) || []
+        
+        if (gapSkills.length > 0) {
+          const { data: programsData } = await supabase
+            .from('programs')
+            .select(`
+              id,
+              name,
+              program_type,
+              duration_text,
+              delivery_format,
+              short_description,
+              school:schools(name, logo_url)
+            `)
+            .eq('status', 'published')
+            .limit(6)
+          
+          if (programsData) {
+            setPrograms(programsData)
+          }
+        }
+      }
     } catch (error) {
       console.error('Error loading results:', error)
     } finally {
@@ -56,24 +83,28 @@ export default function AssessmentResultsPage() {
     }
   }
 
-  const getStatusBadge = (readiness: number) => {
-    if (readiness >= 80) {
-      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100 text-lg px-4 py-1">Role Ready</Badge>
-    } else if (readiness >= 50) {
-      return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100 text-lg px-4 py-1">Close Gaps</Badge>
-    } else {
-      return <Badge className="bg-red-100 text-red-800 hover:bg-red-100 text-lg px-4 py-1">Needs Development</Badge>
+  const getReadinessStatus = (readiness: number) => {
+    if (readiness >= 80) return { 
+      icon: CheckCircle, 
+      text: "You're role ready.", 
+      color: 'text-[#00A6AE]'
+    }
+    if (readiness >= 60) return { 
+      icon: AlertCircle, 
+      text: "You're close to being role ready.", 
+      color: 'text-[#FDBA8C]'
+    }
+    return { 
+      icon: XCircle, 
+      text: "You need more skill development.", 
+      color: 'text-[#F8B4B4]'
     }
   }
 
-  const getSkillColor = (score: number) => {
-    if (score >= 80) return 'bg-green-500'
-    if (score >= 60) return 'bg-orange-500'
-    return 'bg-red-500'
-  }
-
-  const getGapPct = (score: number) => {
-    return Math.max(0, 100 - score)
+  const getSkillBarColor = (score: number) => {
+    if (score >= 80) return 'bg-[#84E1BC]'
+    if (score >= 60) return 'bg-[#FDBA8C]'
+    return 'bg-[#F8B4B4]'
   }
 
   if (loading) {
@@ -97,188 +128,310 @@ export default function AssessmentResultsPage() {
     )
   }
 
-  const readiness = assessment.readiness_pct || 0
-  const completedDate = new Date(assessment.analyzed_at || assessment.created_at).toLocaleDateString('en-US', {
-    month: '2-digit',
-    day: '2-digit',
-    year: 'numeric'
-  })
+  const readiness = Math.round(assessment.readiness_pct || 0)
+  const status = getReadinessStatus(readiness)
+  const StatusIcon = status.icon
+  const filledBlocks = Math.round(readiness / 10)
+
+  // Placeholder programs - always show at least these
+  const placeholderPrograms = [
+    {
+      id: 'placeholder-1',
+      name: 'Project Management Certificate',
+      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
+      program_type: 'Certificate',
+      delivery_format: 'Online',
+      duration_text: '12 Weeks',
+      short_description: 'Develop essential project management skills using Agile methodologies and effective team leadership.'
+    },
+    {
+      id: 'placeholder-2',
+      name: 'Construction Management A.S.',
+      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
+      program_type: "Associate's",
+      delivery_format: 'Hybrid',
+      duration_text: '2 Years',
+      short_description: 'Prepare for leadership roles in construction management, design, and construction estimating for roles in the construction industry by teaching core skills.'
+    },
+    {
+      id: 'placeholder-3',
+      name: 'Business Administration A.S.',
+      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
+      program_type: "Associate's",
+      delivery_format: 'Online',
+      duration_text: '2 Years',
+      short_description: 'Build broad business skills in communication, decision making, and other core areas.'
+    },
+    {
+      id: 'placeholder-4',
+      name: 'Business Essentials',
+      school: { name: 'Nexford University', logo_url: '/schools/Nexford-logo-horizontal-color.svg' },
+      program_type: 'Certificate',
+      delivery_format: 'Online',
+      duration_text: '1-2 years',
+      short_description: 'Gain practical skills in marketing, process automation, global operations, and impactful communication for business success.'
+    },
+    {
+      id: 'placeholder-5',
+      name: 'Building Construction Technologies Certificate',
+      school: { name: 'Pinellas Technical College', logo_url: '/schools/ptec.png' },
+      program_type: 'Certificate',
+      delivery_format: 'Online',
+      duration_text: '12 Weeks',
+      short_description: 'Prepare learners for entry- and mid-level roles in the construction industry by teaching core skills.'
+    },
+    {
+      id: 'placeholder-6',
+      name: 'Skills: Process Improvement: Data Analysis',
+      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
+      program_type: 'Certificate',
+      delivery_format: 'Online',
+      duration_text: '12 Weeks',
+      short_description: 'Build: Process Improvement: Data Analysis'
+    }
+  ]
+
+  const displayPrograms = programs.length > 0 ? programs : placeholderPrograms
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b">
-        <div className="max-w-[1280px] mx-auto px-6 py-6">
-          <Button
-            variant="ghost"
-            onClick={() => router.push('/my-assessments')}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Assessments
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Assessment Results</h1>
-            <p className="text-gray-600 mt-1">
-              {assessment.job?.title} • Completed {completedDate}
-            </p>
-          </div>
-        </div>
+      {/* Header - No background, just spacing like other pages */}
+      <div className="max-w-[1232px] mx-auto px-6 pt-8 pb-6">
+        <Button
+          variant="ghost"
+          onClick={() => router.push('/my-assessments')}
+          className="text-gray-600 hover:text-gray-900 -ml-3"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Assessments
+        </Button>
       </div>
 
-      <div className="max-w-[1280px] mx-auto px-6 py-8">
-        {/* Large Readiness Score Card */}
-        <Card className="mb-8 bg-[#0694A2] text-white border-0">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-6xl font-bold mb-2">{readiness}%</div>
-                <div className="text-xl text-white/90">Overall Readiness Score</div>
+      <div className="max-w-[1232px] mx-auto px-6 pb-8">
+        {/* Hero Section - Figma: #002F3F background, shadow, 48px padding */}
+        <div className="bg-[#002F3F] rounded-xl shadow-lg mb-12">
+          {/* Main content area - 48px 48px 32px padding */}
+          <div className="flex items-center px-12 pt-12 pb-8 gap-8">
+            {/* Left side - 2/3 width, pl-8 for inner padding */}
+            <div className="flex-1 pl-8">
+              {/* Status Icon + Headline */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-1.5 bg-[#00A6AE] rounded-full">
+                  <StatusIcon className={`h-4 w-4 text-[#AFECEF]`} />
+                </div>
+                <h1 className="text-4xl font-bold text-white font-source-sans-pro">{status.text}</h1>
               </div>
-              <div>
-                {getStatusBadge(readiness)}
+
+              {/* Match Percentage Text - 18px font */}
+              <p className="text-lg text-white/90 leading-relaxed mb-2">
+                Based on your assessment, you have a <span className="font-semibold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s <span className="font-semibold">{assessment.job?.title}</span> role.
+              </p>
+
+              {/* Personalized Feedback - 16px font, pt-2 */}
+              <p className="text-base text-white/80 leading-relaxed pt-2">
+                {readiness >= 80 && "You excel in strategic planning and leadership, critical skills for driving business success in the dynamic project management market. To further grow, focus on enhancing your project management, data analysis, and process improvement abilities. Engaging in business analytics and operations programs will support your role readiness."}
+                {readiness >= 60 && readiness < 80 && "You demonstrate strong foundational skills but have opportunities to strengthen key competencies. Focus on developing your weaker areas through targeted training and practice. With dedication, you'll be fully role-ready soon."}
+                {readiness < 60 && "You're building your skills in this area. Focus on the development areas identified below, and consider enrolling in recommended training programs to accelerate your growth and become role-ready."}
+              </p>
+            </div>
+
+            {/* Right side - Stacked bars + percentage, centered */}
+            <div className="flex flex-col items-center justify-center gap-3 flex-shrink-0 min-w-[280px]">
+              {/* Stacked bars - 200px wide, 12px height, 8px gap - BOTTOM TO TOP */}
+              <div className="flex flex-col-reverse gap-2">
+                {[...Array(10)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-[200px] h-3 rounded-full ${
+                      i < filledBlocks ? 'bg-[#00E1FF]' : 'bg-[#324650]/50'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Percentage - 64px font, 8px gap */}
+              <div className="text-center pt-1">
+                <div className="text-[64px] font-bold leading-none text-white">{readiness}%</div>
+                <div className="text-base text-white/70 mt-2">Role Readiness</div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Info Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Assessment Type */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Target className="h-6 w-6 text-gray-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm text-gray-600 mb-1">Assessment Type</div>
-                  <div className="text-2xl font-bold">Quiz</div>
-                  <div className="text-sm text-gray-500">Skills Assessment</div>
-                </div>
+          {/* Bottom card - 48px horizontal, 32px bottom padding */}
+          {readiness >= 80 && (
+            <div className="px-12 pb-8">
+              <div className="bg-[#114B5F] rounded-lg px-6 py-4 flex items-center justify-between">
+                <p className="text-lg text-[#F5F5F5]">
+                  You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with the employer.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={scrollToPrograms}
+                  className="bg-transparent border-[#AFECEF] text-[#AFECEF] hover:bg-white/10 text-sm whitespace-nowrap ml-4"
+                >
+                  View Upskilling Programs →
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Skills Assessed */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Lightbulb className="h-6 w-6 text-gray-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm text-gray-600 mb-1">Skills Assessed</div>
-                  <div className="text-2xl font-bold">{skillResults.length}</div>
-                  <div className="text-sm text-gray-500">Competencies evaluated</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Completion Date */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Clock className="h-6 w-6 text-gray-600" />
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm text-gray-600 mb-1">Completion Date</div>
-                  <div className="text-2xl font-bold">{completedDate}</div>
-                  <div className="text-sm text-gray-500">Assessment completed</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            </div>
+          )}
         </div>
 
-        {/* Skill-by-Skill Results */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-6">
-              <Award className="h-5 w-5 text-gray-700" />
-              <h2 className="text-xl font-bold">Skill-by-Skill Results</h2>
+        {/* Skills Gap Analysis - White bg with shadow */}
+        <div className="bg-white rounded-xl p-8 mb-12 shadow-md hover:shadow-lg transition-shadow duration-200">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-[#1F2937] mb-4 font-source-sans-pro">Skills Gap Analysis</h2>
+            <p className="text-base text-[#1F2A37]">
+              Here's how <span className="font-semibold">your skills</span> compare to what employers expect for this role.
+            </p>
+          </div>
+
+          {/* Legend - 16px gap between items */}
+          <div className="flex items-center gap-4 mb-5 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-3 rounded-full border border-dashed border-[#374151] bg-[#D1D5DB]" />
+              <span className="text-[#4B5563]">Benchmark</span>
             </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-3 rounded-full bg-[#84E1BC]" />
+              <span className="text-[#4B5563]">Proficient</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-3 rounded-full bg-[#FDBA8C]" />
+              <span className="text-[#4B5563]">Building Proficiency</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-3 rounded-full bg-[#F8B4B4]" />
+              <span className="text-[#4B5563]">Needs Development</span>
+            </div>
+          </div>
 
-            {skillResults.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No skill results available</p>
-            ) : (
-              <div className="space-y-4">
-                {skillResults.map((result, index) => {
-                  const score = result.score_pct || 0
-                  const gap = getGapPct(score)
-                  return (
-                    <div key={`${result.assessment_id}-${result.skill_id}-${index}`} className="border-b last:border-0 pb-4 last:pb-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium">{result.skill?.name}</div>
-                        <div className="text-sm font-semibold">{score}%</div>
-                      </div>
-                      <Progress 
-                        value={score} 
-                        className="h-2"
+          <div className="border-t border-[#E5E5E5] pt-5" />
+
+          {/* Skill Bars - 26px gap between items */}
+          <div className="space-y-[26px] mt-5">
+            {skillResults.map((result) => {
+              const score = Math.round(result.score_pct || 0)
+              const barColor = getSkillBarColor(score)
+              
+              return (
+                <div key={result.skill_id}>
+                  <div className="mb-2">
+                    <h3 className="font-medium text-base text-[#1F2937]">{result.skill?.name}</h3>
+                  </div>
+                  <div className="relative">
+                    {/* Background bar - border style from Figma */}
+                    <div className="w-full h-7 bg-[#E5E7EB] border border-[#E5E7EB] rounded-full relative flex items-center">
+                      {/* Filled bar */}
+                      <div
+                        className={`h-7 ${barColor} rounded-full absolute left-0 top-0 transition-all duration-500`}
+                        style={{ width: `${score}%` }}
                       />
-                      {gap > 20 && (
-                        <div className="text-sm text-gray-600 mt-1">
-                          Gap: {gap}% to reach proficiency
-                        </div>
-                      )}
+                      {/* Score label inside filled area */}
+                      <div
+                        className="absolute flex items-center justify-center h-7"
+                        style={{ left: `${Math.max(score - 5, 0)}%` }}
+                      >
+                        <span className="text-sm font-bold text-[#1F2A37] px-3">{score}%</span>
+                      </div>
+                      {/* 100% marker - dashed border on right */}
+                      <div className="absolute right-0 top-0 h-7 w-[60px] flex items-center justify-center border-r border-dashed border-[#4B5563] rounded-r-full">
+                        <span className="text-sm font-medium text-[#4B5563]">100%</span>
+                      </div>
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Next Steps */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold mb-4">Next Steps</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Role Ready */}
-            {readiness >= 80 && (
-              <Card className="bg-green-50 border-green-200">
-                <CardContent className="p-6">
-                  <div className="text-2xl mb-2">🎉 You're Role Ready!</div>
-                  <p className="text-green-900 mb-4">
-                    Your skills align well with this role. Consider applying or preparing your application materials.
-                  </p>
-                  <Button variant="outline" className="bg-white">
-                    Explore Similar Jobs
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Close Gaps */}
-            {readiness >= 50 && readiness < 80 && (
-              <Card className="bg-orange-50 border-orange-200">
-                <CardContent className="p-6">
-                  <div className="text-2xl mb-2">📚 Close Your Gaps</div>
-                  <p className="text-orange-900 mb-4">
-                    You're close! Focus on developing your weaker skills to become role-ready.
-                  </p>
-                  <Button variant="outline" className="bg-white">
-                    Find Training Programs
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Retake */}
-            <Card className="bg-gray-50 border-gray-200">
-              <CardContent className="p-6">
-                <div className="text-2xl mb-2">🔄 Retake Assessment</div>
-                <p className="text-gray-700 mb-4">
-                  Skills develop over time. Retake this assessment in a few months to track your progress.
-                </p>
-                <Button variant="outline" className="bg-white">
-                  Schedule Follow-up
-                </Button>
-              </CardContent>
-            </Card>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
+
+        {/* Education Program Matches - Always show - White bg with shadow */}
+        <div id="upskilling-programs" className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow duration-200">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-2 font-source-sans-pro">Upskilling Programs</h2>
+            <p className="text-gray-600">Build the skills you need to advance your career and close any gaps.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayPrograms.map((program) => (
+                <div key={program.id} className="bg-white border border-gray-200 rounded-lg transition-all duration-300 ease-in-out hover:shadow-md will-change-transform flex flex-col">
+                  {/* Header with Title and School - px-7 pt-6 */}
+                  <div className="px-7 pt-6 flex-1">
+                    <div className="h-[72px] flex flex-col justify-center">
+                      <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2">
+                        {program.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">{program.school?.name}</p>
+                    </div>
+
+                    {/* Pills/Badges - mt-4 */}
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {program.program_type && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                          {program.program_type}
+                        </span>
+                      )}
+                      {program.delivery_format && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                          {program.delivery_format}
+                        </span>
+                      )}
+                      {program.duration_text && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                          {program.duration_text}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-200 mt-4" />
+
+                    {/* Description - py-4 */}
+                    {program.short_description && (
+                      <div className="py-4">
+                        <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
+                          {program.short_description}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer with Logo and Button - px-7 pb-6 - ANCHORED TO BOTTOM */}
+                  <div className="px-7 pb-6 flex flex-col items-center mt-auto">
+                    <div className="w-full max-w-[352px] border-t border-dashed border-gray-300 mb-4" />
+                    <div className="w-full flex items-center justify-between gap-4">
+                      {/* School Logo */}
+                      <div className="h-12 w-[140px] flex items-center justify-start">
+                        {program.school?.logo_url ? (
+                          <img 
+                            src={program.school.logo_url} 
+                            alt={program.school.name}
+                            className="h-10 w-auto max-w-[160px] object-contain object-left"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 bg-gray-200 rounded flex items-center justify-center">
+                            <span className="text-xs font-medium text-gray-600">
+                              {program.school?.name?.[0] || 'S'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Explore Button */}
+                      <button className="flex flex-row justify-center items-center px-4 py-2 gap-2 h-10 bg-secondary text-teal-800 shadow-sm hover:bg-secondary/80 hover:shadow-md rounded-lg transition-all duration-300 ease-in-out hover:scale-105 transform-gpu backface-visibility-hidden">
+                        <span className="font-medium text-sm leading-5">
+                          Explore
+                        </span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-300 ease-in-out group-hover:translate-x-1 flex-shrink-0">
+                          <path d="M3.33334 8H12.6667M12.6667 8L8.00001 3.33333M12.6667 8L8.00001 12.6667" stroke="currentColor" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
       </div>
     </div>
   )

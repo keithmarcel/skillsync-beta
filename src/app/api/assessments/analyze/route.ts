@@ -64,25 +64,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Get quiz ID and details from job
-    const { data: quiz } = await supabase
-      .from('quizzes')
-      .select('id, job_id, soc_code, company_id')
-      .eq('job_id', assessment.job_id)
-      .single();
-
-    if (!quiz) {
+    // 3. Get quiz ID from assessment
+    const quizId = assessment.quiz_id;
+    
+    if (!quizId) {
       return NextResponse.json(
-        { success: false, error: 'Quiz not found for this job' },
+        { success: false, error: 'No quiz associated with this assessment' },
         { status: 404 }
       );
     }
+
+    // Get company_id from job
+    const companyId = assessment.job?.company_id || null;
 
     // 4. Get skill weightings for this quiz/job
     const { data: skillWeightings } = await supabase
       .from('skill_weightings')
       .select('*')
-      .eq('quiz_id', quiz.id);
+      .eq('quiz_id', quizId);
 
     // 5. Transform responses for assessment engine with full context
     console.log('Sample response structure:', JSON.stringify(responses[0], null, 2));
@@ -109,15 +108,15 @@ export async function POST(request: NextRequest) {
     // 6. Calculate weighted scores using assessment engine
     console.log('🎯 Starting weighted score calculation...');
     console.log(`  - Assessment ID: ${assessmentId}`);
-    console.log(`  - Quiz ID: ${quiz.id}`);
-    console.log(`  - SOC Code: ${quiz.soc_code}`);
+    console.log(`  - Quiz ID: ${quizId}`);
+    console.log(`  - Job ID: ${assessment.job_id}`);
     console.log(`  - Total Responses: ${userResponses.length}`);
     console.log(`  - Skill Weightings Available: ${skillWeightings?.length || 0}`);
 
     const skillScores = await calculateWeightedScore(
       userResponses,
-      quiz.id,
-      quiz.company_id
+      quizId,
+      companyId
     );
 
     console.log('✅ Weighted scores calculated:');
@@ -178,12 +177,13 @@ export async function POST(request: NextRequest) {
     console.log('✅ Successfully saved', insertedData?.length, 'skill results');
 
     // 8. Update assessment with final results
-    const statusTag = getStatusTag(roleReadiness.overallProficiency);
+    const readinessPct = Math.round(roleReadiness.overallProficiency); // Whole number
+    const statusTag = getStatusTag(readinessPct);
 
     const { error: updateError } = await supabase
       .from('assessments')
       .update({
-        readiness_pct: roleReadiness.overallProficiency,
+        readiness_pct: readinessPct,
         status_tag: statusTag,
         analyzed_at: new Date().toISOString()
       })
@@ -197,16 +197,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 9. Return success with results
+    // 9. Check if proficiency meets threshold for auto-invite
+    const visibilityThreshold = assessment.job?.visibility_threshold_pct || 85;
+    
+    if (readinessPct >= visibilityThreshold) {
+      console.log(`🎯 Proficiency ${readinessPct}% meets threshold ${visibilityThreshold}% - creating auto-invite...`);
+      
+      // Check if invite already exists for this assessment
+      const { data: existingInvite } = await supabase
+        .from('employer_invitations')
+        .select('id')
+        .eq('assessment_id', assessmentId)
+        .single();
+      
+      if (!existingInvite && assessment.job?.company_id && assessment.job?.application_url) {
+        const { error: inviteError } = await supabase
+          .from('employer_invitations')
+          .insert({
+            user_id: assessment.user_id,
+            company_id: assessment.job.company_id,
+            job_id: assessment.job_id,
+            assessment_id: assessmentId,
+            proficiency_pct: readinessPct,
+            application_url: assessment.job.application_url,
+            status: 'sent',
+            invited_at: new Date().toISOString()
+          });
+        
+        if (inviteError) {
+          console.error('⚠️ Failed to create auto-invite:', inviteError);
+          // Don't fail the whole request - just log the error
+        } else {
+          console.log('✅ Auto-invite created successfully');
+        }
+      } else if (existingInvite) {
+        console.log('ℹ️ Invite already exists for this assessment');
+      } else {
+        console.log('⚠️ Missing company_id or application_url - cannot create invite');
+      }
+    } else {
+      console.log(`ℹ️ Proficiency ${readinessPct}% below threshold ${visibilityThreshold}% - no invite created`);
+    }
+
+    // 10. Return success with results
     const response = {
       success: true,
-      readiness_pct: roleReadiness.overallProficiency,
+      readiness_pct: readinessPct,
       status_tag: statusTag,
       role_readiness: roleReadiness.roleReadiness,
       skill_results: skillResults,
       analyzed_at: new Date().toISOString(),
       summary: {
-        overall_proficiency: roleReadiness.overallProficiency,
+        overall_proficiency: readinessPct,
         strength_areas: roleReadiness.strengthAreas || [],
         development_areas: roleReadiness.developmentAreas || [],
         critical_gaps: roleReadiness.criticalGaps || [],
@@ -230,14 +272,14 @@ export async function POST(request: NextRequest) {
 }
 
 // Helper functions
-function getBand(score: number, customThreshold?: number): 'building' | 'proficient' | 'needs_dev' {
+function getBand(score: number, customThreshold?: number): 'developing' | 'proficient' | 'expert' {
   // Use custom threshold for featured roles, or default thresholds for high-demand occupations
   const proficientThreshold = customThreshold || 80;
-  const buildingThreshold = customThreshold ? customThreshold - 20 : 60;
+  const expertThreshold = 90;
   
+  if (score >= expertThreshold) return 'expert';
   if (score >= proficientThreshold) return 'proficient';
-  if (score >= buildingThreshold) return 'building';
-  return 'needs_dev';
+  return 'developing';
 }
 
 function getStatusTag(proficiency: number): 'role_ready' | 'close_gaps' | 'needs_development' {

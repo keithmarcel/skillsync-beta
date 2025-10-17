@@ -13,22 +13,89 @@ import { supabase } from '@/lib/supabase/client'
 import { useToast } from '@/hooks/use-toast'
 import { PageLoader } from '@/components/ui/loading-spinner'
 import { Clock, CheckCircle } from 'lucide-react'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useAuth } from '@/hooks/useAuth'
 
 type QuizState = 'loading' | 'intro' | 'in-progress' | 'submitting'
+
+/**
+ * Randomly select N questions from the pool
+ * Ensures even distribution across skills/sections
+ */
+function selectRandomQuestions(allQuestions: any[], targetCount: number): any[] {
+  if (allQuestions.length <= targetCount) {
+    return allQuestions
+  }
+  
+  // Group questions by section_id to ensure balanced coverage
+  const questionsBySection = allQuestions.reduce((acc, q) => {
+    if (!acc[q.section_id]) acc[q.section_id] = []
+    acc[q.section_id].push(q)
+    return acc
+  }, {} as Record<string, any[]>)
+  
+  const sections = Object.keys(questionsBySection)
+  const questionsPerSection = Math.floor(targetCount / sections.length)
+  const remainder = targetCount % sections.length
+  
+  const selected: any[] = []
+  
+  // Select questions from each section
+  sections.forEach((sectionId, index) => {
+    const sectionQuestions = questionsBySection[sectionId]
+    // Give extra questions to first sections if there's a remainder
+    const count = questionsPerSection + (index < remainder ? 1 : 0)
+    
+    // Shuffle this section's questions
+    const shuffled = [...sectionQuestions]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    
+    // Take the required number from this section
+    selected.push(...shuffled.slice(0, Math.min(count, shuffled.length)))
+  })
+  
+  // Final shuffle to mix up the order
+  for (let i = selected.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [selected[i], selected[j]] = [selected[j], selected[i]]
+  }
+  
+  return selected.slice(0, targetCount)
+}
 
 export default function QuizPage() {
   const params = useParams()
   const router = useRouter()
   const { user } = useAuth()
+  const { toast } = useToast()
   const quizId = params.quizId as string
+  const isSuperAdmin = user?.email === 'keith-woods@bisk.com'
 
   const [quizState, setQuizState] = useState<QuizState>('loading')
   const [quiz, setQuiz] = useState<any>(null)
   const [job, setJob] = useState<any>(null)
-  const [sections, setSections] = useState<any[]>([])
   const [questions, setQuestions] = useState<any[]>([])
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [sections, setSections] = useState<any[]>([])
   const [responses, setResponses] = useState<Record<string, string>>({})
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+
+  // Warn user before leaving assessment in progress
+  useEffect(() => {
+    if (quizState === 'in-progress') {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+      
+      window.addEventListener('beforeunload', handleBeforeUnload)
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [quizState])
 
   useEffect(() => {
     loadQuizData()
@@ -63,7 +130,7 @@ export default function QuizPage() {
         .from('quiz_sections')
         .select(`
           *,
-          skill:skills(id, name, category)
+          skill:skills(id, name, category, description)
         `)
         .eq('quiz_id', quizId)
         .order('order_index', { ascending: true })
@@ -91,8 +158,19 @@ export default function QuizPage() {
           throw questionsError
         }
         
-        console.log('Questions loaded:', questionsData?.length)
-        setQuestions(questionsData || [])
+        console.log('All questions loaded:', questionsData?.length)
+        
+        // Parse choices if they're strings
+        const parsedQuestions = (questionsData || []).map(q => ({
+          ...q,
+          choices: typeof q.choices === 'string' ? JSON.parse(q.choices) : q.choices
+        }))
+        
+        // **NEW: Select 8 random questions (or all if less than 8)**
+        const selectedQuestions = selectRandomQuestions(parsedQuestions, 8)
+        
+        console.log('Selected questions for assessment:', selectedQuestions.length)
+        setQuestions(selectedQuestions)
       }
 
       console.log('Quiz data loaded successfully, setting state to intro')
@@ -138,19 +216,31 @@ export default function QuizPage() {
 
     try {
       // Create assessment record
+      console.log('Creating assessment with:', {
+        user_id: user.id,
+        job_id: job.id,
+        quiz_id: quizId,
+        method: 'quiz',
+        status_tag: 'pending'
+      });
+
       const { data: assessment, error: assessmentError } = await supabase
         .from('assessments')
         .insert({
           user_id: user.id,
           job_id: job.id,
           quiz_id: quizId,
-          method: 'quiz',
-          status_tag: 'pending'
+          method: 'quiz'
+          // status_tag will be set after analysis
         })
         .select()
         .single()
 
-      if (assessmentError) throw assessmentError
+      if (assessmentError) {
+        console.error('Assessment creation error:', JSON.stringify(assessmentError, null, 2));
+        console.error('Error details:', assessmentError);
+        throw assessmentError;
+      }
 
       // Save quiz responses
       const responsesToSave = questions.map(q => {
@@ -160,7 +250,6 @@ export default function QuizPage() {
         return {
           assessment_id: assessment.id,
           question_id: q.id,
-          skill_id: sections.find(s => s.id === q.section_id)?.skill_id,
           selected: selectedAnswer,
           is_correct: isCorrect
         }
@@ -221,63 +310,97 @@ export default function QuizPage() {
         { label: job.title, href: `/jobs/${job.id}` },
         { label: 'Assessment', isActive: true }
       ]}>
-        {/* Assessment Stepper */}
-        <div className="mb-8">
-          <AssessmentStepper steps={[
-            { id: '1', label: 'Assess Your Skills', status: quizState === 'intro' ? 'current' : 'completed' },
-            { id: '2', label: 'SkillSync Readiness Score', status: 'upcoming' },
-            { id: '3', label: 'Education Program Matches', status: 'upcoming' }
-          ]} />
-        </div>
         {quizState === 'intro' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card>
+          <div>
+            {/* Main Intro Card with Image */}
+            <Card className="mb-8 border-0 shadow-none">
+              <CardContent className="p-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                  {/* Left: Content */}
+                  <div className="flex flex-col justify-center">
+                    <h2 className="text-4xl font-bold text-gray-900 mb-6 font-source-sans-pro">
+                      See How Your Skills Stack Up
+                    </h2>
+                    <p className="text-gray-600 mb-8 leading-relaxed text-base">
+                      Complete this quiz to discover how your current skills align with the role of {job.title}. We'll assess your technical knowledge, decision-making, and soft skills across key areas.
+                    </p>
+
+                    <Button 
+                      onClick={handleStartQuiz} 
+                      className="bg-[#0694A2] hover:bg-[#057A85] text-white px-6 py-3 text-base font-medium inline-flex items-center gap-2 self-start"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Start Quiz
+                    </Button>
+                  </div>
+
+                  {/* Right: Role Image */}
+                  <div className="order-first lg:order-last">
+                    {job.featured_image_url ? (
+                      <img 
+                        src={job.featured_image_url} 
+                        alt={job.title}
+                        className="w-full h-80 object-cover rounded-lg shadow-lg"
+                      />
+                    ) : (
+                      <div className="w-full h-80 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg shadow-lg flex items-center justify-center">
+                        <div className="text-center text-white p-8">
+                          <div className="text-6xl mb-4">💼</div>
+                          <p className="text-xl font-semibold">{job.title}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bottom Info Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Left: Assessment Details */}
+              <Card className="border-0 shadow-none">
                 <CardHeader>
-                  <CardTitle className="text-xl">Ready to Test Your Skills?</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-xl font-bold font-source-sans-pro">What to Expect</CardTitle>
+                  <CardDescription className="text-base">
                     This assessment will evaluate your knowledge across {sections.length} key skill areas for {job.title}.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
-                    <Clock className="h-5 w-5 text-blue-600" />
+                <CardContent className="space-y-4">
+                  {/* Estimated Time */}
+                  <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                    <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-blue-900">Estimated Time</p>
-                      <p className="text-sm text-blue-700">{quiz.estimated_minutes || 15} minutes</p>
+                      <p className="font-semibold text-blue-900 text-sm">Estimated Time</p>
+                      <p className="text-sm text-blue-700">{quiz.estimated_minutes || 5} minutes</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                  {/* Total Questions */}
+                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-green-900">Total Questions</p>
+                      <p className="font-semibold text-green-900 text-sm">Total Questions</p>
                       <p className="text-sm text-green-700">{questions.length} questions across {sections.length} skills</p>
                     </div>
                   </div>
-
-                  <div className="pt-4">
-                    <Button onClick={handleStartQuiz} className="bg-[#114B5F] hover:bg-[#0d3a4a] text-white w-full">
-                      Start Assessment →
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
-            </div>
 
-            <div className="lg:col-span-1">
-              <Card>
+              {/* Right: Skills Covered */}
+              <Card className="border-0 shadow-none">
                 <CardHeader>
-                  <CardTitle className="text-lg">Skills Covered</CardTitle>
+                  <CardTitle className="text-xl font-bold font-source-sans-pro">Skills Covered</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {sections.map((section, index) => (
-                      <div key={section.id} className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-medium">
+                      <div key={section.id} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-teal-300 hover:shadow-sm transition-all duration-200">
+                        <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                           {index + 1}
                         </div>
-                        <span className="text-sm">{section.skill?.name}</span>
+                        <span className="text-xs text-gray-700 font-medium leading-tight">{section.skill?.name}</span>
                       </div>
                     ))}
                   </div>
@@ -288,8 +411,8 @@ export default function QuizPage() {
         )}
 
         {quizState === 'in-progress' && currentQuestion && (
-          <div className="max-w-3xl mx-auto">
-            <Card>
+          <div>
+            <Card className="border-0 shadow-none">
               <CardHeader>
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -321,6 +444,23 @@ export default function QuizPage() {
                       ))}
                     </div>
                   </RadioGroup>
+
+                  {/* Testing Mode: Show Correct Answer (Super Admin Only) */}
+                  {isSuperAdmin && currentQuestion.answer_key && (
+                    <Alert className="mt-6 bg-amber-50 border-2 border-amber-300">
+                      <CheckCircle className="h-5 w-5 text-amber-600" />
+                      <AlertTitle className="text-amber-900 font-bold text-lg">🧪 TESTING MODE - Correct Answer</AlertTitle>
+                      <AlertDescription className="text-amber-900 font-medium text-base mt-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">Answer {currentQuestion.answer_key}:</span>
+                          <span>{currentQuestion.choices[currentQuestion.answer_key]}</span>
+                        </div>
+                        <p className="text-sm text-amber-700 mt-2">
+                          This alert only appears for super admins. Pick any answer to test different scenarios.
+                        </p>
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </div>
 
                 <div className="flex justify-between pt-4">
