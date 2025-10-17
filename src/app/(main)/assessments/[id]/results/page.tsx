@@ -354,64 +354,79 @@ export default function AssessmentResultsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayPrograms.map((program) => (
-                <div key={program.id} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-all duration-300 ease-in-out">
-                  {/* Title and School */}
-                  <div className="mb-4">
-                    <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2 mb-1">
-                      {program.name}
-                    </h3>
-                    <p className="text-sm text-gray-500">{program.school?.name}</p>
-                  </div>
+                <div key={program.id} className="bg-white border border-gray-200 rounded-lg transition-all duration-300 ease-in-out hover:shadow-md will-change-transform">
+                  {/* Header with Title and School - px-7 pt-6 */}
+                  <div className="px-7 pt-6">
+                    <div className="h-[72px] flex flex-col justify-center">
+                      <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2">
+                        {program.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">{program.school?.name}</p>
+                    </div>
 
-                  {/* Pills/Badges */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {program.program_type && (
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-md font-medium">
-                        {program.program_type}
-                      </span>
-                    )}
-                    {program.delivery_format && (
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-md font-medium">
-                        {program.delivery_format}
-                      </span>
-                    )}
-                    {program.duration_text && (
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-md font-medium">
-                        {program.duration_text}
-                      </span>
-                    )}
-                  </div>
+                    {/* Pills/Badges - mt-4 */}
+                    <div className="mt-4 flex flex-wrap gap-1.5">
+                      {program.program_type && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                          {program.program_type}
+                        </span>
+                      )}
+                      {program.delivery_format && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                          {program.delivery_format}
+                        </span>
+                      )}
+                      {program.duration_text && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
+                          {program.duration_text}
+                        </span>
+                      )}
+                    </div>
 
-                  {/* Description */}
-                  {program.short_description && (
-                    <p className="text-sm text-gray-600 leading-relaxed mb-6 line-clamp-3">
-                      {program.short_description}
-                    </p>
-                  )}
+                    {/* Divider */}
+                    <div className="border-t border-gray-200 mt-4" />
 
-                  {/* Divider */}
-                  <div className="border-t border-dashed border-gray-300 my-4" />
-
-                  {/* School Logo and Button */}
-                  <div className="flex items-center justify-between gap-4">
-                    {program.school?.logo_url && (
-                      <div className="h-10 w-[120px] flex items-center">
-                        <img 
-                          src={program.school.logo_url} 
-                          alt={program.school.name}
-                          className="h-8 w-auto max-w-full object-contain object-left"
-                        />
+                    {/* Description - py-4 */}
+                    {program.short_description && (
+                      <div className="py-4">
+                        <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
+                          {program.short_description}
+                        </p>
                       </div>
                     )}
-                    <Button 
-                      size="sm" 
-                      className="bg-secondary text-teal-800 shadow-sm hover:bg-secondary/80 hover:shadow-md transition-all duration-300 ease-in-out hover:scale-105"
-                    >
-                      <span className="font-medium text-sm">Explore</span>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1">
-                        <path d="M3.33334 8H12.6667M12.6667 8L8.00001 3.33333M12.6667 8L8.00001 12.6667" stroke="currentColor" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </Button>
+                  </div>
+
+                  {/* Footer with Logo and Button - px-7 pb-6 */}
+                  <div className="px-7 pb-6 flex flex-col items-center">
+                    <div className="w-full max-w-[352px] border-t border-dashed border-gray-300 mt-6 mb-4" />
+                    <div className="w-full flex items-center justify-between gap-4">
+                      {/* School Logo */}
+                      <div className="h-12 w-[140px] flex items-center justify-start">
+                        {program.school?.logo_url ? (
+                          <img 
+                            src={program.school.logo_url} 
+                            alt={program.school.name}
+                            className="h-10 w-auto max-w-[160px] object-contain object-left"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 bg-gray-200 rounded flex items-center justify-center">
+                            <span className="text-xs font-medium text-gray-600">
+                              {program.school?.name?.[0] || 'S'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Explore Button */}
+                      <button className="flex flex-row justify-center items-center px-4 py-2 gap-2 h-10 bg-secondary text-teal-800 shadow-sm hover:bg-secondary/80 hover:shadow-md rounded-lg transition-all duration-300 ease-in-out hover:scale-105 transform-gpu backface-visibility-hidden">
+                        <span className="font-medium text-sm leading-5">
+                          Explore
+                        </span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-300 ease-in-out group-hover:translate-x-1 flex-shrink-0">
+                          <path d="M3.33334 8H12.6667M12.6667 8L8.00001 3.33333M12.6667 8L8.00001 12.6667" stroke="currentColor" strokeWidth="1.33" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
