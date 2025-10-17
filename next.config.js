@@ -37,6 +37,8 @@ const nextConfig = {
       bodySizeLimit: '2mb',
     },
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    // Disable missing Suspense bailout for useSearchParams during build
+    missingSuspenseWithCSRBailout: false,
   },
   
   // Security headers (also defined in netlify.toml for redundancy)

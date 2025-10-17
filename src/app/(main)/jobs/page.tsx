@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Badge } from '@/components/ui/badge'
 import StickyTabs from '@/components/ui/sticky-tabs'
@@ -26,6 +26,8 @@ import { PageLoader } from '@/components/ui/loading-spinner'
 
 // Force dynamic rendering to avoid prerendering issues with Supabase
 export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+export const revalidate = 0
 
 // Function to determine role readiness based on REAL user assessment data
 function determineRoleReadiness(jobId: string, userAssessments?: any[]): string {
