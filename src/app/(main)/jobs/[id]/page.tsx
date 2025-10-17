@@ -153,7 +153,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 program_type,
                 short_desc,
                 duration_text,
-                school:schools(name)
+                format,
+                school:schools(name, logo_url)
               )
             `)
             .eq('job_id', params.id)
