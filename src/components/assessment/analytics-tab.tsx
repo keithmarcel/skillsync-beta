@@ -419,14 +419,14 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
               
               return Object.entries(questionsBySkill).map(([skillName, questions]: [string, any]) => (
                 <div key={skillName} className="space-y-3">
-                  <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
-                    <h4 className="text-sm font-semibold text-gray-900">{skillName}</h4>
-                    <Badge className="bg-gray-100 text-gray-700 border-0 rounded-full shadow-none text-xs">
+                  <div className="flex items-center gap-2 pb-3 mb-3 border-b-2 border-gray-300">
+                    <h4 className="text-base font-bold text-gray-900">{skillName}</h4>
+                    <Badge className="bg-gray-100 text-gray-700 border-0 rounded-full shadow-none text-xs pointer-events-none">
                       {questions.length} questions
                     </Badge>
                   </div>
-                  {questions.slice(0, 5).map((question: any) => (
-                    <div key={question.questionId} className="flex items-start justify-between gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                  {questions.map((question: any) => (
+                    <div key={question.questionId} className="flex items-start justify-between gap-4 py-3 border-b border-gray-100 last:border-0">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-900 line-clamp-2">{question.questionText}</p>
                         <p className="text-xs text-gray-500 mt-1">
@@ -438,7 +438,7 @@ export function AnalyticsTab({ quizId, isAdmin = false }: AnalyticsTabProps) {
                           question.correctRate >= 80 ? 'bg-green-100 text-green-800' :
                           question.correctRate >= 60 ? 'bg-orange-100 text-orange-800' :
                           'bg-red-100 text-red-800'
-                        } border-0 rounded-md shadow-none text-xs font-medium min-w-[60px] justify-center`}>
+                        } border-0 rounded-md shadow-none text-xs font-medium min-w-[60px] justify-center pointer-events-none`}>
                           {Math.round(question.correctRate)}%
                         </Badge>
                       </div>
