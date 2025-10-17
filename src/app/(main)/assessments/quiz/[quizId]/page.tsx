@@ -29,14 +29,43 @@ function selectRandomQuestions(allQuestions: any[], targetCount: number): any[] 
     return allQuestions
   }
   
-  // Shuffle array using Fisher-Yates algorithm
-  const shuffled = [...allQuestions]
-  for (let i = shuffled.length - 1; i > 0; i--) {
+  // Group questions by section_id to ensure balanced coverage
+  const questionsBySection = allQuestions.reduce((acc, q) => {
+    if (!acc[q.section_id]) acc[q.section_id] = []
+    acc[q.section_id].push(q)
+    return acc
+  }, {} as Record<string, any[]>)
+  
+  const sections = Object.keys(questionsBySection)
+  const questionsPerSection = Math.floor(targetCount / sections.length)
+  const remainder = targetCount % sections.length
+  
+  const selected: any[] = []
+  
+  // Select questions from each section
+  sections.forEach((sectionId, index) => {
+    const sectionQuestions = questionsBySection[sectionId]
+    // Give extra questions to first sections if there's a remainder
+    const count = questionsPerSection + (index < remainder ? 1 : 0)
+    
+    // Shuffle this section's questions
+    const shuffled = [...sectionQuestions]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    
+    // Take the required number from this section
+    selected.push(...shuffled.slice(0, Math.min(count, shuffled.length)))
+  })
+  
+  // Final shuffle to mix up the order
+  for (let i = selected.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    [selected[i], selected[j]] = [selected[j], selected[i]]
   }
   
-  return shuffled.slice(0, targetCount)
+  return selected.slice(0, targetCount)
 }
 
 export default function QuizPage() {
