@@ -276,8 +276,8 @@ export default function AssessmentResultsPage() {
           )}
         </div>
 
-        {/* Skills Gap Analysis - No border */}
-        <div className="bg-[#FCFCFC] rounded-xl p-8 mb-6">
+        {/* Skills Gap Analysis - White bg with hover shadow */}
+        <div className="bg-white rounded-xl p-8 mb-6 hover:shadow-md transition-shadow duration-200">
           <div className="mb-4">
             <h2 className="text-2xl font-bold text-[#1F2937] mb-4 font-source-sans-pro">Skills Gap Analysis</h2>
             <p className="text-base text-[#1F2A37]">
@@ -345,8 +345,8 @@ export default function AssessmentResultsPage() {
           </div>
         </div>
 
-        {/* Education Program Matches - Always show - No border */}
-        <div id="upskilling-programs" className="bg-white rounded-xl p-8">
+        {/* Education Program Matches - Always show - White bg with hover shadow */}
+        <div id="upskilling-programs" className="bg-white rounded-xl p-8 hover:shadow-md transition-shadow duration-200">
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-2 font-source-sans-pro">Upskilling Programs</h2>
             <p className="text-gray-600">Build the skills you need to advance your career and close any gaps.</p>
