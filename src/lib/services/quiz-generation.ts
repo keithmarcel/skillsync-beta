@@ -10,6 +10,7 @@ import {
   getCompanyContext,
   calculateSkillWeighting
 } from './enhanced-ai-context'
+import { fetchONETSkills } from './skills-taxonomy-mapper'
 
 // Use server-side Supabase client for service operations
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -68,6 +69,28 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
     throw new Error(`Skill ${skillId} not found`)
   }
 
+  // **NEW: Fetch O*NET skills for this SOC code**
+  console.log('🌐 Fetching O*NET data for SOC:', socCode)
+  const onetSkills = await fetchONETSkills(socCode)
+  console.log(`📚 Found ${onetSkills.length} O*NET skills`)
+
+  // Find matching O*NET skill for enhanced context
+  const onetMatch = onetSkills.find((onet: any) => 
+    onet.name?.toLowerCase() === skillName.toLowerCase() ||
+    onet.name?.toLowerCase().includes(skillName.toLowerCase()) ||
+    skillName.toLowerCase().includes(onet.name?.toLowerCase())
+  )
+
+  if (onetMatch) {
+    console.log('✅ O*NET match found:', {
+      name: onetMatch.name,
+      importance: onetMatch.importance,
+      category: onetMatch.category
+    })
+  } else {
+    console.log('⚠️ No O*NET match for skill:', skillName)
+  }
+
   // Get job examples for this SOC code to provide context
   const { data: jobs } = await supabase
     .from('jobs')
@@ -99,7 +122,8 @@ export async function generateSkillQuestions(options: QuizGenerationOptions): Pr
         existingQuestions: questions, // Avoid duplicates
         socCode: options.socCode,
         companyId: options.companyId,
-        sessionId: options.sessionId
+        sessionId: options.sessionId,
+        onetData: onetMatch // Pass O*NET data for enhanced context
       })
 
       console.log(`✅ Batch generated ${batchQuestions.length} questions`)
@@ -125,7 +149,8 @@ async function generateQuestionBatch({
   existingQuestions,
   socCode,
   companyId,
-  sessionId
+  sessionId,
+  onetData
 }: {
   skill: any
   proficiencyLevel: string
@@ -135,6 +160,7 @@ async function generateQuestionBatch({
   socCode?: string
   companyId?: string
   sessionId?: string
+  onetData?: any
 }): Promise<GeneratedQuestion[]> {
 
   const existingStems = existingQuestions.map(q => q.stem.toLowerCase())
@@ -166,21 +192,31 @@ async function generateQuestionBatch({
 
   console.log('⚖️ Skill weighting calculated:', skillWeighting)
 
-  // Generate enhanced AI context
+  // **ENHANCED: Use O*NET data if available**
+  const onetImportance = onetData?.importance || 
+    (skill.importance_level === 'critical' ? 4.5 :
+     skill.importance_level === 'important' ? 3.5 : 2.5)
+
+  // Generate enhanced AI context with O*NET data
   const enhancedPrompt = await generateEnhancedAIContext(
     socCode || '',
     skill.name,
     {
-      importance: skill.importance_level === 'critical' ? 4.5 :
-                  skill.importance_level === 'important' ? 3.5 : 2.5,
-      workActivities: ['Standard occupational tasks'],
-      knowledge: ['Domain expertise required'],
-      jobZone: { education: 'Post-secondary', experience: 'Moderate' }
+      importance: onetImportance,
+      workActivities: onetData?.workActivities || ['Standard occupational tasks'],
+      knowledge: onetData?.knowledge || ['Domain expertise required'],
+      jobZone: onetData?.jobZone || { education: 'Post-secondary', experience: 'Moderate' }
     },
     marketData,
     companyData,
     sessionId
   )
+
+  console.log('📝 Enhanced prompt generated with O*NET data:', {
+    hasOnetData: !!onetData,
+    importance: onetImportance,
+    promptLength: enhancedPrompt.length
+  })
 
   console.log('📝 Enhanced prompt generated, length:', enhancedPrompt.length)
 
