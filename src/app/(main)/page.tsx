@@ -42,7 +42,8 @@ export default function Dashboard() {
   // The loading state is now derived from all data hooks, ensuring a smooth experience.
   const isLoading = !mounted || dashboardLoading || favoritesLoading || snapshotLoading;
 
-  if (isLoading) {
+  // Show loading state immediately if user is employer/provider admin (prevents flash of job seeker dashboard)
+  if (isLoading || (profile && ((isEmployerAdmin && !isSuperAdmin) || (isProviderAdmin && !isSuperAdmin)))) {
     return (
       <div className="space-y-0">
         {/* Page Header Skeleton */}
