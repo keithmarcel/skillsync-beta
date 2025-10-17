@@ -54,3 +54,6 @@ venv/
 __pycache__/
 *.pyc
 program-enrichment.log
+
+# Local Netlify folder
+.netlify
