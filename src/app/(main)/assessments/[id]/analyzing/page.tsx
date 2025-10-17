@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { supabase } from '@/lib/supabase/client';
 import PageHeader from '@/components/ui/page-header';
 import BreadcrumbLayout from '@/components/ui/breadcrumb-layout';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function AssessmentAnalyzingPage() {
   const params = useParams();
@@ -122,7 +123,7 @@ export default function AssessmentAnalyzingPage() {
             {/* SkillSync Logo */}
             <div className="mb-8">
               <Image
-                src="/logo_skillsync_hirestpeteway_lockup.svg"
+                src="/logo-skillsync-lockup.svg"
                 alt="SkillSync by HireSt. Pete"
                 width={200}
                 height={60}
@@ -130,10 +131,9 @@ export default function AssessmentAnalyzingPage() {
               />
             </div>
 
-            {/* Spinner */}
-            <div className="relative w-24 h-24 mb-8">
-              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-[#0694A2] rounded-full border-t-transparent animate-spin"></div>
+            {/* Diamond Loader */}
+            <div className="mb-8">
+              <LoadingSpinner size={80} />
             </div>
 
             {/* Message */}
