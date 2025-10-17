@@ -354,9 +354,9 @@ export default function AssessmentResultsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayPrograms.map((program) => (
-                <div key={program.id} className="bg-white border border-gray-200 rounded-lg transition-all duration-300 ease-in-out hover:shadow-md will-change-transform">
+                <div key={program.id} className="bg-white border border-gray-200 rounded-lg transition-all duration-300 ease-in-out hover:shadow-md will-change-transform flex flex-col">
                   {/* Header with Title and School - px-7 pt-6 */}
-                  <div className="px-7 pt-6">
+                  <div className="px-7 pt-6 flex-1">
                     <div className="h-[72px] flex flex-col justify-center">
                       <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2">
                         {program.name}
@@ -396,9 +396,9 @@ export default function AssessmentResultsPage() {
                     )}
                   </div>
 
-                  {/* Footer with Logo and Button - px-7 pb-6 */}
-                  <div className="px-7 pb-6 flex flex-col items-center">
-                    <div className="w-full max-w-[352px] border-t border-dashed border-gray-300 mt-6 mb-4" />
+                  {/* Footer with Logo and Button - px-7 pb-6 - ANCHORED TO BOTTOM */}
+                  <div className="px-7 pb-6 flex flex-col items-center mt-auto">
+                    <div className="w-full max-w-[352px] border-t border-dashed border-gray-300 mb-4" />
                     <div className="w-full flex items-center justify-between gap-4">
                       {/* School Logo */}
                       <div className="h-12 w-[140px] flex items-center justify-start">
