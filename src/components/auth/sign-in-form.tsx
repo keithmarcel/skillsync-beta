@@ -182,7 +182,7 @@ export function SignInForm({
         })
         
         if (validation.correctPortal) {
-          router.push(`${validation.correctPortal}?alert=wrong-portal`)
+          router.push(`${validation.correctPortal}?alert=portal-signin`)
         }
         return
       }
