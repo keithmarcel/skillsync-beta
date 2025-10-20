@@ -42,11 +42,14 @@ This document provides comprehensive technical documentation for the SkillSync a
 src/
 ├── app/                    # Next.js app router
 │   ├── (main)/            # Main application routes
+│   │   ├── legal/        # Legal pages (terms, privacy, user-agreement)
+│   │   └── ...           # Other main routes
 │   ├── admin/             # Admin panel routes
 │   └── api/               # API routes (if any)
 ├── components/            # Reusable UI components
 │   ├── ui/               # Base UI components (Radix)
 │   ├── admin/            # Admin-specific components
+│   ├── legal/            # Legal page components
 │   └── [feature]/        # Feature-specific components
 ├── hooks/                 # Custom React hooks
 ├── lib/                   # Utility libraries
@@ -196,6 +199,44 @@ WHERE f.user_id = auth.uid()
 - Reusable, stateless components
 - Based on Radix UI primitives
 - Consistent styling with Tailwind
+
+#### Legal Components (`src/components/legal/`)
+- Legal page content wrapper
+- Consistent styling across all legal pages
+- Server-side rendering for static content
+
+### Legal Pages System
+
+**Routes:**
+- `/legal/terms` - Terms of Use (24 sections)
+- `/legal/privacy` - Privacy Policy (10 sections)
+- `/legal/user-agreement` - User Terms of Acceptance (24 sections)
+
+**Architecture:**
+```typescript
+// Reusable legal page component
+<LegalPageContent title="..." lastUpdated="...">
+  <section>
+    <h2>Section Title</h2>
+    <p>Content...</p>
+  </section>
+</LegalPageContent>
+```
+
+**Key Features:**
+- Extracted from official RTF documents
+- Excluded from main app navbar/footer
+- Dedicated legal layout with centered logo
+- 980px max-width container
+- Full-page scrolling enabled
+- Links open in new tabs
+
+**Integration Points:**
+- Signup flow (Step 1 & 2)
+- Profile settings employer opt-in
+- Site-wide footer
+
+**Documentation:** [LEGAL_PAGES_IMPLEMENTATION.md](./features/LEGAL_PAGES_IMPLEMENTATION.md)
 
 ### Data Flow Pattern
 
