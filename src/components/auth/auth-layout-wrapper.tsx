@@ -11,8 +11,10 @@ import { supabase } from '@/lib/supabase/client'
 export function AuthLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { profile } = useAuth()
-  const isAuthPage = pathname?.startsWith('/auth/')
-  const isEmployerPage = pathname?.startsWith('/employer')
+  const isAuthPage = pathname?.startsWith('/auth/') || 
+                     pathname === '/employer/auth/signin' || 
+                     pathname === '/provider/auth/signin'
+  const isEmployerPage = pathname?.startsWith('/employer') && !pathname?.startsWith('/employer/auth')
   
   const [companyData, setCompanyData] = useState<{ id: string; name: string; logo_url: string | null } | null>(null)
 
