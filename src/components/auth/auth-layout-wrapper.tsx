@@ -14,6 +14,7 @@ export function AuthLayoutWrapper({ children }: { children: React.ReactNode }) {
   const isAuthPage = pathname?.startsWith('/auth/') || 
                      pathname === '/employer/auth/signin' || 
                      pathname === '/provider/auth/signin'
+  const isLegalPage = pathname?.startsWith('/legal/')
   const isEmployerPage = pathname?.startsWith('/employer') && !pathname?.startsWith('/employer/auth')
   
   const [companyData, setCompanyData] = useState<{ id: string; name: string; logo_url: string | null } | null>(null)
@@ -47,6 +48,10 @@ export function AuthLayoutWrapper({ children }: { children: React.ReactNode }) {
         {children}
       </div>
     )
+  }
+
+  if (isLegalPage) {
+    return <>{children}</>
   }
 
   return (
