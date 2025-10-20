@@ -5,49 +5,45 @@ import { createClient } from '@/lib/supabase/middleware';
 export async function middleware(request: NextRequest) {
   const { supabase, response } = createClient(request);
 
-  // This line is crucial for the SSR pattern. It refreshes the session cookie
-  // on the server, preventing the client-side hang.
+  // Refresh the session cookie on the server (crucial for SSR pattern)
   const { data: { session } } = await supabase.auth.getSession();
   const user = session?.user;
-
   const { pathname } = request.nextUrl;
 
   // --- Define Route Groups ---
-  const publicRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/forgot-password', '/auth/verify-email'];
-  const authRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/forgot-password', '/auth/verify-email']; // Routes for unauthenticated users
-  const portalAuthRoutes = ['/employer/auth/signin', '/provider/auth/signin']; // Portal-specific auth routes
-  const protectedRoutes = ['/', '/jobs', '/programs', '/assessments', '/profile']; // Routes for any authenticated user
-  const adminRoutes = ['/admin']; // Routes for admin users only
-  const apiRoutes = ['/api']; // API routes - allow for now
+  const authRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/forgot-password', '/auth/verify-email'];
+  const portalAuthRoutes = ['/employer/auth/signin', '/provider/auth/signin'];
+  const protectedRoutes = ['/', '/jobs', '/programs', '/assessments', '/profile', '/employer', '/provider'];
+  const adminRoutes = ['/admin'];
 
   // --- Route Protection Logic ---
 
-  // Skip middleware for API routes (for now)
-  if (apiRoutes.some(r => pathname.startsWith(r))) {
+  // 1. Allow API routes (they handle their own auth)
+  if (pathname.startsWith('/api')) {
     return response;
   }
 
-  // Skip middleware for auth routes if user is not authenticated
+  // 2. Allow unauthenticated users to access auth pages
   if (!user && (authRoutes.includes(pathname) || portalAuthRoutes.includes(pathname))) {
     return response;
   }
 
-  // 1. If user is not logged in and trying to access a protected or admin route
+  // 3. Redirect unauthenticated users trying to access protected routes
   if (!user && (protectedRoutes.some(r => pathname.startsWith(r)) || adminRoutes.some(r => pathname.startsWith(r)))) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
-  // 2. If user is logged in and trying to access a main auth route (redirect to home)
+  // 4. Redirect authenticated users away from main auth routes (they should use portal routes or be logged in)
   if (user && authRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 3. Allow portal auth routes even if user is logged in (they handle their own validation)
+  // 5. Allow portal auth routes for authenticated users (they handle role validation internally)
   if (user && portalAuthRoutes.includes(pathname)) {
     return response;
   }
 
-  // 3. If user is trying to access an admin route, check for admin role
+  // 6. Protect admin routes - verify admin role
   if (user && adminRoutes.some(r => pathname.startsWith(r))) {
     const { data: profile } = await supabase
       .from('profiles')
@@ -56,12 +52,11 @@ export async function middleware(request: NextRequest) {
       .single();
 
     if (!profile?.admin_role) {
-      // Not an admin, redirect to home page
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
 
-  // If no redirection is needed, continue to the requested page
+  // Allow request to proceed
   return response;
 }
 
