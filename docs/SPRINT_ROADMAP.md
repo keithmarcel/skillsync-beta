@@ -124,40 +124,53 @@
 
 ---
 
-## 🎯 Next Sprint: Phase 4A - Crosswalk UI
+## 🎯 Current Sprint: Phase 4A - Crosswalk Data Implementation
 
-**Branch:** `feature/employer-dashboard-updates`  
+**Branch:** `feature/crosswalk-implementation` (to be created)  
 **Duration:** 2-3 days  
-**Goal:** Complete HDO/Featured Role crosswalk UI and discovery features
+**Goal:** Implement crosswalk count queries and skill overlap logic  
+**Updated:** October 20, 2025 6:08 PM
+
+### Sprint Status
+
+**UI Structure:** ✅ Complete
+- HDO table columns exist (Open Roles, Programs)
+- HDO detail page sections exist (empty states)
+- Featured Role detail has Programs section working
+- Badge styling and click handlers implemented
+
+**Current Blocker:** Need crosswalk data queries
 
 ### Sprint Objectives
 
-**1. HDO Table Crosswalk Columns** (Day 1)
-- [ ] Add "Open Roles" column with crosswalk counts
-- [ ] Add "Programs" column with crosswalk counts
-- [ ] Implement crosswalk count queries
-- [ ] Style badges (teal pills, gray when 0)
-- [ ] Add click handlers (navigate to detail page with anchor)
-- [ ] Test with various data scenarios
+**1. Crosswalk Count Queries** (Day 1)
+- [ ] Review database schema for skills relationships
+- [ ] Implement `related_jobs_count` query (Featured Roles by SOC code)
+- [ ] Implement `related_programs_count` query (Programs by skill overlap)
+- [ ] Add count fields to `getHighDemandOccupations()` query
+- [ ] Test with sample data pool (select 3-5 occupations with known overlaps)
 
-**2. Featured Role Details Page** (Day 2-3)
-- [ ] Design "Related Occupations" section (reverse crosswalk)
-- [ ] Design "Relevant Programs" section
-- [ ] Design "Similar Roles at Other Companies" section
-- [ ] Implement 3-column card grid
-- [ ] Add Load More functionality
-- [ ] Add smooth scroll anchors (#related-occupations, #programs, #similar-roles)
-- [ ] Match HDO page styling
-- [ ] Test empty states
+**2. HDO Detail Page Data Hookup** (Day 1-2)
+- [ ] Implement "Local Employers Hiring Now" query (Featured Roles by SOC)
+- [ ] Implement "Relevant Programs" query (Programs by skill overlap)
+- [ ] Remove empty state placeholders
+- [ ] Test with sample data pool
 
-**3. Performance & Testing** (Day 3)
-- [ ] Test crosswalk query performance
-- [ ] Verify accuracy of counts
-- [ ] Test smooth scroll behavior
-- [ ] Test responsive design
-- [ ] Optimize if needed
+**3. Featured Role Detail Page Sections** (Day 2-3)
+- [ ] Add "Related Occupations" section (HDOs with same SOC)
+- [ ] Add "Similar Roles at Other Companies" section (Featured Roles with same SOC)
+- [ ] Implement 3-column card grid matching HDO page
+- [ ] Add smooth scroll anchors
+- [ ] Test with sample data pool
 
-**Deliverable:** Complete crosswalk UI connecting occupations, roles, and programs
+**4. Sample Data Pool & Testing** (Day 3)
+- [ ] Select 3-5 occupations with known skill overlaps
+- [ ] Ensure Featured Roles exist with matching SOC codes
+- [ ] Ensure Programs exist with overlapping skills
+- [ ] Test crosswalk accuracy and counts
+- [ ] Verify UI displays correctly with real data
+
+**Deliverable:** Working crosswalk system with accurate counts and data display
 
 ---
 

@@ -54,29 +54,34 @@ Transforming High-Demand Occupations from an assessment entry point into a disco
 ### Remaining Work
 
 #### 4A: Crosswalk UI - Related Roles and Programs Display
-**Status:** 🔄 In Progress
+**Status:** 🔄 In Progress  
+**Updated:** October 20, 2025 6:08 PM
 
 **HDO Table Updates:**
-- [ ] Add "Open Roles" column with crosswalk counts
-- [ ] Add "Programs" column with crosswalk counts
-- [ ] Implement click handlers for smooth scroll to detail page sections
-- [ ] Style badges consistently (teal pills, gray when 0)
+- [x] "Open Roles" column structure exists (`/src/lib/table-configs.ts` lines 241-260)
+- [x] "Programs" column structure exists (`/src/lib/table-configs.ts` lines 262-281)
+- [x] Click handlers implemented (navigate to detail page with anchors)
+- [x] Badge styling complete (teal pills when >0, gray when 0)
+- [ ] **BLOCKED:** Connect to real crosswalk count queries (currently shows 0)
+- [ ] **BLOCKED:** Add `related_jobs_count` and `related_programs_count` to query results
 
 **HDO Details Page:**
-- [x] "Local Employers Hiring Now" section (3-column cards, Load More)
-- [x] "Relevant Education & Training Programs" section (3-column cards, Load More)
+- [x] "Local Employers Hiring Now" section structure exists (empty state)
+- [x] "Relevant Education & Training Programs" section structure exists (empty state)
 - [x] Data Source footer (BLS, CareerOneStop, O*NET)
 - [x] Smooth scroll anchors (#open-roles, #programs)
-- [ ] **TODO:** Verify crosswalk logic accuracy
-- [ ] **TODO:** Test with real user data
+- [ ] **BLOCKED:** Connect sections to real crosswalk data queries
+- [ ] **TODO:** Test with sample data pool
 
 **Featured Role Details Page:**
-- [ ] Add "Related Occupations" section (reverse crosswalk)
-- [ ] Add "Relevant Programs" section
-- [ ] Add "Similar Roles at Other Companies" section
+- [x] "Relevant Programs" section exists and working with data
+- [ ] Add "Related Occupations" section (reverse crosswalk to HDOs)
+- [ ] Add "Similar Roles at Other Companies" section (Featured Roles with same SOC)
 - [ ] Update data source footer
 - [ ] Implement smooth scroll anchors
 - [ ] Match HDO page styling and layout
+
+**Current Blocker:** Need to implement crosswalk count queries and skill overlap logic
 
 #### 4B: Advanced Caching
 **Status:** ⏳ Future
