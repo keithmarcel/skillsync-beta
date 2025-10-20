@@ -174,6 +174,52 @@ WHERE job_kind = 'featured_role'
 
 ## Implementation Tasks
 
+### Phase 0: SOC-Based Skills for HDOs (PREREQUISITE)
+
+**Critical Discovery:** HDOs have 0 skills because SOC-based lookup not implemented
+
+**Database Structure Verified:**
+- ✅ `soc_skills` junction table exists (soc_code, skill_id, weight, display_order)
+- ✅ `skills` table has O*NET skills with onet_id
+- ✅ Featured Roles use `job_skills` junction (role-specific)
+- ❌ HDOs need to query `soc_skills` junction by SOC code
+
+**Implementation:**
+
+**File:** `/src/lib/database/queries.ts`
+
+- [ ] Add `getSkillsBySocCode(soc_code)` function
+  ```typescript
+  // Query soc_skills junction table
+  SELECT s.* 
+  FROM skills s
+  INNER JOIN soc_skills ss ON s.id = ss.skill_id
+  WHERE ss.soc_code = [soc_code]
+  ORDER BY ss.display_order, ss.weight DESC
+  ```
+
+- [ ] Modify `getHighDemandOccupations()` to include SOC-based skills
+  - Join with soc_skills table
+  - Return skills array for each HDO
+  - Update skills_count field
+
+- [ ] Modify `getJobById()` to handle both architectures:
+  - If job_kind = 'occupation': Use `getSkillsBySocCode()`
+  - If job_kind = 'featured_role': Use `job_skills` junction
+  - Ensure detail pages display skills correctly
+
+**Testing:**
+- [ ] Verify HDOs now show skills (should be 5-15 per occupation)
+- [ ] Verify Featured Roles still show their custom skills
+- [ ] Verify skills_count updates correctly
+
+**Success Criteria:**
+- HDOs display SOC-based skills from `soc_skills` table
+- Featured Roles continue using `job_skills` table
+- No cross-contamination between the two architectures
+
+---
+
 ### Phase 1: Count Queries (Day 1)
 
 **File:** `/src/lib/database/queries.ts`
@@ -224,37 +270,68 @@ WHERE job_kind = 'featured_role'
 
 ## Data Quality Considerations
 
-### Current Gaps Identified:
+### Current State (Verified October 20, 2025 6:18 PM):
 
-1. **Featured Roles Missing SOC Codes**
-   - Sample query showed 0 Featured Roles matching HDO SOC
-   - Need to ensure Featured Roles have SOC codes assigned
+**✅ Featured Roles:**
+- All 10 Featured Roles have SOC codes assigned
+- Average: 10.5 skills per role (good coverage)
+- Skills stored in `job_skills` junction table (role-specific)
+- Example: "Business Development Manager" has 18 skills
 
-2. **Skill Relationships Sparse**
-   - Only 105 job_skills relationships for 40 jobs
-   - Average: 2.6 skills per job (should be higher)
-   - May need to run skills population scripts
+**❌ High-Demand Occupations (HDOs):**
+- 30 Occupations have 0 skills assigned
+- Should use SOC-based skills from `skills` table
+- **BLOCKER:** Need to populate HDO skills before crosswalk works
 
-3. **Threshold Tuning Needed**
-   - Need to test different skill overlap thresholds
-   - Balance between too broad (irrelevant) and too narrow (no results)
+**✅ Crosswalk Potential Exists:**
+- Example: 3 Mechanical Project Manager roles share SOC 11-9021.00
+- Can crosswalk between these roles once HDO skills populated
+
+### Critical Gap Identified:
+
+**HDOs use SOC-based skills architecture:**
+- HDOs should read skills directly from `skills` table filtered by SOC
+- Featured Roles use `job_skills` junction table (customizable)
+- HDOs currently have 0 skills because SOC-based lookup not implemented
+- Need to implement SOC-based skills query for HDOs
+
+### Skills Architecture (from SKILLS_ARCHITECTURE_CHANGE.md):
+
+**High-Demand Occupations:**
+- Read-only baseline from `skills` table
+- Filtered by SOC code
+- Maintains government data integrity
+- Cannot be customized
+
+**Featured Roles:**
+- Role-specific from `job_skills` junction
+- Fully customizable per role
+- Allows seniority differentiation
+- No cross-contamination
 
 ### Recommendations:
 
-1. **Before implementing queries:**
-   - Run skills population for Featured Roles
-   - Verify SOC codes are assigned to Featured Roles
-   - Check skill overlap between jobs and programs
+1. **CRITICAL - Before implementing crosswalk queries:**
+   - ✅ Featured Roles already have SOC codes and skills (10.5 avg)
+   - ❌ HDOs need SOC-based skills implementation
+   - ❌ Need to verify `skills` table has SOC code field
+   - ❌ Need to implement SOC-based skills lookup for HDOs
+   - ❌ Programs have 1,843 skill relationships but 0 overlap with current jobs
 
-2. **During implementation:**
-   - Start with low threshold (1 shared skill)
-   - Test with sample data
-   - Adjust threshold based on results
+2. **Sample Data Pool Strategy:**
+   - Select occupations with matching Featured Role SOC codes:
+     - SOC 11-9021.00: 3 Mechanical Project Manager roles (Assistant, Mid, Senior)
+     - SOC 11-2022.00: Business Development Manager (18 skills)
+     - SOC 13-2051.00: Senior Financial Analyst
+   - Ensure these HDOs get SOC-based skills populated
+   - Test crosswalk between HDO → Featured Roles (SOC match)
+   - Test crosswalk between Jobs → Programs (skill overlap)
 
-3. **After implementation:**
-   - Monitor crosswalk accuracy
-   - Gather user feedback
-   - Refine matching logic
+3. **Implementation Priority:**
+   - Phase 0: Implement SOC-based skills for HDOs (prerequisite)
+   - Phase 1: SOC-based crosswalk (HDO ↔ Featured Roles)
+   - Phase 2: Skill-based crosswalk (Jobs ↔ Programs)
+   - Phase 3: UI integration and testing
 
 ---
 
