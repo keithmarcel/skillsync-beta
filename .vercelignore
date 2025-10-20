@@ -1,0 +1,19 @@
+# Vercel Build Ignore
+# Files and directories that Vercel should ignore during build
+
+# Documentation (not needed for build)
+docs/
+
+# Reference files
+*.md
+
+# Test files
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Development files
+.vscode/
+.idea/
+*.log
