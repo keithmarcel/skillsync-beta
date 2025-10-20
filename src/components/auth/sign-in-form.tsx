@@ -218,7 +218,7 @@ export function SignInForm({
   }
 
   return (
-    <div className="auth-page h-full flex items-center justify-center bg-gray-50 px-4">
+    <div className="auth-page min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="flex items-center justify-center max-w-6xl w-full" style={{ gap: '88px' }}>
         {/* Left side - Sign in form */}
         <div className="w-full max-w-md">

@@ -15,6 +15,7 @@ export async function middleware(request: NextRequest) {
   // --- Define Route Groups ---
   const publicRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/forgot-password', '/auth/verify-email'];
   const authRoutes = ['/auth/signin', '/auth/signup', '/auth/reset-password', '/auth/forgot-password', '/auth/verify-email']; // Routes for unauthenticated users
+  const portalAuthRoutes = ['/employer/auth/signin', '/provider/auth/signin']; // Portal-specific auth routes
   const protectedRoutes = ['/', '/jobs', '/programs', '/assessments', '/profile']; // Routes for any authenticated user
   const adminRoutes = ['/admin']; // Routes for admin users only
   const apiRoutes = ['/api']; // API routes - allow for now
@@ -27,7 +28,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Skip middleware for auth routes if user is not authenticated
-  if (!user && authRoutes.includes(pathname)) {
+  if (!user && (authRoutes.includes(pathname) || portalAuthRoutes.includes(pathname))) {
     return response;
   }
 
@@ -36,9 +37,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
-  // 2. If user is logged in and trying to access an auth route (like signin page)
+  // 2. If user is logged in and trying to access a main auth route (redirect to home)
   if (user && authRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  // 3. Allow portal auth routes even if user is logged in (they handle their own validation)
+  if (user && portalAuthRoutes.includes(pathname)) {
+    return response;
   }
 
   // 3. If user is trying to access an admin route, check for admin role
