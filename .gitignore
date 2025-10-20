@@ -43,6 +43,9 @@ next-env.d.ts
 supabase/.temp
 
 
+# Documentation (keep local only - accessible in IDE but not deployed)
+docs/
+
 # Proprietary planning and reference docs (keep local only)
 docs/reference/
 docs/strategic/
