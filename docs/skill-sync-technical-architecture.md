@@ -261,6 +261,31 @@ const loadData = useCallback(async () => {
 
 ## Authentication & Authorization
 
+### Multi-Portal Authentication System ✅ **NEW - January 20, 2025**
+
+SkillSync implements a **multi-portal authentication system** with separate sign-in experiences for different user types.
+
+**See [AUTHENTICATION_ARCHITECTURE.md](./AUTHENTICATION_ARCHITECTURE.md) for complete technical details.**
+
+#### Portal Structure
+```
+/auth/signin              → Job Seekers → /
+/employer/auth/signin     → Employers → /employer
+/provider/auth/signin     → Providers → /provider
+```
+
+#### Key Components
+- **SignInForm** - Reusable component with variant support (`jobseeker`, `employer`, `provider`)
+- **PortalRedirectAlert** - Dark-themed alert for wrong portal detection
+- **Middleware Protection** - Server-side route protection and redirects
+- **Role-Based Logout** - Users return to their portal after sign-out
+
+#### User Roles
+```typescript
+type UserRole = 'user' | 'basic_user' | 'employer_admin' | 'provider_admin' | 'super_admin'
+type AdminRole = 'super_admin' | 'company_admin' | 'provider_admin' | null
+```
+
 ### Supabase Auth Integration
 
 #### Client-Side Auth
@@ -277,6 +302,24 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 export default async function Page() {
   const supabase = createServerComponentClient({ cookies });
   const { data: { user } } = await supabase.auth.getUser();
+}
+```
+
+#### Portal Validation
+```typescript
+const validatePortalAccess = async (userId: string, variant: SignInVariant) => {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single()
+
+  // Check role matches portal
+  if (variant === 'employer' && !isEmployerAdmin(profile)) {
+    return { isValid: false, correctPortal: '/employer/auth/signin' }
+  }
+  
+  return { isValid: true, profile }
 }
 ```
 

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -53,7 +52,6 @@ export function SignInForm({
   showSignUpLink = true,
   onSuccess 
 }: SignInFormProps) {
-  const router = useRouter()
   const { signIn } = useAuth()
   const { toast } = useToast()
   const [formData, setFormData] = useState({
@@ -174,15 +172,9 @@ export function SignInForm({
       const validation = await validatePortalAccess(user.id)
 
       if (!validation.isValid) {
-        // Wrong portal - redirect with message
-        toast({
-          title: "Wrong Portal",
-          description: validation.message,
-          variant: "destructive",
-        })
-        
+        // Wrong portal - redirect to correct portal (alert will show there)
         if (validation.correctPortal) {
-          router.push(`${validation.correctPortal}?alert=portal-signin`)
+          window.location.href = `${validation.correctPortal}?alert=portal-signin`
         }
         return
       }
@@ -196,13 +188,13 @@ export function SignInForm({
       if (onSuccess && validation.profile) {
         onSuccess(validation.profile)
       } else {
-        // Default redirects based on variant
+        // Use full page reload to ensure auth state is properly loaded
         const redirectMap = {
           jobseeker: '/',
           employer: '/employer',
           provider: '/provider',
         }
-        router.push(redirectMap[variant])
+        window.location.href = redirectMap[variant]
       }
     } catch (error: any) {
       console.error('Sign in error:', error)

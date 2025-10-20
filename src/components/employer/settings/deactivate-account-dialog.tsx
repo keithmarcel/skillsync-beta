@@ -55,9 +55,9 @@ export function DeactivateAccountDialog({ companyId }: DeactivateAccountDialogPr
         description: 'Your company account has been deactivated. Contact support to reactivate.'
       })
 
-      // Sign out and redirect
+      // Sign out and redirect to employer portal
       await supabase.auth.signOut()
-      router.push('/auth/signin')
+      window.location.href = '/employer/auth/signin'
     } catch (error) {
       console.error('Error deactivating account:', error)
       toast({

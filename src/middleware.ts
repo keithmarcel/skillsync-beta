@@ -29,8 +29,20 @@ export async function middleware(request: NextRequest) {
   }
 
   // 3. Redirect unauthenticated users trying to access protected routes
-  if (!user && (protectedRoutes.some(r => pathname.startsWith(r)) || adminRoutes.some(r => pathname.startsWith(r)))) {
-    return NextResponse.redirect(new URL('/auth/signin', request.url));
+  if (!user) {
+    // Redirect to appropriate portal auth page based on route
+    if (pathname.startsWith('/employer')) {
+      return NextResponse.redirect(new URL('/employer/auth/signin', request.url));
+    }
+    if (pathname.startsWith('/provider')) {
+      return NextResponse.redirect(new URL('/provider/auth/signin', request.url));
+    }
+    if (adminRoutes.some(r => pathname.startsWith(r))) {
+      return NextResponse.redirect(new URL('/auth/signin', request.url));
+    }
+    if (protectedRoutes.some(r => pathname.startsWith(r))) {
+      return NextResponse.redirect(new URL('/auth/signin', request.url));
+    }
   }
 
   // 4. Redirect authenticated users away from main auth routes (they should use portal routes or be logged in)
@@ -38,9 +50,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 5. Allow portal auth routes for authenticated users (they handle role validation internally)
+  // 5. Redirect authenticated users from portal auth routes to their dashboard
   if (user && portalAuthRoutes.includes(pathname)) {
-    return response;
+    // If they're on employer auth page, send to employer dashboard
+    if (pathname === '/employer/auth/signin') {
+      return NextResponse.redirect(new URL('/employer', request.url));
+    }
+    // If they're on provider auth page, send to provider dashboard
+    if (pathname === '/provider/auth/signin') {
+      return NextResponse.redirect(new URL('/provider', request.url));
+    }
   }
 
   // 6. Protect admin routes - verify admin role

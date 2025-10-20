@@ -168,10 +168,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
+    // Determine redirect based on current user role
+    let redirectUrl = '/auth/signin'
+    
+    if (profile?.role === 'employer_admin' || profile?.admin_role === 'company_admin') {
+      redirectUrl = '/employer/auth/signin'
+    } else if (profile?.role === 'provider_admin' || profile?.admin_role === 'provider_admin') {
+      redirectUrl = '/provider/auth/signin'
+    }
+    
     await supabase.auth.signOut()
-    // Redirect to sign in page after sign out
+    
+    // Redirect to appropriate sign in page after sign out
     if (typeof window !== 'undefined') {
-      window.location.href = '/auth/signin'
+      window.location.href = redirectUrl
     }
   }
 

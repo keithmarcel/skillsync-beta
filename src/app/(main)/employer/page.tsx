@@ -18,8 +18,15 @@ interface Company {
   id: string
   name: string
   logo_url: string | null
+  featured_image_url: string | null
+  bio: string | null
   hq_city: string | null
   hq_state: string | null
+  industry: string | null
+  employee_range: string | null
+  revenue_range: string | null
+  is_published: boolean
+  is_trusted_partner: boolean
 }
 
 export default function EmployerDashboardPage() {
@@ -154,7 +161,7 @@ export default function EmployerDashboardPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/auth/signin')
+    window.location.href = '/employer/auth/signin'
   }
 
   return (
