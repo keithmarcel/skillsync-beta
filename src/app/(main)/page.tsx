@@ -28,22 +28,11 @@ export default function Dashboard() {
   const { favoriteJobs, favoritePrograms, loading: favoritesLoading } = useFavorites();
   const { metrics, skillData, assessmentProgress, hasAssessments, loading: snapshotLoading } = useSnapshotData();
 
-  // Redirect employer/provider admins to their dashboards
-  useEffect(() => {
-    if (mounted && profile) {
-      if (isEmployerAdmin && !isSuperAdmin) {
-        router.replace('/employer') // Use replace instead of push to avoid back button issues
-      } else if (isProviderAdmin && !isSuperAdmin) {
-        router.replace('/provider')
-      }
-    }
-  }, [mounted, profile, isEmployerAdmin, isProviderAdmin, isSuperAdmin, router])
-
   // The loading state is now derived from all data hooks, ensuring a smooth experience.
   const isLoading = !mounted || dashboardLoading || favoritesLoading || snapshotLoading;
 
-  // Show loading state immediately if user is employer/provider admin OR if profile is still loading (prevents flash of job seeker dashboard)
-  if (isLoading || !profile || (profile && ((isEmployerAdmin && !isSuperAdmin) || (isProviderAdmin && !isSuperAdmin)))) {
+  // Show loading state while data is being fetched
+  if (isLoading) {
     return (
       <div className="space-y-0">
         {/* Page Header Skeleton */}
