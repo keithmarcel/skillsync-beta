@@ -347,11 +347,11 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
       .eq('is_published', true)
       .in('soc_code', socCodes) : Promise.resolve({ data: [] }),
     
-    // Fetch all related programs counts in ONE query
-    supabase
-      .from('program_jobs')
-      .select('job_id')
-      .in('job_id', jobIds)
+    // Fetch CIP-SOC crosswalk for all SOC codes
+    socCodes.length > 0 ? supabase
+      .from('cip_soc_crosswalk')
+      .select('soc_code, cip_code')
+      .in('soc_code', socCodes) : Promise.resolve({ data: [] })
   ])
 
   // Group curated skills by SOC code
@@ -373,12 +373,28 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
     relatedJobsBySoc.set(job.soc_code, count + 1)
   })
 
-  // Count related programs by job ID
-  const relatedProgramsByJob = new Map<string, number>()
+  // Map CIP codes to SOC codes for program counting
+  const cipsBySoc = new Map<string, string[]>()
   relatedProgramsResult.data?.forEach(item => {
-    const count = relatedProgramsByJob.get(item.job_id) || 0
-    relatedProgramsByJob.set(item.job_id, count + 1)
+    if (!cipsBySoc.has(item.soc_code)) {
+      cipsBySoc.set(item.soc_code, [])
+    }
+    cipsBySoc.get(item.soc_code)!.push(item.cip_code)
   })
+
+  // Count programs for each SOC code by querying programs with matching CIP codes
+  const programCountsBySoc = new Map<string, number>()
+  for (const [socCode, cipCodes] of Array.from(cipsBySoc.entries())) {
+    if (cipCodes.length > 0) {
+      const { count } = await supabase
+        .from('programs')
+        .select('*', { count: 'exact', head: true })
+        .in('cip_code', cipCodes)
+        .eq('status', 'published')
+      
+      programCountsBySoc.set(socCode, count || 0)
+    }
+  }
 
   // Apply all data to jobs
   for (const job of filteredData) {
@@ -392,9 +408,9 @@ export async function getHighDemandOccupations(): Promise<Job[]> {
       }
     }
     
-    // Apply counts
+    // Apply counts (now using dynamic CIP-SOC crosswalk!)
     jobWithCounts.related_jobs_count = job.soc_code ? (relatedJobsBySoc.get(job.soc_code) || 0) : 0
-    jobWithCounts.related_programs_count = relatedProgramsByJob.get(job.id) || 0
+    jobWithCounts.related_programs_count = job.soc_code ? (programCountsBySoc.get(job.soc_code) || 0) : 0
   }
 
   return filteredData
@@ -1256,38 +1272,60 @@ export async function getRelatedFeaturedRoles(socCode: string, limit: number = 1
 }
 
 /**
- * Get Programs related to a job via program_jobs junction
- * Sorted by relevance score based on skills overlap and program level match
+ * Get Programs related to a job via dynamic CIP-SOC crosswalk
+ * Sorted by relevance score based on CIP-SOC match strength, skills overlap, and program level match
  * Limits to top N most relevant programs
+ * 
+ * This is FULLY DYNAMIC - automatically updates when:
+ * - Programs' CIP codes change
+ * - Program skills are updated
+ * - New programs are added
  */
 export async function getRelatedPrograms(jobId: string, limit: number = 30): Promise<any[]> {
-  // 1. Fetch job details to get skills
+  // 1. Fetch job details to get SOC code and skills
   const job = await getJobById(jobId)
-  if (!job) return []
+  if (!job?.soc_code) return []
   
   const jobSkills = job.skills?.map((s: any) => s.skill?.id || s.id).filter(Boolean) || []
 
-  // 2. Fetch programs via program_jobs with their skills
+  // 2. Get CIP codes that match this SOC code via crosswalk
+  const { data: cipMatches, error: cipError } = await supabase
+    .from('cip_soc_crosswalk')
+    .select('cip_code, match_strength')
+    .eq('soc_code', job.soc_code)
+  
+  if (cipError) {
+    console.error('Error fetching CIP-SOC crosswalk:', cipError)
+    return []
+  }
+  
+  if (!cipMatches || cipMatches.length === 0) {
+    console.log(`No CIP codes found for SOC ${job.soc_code}`)
+    return []
+  }
+  
+  const cipCodes = cipMatches.map(m => m.cip_code)
+  const cipStrengthMap = new Map(cipMatches.map(m => [m.cip_code, m.match_strength]))
+
+  // 3. Fetch programs with matching CIP codes
   const { data, error } = await supabase
-    .from('program_jobs')
+    .from('programs')
     .select(`
-      programs!inner(
-        *,
-        school:schools!inner(*),
-        program_skills(skill_id)
-      )
+      *,
+      school:schools!inner(*),
+      program_skills(skill_id)
     `)
-    .eq('job_id', jobId)
-    .limit(100) // Get more initially, then filter and sort
+    .in('cip_code', cipCodes)
+    .eq('status', 'published')
+    .limit(200) // Get more initially for better scoring
 
   if (error) {
     console.error('Error fetching related programs:', error)
     return []
   }
 
-  // 3. Calculate relevance for each program
-  const programsWithScores = data?.map((pj: any) => {
-    const program = pj.programs
+  // 4. Calculate relevance for each program
+  const programsWithScores = data?.map((program: any) => {
     const programSkills = program.program_skills?.map((ps: any) => ps.skill_id) || []
     
     // Calculate skill overlap
@@ -1296,12 +1334,18 @@ export async function getRelatedPrograms(jobId: string, limit: number = 30): Pro
       ? sharedSkills.length / jobSkills.length 
       : 0
     
-    // Calculate level match (simple heuristic)
+    // Calculate level match
     const levelMatch = calculateLevelMatch(job, program)
+    
+    // Get CIP-SOC match strength
+    const matchStrength = cipStrengthMap.get(program.cip_code) || 'tertiary'
+    const cipSocStrength = matchStrength === 'primary' ? 1.0 
+                         : matchStrength === 'secondary' ? 0.7 
+                         : 0.4
     
     // Calculate relevance score (weighted average)
     const relevanceScore = 
-      (0.4 * 1.0) + // CIP-SOC strength (assume primary match for now)
+      (0.4 * cipSocStrength) +  // CIP-SOC match strength (dynamic!)
       (0.2 * levelMatch) +
       (0.3 * skillsOverlap) +
       (0.1 * 1.0) // Local availability (assume available)
@@ -1310,11 +1354,12 @@ export async function getRelatedPrograms(jobId: string, limit: number = 30): Pro
       ...program,
       relevance_score: Math.round(relevanceScore * 100),
       shared_skills_count: sharedSkills.length,
-      total_job_skills: jobSkills.length
+      total_job_skills: jobSkills.length,
+      cip_soc_strength: matchStrength
     }
   }) || []
 
-  // 4. Filter by published status and sort by relevance
+  // 5. Filter by published status and sort by relevance
   const filteredPrograms = programsWithScores
     .filter((program: any) => program?.school?.is_published !== false)
     .sort((a: any, b: any) => b.relevance_score - a.relevance_score)
