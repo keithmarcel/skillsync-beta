@@ -540,27 +540,36 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
             </div>
 
-            {relatedPrograms.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                {relatedPrograms.slice(0, showAllPrograms ? 30 : 6).map((program: any) => (
-                  <Link key={program.id} href={`/programs/${program.id}`} className="block">
-                    <SimpleProgramCard
-                      id={program.id}
-                      name={program.name}
-                      school={{
-                        name: program.school?.name || 'Unknown School',
-                        logo: program.school?.logo_url || undefined
-                      }}
-                      programType={program.program_type || 'Program'}
-                      format={program.format || 'On-campus'}
-                      duration={program.duration_text || 'Duration varies'}
-                      description={program.short_desc || ''}
-                      relevanceScore={program.relevance_score}
-                    />
-                  </Link>
-                ))}
-              </div>
-            )}
+            {(() => {
+              // Filter out programs with poor quality data
+              const filteredPrograms = relatedPrograms.filter(program => {
+                const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
+                const hasDescription = program.short_desc || program.short_description
+                return hasValidName && hasDescription
+              })
+
+              return filteredPrograms.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                  {filteredPrograms.slice(0, showAllPrograms ? 30 : 6).map((program: any) => (
+                    <Link key={program.id} href={`/programs/${program.id}`} className="block">
+                      <SimpleProgramCard
+                        id={program.id}
+                        name={program.name}
+                        school={{
+                          name: program.school?.name || 'Unknown School',
+                          logo: program.school?.logo_url || undefined
+                        }}
+                        programType={program.program_type || 'Program'}
+                        format={program.format || 'On-campus'}
+                        duration={program.duration_text || 'Duration varies'}
+                        description={program.short_desc || ''}
+                        relevanceScore={program.relevance_score}
+                      />
+                    </Link>
+                  ))}
+                </div>
+              )
+            })()}
 
             {relatedPrograms.length > 6 && !showAllPrograms && (
               <div className="flex justify-center mt-6">
