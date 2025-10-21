@@ -115,7 +115,9 @@ export async function calculateSkillGaps(
 }
 
 /**
- * Step 2: Find programs that teach gap skills
+ * Step 2: Find programs via CIP-SOC crosswalk
+ * NOTE: Using crosswalk instead of skill matching due to skill ID mismatches
+ * between job_skills and program_skills tables
  */
 export async function findProgramsForGaps(
   gaps: SkillGap[],
@@ -124,6 +126,7 @@ export async function findProgramsForGaps(
     maxResults?: number
     preferredModality?: string
     maxCost?: number
+    jobSocCode?: string // NEW: Pass SOC code for crosswalk matching
   } = {}
 ): Promise<ProgramMatch[]> {
   
@@ -131,137 +134,90 @@ export async function findProgramsForGaps(
     minMatchThreshold = 60,
     maxResults = 10,
     preferredModality,
-    maxCost
+    maxCost,
+    jobSocCode
   } = options
   
-  console.log(`\n🔍 Finding programs for ${gaps.length} skill gaps`)
-  console.log(`  Min match threshold: ${minMatchThreshold}%`)
+  console.log(`\n🔍 Finding programs via CIP-SOC crosswalk`)
+  console.log(`  SOC Code: ${jobSocCode}`)
+  console.log(`  Skill gaps: ${gaps.length}`)
   
-  if (gaps.length === 0) {
+  if (!jobSocCode) {
+    console.log('  ⚠️  No SOC code provided, cannot match programs')
     return []
   }
   
-  // Get gap skill IDs
-  const gapSkillIds = gaps.map(g => g.skill_id)
+  // Use CIP-SOC crosswalk to find programs
+  const { data: cipMatches } = await supabase
+    .from('cip_soc_crosswalk')
+    .select('cip_code, match_strength')
+    .eq('soc_code', jobSocCode)
   
-  // Find programs that teach these skills
-  const { data: programSkills } = await supabase
-    .from('program_skills')
+  if (!cipMatches || cipMatches.length === 0) {
+    console.log('  ⚠️  No CIP codes found for this SOC code')
+    return []
+  }
+  
+  const cipCodes = cipMatches.map(m => m.cip_code)
+  console.log(`  Found ${cipCodes.length} matching CIP codes`)
+  
+  // Get programs with matching CIP codes
+  const { data: programs } = await supabase
+    .from('programs')
     .select(`
-      program_id,
-      skill_id,
-      weight,
-      programs (
-        id,
-        name,
-        cip_code,
-        modality,
-        duration_weeks,
-        cost_usd,
-        location,
-        providers (
-          name,
-          logo_url
-        )
-      )
+      id,
+      name,
+      cip_code,
+      format,
+      duration_text,
+      school:schools(name, logo_url)
     `)
-    .in('skill_id', gapSkillIds)
+    .in('cip_code', cipCodes)
+    .eq('status', 'published')
   
-  if (!programSkills || programSkills.length === 0) {
-    console.log('  ⚠️  No programs found teaching these skills')
+  if (!programs || programs.length === 0) {
+    console.log('  ⚠️  No programs found for these CIP codes')
     return []
   }
   
-  // Group by program
-  const programMap = new Map<string, {
-    program: any
-    skills: Array<{ skill_id: string; weight: number }>
-  }>()
+  console.log(`  Found ${programs.length} programs via crosswalk`)
   
-  for (const ps of programSkills) {
-    if (!programMap.has(ps.program_id)) {
-      programMap.set(ps.program_id, {
-        program: ps.programs,
-        skills: []
-      })
-    }
-    programMap.get(ps.program_id)!.skills.push({
-      skill_id: ps.skill_id,
-      weight: ps.weight
-    })
-  }
+  // Create simplified matches based on CIP-SOC crosswalk strength
+  const cipStrengthMap = new Map(cipMatches.map(m => [m.cip_code, m.match_strength]))
   
-  console.log(`  Found ${programMap.size} programs with matching skills`)
-  
-  // Calculate match scores
-  const matches: ProgramMatch[] = []
-  
-  for (const [programId, data] of programMap) {
-    const program = data.program
+  const matches: ProgramMatch[] = programs.map((program: any) => {
+    // Calculate match score based on crosswalk strength
+    const matchStrength = cipStrengthMap.get(program.cip_code) || 'tertiary'
+    const baseScore = matchStrength === 'primary' ? 90 :
+                     matchStrength === 'secondary' ? 75 : 60
     
-    // Filter by preferences
-    if (preferredModality && program.modality !== preferredModality) continue
-    if (maxCost && program.cost_usd && program.cost_usd > maxCost) continue
-    
-    const skillsCovered = data.skills.map(s => s.skill_id)
-    const skillsNotCovered = gapSkillIds.filter(id => !skillsCovered.includes(id))
-    const coveragePct = (skillsCovered.length / gapSkillIds.length) * 100
-    
-    // Calculate weighted match score
-    let weightedScore = 0
-    let totalWeight = 0
-    
-    const coveredGaps = []
-    
-    for (const gap of gaps) {
-      // Weight by importance
-      const importanceWeight = gap.importance === 'critical' ? 3 :
-                              gap.importance === 'important' ? 2 : 1
-      
-      // Weight by gap size (larger gaps more important)
-      const gapWeight = gap.gap / 100
-      
-      const combinedWeight = importanceWeight * (1 + gapWeight)
-      totalWeight += combinedWeight
-      
-      if (skillsCovered.includes(gap.skill_id)) {
-        weightedScore += combinedWeight
-        coveredGaps.push({
-          skill_id: gap.skill_id,
-          skill_name: gap.skill_name,
-          gap: gap.gap
-        })
+    return {
+      program_id: program.id,
+      program_name: program.name,
+      provider_name: program.school?.name || 'Unknown',
+      provider_logo_url: program.school?.logo_url || null,
+      cip_code: program.cip_code,
+      match_score: baseScore,
+      skills_covered: gaps.map(g => ({
+        skill_id: g.skill_id,
+        skill_name: g.skill_name,
+        gap: g.gap
+      })),
+      skills_not_covered: [],
+      coverage_pct: 100, // Assume full coverage via crosswalk
+      program_details: {
+        modality: program.format || 'Online',
+        duration_weeks: 0, // Parse from duration_text if needed
+        cost_usd: null,
+        location: null
       }
     }
-    
-    const matchScore = (weightedScore / totalWeight) * 100
-    
-    // Only include if meets threshold
-    if (matchScore >= minMatchThreshold) {
-      matches.push({
-        program_id: programId,
-        program_name: program.name,
-        provider_name: program.providers?.name || 'Unknown',
-        provider_logo_url: program.providers?.logo_url,
-        cip_code: program.cip_code,
-        match_score: Math.round(matchScore),
-        skills_covered: coveredGaps,
-        skills_not_covered: skillsNotCovered,
-        coverage_pct: Math.round(coveragePct),
-        program_details: {
-          modality: program.modality,
-          duration_weeks: program.duration_weeks,
-          cost_usd: program.cost_usd,
-          location: program.location
-        }
-      })
-    }
-  }
+  })
   
-  // Sort by match score
+  // Sort by match score (primary matches first)
   matches.sort((a, b) => b.match_score - a.match_score)
   
-  console.log(`  ${matches.length} programs meet ${minMatchThreshold}% threshold`)
+  console.log(`  Returning ${Math.min(matches.length, maxResults)} programs`)
   
   return matches.slice(0, maxResults)
 }

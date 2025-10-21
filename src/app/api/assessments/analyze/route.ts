@@ -182,7 +182,11 @@ export async function POST(request: NextRequest) {
     let programMatchesCount = 0;
     try {
       const gaps = await calculateSkillGaps(assessmentId);
-      const programs = await findProgramsForGaps(gaps, { minMatchThreshold: 60 });
+      // Pass SOC code for CIP-SOC crosswalk matching
+      const programs = await findProgramsForGaps(gaps, { 
+        minMatchThreshold: 60,
+        jobSocCode: assessment.job?.soc_code 
+      });
       programMatchesCount = programs.length;
       console.log(`✅ Found ${programMatchesCount} program matches`);
     } catch (error) {
