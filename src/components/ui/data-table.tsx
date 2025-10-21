@@ -378,6 +378,9 @@ export default function DataTable({
                         colIndex === columns.length - 1 ? 'text-center' :
                         ''
                       } ${
+                        // Add flex centering for center-aligned columns with inline elements
+                        (column as any).align === 'center' ? 'flex justify-center items-center' : ''
+                      } ${
                         column.key === 'category' || column.key === 'readiness' ? 'whitespace-nowrap' : ''
                       } ${
                         tableType === 'employer-invites' && colIndex === 0 ? 'px-6 pr-8 sticky-col-left' : 'px-6'
