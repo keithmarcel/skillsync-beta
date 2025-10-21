@@ -19,8 +19,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-// Real user ID from database
-const USER_ID = '3bcfef07-e2b9-4e49-95f6-0fb93316482f'
+// Keith's user ID (keith-woods@bisk.com)
+const USER_ID = '72b464ef-1814-4942-b69e-2bdffd390e61'
 
 async function reseedAssessments() {
   console.log('🔄 Reseeding Assessments with Current Data...\n')
