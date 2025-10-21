@@ -101,11 +101,12 @@ export function useSnapshotData(): UseSnapshotDataReturn {
           const developingSkillNames: string[] = [];
 
           skillProficiency.forEach((skill) => {
+            // NEW STANDARD: proficient, building, developing
             if (skill.band === 'proficient') {
               proficientSkillNames.push(skill.name);
-            } else if (skill.band === 'building_proficiency') {
+            } else if (skill.band === 'building') {
               buildingSkillNames.push(skill.name);
-            } else if (skill.band === 'needs_development') {
+            } else if (skill.band === 'developing') {
               developingSkillNames.push(skill.name);
             }
           });
