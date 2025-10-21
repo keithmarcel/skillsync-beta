@@ -177,17 +177,29 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Successfully saved', insertedData?.length, 'skill results');
 
-    // 8. Calculate program matches count
+    // 8. Calculate program matches count via CIP-SOC crosswalk
     console.log('🎓 Calculating program matches...');
     let programMatchesCount = 0;
     try {
-      const gaps = await calculateSkillGaps(assessmentId);
-      // Pass SOC code for CIP-SOC crosswalk matching
-      const programs = await findProgramsForGaps(gaps, { 
-        minMatchThreshold: 60,
-        jobSocCode: assessment.job?.soc_code 
-      });
-      programMatchesCount = programs.length;
+      const socCode = assessment.job?.soc_code;
+      if (socCode) {
+        // Use CIP-SOC crosswalk to count programs
+        const { data: cipMatches } = await supabase
+          .from('cip_soc_crosswalk')
+          .select('cip_code')
+          .eq('soc_code', socCode);
+        
+        if (cipMatches && cipMatches.length > 0) {
+          const cipCodes = cipMatches.map(m => m.cip_code);
+          const { count } = await supabase
+            .from('programs')
+            .select('*', { count: 'exact', head: true })
+            .in('cip_code', cipCodes)
+            .eq('status', 'published');
+          
+          programMatchesCount = count || 0;
+        }
+      }
       console.log(`✅ Found ${programMatchesCount} program matches`);
     } catch (error) {
       console.error('⚠️ Error calculating program matches:', error);
