@@ -94,6 +94,11 @@ async function reseedAssessments() {
           skillScores.reduce((sum, s) => sum + s.score_pct, 0) / skillScores.length
         )
 
+        // Determine status_tag based on readiness
+        let status_tag = 'needs_development'
+        if (avgScore >= 90) status_tag = 'role_ready'
+        else if (avgScore >= 75) status_tag = 'close_gaps'
+
         // Create assessment
         const { data: assessment, error: assessmentError } = await supabase
           .from('assessments')
@@ -101,7 +106,9 @@ async function reseedAssessments() {
             user_id: USER_ID,
             job_id: job.id,
             readiness_pct: avgScore,
-            method: 'quiz'
+            status_tag: status_tag,
+            method: 'quiz',
+            analyzed_at: new Date().toISOString()
           })
           .select('id')
           .single()
@@ -111,21 +118,37 @@ async function reseedAssessments() {
           continue
         }
 
-        // Create skill results
-        const skillResults = skillScores.map(ss => ({
-          assessment_id: assessment.id,
-          skill_id: ss.skill_id,
-          score_pct: ss.score_pct
-        }))
+        // Create skill results with bands
+        const skillResults = skillScores.map(ss => {
+          let band = 'needs_development'
+          if (ss.score_pct >= 80) band = 'proficient'
+          else if (ss.score_pct >= 60) band = 'building_proficiency'
+          
+          return {
+            assessment_id: assessment.id,
+            skill_id: ss.skill_id,
+            score_pct: ss.score_pct,
+            band: band
+          }
+        })
 
-        const { error: skillsError } = await supabase
+        console.log(`     Inserting ${skillResults.length} skill results...`)
+        console.log(`     Sample:`, skillResults[0])
+        
+        const { data: insertedResults, error: skillsError } = await supabase
           .from('assessment_skill_results')
           .insert(skillResults)
+          .select()
 
         if (skillsError) {
           console.log(`  ❌ Error creating skill results:`, skillsError.message)
+          console.log(`     Code:`, skillsError.code)
+          console.log(`     Details:`, skillsError.details)
+          console.log(`     Trying to insert:`, skillResults.length, 'results')
           continue
         }
+        
+        console.log(`     ✅ Inserted ${insertedResults?.length || 0} skill results`)
 
         console.log(`  ✅ Created ${scenario.name} assessment for ${job.title} (${avgScore}%)`)
         created++
