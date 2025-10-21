@@ -16,7 +16,6 @@ import { useFavorites } from '@/hooks/useFavorites'
 import { useRoleView } from '@/hooks/useRoleView'
 import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
 import { supabase } from '@/lib/supabase/client'
-import { FeaturedProgramCard } from '@/components/ui/featured-program-card'
 import { SimpleProgramCard } from '@/components/ui/simple-program-card'
 import { SimpleJobCard } from '@/components/ui/simple-job-card'
 
@@ -828,24 +827,21 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             {recommendedPrograms.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recommendedPrograms.map((rec: any, index: number) => (
-                  <FeaturedProgramCard
-                    key={index}
-                    id={rec.program.id}
-                    name={rec.program.name}
-                    school={{
-                      name: rec.program.school?.name || 'School',
-                      logo: rec.program.school?.logo_url || null
-                    }}
-                    programType={rec.program.program_type || 'Certificate'}
-                    format={rec.program.format || 'Online'}
-                    duration={rec.program.duration_text || 'Self-paced'}
-                    description={rec.program.short_desc || rec.match_reasoning || 'Recommended program for this role'}
-                    skillsCallout={undefined}
-                    href={`/programs/${rec.program.id}`}
-                    isFavorited={false}
-                    onAddFavorite={() => {}}
-                    onRemoveFavorite={() => {}}
-                  />
+                  <Link key={index} href={`/programs/${rec.program.id}`} className="block">
+                    <SimpleProgramCard
+                      id={rec.program.id}
+                      name={rec.program.name}
+                      school={{
+                        name: rec.program.school?.name || 'Unknown School',
+                        logo: rec.program.school?.logo_url || undefined
+                      }}
+                      programType={rec.program.program_type || 'Certificate'}
+                      format={rec.program.format || 'Online'}
+                      duration={rec.program.duration_text || 'Self-paced'}
+                      description={rec.program.short_desc || rec.match_reasoning || 'Recommended program for this role'}
+                      relevanceScore={rec.relevance_score}
+                    />
+                  </Link>
                 ))}
               </div>
             )}
