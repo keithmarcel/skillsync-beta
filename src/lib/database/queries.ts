@@ -1257,32 +1257,117 @@ export async function getRelatedFeaturedRoles(socCode: string, limit: number = 1
 
 /**
  * Get Programs related to a job via program_jobs junction
- * Used for "Relevant Education & Training Programs" section
- * Limits to top 30 most relevant programs
+ * Sorted by relevance score based on skills overlap and program level match
+ * Limits to top N most relevant programs
  */
-export async function getRelatedPrograms(jobId: string, limit: number = 30): Promise<Program[]> {
+export async function getRelatedPrograms(jobId: string, limit: number = 30): Promise<any[]> {
+  // 1. Fetch job details to get skills
+  const job = await getJobById(jobId)
+  if (!job) return []
+  
+  const jobSkills = job.skills?.map((s: any) => s.skill?.id || s.id).filter(Boolean) || []
+
+  // 2. Fetch programs via program_jobs with their skills
   const { data, error } = await supabase
     .from('program_jobs')
     .select(`
       programs!inner(
         *,
-        school:schools!inner(*)
+        school:schools!inner(*),
+        program_skills(skill_id)
       )
     `)
     .eq('job_id', jobId)
-    .limit(limit)
+    .limit(100) // Get more initially, then filter and sort
 
   if (error) {
     console.error('Error fetching related programs:', error)
     return []
   }
 
-  // Extract programs and filter by published status
-  const programs = data?.map(pj => (pj as any).programs).filter((program: any) => {
-    return program?.school?.is_published !== false
+  // 3. Calculate relevance for each program
+  const programsWithScores = data?.map((pj: any) => {
+    const program = pj.programs
+    const programSkills = program.program_skills?.map((ps: any) => ps.skill_id) || []
+    
+    // Calculate skill overlap
+    const sharedSkills = jobSkills.filter((js: string) => programSkills.includes(js))
+    const skillsOverlap = jobSkills.length > 0 
+      ? sharedSkills.length / jobSkills.length 
+      : 0
+    
+    // Calculate level match (simple heuristic)
+    const levelMatch = calculateLevelMatch(job, program)
+    
+    // Calculate relevance score (weighted average)
+    const relevanceScore = 
+      (0.4 * 1.0) + // CIP-SOC strength (assume primary match for now)
+      (0.2 * levelMatch) +
+      (0.3 * skillsOverlap) +
+      (0.1 * 1.0) // Local availability (assume available)
+    
+    return {
+      ...program,
+      relevance_score: Math.round(relevanceScore * 100),
+      shared_skills_count: sharedSkills.length,
+      total_job_skills: jobSkills.length
+    }
   }) || []
 
-  return programs as Program[]
+  // 4. Filter by published status and sort by relevance
+  const filteredPrograms = programsWithScores
+    .filter((program: any) => program?.school?.is_published !== false)
+    .sort((a: any, b: any) => b.relevance_score - a.relevance_score)
+    .slice(0, limit)
+
+  return filteredPrograms
+}
+
+/**
+ * Calculate how well a program's level matches the job requirements
+ * Returns a score from 0.0 to 1.0
+ */
+function calculateLevelMatch(job: any, program: any): number {
+  const programLevel = program.program_type?.toLowerCase() || ''
+  const jobTitle = job.title?.toLowerCase() || ''
+  
+  // Certificate programs match entry-level and assistant roles well
+  if (programLevel.includes('certificate')) {
+    if (jobTitle.includes('entry') || jobTitle.includes('assistant') || jobTitle.includes('junior')) {
+      return 1.0
+    }
+    return 0.7 // Still useful for skill building
+  }
+  
+  // Associate's degrees match mid-level roles
+  if (programLevel.includes('associate')) {
+    if (jobTitle.includes('specialist') || jobTitle.includes('coordinator')) {
+      return 0.9
+    }
+    return 0.7
+  }
+  
+  // Bachelor's degrees match professional and senior roles
+  if (programLevel.includes('bachelor')) {
+    if (jobTitle.includes('senior') || jobTitle.includes('manager') || jobTitle.includes('analyst')) {
+      return 1.0
+    }
+    return 0.8
+  }
+  
+  // Graduate degrees match senior and executive roles
+  if (programLevel.includes('master') || programLevel.includes('graduate') || programLevel.includes('mba')) {
+    if (jobTitle.includes('director') || jobTitle.includes('executive') || jobTitle.includes('chief')) {
+      return 1.0
+    }
+    if (jobTitle.includes('senior') || jobTitle.includes('manager')) {
+      return 0.9
+    }
+    return 0.7
+  }
+  
+  // Default: reasonable match
+  return 0.8
 }
 
 /**

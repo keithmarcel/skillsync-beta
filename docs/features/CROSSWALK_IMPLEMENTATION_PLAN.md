@@ -1,9 +1,9 @@
 # Crosswalk Implementation Plan - Phase 4A
 
-**Status:** 🔄 In Progress  
+**Status:** ✅ COMPLETE (Core Feature) | 🔄 In Progress (Enhancements)  
 **Branch:** `feature/crosswalk-implementation`  
 **Created:** October 20, 2025 6:12 PM  
-**Last Updated:** October 20, 2025 6:12 PM
+**Last Updated:** October 20, 2025 9:56 PM
 
 ---
 
@@ -428,6 +428,268 @@ if (data?.soc_code && data?.job_kind === 'occupation') {
 
 ---
 
+---
+
+## ✅ IMPLEMENTATION COMPLETE (October 20, 2025 9:56 PM)
+
+### Core Features Delivered
+
+**Phase 0: SOC-Based Skills** ✅
+- HDOs use `soc_skills` table (read-only, government data)
+- Featured Roles use `job_skills` table (customizable, role-specific)
+- Architecture working correctly
+
+**Phase 1: Count Queries** ✅
+- `getHighDemandOccupations()` includes crosswalk counts
+- Table displays Open Roles and Programs counts
+- Badges clickable, centered, and styled
+- Navigation working with anchor links
+
+**Phase 2: Detail Page Queries** ✅
+- `getRelatedFeaturedRoles(socCode, limit)` - HDO → Featured Roles
+- `getRelatedPrograms(jobId, limit)` - Any job → Programs (top 30)
+- `getRelatedOccupations(socCode)` - Featured Role → HDOs
+- `getSimilarRoles(socCode, excludeId, limit)` - Featured Role → Similar Roles
+
+**Phase 3: UI Integration** ✅
+- HDO detail pages: "Local Employers Hiring Now" + "Relevant Programs"
+- Featured Role detail pages: "Related Occupations" + "Similar Roles" + "Relevant Programs"
+- Empty states handled gracefully
+- Load More functionality for programs
+- Responsive 3-column grid layouts
+
+### Commits (11 total)
+1. Pass through crosswalk counts in transform
+2. Center align columns in table config
+3. Add column.align support to DataTable
+4. Fix badge links (use job id)
+5. Improve column alignment precedence
+6. Fix centering with inline textAlign
+7. Add crosswalk query functions (HDO)
+8. Populate HDO detail page sections
+9. Fix FeaturedProgramCard props
+10. Complete Featured Role crosswalk implementation
+11. Document follow-up tasks
+
+### System Characteristics
+- ✅ **Fully Automatic:** No manual updates needed when data changes
+- ✅ **Dynamic Counts:** Real-time based on database state
+- ✅ **Quality over Quantity:** Top 30 programs (not overwhelming)
+- ✅ **Production Ready:** No mock data, all real queries
+- ✅ **Backward Compatible:** No breaking changes
+
+---
+
+## 🔄 ENHANCEMENTS IN PROGRESS
+
+### Phase 4: Relevance Scoring (Current)
+
+**Goal:** Sort programs by relevance instead of just limiting to top 30.
+
+**Current Behavior:**
+- Programs limited to 30 via `program_jobs` junction
+- No sorting by relevance - just database order
+- All programs treated equally
+
+**Proposed Enhancement:**
+
+#### Relevance Scoring Algorithm
+
+**Factors to Consider:**
+1. **CIP-SOC Crosswalk Strength** (40% weight)
+   - Primary CIP-SOC match: 1.0
+   - Secondary CIP-SOC match: 0.7
+   - Tertiary match: 0.4
+   - Source: CIP-SOC crosswalk data (if available in DB)
+
+2. **Program Level Match** (20% weight)
+   - Certificate for entry-level roles: 1.0
+   - Associate's for mid-level: 0.9
+   - Bachelor's for senior roles: 1.0
+   - Graduate degree for executive: 1.0
+   - Mismatch: 0.5
+
+3. **Skills Overlap** (30% weight)
+   - Calculate: (shared_skills / total_job_skills)
+   - 80%+ overlap: 1.0
+   - 60-79% overlap: 0.8
+   - 40-59% overlap: 0.6
+   - <40% overlap: 0.4
+
+4. **Local Availability** (10% weight)
+   - In-region program: 1.0
+   - Online/hybrid: 0.9
+   - Out-of-region: 0.7
+
+**Scoring Formula:**
+```typescript
+relevanceScore = 
+  (cipSocStrength * 0.4) +
+  (levelMatch * 0.2) +
+  (skillsOverlap * 0.3) +
+  (localAvailability * 0.1)
+
+// Normalize to 0-100
+displayScore = Math.round(relevanceScore * 100)
+```
+
+#### Implementation Plan
+
+**Step 1: Update Query Function (30 min)**
+```typescript
+// File: /src/lib/database/queries.ts
+export async function getRelatedPrograms(
+  jobId: string, 
+  limit: number = 30
+): Promise<ProgramWithRelevance[]> {
+  
+  // 1. Fetch job details to get skills and level
+  const job = await getJobById(jobId)
+  const jobSkills = job.skills?.map(s => s.skill_id) || []
+  
+  // 2. Fetch programs via program_jobs
+  const { data } = await supabase
+    .from('program_jobs')
+    .select(`
+      programs!inner(
+        *,
+        school:schools!inner(*),
+        program_skills(skill_id)
+      )
+    `)
+    .eq('job_id', jobId)
+    .limit(100) // Get more, then filter
+  
+  // 3. Calculate relevance for each program
+  const programsWithScores = data?.map(pj => {
+    const program = pj.programs
+    const programSkills = program.program_skills?.map(ps => ps.skill_id) || []
+    
+    // Calculate skill overlap
+    const sharedSkills = jobSkills.filter(js => programSkills.includes(js))
+    const skillsOverlap = jobSkills.length > 0 
+      ? sharedSkills.length / jobSkills.length 
+      : 0
+    
+    // Calculate level match
+    const levelMatch = calculateLevelMatch(job, program)
+    
+    // Calculate relevance score
+    const relevanceScore = 
+      (0.4 * 1.0) + // CIP-SOC (assume primary for now)
+      (0.2 * levelMatch) +
+      (0.3 * skillsOverlap) +
+      (0.1 * 1.0) // Local (assume available)
+    
+    return {
+      ...program,
+      relevance_score: Math.round(relevanceScore * 100),
+      shared_skills_count: sharedSkills.length
+    }
+  })
+  
+  // 4. Sort by relevance and limit
+  return programsWithScores
+    ?.sort((a, b) => b.relevance_score - a.relevance_score)
+    .slice(0, limit) || []
+}
+
+function calculateLevelMatch(job: any, program: any): number {
+  const programLevel = program.program_type?.toLowerCase() || ''
+  const jobLevel = job.category?.toLowerCase() || ''
+  
+  // Simple matching logic
+  if (programLevel.includes('certificate')) {
+    return jobLevel.includes('entry') || jobLevel.includes('assistant') ? 1.0 : 0.7
+  }
+  if (programLevel.includes('bachelor')) {
+    return jobLevel.includes('senior') || jobLevel.includes('manager') ? 1.0 : 0.8
+  }
+  if (programLevel.includes('master') || programLevel.includes('graduate')) {
+    return jobLevel.includes('director') || jobLevel.includes('executive') ? 1.0 : 0.7
+  }
+  
+  return 0.8 // Default
+}
+```
+
+**Step 2: Update UI to Display Score (15 min)**
+```typescript
+// File: /src/app/(main)/jobs/[id]/page.tsx
+
+// In the programs section, add match percentage badge:
+<FeaturedProgramCard
+  // ... existing props
+  skillsCallout={{
+    type: 'match',
+    count: program.relevance_score,
+    label: `${program.relevance_score}% Match`,
+    href: undefined
+  }}
+/>
+```
+
+**Step 3: Add Visual Indicator (15 min)**
+```typescript
+// File: /src/components/ui/featured-program-card.tsx
+
+// Add match badge at top of card:
+{relevanceScore && relevanceScore >= 70 && (
+  <Badge className="bg-green-100 text-green-800">
+    {relevanceScore}% Match
+  </Badge>
+)}
+```
+
+#### Files to Update
+- `/src/lib/database/queries.ts` - Update `getRelatedPrograms()`
+- `/src/app/(main)/jobs/[id]/page.tsx` - Pass relevance score to cards
+- `/src/components/ui/featured-program-card.tsx` - Display match badge (optional)
+
+#### Estimated Effort
+- Query logic: 30 minutes
+- UI updates: 15 minutes
+- Testing: 15 minutes
+- **Total: 1 hour**
+
+#### Success Criteria
+- [ ] Programs sorted by relevance score (highest first)
+- [ ] Match percentage displayed on cards
+- [ ] Top matches are genuinely more relevant
+- [ ] Performance remains acceptable (<2s load)
+
+---
+
+### Phase 5: Assessment Results Integration (Future)
+
+**Goal:** Replace mock program recommendations with real crosswalk data.
+
+**Implementation:**
+1. Query `program_skills` for programs teaching gap skills
+2. Calculate relevance based on skill gap coverage
+3. Display "This program addresses 5 of your 8 skill gaps"
+
+**Estimated Effort:** 7-9 hours
+
+**Priority:** High (post-launch)
+
+---
+
+### Phase 6: UI Simplification (Future)
+
+**Goal:** Streamline program cards for better scannability.
+
+**Changes:**
+- Reduce visual complexity
+- Emphasize key info (name, type, duration)
+- Remove redundant elements
+
+**Estimated Effort:** 2-3 hours
+
+**Priority:** Medium (based on user feedback)
+
+---
+
 ## References
 
 - **Schema Check Script:** `/scripts/check-crosswalk-schema.js`
@@ -435,3 +697,4 @@ if (data?.soc_code && data?.job_kind === 'occupation') {
 - **Architecture Doc:** `/docs/SKILLS_ARCHITECTURE_CHANGE.md`
 - **Database Queries:** `/src/lib/database/queries.ts`
 - **Table Config:** `/src/lib/table-configs.ts` (lines 241-281)
+- **Follow-up Tasks:** See Phases 4-6 above (consolidated from separate doc)

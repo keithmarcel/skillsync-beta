@@ -564,7 +564,12 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     format={program.format || 'On-campus'}
                     duration={program.duration_text || 'Duration varies'}
                     description={program.short_desc || ''}
-                    skillsCallout={undefined}
+                    skillsCallout={program.relevance_score ? {
+                      type: 'skills',
+                      count: program.relevance_score,
+                      label: `${program.relevance_score}% Match`,
+                      href: undefined
+                    } : undefined}
                     programDetailsHref={`/programs/${program.id}`}
                     isFavorited={false}
                     onAddFavorite={() => {}}
