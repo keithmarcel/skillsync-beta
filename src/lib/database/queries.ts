@@ -508,7 +508,11 @@ export async function getFeaturedPrograms(): Promise<Program[]> {
     .from('programs')
     .select(`
       *,
-      school:schools!inner(*)
+      school:schools!inner(*),
+      skills:program_skills(
+        weight,
+        skill:skills!program_skills_skill_id_fkey(*)
+      )
     `)
     .eq('is_featured', true)
     .eq('status', 'published')
@@ -525,11 +529,15 @@ export async function getFeaturedPrograms(): Promise<Program[]> {
 }
 
 export async function getAllPrograms(): Promise<Program[]> {
-  const { data, error } = await supabase
+  const { data, error} = await supabase
     .from('programs')
     .select(`
       *,
-      school:schools!inner(*)
+      school:schools!inner(*),
+      skills:program_skills(
+        weight,
+        skill:skills!program_skills_skill_id_fkey(*)
+      )
     `)
     .eq('status', 'published')
     .eq('school.is_published', true)
