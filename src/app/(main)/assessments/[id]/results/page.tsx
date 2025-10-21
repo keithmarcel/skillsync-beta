@@ -324,7 +324,7 @@ export default function AssessmentResultsPage() {
             <div className="px-8 pb-8">
               <div className="bg-[#114B5F] rounded-lg px-6 py-4 flex items-center justify-between">
                 <p className="text-lg text-[#F5F5F5]">
-                  You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with the employer.
+                  You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with {assessment.job?.company?.name || 'the employer'}.
                 </p>
                 <Button 
                   variant="outline" 
