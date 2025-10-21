@@ -118,10 +118,10 @@ async function reseedAssessments() {
         skillScores.reduce((sum, s) => sum + s.score_pct, 0) / skillScores.length
       )
 
-      // Determine status_tag based on readiness
+      // Determine status_tag based on job's required proficiency
       let status_tag = 'needs_development'
-      if (avgScore >= 90) status_tag = 'role_ready'
-      else if (avgScore >= 75) status_tag = 'close_gaps'
+      if (avgScore >= requiredProf) status_tag = 'role_ready'
+      else if (avgScore >= requiredProf - 15) status_tag = 'close_gaps'
 
       // Create assessment
       const { data: assessment, error: assessmentError } = await supabase
