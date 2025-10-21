@@ -17,10 +17,13 @@ const supabase = createClient(
 async function backfillProgramCounts() {
   console.log('🎓 Starting direct program counts backfill...\n')
 
-  // Get all analyzed assessments with their job SOC codes
+  // Get all analyzed assessments with their job data and skill results
   const { data: assessments, error } = await supabase
     .from('assessments')
-    .select('id, job:jobs(soc_code)')
+    .select(`
+      id,
+      job:jobs(id, soc_code, required_proficiency_pct)
+    `)
     .not('analyzed_at', 'is', null)
 
   if (error) {
@@ -41,25 +44,26 @@ async function backfillProgramCounts() {
 
   for (let i = 0; i < assessments.length; i++) {
     const assessment = assessments[i]
-    const socCode = assessment.job?.soc_code
+    const jobId = assessment.job?.id
+    const requiredProficiency = assessment.job?.required_proficiency_pct || 75
 
     console.log(`[${i + 1}/${assessments.length}] Processing ${assessment.id}...`)
 
-    if (!socCode) {
-      console.log(`  ⚠️  No SOC code, skipping`)
+    if (!jobId) {
+      console.log(`  ⚠️  No job ID, skipping`)
       skipped++
       continue
     }
 
     try {
-      // Get CIP codes via crosswalk
-      const { data: cipMatches } = await supabase
-        .from('cip_soc_crosswalk')
-        .select('cip_code')
-        .eq('soc_code', socCode)
+      // Get skill results for this assessment
+      const { data: skillResults } = await supabase
+        .from('assessment_skill_results')
+        .select('skill_id, score_pct')
+        .eq('assessment_id', assessment.id)
 
-      if (!cipMatches || cipMatches.length === 0) {
-        console.log(`  ⚠️  No crosswalk entries for SOC ${socCode}`)
+      if (!skillResults || skillResults.length === 0) {
+        console.log(`  ⚠️  No skill results found`)
         const { error: updateError } = await supabase
           .from('assessments')
           .update({ program_matches_count: 0 })
@@ -69,21 +73,65 @@ async function backfillProgramCounts() {
           console.error(`  ❌ Error updating: ${updateError.message}`)
           failed++
         } else {
-          console.log(`  ✅ Set to 0 (no crosswalk)`)
+          console.log(`  ✅ Set to 0 (no skill results)`)
           succeeded++
         }
         continue
       }
 
-      // Count programs with matching CIP codes
-      const cipCodes = cipMatches.map(m => m.cip_code)
-      const { count } = await supabase
-        .from('programs')
-        .select('*', { count: 'exact', head: true })
-        .in('cip_code', cipCodes)
-        .eq('status', 'published')
+      // Identify gap skills (below required proficiency)
+      const gapSkills = skillResults
+        .filter(s => s.score_pct < requiredProficiency)
+        .map(s => s.skill_id)
 
-      const programCount = count || 0
+      let programCount = 0
+
+      if (gapSkills.length > 0) {
+        // User has gaps - count gap-filling programs
+        const { data: programSkills } = await supabase
+          .from('program_skills')
+          .select('program_id')
+          .in('skill_id', gapSkills)
+
+        if (programSkills && programSkills.length > 0) {
+          // Get unique program IDs
+          const uniqueProgramIds = [...new Set(programSkills.map(ps => ps.program_id))]
+          
+          // Count published programs
+          const { count } = await supabase
+            .from('programs')
+            .select('*', { count: 'exact', head: true })
+            .in('id', uniqueProgramIds)
+            .eq('status', 'published')
+
+          programCount = count || 0
+        }
+      } else {
+        // User is role-ready - count related programs via CIP-SOC crosswalk
+        const { data: job } = await supabase
+          .from('jobs')
+          .select('soc_code')
+          .eq('id', jobId)
+          .single()
+
+        if (job?.soc_code) {
+          const { data: cipMatches } = await supabase
+            .from('cip_soc_crosswalk')
+            .select('cip_code')
+            .eq('soc_code', job.soc_code)
+
+          if (cipMatches && cipMatches.length > 0) {
+            const cipCodes = cipMatches.map(m => m.cip_code)
+            const { count } = await supabase
+              .from('programs')
+              .select('*', { count: 'exact', head: true })
+              .in('cip_code', cipCodes)
+              .eq('status', 'published')
+
+            programCount = count || 0
+          }
+        }
+      }
 
       // Update assessment
       const { error: updateError } = await supabase
@@ -95,7 +143,8 @@ async function backfillProgramCounts() {
         console.error(`  ❌ Error updating: ${updateError.message}`)
         failed++
       } else {
-        console.log(`  ✅ Updated to ${programCount} programs`)
+        const matchType = gapSkills.length > 0 ? `gap-filling (${gapSkills.length} gaps)` : 'growth (role-ready)'
+        console.log(`  ✅ Updated to ${programCount} programs (${matchType})`)
         succeeded++
       }
 
