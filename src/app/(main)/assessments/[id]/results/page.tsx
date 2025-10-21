@@ -233,24 +233,13 @@ export default function AssessmentResultsPage() {
               </p>
             </div>
 
-            {/* Right side - Stacked bars + percentage, centered */}
-            <div className="flex flex-col items-center justify-center gap-3 flex-shrink-0 min-w-[280px]">
-              {/* Stacked bars - 200px wide, 12px height, 8px gap - BOTTOM TO TOP */}
-              <div className="flex flex-col-reverse gap-2">
-                {[...Array(10)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`w-[200px] h-3 rounded-full ${
-                      i < filledBlocks ? 'bg-[#00E1FF]' : 'bg-[#324650]/50'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              {/* Percentage - 64px font, 8px gap */}
-              <div className="text-center pt-1">
-                <div className="text-[64px] font-bold leading-none text-white">{readiness}%</div>
-                <div className="text-base text-white/70 mt-2">Role Readiness</div>
+            {/* Right side - Readiness score in outlined container */}
+            <div className="flex-shrink-0">
+              <div className="border-2 border-[#114B5F] rounded-xl p-8 bg-transparent">
+                <div className="text-center">
+                  <div className="text-[64px] font-bold leading-none text-white">{readiness}%</div>
+                  <div className="text-base text-white/70 mt-2">Role Readiness</div>
+                </div>
               </div>
             </div>
           </div>
