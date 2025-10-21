@@ -33,6 +33,171 @@ Comprehensive audit and optimization of the entire skills taxonomy system, inclu
 
 ---
 
+## 🔴 Critical Findings (October 21, 2025)
+
+### Finding #1: Skills ID Mismatch Between Tables
+
+**Discovered During:** Program matching implementation for My Assessments page
+
+**Issue:**
+- `job_skills` table (105 entries) uses one set of skill IDs from the 35K taxonomy
+- `program_skills` table (1,843 entries) uses a different set of skill IDs from the same taxonomy
+- **Zero overlap** between the two sets of skill IDs
+- Result: Gap-filling program matching returns 0 programs for 9/10 assessments
+
+**Evidence:**
+```
+Backfill results (October 21, 2025):
+- Assessment 1: 6 skill gaps → 0 programs found (skill ID mismatch)
+- Assessment 2: 5 skill gaps → 0 programs found (skill ID mismatch)
+- Assessment 3: 7 skill gaps → 0 programs found (skill ID mismatch)
+- Assessment 4: 4 skill gaps → 0 programs found (skill ID mismatch)
+- Assessment 5: 5 skill gaps → 0 programs found (skill ID mismatch)
+- Assessment 6: Role-ready → 68 programs found (CIP-SOC crosswalk works)
+- Assessment 7: 5 skill gaps → 0 programs found (skill ID mismatch)
+- Assessment 8: 2 skill gaps → 0 programs found (skill ID mismatch)
+- Assessment 9: 8 skill gaps → 0 programs found (skill ID mismatch)
+- Assessment 10: 4 skill gaps → 0 programs found (skill ID mismatch)
+```
+
+**Root Cause:**
+- `job_skills` populated from O*NET/manual curation (featured roles only)
+- `program_skills` populated from CIP-to-skills mapping pipeline
+- Different import processes selected different subsets of the 35K skills taxonomy
+- No validation or reconciliation between the two processes
+
+**Impact:**
+- **HIGH**: Gap-filling program recommendations completely broken
+- Users with skill gaps see 0 programs even though relevant programs exist
+- Only role-ready users (using CIP-SOC crosswalk) see programs
+- User experience severely degraded for users who need help most
+
+**Workaround:**
+- Temporarily using CIP-SOC crosswalk for ALL assessments
+- Shows occupation-level programs instead of gap-specific programs
+- Less precise but at least shows something
+
+**Permanent Fix Required:**
+- Unify skills taxonomy across all tables
+- Ensure `job_skills` and `program_skills` use same skill IDs
+- Implement validation to prevent future divergence
+- Backfill existing data with unified taxonomy
+
+---
+
+### Finding #2: CIP-SOC Crosswalk Works, Skill Overlap Doesn't
+
+**Discovered During:** Programs page showing "0 jobs" debugging
+
+**Issue:**
+- CIP-SOC crosswalk matching works perfectly (100% coverage)
+- Skill-based overlap matching fails due to skill ID mismatches
+- All matching functions were initially using skill overlap
+
+**Evidence:**
+```
+Program: "MS Management" (CIP: 52.0201)
+- CIP-SOC crosswalk: 17 matching SOC codes → 20 jobs found ✅
+- Skill overlap: 8 program skills → 0 job matches ❌
+
+Program: "Project Management Certificate" (CIP: 52.0213)  
+- CIP-SOC crosswalk: 2 matching SOC codes → 4 jobs found ✅
+- Skill overlap: 5 program skills → 0 job matches ❌
+```
+
+**Root Cause:**
+- Same as Finding #1 - skill ID mismatch
+- `job_skills`, `program_skills`, and `soc_skills` all use different skill IDs
+
+**Impact:**
+- **MEDIUM**: Programs page initially showed "0 jobs" for all programs
+- Fixed by switching to CIP-SOC crosswalk
+- But reveals deeper systemic issue with skills taxonomy
+
+**Resolution:**
+- Updated all matching functions to use CIP-SOC crosswalk:
+  - `getRelatedJobsCountForProgram()` ✅
+  - `getRelatedJobsForProgram()` ✅
+  - `findProgramsForGaps()` ✅ (partially)
+- Skill-based matching deprecated until taxonomy unified
+
+---
+
+### Finding #3: Multiple Matching Approaches in Codebase
+
+**Discovered During:** Code review while fixing program matching
+
+**Issue:**
+- At least 3 different approaches to program-job matching:
+  1. Skill overlap (broken due to ID mismatch)
+  2. CIP-SOC crosswalk (works)
+  3. Hybrid approach (inconsistent)
+
+**Functions Found:**
+```
+Program Matching:
+- getRelatedPrograms() - Uses CIP-SOC crosswalk ✅
+- getGapFillingPrograms() - Uses skill overlap ❌
+- findProgramsForGaps() - Uses skill overlap ❌
+- findProgramsBySkillOverlap() - Uses skill overlap ❌
+
+Job Matching:
+- getRelatedJobsForProgram() - Now uses CIP-SOC ✅
+- getRelatedJobsCountForProgram() - Now uses CIP-SOC ✅
+- getSimilarRoles() - Unknown
+- getRelatedFeaturedRoles() - Unknown
+```
+
+**Impact:**
+- **MEDIUM**: Inconsistent user experience
+- Different pages show different results
+- Difficult to debug and maintain
+- No single source of truth
+
+**Recommendation:**
+- Create unified `SkillsMatchingService`
+- Deprecate all skill-overlap functions
+- Use CIP-SOC crosswalk as primary matching method
+- Add confidence scoring based on match type
+
+---
+
+### Finding #4: Skills Tables Have No Overlap
+
+**Discovered During:** Database investigation
+
+**Current State:**
+```
+Table              | Rows  | Purpose                    | Skill IDs Source
+-------------------|-------|----------------------------|------------------
+skills             | 35,041| Master taxonomy            | Lightcast/O*NET
+job_skills         | 105   | Featured roles → skills    | Subset A (manual)
+program_skills     | 1,843 | Programs → skills          | Subset B (CIP mapping)
+soc_skills         | 460   | Occupations → skills       | Subset C (O*NET)
+assessment_skills  | ?     | Assessment → skills        | Subset A (from jobs)
+```
+
+**Key Finding:**
+- Subsets A, B, and C have **ZERO overlap** in skill IDs
+- All three pull from the same 35K master taxonomy
+- But different import processes selected different skills
+- No validation or reconciliation between processes
+
+**Impact:**
+- **CRITICAL**: Core matching functionality broken
+- Cannot match jobs to programs via skills
+- Cannot match programs to skill gaps
+- Cannot provide personalized recommendations
+
+**Required Action:**
+- Immediate audit of all skills import processes
+- Identify which skills should be in which tables
+- Create unified import pipeline
+- Backfill all tables with correct skill IDs
+- Add validation to prevent future divergence
+
+---
+
 ## 📊 Audit Scope
 
 ### 1. Skills Data Sources Audit
