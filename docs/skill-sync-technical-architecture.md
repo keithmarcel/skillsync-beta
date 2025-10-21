@@ -384,9 +384,11 @@ WITH CHECK (auth.uid() = user_id);
 
 ### Overview
 
-The Employer Invitations System is a comprehensive two-way invitation platform enabling employers to invite qualified candidates to apply for featured roles, and candidates to manage their invitations. This system includes automatic candidate discovery, role-based access control, and comprehensive status tracking.
+The Employer Invitations System is a comprehensive two-way invitation platform enabling employers to invite qualified candidates to apply for featured roles, and candidates to manage their invitations. This system includes automatic candidate discovery, consent management, role-based access control, and comprehensive status tracking.
 
-**Status:** ✅ Candidate UI Complete | ⏸️ Employer UI On Hold
+**Status:** ✅ Candidate UI Complete | ✅ Consent Management Complete (SYSTEM-INFRA-905) | ⏸️ Employer UI On Hold
+
+**Updated:** October 21, 2025 - Added consent toggle with invitation withdrawal/backfill
 
 ### Architecture Components
 
@@ -464,6 +466,7 @@ $$ LANGUAGE plpgsql;
 - `sent` → "View Application" button (pending action)
 - `applied` → "Applied" badge (marked as applied)
 - `declined` → "Declined" badge (declined invitation)
+- `withdrawn` → **NEW** - User revoked consent (hidden from view)
 - `archived` → Moved to Archived tab
 
 **Employer View (Ready for Implementation):**
@@ -473,7 +476,33 @@ $$ LANGUAGE plpgsql;
 - `declined` → "Declined" badge
 - `hired` → "Hired" badge
 - `unqualified` → "Unqualified" badge
+- `withdrawn` → **NEW** - Candidate revoked consent (removed from queue)
 - `archived` → Moved to Archived tab
+
+#### 3a. Consent Management (SYSTEM-INFRA-905)
+
+**Added:** October 21, 2025
+
+**Consent Toggle OFF (Withdrawal):**
+1. User unchecks consent in Profile Settings
+2. Confirmation dialog shows impact
+3. All active invitations (`pending`, `sent`) → `withdrawn` status
+4. Invitations archived with `archived_by: 'candidate'`
+5. Removed from employer queues
+6. Toast: "X invitations withdrawn"
+
+**Consent Toggle ON (Backfill):**
+1. User checks consent in Profile Settings
+2. Confirmation dialog explains backfill
+3. System finds completed assessments meeting `visibility_threshold_pct`
+4. Creates invitations for qualifying assessments (skips duplicates)
+5. Added to employer queues
+6. Toast: "X invitations created"
+
+**Implementation:**
+- Service: `src/lib/services/consent-management.ts`
+- Dialog: `src/components/settings/consent-toggle-dialog.tsx`
+- Migration: `supabase/migrations/20251021000002_add_withdrawn_status.sql`
 
 #### 4. RLS Policies
 

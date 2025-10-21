@@ -1,15 +1,15 @@
 # Auto-Invite System - Complete Documentation
 
-**Feature:** Automatic Employer Invitation Queue Population  
-**Date:** October 21, 2025  
-**Status:** ✅ Production Ready  
-**Branch:** `feature/crosswalk-implementation`
+**Feature:** Automatic Employer Invitation Queue Population + Consent Management  
+**Date:** October 21, 2025 (Updated 2:35 PM)  
+**Status:** ✅ Production Ready (SYSTEM-INFRA-905 Complete)  
+**Branch:** `feature/my-assessments-complete-phase-3k`
 
 ---
 
 ## Overview
 
-The Auto-Invite System automatically adds qualified candidates to employer invitation queues when they complete assessments and meet proficiency thresholds. This creates a seamless connection between candidate assessments and employer hiring pipelines.
+The Auto-Invite System automatically adds qualified candidates to employer invitation queues when they complete assessments and meet proficiency thresholds. It includes comprehensive consent management, allowing users to control when their results are shared and automatically handling invitation withdrawal/backfill when consent changes.
 
 ### What It Does
 - **Automatically qualifies candidates** based on assessment scores
@@ -18,6 +18,9 @@ The Auto-Invite System automatically adds qualified candidates to employer invit
 - **Respects consent** - only shares if user agreed to terms
 - **Prevents duplicates** - won't add same candidate twice
 - **Tracks readiness** - stores actual proficiency score
+- **✨ NEW: Consent toggle** - withdraws/backfills invitations when consent changes
+- **✨ NEW: Confirmation dialogs** - explains impact before consent changes
+- **✨ NEW: Withdrawn status** - tracks revoked consent invitations
 
 ---
 
@@ -486,15 +489,128 @@ processAssessmentCompletion('test-assessment-id').then(console.log);
 
 ---
 
+## Consent Management System
+
+**Added:** October 21, 2025 (SYSTEM-INFRA-905)
+
+### Overview
+
+Users can toggle consent in Profile Settings to control whether their assessment results are shared with employers. The system automatically handles invitation withdrawal and backfill based on consent changes.
+
+### Consent Toggle OFF (Withdrawal)
+
+**What Happens:**
+1. User unchecks "Share assessment results" in settings
+2. Confirmation dialog shows impact: "X invitations will be withdrawn"
+3. User confirms action
+4. All active invitations (`pending`, `sent`) → `withdrawn` status
+5. Invitations archived with `archived_by: 'candidate'`
+6. Employers no longer see candidate in their queue
+7. Toast notification: "X invitations withdrawn"
+
+**Implementation:**
+```typescript
+// src/lib/services/consent-management.ts
+withdrawAllInvitations(userId: string): Promise<{
+  success: boolean,
+  count: number,
+  error?: string
+}>
+```
+
+### Consent Toggle ON (Backfill)
+
+**What Happens:**
+1. User checks "Share assessment results" in settings
+2. Confirmation dialog explains: "Past assessments will be shared"
+3. User confirms action
+4. System finds all completed assessments
+5. Filters for those meeting `visibility_threshold_pct`
+6. Creates invitations for qualifying assessments (skips duplicates)
+7. Toast notification: "X invitations created" or "You'll receive invitations..."
+
+**Implementation:**
+```typescript
+// src/lib/services/consent-management.ts
+backfillQualifyingInvitations(userId: string): Promise<{
+  success: boolean,
+  count: number,
+  error?: string
+}>
+```
+
+### Invitation Statuses
+
+**Active Statuses:**
+- `pending` - Invitation created, not yet sent
+- `sent` - Invitation sent to candidate
+- `applied` - Candidate applied to role
+- `hired` - Candidate was hired
+
+**Inactive Statuses:**
+- `declined` - Candidate declined invitation
+- `unqualified` - Candidate no longer meets threshold
+- `archived` - Manually archived by employer
+- `withdrawn` - **NEW** - User revoked consent
+
+### Confirmation Dialogs
+
+**Component:** `src/components/settings/consent-toggle-dialog.tsx`
+
+**Disable Dialog Shows:**
+- Count of active invitations that will be withdrawn
+- Impact on employer visibility
+- Note about existing applications
+- Red "Stop Sharing" button
+
+**Enable Dialog Shows:**
+- Benefits of sharing results
+- Explanation of backfill process
+- User control messaging
+- Teal "Enable Sharing" button
+
+### Database Changes
+
+**Migration:** `20251021000002_add_withdrawn_status.sql`
+
+```sql
+-- Added 'withdrawn' status to employer_invitations
+ALTER TABLE employer_invitations 
+ADD CONSTRAINT employer_invitations_status_check 
+CHECK (status IN ('pending', 'sent', 'applied', 'declined', 
+                  'hired', 'unqualified', 'archived', 'withdrawn'));
+```
+
+### Files Modified
+
+**New Files:**
+- `src/lib/services/consent-management.ts` - Consent toggle logic
+- `src/components/settings/consent-toggle-dialog.tsx` - Confirmation UI
+- `supabase/migrations/20251021000002_add_withdrawn_status.sql` - DB migration
+
+**Updated Files:**
+- `src/components/settings/profile-tab.tsx` - Integrated consent toggle handler
+
+---
+
 ## Related Documentation
 
 - `/docs/features/CIP_SOC_CROSSWALK_SYSTEM.md` - Program matching
 - `/docs/features/EMPLOYER_INVITATIONS_SPEC.md` - Full invitation system
 - `/docs/SKILLS_ARCHITECTURE_CHANGE.md` - Skills system
+- `/docs/skill-sync-technical-architecture.md` - System architecture
 
 ---
 
 ## Changelog
+
+**October 21, 2025 - v2.0 (SYSTEM-INFRA-905 Complete)**
+- ✅ Added consent toggle with confirmation dialogs
+- ✅ Implemented invitation withdrawal on consent OFF
+- ✅ Implemented invitation backfill on consent ON
+- ✅ Added `withdrawn` status to database
+- ✅ Created consent management service
+- ✅ Updated documentation
 
 **October 21, 2025 - v1.0 (Production)**
 - ✅ Created auto-invite service
@@ -508,4 +624,4 @@ processAssessmentCompletion('test-assessment-id').then(console.log);
 
 **Status: Production Ready** ✅
 
-This system is complete, tested, and ready for production deployment. Qualified candidates are automatically connected to employers, creating a seamless hiring pipeline.
+This system is complete, tested, and ready for production deployment. Qualified candidates are automatically connected to employers, with full user control over consent and data sharing.

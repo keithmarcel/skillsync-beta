@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,12 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { useToast } from '@/hooks/use-toast'
 import { type Profile } from '@/hooks/useAuth'
 import { Save } from 'lucide-react'
+import { ConsentToggleDialog } from './consent-toggle-dialog'
+import { 
+  withdrawAllInvitations, 
+  backfillQualifyingInvitations,
+  getActiveInvitationsCount 
+} from '@/lib/services/consent-management'
 
 interface ProfileTabProps {
   profile: Profile
@@ -20,6 +26,9 @@ export function ProfileTab({ profile }: ProfileTabProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [showConsentDialog, setShowConsentDialog] = useState(false)
+  const [pendingConsentValue, setPendingConsentValue] = useState<boolean | null>(null)
+  const [activeInvitationsCount, setActiveInvitationsCount] = useState(0)
   
   const [formData, setFormData] = useState({
     first_name: profile.first_name || '',
@@ -34,6 +43,13 @@ export function ProfileTab({ profile }: ProfileTabProps) {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [cacheBuster] = useState(() => Date.now()) // Generate once on mount
 
+  // Load active invitations count on mount
+  useEffect(() => {
+    if (profile.id) {
+      getActiveInvitationsCount(profile.id).then(setActiveInvitationsCount)
+    }
+  }, [profile.id])
+
   const initials = profile.first_name && profile.last_name
     ? `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase()
     : profile.email?.[0]?.toUpperCase() || 'U'
@@ -45,6 +61,66 @@ export function ProfileTab({ profile }: ProfileTabProps) {
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click()
+  }
+
+  // Handle consent toggle with confirmation dialog
+  const handleConsentToggle = async (checked: boolean) => {
+    const currentValue = formData.visible_to_employers
+    
+    // If toggling, show confirmation dialog
+    if (checked !== currentValue) {
+      setPendingConsentValue(checked)
+      setShowConsentDialog(true)
+    }
+  }
+
+  // Confirm consent change
+  const confirmConsentChange = async () => {
+    if (pendingConsentValue === null) return
+
+    const wasEnabled = formData.visible_to_employers
+    const willBeEnabled = pendingConsentValue
+
+    // Update form data
+    setFormData({ ...formData, visible_to_employers: willBeEnabled })
+    setShowConsentDialog(false)
+
+    // Handle withdrawal (turning OFF)
+    if (wasEnabled && !willBeEnabled) {
+      const result = await withdrawAllInvitations(profile.id)
+      if (result.success) {
+        toast({
+          title: 'Sharing Disabled',
+          description: `${result.count} invitation${result.count !== 1 ? 's' : ''} withdrawn from employers.`
+        })
+        setActiveInvitationsCount(0)
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to withdraw invitations',
+          variant: 'destructive'
+        })
+      }
+    }
+
+    // Handle backfill (turning ON)
+    if (!wasEnabled && willBeEnabled) {
+      const result = await backfillQualifyingInvitations(profile.id)
+      if (result.success && result.count > 0) {
+        toast({
+          title: 'Sharing Enabled',
+          description: `${result.count} invitation${result.count !== 1 ? 's' : ''} created for qualifying assessments.`
+        })
+        setActiveInvitationsCount(result.count)
+      } else if (result.success) {
+        toast({
+          title: 'Sharing Enabled',
+          description: 'You\'ll receive invitations as you complete qualifying assessments.'
+        })
+      }
+    }
+
+    setPendingConsentValue(null)
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,9 +379,7 @@ export function ProfileTab({ profile }: ProfileTabProps) {
             <Checkbox
               id="visible_to_employers"
               checked={formData.visible_to_employers}
-              onCheckedChange={(checked) => 
-                setFormData({ ...formData, visible_to_employers: checked as boolean })
-              }
+              onCheckedChange={(checked) => handleConsentToggle(checked as boolean)}
               className="mt-0.5 data-[state=checked]:bg-cyan-800 data-[state=checked]:border-cyan-800"
             />
             <div className="flex-1">
@@ -360,6 +434,18 @@ export function ProfileTab({ profile }: ProfileTabProps) {
           </Button>
         </div>
       </form>
+
+      {/* Consent Toggle Dialog */}
+      <ConsentToggleDialog
+        open={showConsentDialog}
+        onOpenChange={(open) => {
+          setShowConsentDialog(open)
+          if (!open) setPendingConsentValue(null)
+        }}
+        action={pendingConsentValue ? 'enable' : 'disable'}
+        invitationCount={activeInvitationsCount}
+        onConfirm={confirmConsentChange}
+      />
     </div>
   )
 }
