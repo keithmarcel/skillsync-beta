@@ -208,8 +208,8 @@ export default function AssessmentResultsPage() {
       <div className="max-w-[1232px] mx-auto px-6 pb-8">
         {/* Hero Section - Role Readiness Card */}
         <div className="bg-[#002F3F] rounded-xl shadow-lg mb-12">
-          {/* Main content area - consistent p-8 padding */}
-          <div className="flex items-center p-8 gap-8">
+          {/* Main content area - extra padding for breathing room */}
+          <div className="flex items-center px-12 pt-12 pb-8 gap-12">
             {/* Left side - 2/3 width */}
             <div className="flex-1">
               {/* Status Icon + Headline */}
@@ -235,8 +235,55 @@ export default function AssessmentResultsPage() {
 
             {/* Right side - Readiness score in outlined container */}
             <div className="flex-shrink-0">
-              <div className="border-2 border-[#114B5F] rounded-xl p-8 bg-transparent">
+              <div className="border-2 border-[#114B5F] rounded-xl p-8 bg-transparent min-w-[200px]">
                 <div className="text-center">
+                  {/* Progress indicator comparing readiness to required proficiency */}
+                  <div className="mb-4">
+                    <div className="relative w-32 h-32 mx-auto">
+                      {/* Background circle */}
+                      <svg className="transform -rotate-90 w-32 h-32">
+                        <circle
+                          cx="64"
+                          cy="64"
+                          r="56"
+                          stroke="#324650"
+                          strokeWidth="8"
+                          fill="none"
+                        />
+                        {/* Progress circle */}
+                        <circle
+                          cx="64"
+                          cy="64"
+                          r="56"
+                          stroke="#00E1FF"
+                          strokeWidth="8"
+                          fill="none"
+                          strokeDasharray={`${(readiness / 100) * 352} 352`}
+                          strokeLinecap="round"
+                        />
+                        {/* Required proficiency marker */}
+                        <circle
+                          cx="64"
+                          cy="64"
+                          r="56"
+                          stroke="#AFECEF"
+                          strokeWidth="2"
+                          fill="none"
+                          strokeDasharray={`${((assessment?.job?.required_proficiency_pct || 75) / 100) * 352} 352`}
+                          opacity="0.5"
+                        />
+                      </svg>
+                      {/* Center icon */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="p-2 bg-[#00A6AE] rounded-full">
+                          <svg className="w-6 h-6 text-[#AFECEF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="text-[64px] font-bold leading-none text-white">{readiness}%</div>
                   <div className="text-base text-white/70 mt-2">Role Readiness</div>
                 </div>
