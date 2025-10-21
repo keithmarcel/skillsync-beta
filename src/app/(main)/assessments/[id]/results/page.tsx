@@ -209,14 +209,13 @@ export default function AssessmentResultsPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header - No background, just spacing like other pages */}
       <div className="max-w-[1232px] mx-auto px-6 pt-8 pb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.push('/my-assessments')}
-          className="text-gray-600 hover:text-gray-900 -ml-3"
+        <Link 
+          href="/my-assessments"
+          className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Assessments
-        </Button>
+        </Link>
       </div>
 
       <div className="max-w-[1232px] mx-auto px-6 pb-8">
