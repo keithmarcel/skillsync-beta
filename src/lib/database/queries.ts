@@ -1369,6 +1369,79 @@ export async function getRelatedPrograms(jobId: string, limit: number = 30): Pro
 }
 
 /**
+ * Get programs that address skill gaps from assessment results
+ * Sorted by how many gaps they address
+ */
+export async function getGapFillingPrograms(
+  gapSkillIds: string[], 
+  limit: number = 10
+): Promise<any[]> {
+  if (!gapSkillIds || gapSkillIds.length === 0) {
+    return []
+  }
+
+  // 1. Find programs that teach these gap skills
+  const { data, error } = await supabase
+    .from('program_skills')
+    .select(`
+      program_id,
+      skill_id,
+      programs!inner(
+        *,
+        school:schools!inner(*),
+        program_skills(skill_id)
+      )
+    `)
+    .in('skill_id', gapSkillIds)
+    .eq('programs.status', 'published')
+  
+  if (error) {
+    console.error('Error fetching gap-filling programs:', error)
+    return []
+  }
+
+  // 2. Group by program and calculate gap coverage
+  const programMap = new Map<string, any>()
+  
+  data?.forEach(item => {
+    const program = item.programs
+    if (!program) return
+    
+    if (!programMap.has(program.id)) {
+      programMap.set(program.id, {
+        ...program,
+        gap_skills_addressed: new Set(),
+        total_program_skills: program.program_skills?.length || 0
+      })
+    }
+    
+    // Add this gap skill to the set
+    if (gapSkillIds.includes(item.skill_id)) {
+      programMap.get(program.id).gap_skills_addressed.add(item.skill_id)
+    }
+  })
+
+  // 3. Calculate scores and convert to array
+  const programsWithScores = Array.from(programMap.values()).map(program => {
+    const gapsAddressed = program.gap_skills_addressed.size
+    const gapCoverage = gapsAddressed / gapSkillIds.length
+    
+    return {
+      ...program,
+      gaps_addressed: gapsAddressed,
+      total_gaps: gapSkillIds.length,
+      gap_coverage_pct: Math.round(gapCoverage * 100),
+      relevance_score: Math.round(gapCoverage * 100) // Use gap coverage as relevance
+    }
+  })
+
+  // 4. Sort by gaps addressed (most first) and return top N
+  return programsWithScores
+    .sort((a, b) => b.gaps_addressed - a.gaps_addressed)
+    .slice(0, limit)
+}
+
+/**
  * Calculate how well a program's level matches the job requirements
  * Returns a score from 0.0 to 1.0
  */
