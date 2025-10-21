@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
-import { getGapFillingPrograms } from '@/lib/database/queries'
+import { getGapFillingPrograms, getRelatedPrograms } from '@/lib/database/queries'
 import { PageLoader } from '@/components/ui/loading-spinner'
 import { CheckCircle, AlertCircle, XCircle, ArrowLeft, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -55,15 +55,20 @@ export default function AssessmentResultsPage() {
         setSkillResults(skillsData)
       }
 
-      // Get gap-filling programs based on skills that need development
-      // Use the role's required proficiency as the threshold
+      // Get programs based on user's readiness
       const requiredProficiency = assessmentData.job?.required_proficiency_pct || 75
       const gapSkills = skillsData?.filter(s => s.score_pct < requiredProficiency).map(s => s.skill_id) || []
       
       if (gapSkills.length > 0) {
+        // User has gaps - show gap-filling programs
         const programsData = await getGapFillingPrograms(gapSkills, 10)
         setPrograms(programsData)
         console.log(`Found ${programsData.length} programs addressing ${gapSkills.length} skill gaps (threshold: ${requiredProficiency}%)`)
+      } else if (assessmentData.job?.id) {
+        // User is role-ready - show programs for continued growth via CIP-SOC crosswalk
+        const programsData = await getRelatedPrograms(assessmentData.job.id, 10)
+        setPrograms(programsData)
+        console.log(`User is role-ready - showing ${programsData.length} growth programs via CIP-SOC crosswalk`)
       }
     } catch (error) {
       console.error('Error loading results:', error)
