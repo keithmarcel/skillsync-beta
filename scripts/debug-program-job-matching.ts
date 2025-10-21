@@ -32,57 +32,32 @@ async function debugMatching() {
     console.log(`\n📚 Program: ${program.name}`)
     console.log(`   CIP: ${program.cip_code}`)
 
-    // Get program skills
-    const { data: programSkills } = await supabase
-      .from('program_skills')
-      .select('skill_id, skills(name)')
-      .eq('program_id', program.id)
+    // NEW APPROACH: Use CIP-SOC crosswalk
+    const { data: cipMatches } = await supabase
+      .from('cip_soc_crosswalk')
+      .select('soc_code, match_strength')
+      .eq('cip_code', program.cip_code)
 
-    console.log(`   Skills: ${programSkills?.length || 0}`)
-    if (programSkills && programSkills.length > 0) {
-      console.log(`   Sample skills: ${programSkills.slice(0, 3).map((ps: any) => ps.skills.name).join(', ')}`)
-    }
-
-    if (!programSkills || programSkills.length === 0) {
-      console.log('   ⚠️  No skills found for this program')
-      continue
-    }
-
-    const skillIds = programSkills.map(ps => ps.skill_id)
-
-    // Check job_skills matches
-    const { data: jobSkills } = await supabase
-      .from('job_skills')
-      .select('job_id, skill_id, jobs(title, job_kind)')
-      .in('skill_id', skillIds)
-
-    console.log(`   Matching job_skills entries: ${jobSkills?.length || 0}`)
+    console.log(`   CIP-SOC crosswalk matches: ${cipMatches?.length || 0}`)
     
-    if (jobSkills && jobSkills.length > 0) {
-      const uniqueJobs = new Set(jobSkills.map(js => js.job_id))
-      console.log(`   Unique jobs: ${uniqueJobs.size}`)
-      console.log(`   Sample jobs: ${jobSkills.slice(0, 3).map((js: any) => js.jobs?.title).join(', ')}`)
-    }
-
-    // Check soc_skills matches (for occupations)
-    const { data: socSkills } = await supabase
-      .from('soc_skills')
-      .select('soc_code, skill_id')
-      .in('skill_id', skillIds)
-
-    console.log(`   Matching soc_skills entries: ${socSkills?.length || 0}`)
-
-    if (socSkills && socSkills.length > 0) {
-      const uniqueSocs = new Set(socSkills.map(ss => ss.soc_code))
-      console.log(`   Unique SOC codes: ${uniqueSocs.size}`)
-
+    if (cipMatches && cipMatches.length > 0) {
+      console.log(`   Sample SOC codes: ${cipMatches.slice(0, 3).map(m => m.soc_code).join(', ')}`)
+      
+      const socCodes = cipMatches.map(m => m.soc_code)
+      
       // Get jobs with those SOC codes
-      const { data: socJobs } = await supabase
+      const { data: jobs } = await supabase
         .from('jobs')
-        .select('id, title, soc_code, job_kind')
-        .in('soc_code', Array.from(uniqueSocs))
+        .select('id, title, soc_code, job_kind, status')
+        .in('soc_code', socCodes)
+        .eq('status', 'published')
 
-      console.log(`   Jobs with matching SOC codes: ${socJobs?.length || 0}`)
+      console.log(`   ✅ Jobs with matching SOC codes: ${jobs?.length || 0}`)
+      if (jobs && jobs.length > 0) {
+        console.log(`   Sample jobs: ${jobs.slice(0, 3).map(j => j.title).join(', ')}`)
+      }
+    } else {
+      console.log(`   ⚠️  No CIP-SOC crosswalk entries for CIP ${program.cip_code}`)
     }
   }
 

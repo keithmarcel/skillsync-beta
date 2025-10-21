@@ -101,10 +101,10 @@ export default function ProgramsPage() {
           })
         )
         
-        console.log('Featured programs with jobs count:', transformedFeatured.map(p => ({ 
-          name: p.title, 
-          relatedJobsCount: p.relatedJobsCount 
-        })))
+        console.log('Featured programs with jobs count:')
+        transformedFeatured.forEach(p => {
+          console.log(`  - ${p.title}: ${p.relatedJobsCount} jobs`)
+        })
         
         setFeaturedPrograms(transformedFeatured)
         
