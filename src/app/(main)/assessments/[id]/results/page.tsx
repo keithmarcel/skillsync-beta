@@ -235,57 +235,41 @@ export default function AssessmentResultsPage() {
 
             {/* Right side - Readiness score in outlined container */}
             <div className="flex-shrink-0">
-              <div className="border-2 border-[#114B5F] rounded-xl p-8 bg-transparent min-w-[200px]">
+              <div className="border-2 border-[#114B5F] rounded-xl p-8 bg-transparent min-w-[240px]">
                 <div className="text-center">
-                  {/* Progress indicator comparing readiness to required proficiency */}
-                  <div className="mb-4">
-                    <div className="relative w-32 h-32 mx-auto">
-                      {/* Background circle */}
-                      <svg className="transform -rotate-90 w-32 h-32">
-                        <circle
-                          cx="64"
-                          cy="64"
-                          r="56"
-                          stroke="#324650"
-                          strokeWidth="8"
-                          fill="none"
-                        />
-                        {/* Progress circle */}
-                        <circle
-                          cx="64"
-                          cy="64"
-                          r="56"
-                          stroke="#00E1FF"
-                          strokeWidth="8"
-                          fill="none"
-                          strokeDasharray={`${(readiness / 100) * 352} 352`}
-                          strokeLinecap="round"
-                        />
-                        {/* Required proficiency marker */}
-                        <circle
-                          cx="64"
-                          cy="64"
-                          r="56"
-                          stroke="#AFECEF"
-                          strokeWidth="2"
-                          fill="none"
-                          strokeDasharray={`${((assessment?.job?.required_proficiency_pct || 75) / 100) * 352} 352`}
-                          opacity="0.5"
-                        />
+                  {/* Icon */}
+                  <div className="mb-4 flex justify-center">
+                    <div className="p-2 bg-[#00A6AE] rounded-full">
+                      <svg className="w-6 h-6 text-[#AFECEF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      {/* Center icon */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="p-2 bg-[#00A6AE] rounded-full">
-                          <svg className="w-6 h-6 text-[#AFECEF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                      </div>
                     </div>
                   </div>
                   
-                  <div className="text-[64px] font-bold leading-none text-white">{readiness}%</div>
-                  <div className="text-base text-white/70 mt-2">Role Readiness</div>
+                  {/* Percentage */}
+                  <div className="text-[64px] font-bold leading-none text-white mb-2">{readiness}%</div>
+                  <div className="text-base text-white/70 mb-4">Role Readiness</div>
+                  
+                  {/* Horizontal progress bar comparing to required proficiency */}
+                  <div className="space-y-2">
+                    <div className="relative h-2 bg-[#324650] rounded-full overflow-hidden">
+                      {/* Your score fill */}
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-[#00E1FF] transition-all duration-500 rounded-full"
+                        style={{ width: `${readiness}%` }}
+                      />
+                      {/* Required proficiency marker */}
+                      <div 
+                        className="absolute top-0 h-full w-0.5 bg-[#AFECEF]"
+                        style={{ left: `${assessment?.job?.required_proficiency_pct || 75}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-white/50">
+                      <span>0%</span>
+                      <span className="text-[#AFECEF]">Required: {assessment?.job?.required_proficiency_pct || 75}%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
