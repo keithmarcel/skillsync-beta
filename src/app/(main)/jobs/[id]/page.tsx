@@ -503,10 +503,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                         name: role.company?.name || 'Unknown Company',
                         logo: role.company?.logo_url || undefined
                       }}
-                      category={role.category}
+                      description={role.short_desc}
                       medianWage={role.median_wage_usd}
                       requiredProficiency={role.required_proficiency_pct}
-                      location={role.location}
                     />
                   </Link>
                 ))}

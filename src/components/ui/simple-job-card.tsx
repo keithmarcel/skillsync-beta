@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/card-styles'
+import { StatsGrid } from './featured-card-base'
 
 interface SimpleJobCardProps {
   id: string
@@ -9,42 +10,34 @@ interface SimpleJobCardProps {
     name: string
     logo?: string
   }
-  category?: string
+  description?: string
   medianWage?: number
   requiredProficiency?: number
-  location?: string
   className?: string
-}
-
-// Category colors matching featured-card-base palette
-const categoryColors: Record<string, { bg: string; text: string }> = {
-  'Health & Education': { bg: '#F6F5FF', text: '#1E429F' },
-  'Logistics': { bg: '#EDFAFA', text: '#014451' },
-  'Hospitality': { bg: '#FCE8F3', text: '#633112' },
-  'Finance & Legal': { bg: '#E5EDFF', text: '#42389D' },
-  'Public Services': { bg: '#FFF8F1', text: '#8A2C0D' },
-  'Tech & Services': { bg: '#EDEBFE', text: '#5521B5' },
-  'Skilled Trades': { bg: '#FCE8F3', text: '#99154B' },
-  'Business': { bg: '#E1EFFE', text: '#1E429F' },
-  'Technology': { bg: '#EDEBFE', text: '#5521B5' },
 }
 
 /**
  * Simplified Job Card for Crosswalk Pages
  * Minimal design for HDO detail pages showing related Featured Roles
- * Matches SimpleProgramCard design language
+ * Matches SimpleProgramCard design language with StatsGrid callout
  */
 export function SimpleJobCard({
   id,
   title,
   company,
-  category,
+  description,
   medianWage,
   requiredProficiency,
-  location,
   className = ''
 }: SimpleJobCardProps) {
-  const categoryColor = category ? categoryColors[category] : null
+  // Build stats array for callout
+  const stats = []
+  if (medianWage) {
+    stats.push({ label: "Median Salary", value: `$${medianWage.toLocaleString()}` })
+  }
+  if (requiredProficiency) {
+    stats.push({ label: "Required Proficiency", value: `${requiredProficiency}%` })
+  }
 
   return (
     <article
@@ -71,52 +64,27 @@ export function SimpleJobCard({
         )}
 
         {/* Job Title */}
-        <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2 mb-4 hover:text-teal-700 transition-colors duration-300 ease-in-out">
+        <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2 mb-3 hover:text-teal-700 transition-colors duration-300 ease-in-out">
           {title}
         </h3>
 
         {/* Hidden company name for fallback/accessibility */}
         <span className="sr-only">{company.name}</span>
 
+        {/* Description */}
+        {description && (
+          <p className="text-sm text-gray-600 leading-relaxed line-clamp-2 mb-4">
+            {description}
+          </p>
+        )}
+
         {/* Divider */}
         <div className="border-t border-gray-200 mb-4" />
 
-        {/* Pills Row */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Salary Badge */}
-          {medianWage && (
-            <span className="inline-flex h-[22px] items-center rounded-full px-3 text-xs font-medium bg-teal-100 text-teal-800">
-              ${medianWage.toLocaleString()}/year
-            </span>
-          )}
-
-          {/* Required Proficiency Badge */}
-          {requiredProficiency && (
-            <span className="inline-flex h-[22px] items-center rounded-full px-3 text-xs font-medium bg-purple-100 text-purple-800">
-              {requiredProficiency}% Required
-            </span>
-          )}
-          
-          {/* Category Badge with Palette */}
-          {category && categoryColor && (
-            <span
-              className="inline-flex h-[22px] items-center rounded-full px-3 text-xs font-medium"
-              style={{
-                backgroundColor: categoryColor.bg,
-                color: categoryColor.text
-              }}
-            >
-              {category}
-            </span>
-          )}
-
-          {/* Location Badge */}
-          {location && (
-            <span className="inline-flex h-[22px] items-center rounded-full bg-gray-100 px-3 text-xs font-medium text-gray-700">
-              {location}
-            </span>
-          )}
-        </div>
+        {/* Stats Callout */}
+        {stats.length > 0 && (
+          <StatsGrid stats={stats} />
+        )}
       </div>
     </article>
   )
