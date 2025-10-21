@@ -255,21 +255,21 @@ export default function AssessmentResultsPage() {
                       : topSkills.map(s => s.skill?.name).filter(Boolean).join(', ')
                     
                     if (programs.length > 0) {
-                      return `Your strong performance in ${skillsList || 'essential competencies'} demonstrates you're well-prepared for this role. Explore the ${programs.length} program${programs.length !== 1 ? 's' : ''} below to continue advancing your expertise and unlock new career opportunities in ${assessment.job?.title?.toLowerCase() || 'this field'}.`
+                      return `Your strong performance in ${skillsList || 'essential competencies'} demonstrates you're well-prepared for this role. Explore the ${programs.length} program${programs.length !== 1 ? 's' : ''} below to continue advancing your expertise and unlock new career opportunities.`
                     }
                     return `Your strong performance in ${skillsList || 'essential competencies'} demonstrates you're well-prepared for this role. Continue building on these strengths to advance your career.`
                   } else if (gapSkillsCount > 0 && gapSkillsCount <= 3) {
                     // Few gaps: Specific, actionable guidance
                     const gapsList = gapSkills.map(s => s.skill?.name).filter(Boolean).join(', ')
                     if (programs.length > 0) {
-                      return `You're ${requiredProf - readiness}% away from role-ready! Strengthening ${gapsList || 'a few key areas'} will get you there. The ${programs.length} program${programs.length !== 1 ? 's' : ''} below specifically target these skills and can help you become fully qualified for this ${assessment.job?.title?.toLowerCase() || 'role'}.`
+                      return `You're ${requiredProf - readiness}% away from role-ready! Strengthening ${gapsList || 'a few key areas'} will get you there. The ${programs.length} program${programs.length !== 1 ? 's' : ''} below specifically target these skills and can help you become fully qualified.`
                     }
                     return `You're ${requiredProf - readiness}% away from role-ready! Focus on strengthening ${gapsList || 'a few key areas'} to meet the ${requiredProf}% proficiency requirement.`
                   } else {
                     // Multiple gaps: Encouraging with clear path
                     const strongCount = skillResults.filter(s => s.score_pct >= 70).length
                     if (programs.length > 0) {
-                      return `You've built a solid foundation with ${strongCount} skill${strongCount !== 1 ? 's' : ''} at 70% or higher. The ${programs.length} program${programs.length !== 1 ? 's' : ''} below are specifically designed to address your development areas and accelerate your journey to becoming role-ready for this ${assessment.job?.title?.toLowerCase() || 'position'}.`
+                      return `You've built a solid foundation with ${strongCount} skill${strongCount !== 1 ? 's' : ''} at 70% or higher. The ${programs.length} program${programs.length !== 1 ? 's' : ''} below are specifically designed to address your development areas and accelerate your journey to becoming role-ready.`
                     }
                     return `You've built a solid foundation with ${strongCount} skill${strongCount !== 1 ? 's' : ''} at 70% or higher. Focus on the development areas identified below to accelerate your growth and become role-ready.`
                   }
