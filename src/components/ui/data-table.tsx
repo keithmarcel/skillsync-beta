@@ -315,16 +315,6 @@ export default function DataTable({
                 <th 
                   key={column.key}
                   className={`py-6 ${
-                    // Column-specific alignment takes precedence
-                    (column as any).align === 'center' ? 'text-center' :
-                    (column as any).align === 'left' ? 'text-left' :
-                    (column as any).align === 'right' ? 'text-right' :
-                    // Table-type specific defaults
-                    tableType === 'employer-roles' && index >= 1 && index <= 4 ? 'text-center' :
-                    tableType === 'employer-invites' && index >= 2 ? 'text-center' :
-                    index === columns.length - 1 ? 'text-center' :
-                    'text-left'
-                  } ${
                     tableType === 'employer-invites' && index === 0 ? 'px-6 pr-8 sticky-col-left' : 'px-6'
                   } ${
                     tableType === 'employer-invites' && index === columns.length - 1 ? 'sticky-col-right' : ''
@@ -346,9 +336,15 @@ export default function DataTable({
                       : (index === 0 ? '22%' :
                          index === 1 ? '30%' :
                          index === 2 ? '12%' :
-                         index === 3 ? '10%' :
+                         index === 3 ? '12%' :
                          index === 4 ? '12%' :
                          index === 5 ? '8%' : 'auto'),
+                    textAlign: (column as any).align === 'center' ? 'center' :
+                               (column as any).align === 'right' ? 'right' :
+                               tableType === 'employer-roles' && index >= 1 && index <= 4 ? 'center' :
+                               tableType === 'employer-invites' && index >= 2 ? 'center' :
+                               index === columns.length - 1 ? 'center' :
+                               'left'
                   }}
                 >
                   {column.label}
@@ -377,9 +373,6 @@ export default function DataTable({
                         tableType === 'employer-invites' && colIndex >= 2 ? 'text-center' :
                         colIndex === columns.length - 1 ? 'text-center' :
                         ''
-                      } ${
-                        // Add flex centering for center-aligned columns with inline elements
-                        (column as any).align === 'center' ? 'flex justify-center items-center' : ''
                       } ${
                         column.key === 'category' || column.key === 'readiness' ? 'whitespace-nowrap' : ''
                       } ${
