@@ -505,6 +505,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                       }}
                       category={role.category}
                       medianWage={role.median_wage_usd}
+                      requiredProficiency={role.required_proficiency_pct}
                       location={role.location}
                     />
                   </Link>
