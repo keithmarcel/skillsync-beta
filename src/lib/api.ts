@@ -106,7 +106,8 @@ export async function getUserAssessments() {
       skill_results:assessment_skill_results(
         skill_id,
         score_pct,
-        band
+        band,
+        skill:skills(name)
       )
     `)
     .eq('user_id', user.id)
