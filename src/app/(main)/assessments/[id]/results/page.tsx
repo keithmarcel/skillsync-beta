@@ -22,6 +22,7 @@ export default function AssessmentResultsPage() {
   const [programs, setPrograms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [displayedReadiness, setDisplayedReadiness] = useState(0)
+  const [hasShownToast, setHasShownToast] = useState(false)
 
   const scrollToPrograms = () => {
     const programsSection = document.getElementById('upskilling-programs')
@@ -101,23 +102,32 @@ export default function AssessmentResultsPage() {
         console.log('No job data available - showing empty state')
       }
 
-      // Process auto-invite and show toast if qualified
-      const inviteResult = await processAssessmentCompletion(assessmentId)
+      // Process auto-invite and show toast ONCE (only after assessment completion)
+      const toastKey = `assessment-toast-${assessmentId}`
+      const hasShownBefore = sessionStorage.getItem(toastKey)
       
-      if (inviteResult.shared && inviteResult.companyName) {
-        // Show toast notification
-        toast({
-          title: "Assessment Results Shared",
-          description: `Your assessment results have been shared with ${inviteResult.companyName}.`,
-        })
+      if (!hasShownBefore && !hasShownToast) {
+        const inviteResult = await processAssessmentCompletion(assessmentId)
+        
+        if (inviteResult.shared && inviteResult.companyName) {
+          // Show toast notification
+          toast({
+            title: "Assessment Results Shared",
+            description: `Your assessment results have been shared with ${inviteResult.companyName}.`,
+          })
 
-        // Log invitation status
-        if (inviteResult.invited) {
-          console.log(`✅ Added to ${inviteResult.companyName}'s invite queue (${inviteResult.readinessPct}% readiness)`)
-        } else if (inviteResult.qualified) {
-          console.log(`ℹ️ Qualified but already invited to ${inviteResult.companyName}`)
-        } else {
-          console.log(`ℹ️ Results shared with ${inviteResult.companyName} (${inviteResult.readinessPct}% < ${inviteResult.requiredPct}% threshold)`)
+          // Mark as shown
+          setHasShownToast(true)
+          sessionStorage.setItem(toastKey, 'true')
+
+          // Log invitation status
+          if (inviteResult.invited) {
+            console.log(`✅ Added to ${inviteResult.companyName}'s invite queue (${inviteResult.readinessPct}% readiness)`)
+          } else if (inviteResult.qualified) {
+            console.log(`ℹ️ Qualified but already invited to ${inviteResult.companyName}`)
+          } else {
+            console.log(`ℹ️ Results shared with ${inviteResult.companyName} (${inviteResult.readinessPct}% < ${inviteResult.requiredPct}% threshold)`)
+          }
         }
       }
 
