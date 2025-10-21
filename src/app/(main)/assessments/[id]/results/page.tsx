@@ -61,7 +61,7 @@ export default function AssessmentResultsPage() {
         .from('assessments')
         .select(`
           *,
-          job:jobs(id, title, soc_code, company:companies(name, logo_url))
+          job:jobs(id, title, soc_code, required_proficiency_pct, company:companies(name, logo_url))
         `)
         .eq('id', assessmentId)
         .single()
