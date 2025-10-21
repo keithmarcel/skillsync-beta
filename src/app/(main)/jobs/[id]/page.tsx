@@ -542,15 +542,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                   <FeaturedProgramCard
                     key={program.id}
                     id={program.id}
-                    title={program.name}
-                    school={program.school?.name || 'Unknown School'}
-                    schoolLogo={program.school?.logo_url || ''}
+                    name={program.name}
+                    school={{
+                      name: program.school?.name || 'Unknown School',
+                      logo: program.school?.logo_url || undefined
+                    }}
                     programType={program.program_type || 'Program'}
                     format={program.format || 'On-campus'}
                     duration={program.duration_text || 'Duration varies'}
                     description={program.short_desc || ''}
                     skillsCallout={undefined}
-                    href={`/programs/${program.id}`}
+                    programDetailsHref={`/programs/${program.id}`}
                     isFavorited={false}
                     onAddFavorite={() => {}}
                     onRemoveFavorite={() => {}}
