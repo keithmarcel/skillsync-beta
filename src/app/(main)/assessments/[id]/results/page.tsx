@@ -260,10 +260,11 @@ export default function AssessmentResultsPage() {
                   } else if (gapSkillsCount > 0 && gapSkillsCount <= 3) {
                     // Few gaps: Specific, actionable guidance
                     const gapsList = gapSkills.map(s => s.skill?.name).filter(Boolean).join(', ')
+                    const skillsPrefix = gapsList ? 'skills in ' : ''
                     if (programs.length > 0) {
-                      return `You're ${requiredProf - readiness}% away from role-ready! Strengthening ${gapsList || 'a few key areas'} will get you there. The ${programs.length} program${programs.length !== 1 ? 's' : ''} below specifically target these skills and can help you become fully qualified.`
+                      return `You're ${requiredProf - readiness}% away from role-ready! Strengthening ${skillsPrefix}${gapsList || 'a few key areas'} will get you there. The ${programs.length} program${programs.length !== 1 ? 's' : ''} below specifically target these skills and can help you become fully qualified.`
                     }
-                    return `You're ${requiredProf - readiness}% away from role-ready! Focus on strengthening ${gapsList || 'a few key areas'} to meet the ${requiredProf}% proficiency requirement.`
+                    return `You're ${requiredProf - readiness}% away from role-ready! Focus on strengthening ${skillsPrefix}${gapsList || 'a few key areas'} to meet the ${requiredProf}% proficiency requirement.`
                   } else {
                     // Multiple gaps: Encouraging with clear path
                     const strongCount = skillResults.filter(s => s.score_pct >= 70).length
