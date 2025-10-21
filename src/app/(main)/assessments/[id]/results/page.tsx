@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { getGapFillingPrograms, getRelatedPrograms } from '@/lib/database/queries'
-import { PageLoader } from '@/components/ui/loading-spinner'
 import { CheckCircle, AlertCircle, XCircle, ArrowLeft, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SimpleProgramCard } from '@/components/ui/simple-program-card'
@@ -130,37 +129,7 @@ export default function AssessmentResultsPage() {
     return 'bg-[#F8B4B4]'
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <PageLoader text="Loading your results..." />
-      </div>
-    )
-  }
-
-  if (!assessment) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Assessment not found</p>
-          <Button asChild>
-            <Link href="/jobs">Back to Jobs</Link>
-          </Button>
-        </div>
-      </div>
-    )
-  }
-
-  const readiness = Math.round(assessment.readiness_pct || 0)
-  const requiredProficiency = assessment.job?.required_proficiency_pct || 75
-  const status = getReadinessStatus(readiness, requiredProficiency)
-  const StatusIcon = status.icon
-  const filledBlocks = Math.round(readiness / 10)
-
-  // No placeholder programs - only show real crosswalk data
-  const displayPrograms = programs
-
-  if (loading) {
+  if (loading || !assessment) {
     return (
       <div className="min-h-screen bg-gray-50">
         {/* Header Skeleton */}
@@ -206,6 +175,15 @@ export default function AssessmentResultsPage() {
       </div>
     )
   }
+
+  const readiness = Math.round(assessment.readiness_pct || 0)
+  const requiredProficiency = assessment.job?.required_proficiency_pct || 75
+  const status = getReadinessStatus(readiness, requiredProficiency)
+  const StatusIcon = status.icon
+  const filledBlocks = Math.round(readiness / 10)
+
+  // No placeholder programs - only show real crosswalk data
+  const displayPrograms = programs
 
   return (
     <div className="min-h-screen bg-gray-50">
