@@ -206,12 +206,12 @@ export default function AssessmentResultsPage() {
       </div>
 
       <div className="max-w-[1232px] mx-auto px-6 pb-8">
-        {/* Hero Section - Figma: #002F3F background, shadow, 48px padding */}
+        {/* Hero Section - Role Readiness Card */}
         <div className="bg-[#002F3F] rounded-xl shadow-lg mb-12">
-          {/* Main content area - 48px 48px 32px padding */}
-          <div className="flex items-center px-12 pt-12 pb-8 gap-8">
-            {/* Left side - 2/3 width, pl-8 for inner padding */}
-            <div className="flex-1 pl-8">
+          {/* Main content area - consistent p-8 padding */}
+          <div className="flex items-center p-8 gap-8">
+            {/* Left side - 2/3 width */}
+            <div className="flex-1">
               {/* Status Icon + Headline */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="p-1.5 bg-[#00A6AE] rounded-full">
@@ -255,9 +255,9 @@ export default function AssessmentResultsPage() {
             </div>
           </div>
 
-          {/* Bottom card - 48px horizontal, 32px bottom padding */}
+          {/* Bottom card - consistent padding */}
           {readiness >= 80 && (
-            <div className="px-12 pb-8">
+            <div className="px-8 pb-8">
               <div className="bg-[#114B5F] rounded-lg px-6 py-4 flex items-center justify-between">
                 <p className="text-lg text-[#F5F5F5]">
                   You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with the employer.
