@@ -335,8 +335,16 @@ export default function AssessmentResultsPage() {
         {/* Education Program Matches - Always show - White bg with shadow */}
         <div id="upskilling-programs" className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow duration-200">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-2 font-source-sans-pro">Upskilling Programs</h2>
-            <p className="text-gray-600">Build the skills you need to advance your career and close any gaps.</p>
+            <h2 className="text-2xl font-bold mb-2 font-source-sans-pro">
+              {assessment?.overall_readiness_pct >= 75 
+                ? 'Continue Growing in Your Field' 
+                : 'Close Your Skill Gaps'}
+            </h2>
+            <p className="text-gray-600">
+              {assessment?.overall_readiness_pct >= 75
+                ? 'You\'re role-ready! These programs can help you continue developing your expertise and advance your career.'
+                : `These programs address ${skillResults.filter(s => s.score_pct < 75).length} skill gap${skillResults.filter(s => s.score_pct < 75).length !== 1 ? 's' : ''} identified in your assessment and can help you become role-ready.`}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
