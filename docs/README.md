@@ -8,7 +8,9 @@ Welcome to the SkillSync documentation hub. This directory contains comprehensiv
 1. **[Technical Architecture](./skill-sync-technical-architecture.md)** - Complete system architecture, database schema, API patterns
 2. **[Project Status](./PROJECT_STATUS.md)** - Current status and recent milestones
 3. **[Sprint Roadmap](./SPRINT_ROADMAP.md)** - Current progress and priorities
-4. **[Skills Import Quickstart](./SKILLS_IMPORT_QUICKSTART.md)** - Skills population guide
+4. **[Assessment Workflow](./ASSESSMENT_WORKFLOW.md)** ⭐ NEW - Complete assessment flow & data integrity rules
+5. **[Enum Standardization](./ENUM_STANDARDIZATION.md)** ⭐ NEW - Skill proficiency enum standards
+6. **[Skills Import Quickstart](./SKILLS_IMPORT_QUICKSTART.md)** - Skills population guide
 
 ### Feature Documentation (`/features`)
 

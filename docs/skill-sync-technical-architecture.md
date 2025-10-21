@@ -14,14 +14,15 @@ This document provides comprehensive technical documentation for the SkillSync a
 6. [Authentication & Authorization](#authentication--authorization)
 7. [Employer Invitations System](#employer-invitations-system)
 8. [Skills Taxonomy & O*NET Integration](#skills-taxonomy--onet-integration)
-9. [Assessment Weighting System](#assessment-weighting-system)
-10. [API Ecosystem Integration](#api-ecosystem-integration)
-11. [Intelligent Caching System](#intelligent-caching-system)
-12. [Admin Tools Architecture](#admin-tools-architecture)
-13. [AI Content Generation System](#ai-content-generation-system)
-14. [Quiz Generation & Assessment](#quiz-generation--assessment)
-15. [Common Issues & Solutions](#common-issues--solutions)
-16. [Development Workflow](#development-workflow)
+9. [Assessment Workflow & Data Integrity](#assessment-workflow--data-integrity) ⭐ NEW
+10. [Assessment Weighting System](#assessment-weighting-system)
+11. [API Ecosystem Integration](#api-ecosystem-integration)
+12. [Intelligent Caching System](#intelligent-caching-system)
+13. [Admin Tools Architecture](#admin-tools-architecture)
+14. [AI Content Generation System](#ai-content-generation-system)
+15. [Quiz Generation & Assessment](#quiz-generation--assessment)
+16. [Common Issues & Solutions](#common-issues--solutions)
+17. [Development Workflow](#development-workflow)
 
 ## Architecture Overview
 
@@ -1365,6 +1366,150 @@ const useAdminEntity = () => {
   return { data, loading, actions };
 };
 ```
+
+## Assessment Workflow & Data Integrity
+
+### Overview
+
+The Assessment Workflow defines the complete flow from employer role setup through learner assessment to homepage display. This system ensures data integrity across the entire pipeline by using a single source of truth for role readiness calculations.
+
+**Key Principle:** `status_tag` is calculated ONCE during assessment using the job's `required_proficiency_pct` and serves as the single source of truth throughout the application.
+
+### The Complete Flow
+
+#### 1. Employer Sets Requirements
+
+**Location:** Role creation/editing (Admin CMS)  
+**Field:** `jobs.required_proficiency_pct`  
+**Values:** Typically 75%, 90%, or 95%
+
+```sql
+-- Example: Business Development Manager requires 90% proficiency
+UPDATE jobs 
+SET required_proficiency_pct = 90 
+WHERE id = '590fac62-9993-48b1-8f98-dbe316aa8f8e';
+```
+
+**Display Locations:**
+- Featured job cards
+- Job details page
+- Assessment intro page
+
+#### 2. Learner Takes Assessment
+
+**Process:**
+1. Learner answers skill-based questions
+2. System calculates `score_pct` for each skill
+3. System assigns `band` based on score:
+   - `proficient`: 80%+ (Ready)
+   - `building`: 60-79% (Almost There)
+   - `developing`: <60% (Developing)
+
+#### 3. Assessment Pipeline Calculates Status
+
+**Critical Logic:**
+
+```javascript
+// Calculate overall readiness
+const avgScore = skillScores.reduce((sum, s) => sum + s.score_pct, 0) / skillScores.length;
+
+// Determine status_tag based on JOB'S required proficiency
+let status_tag = 'needs_development';
+if (avgScore >= job.required_proficiency_pct) {
+  status_tag = 'role_ready';
+} else if (avgScore >= job.required_proficiency_pct - 15) {
+  status_tag = 'close_gaps';
+}
+```
+
+**⚠️ CRITICAL:** `status_tag` is calculated ONCE and stored. Never recalculate in UI.
+
+#### 4. Display Logic (Results, My Assessments, Homepage)
+
+**✅ CORRECT:**
+```typescript
+// Use status_tag directly
+if (assessment.status_tag === 'role_ready') {
+  return "You're role ready!";
+}
+```
+
+**❌ WRONG:**
+```typescript
+// Don't recalculate with hardcoded thresholds
+if (assessment.readiness_pct >= 80) { // ❌ NEVER DO THIS
+  return "You're role ready!";
+}
+```
+
+### Enum Standards
+
+**Skill Proficiency (`skill_band`):**
+
+| Database/Code | UI Label | Score Range | Description |
+|--------------|----------|-------------|-------------|
+| `proficient` | **Ready** | 80%+ | Ready to use skill professionally |
+| `building` | **Almost There** | 60-79% | Building proficiency |
+| `developing` | **Developing** | 0-59% | Developing the skill |
+
+**Role Readiness (`status_tag`):**
+
+| Value | Meaning | Calculation |
+|-------|---------|-------------|
+| `role_ready` | Meets job requirement | `readiness_pct >= required_proficiency_pct` |
+| `close_gaps` | Close to requirement | `readiness_pct >= required_proficiency_pct - 15` |
+| `needs_development` | Below requirement | `readiness_pct < required_proficiency_pct - 15` |
+
+### Homepage Snapshot Logic
+
+**Highest Proficiency Tracking:**
+
+```typescript
+// Track HIGHEST proficiency for each unique skill
+const skillProficiency = new Map();
+assessments.forEach(a => {
+  a.skill_results?.forEach(sr => {
+    const existing = skillProficiency.get(sr.skill_id);
+    if (!existing || sr.score_pct > existing.score) {
+      skillProficiency.set(sr.skill_id, {
+        name: sr.skill?.name,
+        band: sr.band,
+        score: sr.score_pct
+      });
+    }
+  });
+});
+
+// Count by band
+const proficient = Array.from(skillProficiency.values())
+  .filter(s => s.band === 'proficient').length;
+```
+
+**Why This Matters:**
+- Each skill counted ONCE at highest performance
+- Prevents duplicate skills across categories
+- Accurate representation of learner's best abilities
+
+### Data Integrity Rules
+
+**✅ DO:**
+1. Use `status_tag` as single source of truth for role readiness
+2. Use `required_proficiency_pct` from job when calculating status
+3. Use standardized enum values: `proficient`, `building`, `developing`
+4. Track highest proficiency when aggregating skills
+5. Include skill relation in queries: `skill:skills(name)`
+
+**❌ DON'T:**
+1. Use hardcoded thresholds (e.g., `readiness >= 80`)
+2. Recalculate status in UI - use stored `status_tag`
+3. Use old enum values (`building_proficiency`, `needs_development`)
+4. Count skill instances - count unique skills at highest proficiency
+5. Mix employer proficiency with learner proficiency
+
+### Related Documentation
+
+- [Complete Assessment Workflow](./ASSESSMENT_WORKFLOW.md) - Detailed workflow guide
+- [Enum Standardization](./ENUM_STANDARDIZATION.md) - Migration details
 
 ## Skills Taxonomy & O*NET Integration
 
