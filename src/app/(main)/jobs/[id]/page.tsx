@@ -552,29 +552,34 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             {relatedPrograms.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                 {relatedPrograms.slice(0, showAllPrograms ? 30 : 6).map((program: any) => (
-                  <FeaturedProgramCard
-                    key={program.id}
-                    id={program.id}
-                    name={program.name}
-                    school={{
-                      name: program.school?.name || 'Unknown School',
-                      logo: program.school?.logo_url || undefined
-                    }}
-                    programType={program.program_type || 'Program'}
-                    format={program.format || 'On-campus'}
-                    duration={program.duration_text || 'Duration varies'}
-                    description={program.short_desc || ''}
-                    skillsCallout={program.relevance_score ? {
-                      type: 'skills',
-                      count: program.relevance_score,
-                      label: `${program.relevance_score}% Match`,
-                      href: undefined
-                    } : undefined}
-                    programDetailsHref={`/programs/${program.id}`}
-                    isFavorited={false}
-                    onAddFavorite={() => {}}
-                    onRemoveFavorite={() => {}}
-                  />
+                  <div key={program.id} className="relative">
+                    {program.relevance_score && (
+                      <div className="absolute top-4 right-4 z-10">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-100 text-teal-800">
+                          {program.relevance_score}% Match
+                        </span>
+                      </div>
+                    )}
+                    <Link href={`/programs/${program.id}`} className="block">
+                      <FeaturedProgramCard
+                        id={program.id}
+                        name={program.name}
+                        school={{
+                          name: program.school?.name || 'Unknown School',
+                          logo: program.school?.logo_url || undefined
+                        }}
+                        programType={program.program_type || 'Program'}
+                        format={program.format || 'On-campus'}
+                        duration={program.duration_text || 'Duration varies'}
+                        description={program.short_desc || ''}
+                        skillsCallout={undefined}
+                        programDetailsHref={`/programs/${program.id}`}
+                        isFavorited={false}
+                        onAddFavorite={() => {}}
+                        onRemoveFavorite={() => {}}
+                      />
+                    </Link>
+                  </div>
                 ))}
               </div>
             )}
