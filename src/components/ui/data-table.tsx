@@ -315,6 +315,7 @@ export default function DataTable({
                 <th 
                   key={column.key}
                   className={`py-6 ${
+                    (column as any).align === 'center' ? 'text-center' :
                     tableType === 'employer-roles' && index >= 1 && index <= 4 ? 'text-center' : 'text-left'
                   } ${
                     tableType === 'employer-invites' && index >= 2 ? 'text-center' : ''
@@ -364,6 +365,7 @@ export default function DataTable({
                     <td 
                       key={column.key}
                       className={`py-6 font-normal ${
+                        (column as any).align === 'center' ? 'text-center' :
                         tableType === 'employer-roles' && colIndex >= 1 && colIndex <= 4 ? 'text-center' : ''
                       } ${
                         tableType === 'employer-invites' && colIndex >= 2 ? 'text-center' : ''
