@@ -323,15 +323,16 @@ export default function AssessmentResultsPage() {
           {(() => {
             const requiredProf = assessment?.job?.required_proficiency_pct || 75
             const isRoleReady = readiness >= requiredProf
-            const hasPrograms = displayPrograms.filter(program => {
+            const filteredPrograms = displayPrograms.filter(program => {
               const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
               const hasDescription = program.short_desc || program.short_description
               return hasValidName && hasDescription
-            }).length > 0
+            })
+            const programCount = filteredPrograms.length
 
             return (
               <div className="px-8 pb-8">
-                <div className={`bg-[#114B5F] rounded-lg px-6 py-4 flex items-center ${hasPrograms ? 'justify-between' : 'justify-center'}`}>
+                <div className={`bg-[#114B5F] rounded-lg px-6 py-4 flex items-center ${programCount > 0 ? 'justify-between' : 'justify-center'}`}>
                   <p className="text-lg text-[#F5F5F5]">
                     {isRoleReady ? (
                       <>
@@ -339,17 +340,17 @@ export default function AssessmentResultsPage() {
                       </>
                     ) : (
                       <>
-                        Your assessment results have been shared with {assessment.job?.company?.name || 'the employer'}. {hasPrograms && 'Explore the programs below to strengthen your skills and improve your readiness.'}
+                        You matched with <span className="font-semibold">{programCount} education program{programCount !== 1 ? 's' : ''}</span> that have the skills you need.
                       </>
                     )}
                   </p>
-                  {hasPrograms && (
+                  {programCount > 0 && (
                     <Button 
                       variant="outline" 
                       onClick={scrollToPrograms}
                       className="bg-transparent border-[#AFECEF] text-[#AFECEF] hover:bg-white/10 text-sm whitespace-nowrap ml-4"
                     >
-                      {isRoleReady ? 'View Upskilling Programs →' : 'View Training Programs →'}
+                      {isRoleReady ? 'View Upskilling Programs →' : 'View Your Program Matches →'}
                     </Button>
                   )}
                 </div>
