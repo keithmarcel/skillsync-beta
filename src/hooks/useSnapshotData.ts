@@ -89,12 +89,12 @@ export function useSnapshotData(): UseSnapshotDataReturn {
                 if (!proficientSkillNames.includes(skillName)) {
                   proficientSkillNames.push(skillName);
                 }
-              } else if (sr.band === 'building') {
+              } else if (sr.band === 'building_proficiency') {
                 developing++;
                 if (!buildingSkillNames.includes(skillName)) {
                   buildingSkillNames.push(skillName);
                 }
-              } else if (sr.band === 'needs_dev') {
+              } else if (sr.band === 'needs_development') {
                 needsDevelopment++;
                 if (!developingSkillNames.includes(skillName)) {
                   developingSkillNames.push(skillName);
