@@ -105,13 +105,14 @@ export default function AssessmentResultsPage() {
     }
   }
 
-  const getReadinessStatus = (readiness: number) => {
-    if (readiness >= 80) return { 
+  const getReadinessStatus = (readiness: number, requiredProf: number) => {
+    if (readiness >= requiredProf) return { 
       icon: CheckCircle, 
       text: "You're role ready.", 
       color: 'text-[#00A6AE]'
     }
-    if (readiness >= 60) return { 
+    // Close to ready (within 15% of requirement)
+    if (readiness >= requiredProf - 15) return { 
       icon: AlertCircle, 
       text: "You're close to being role ready.", 
       color: 'text-[#FDBA8C]'
@@ -151,7 +152,8 @@ export default function AssessmentResultsPage() {
   }
 
   const readiness = Math.round(assessment.readiness_pct || 0)
-  const status = getReadinessStatus(readiness)
+  const requiredProficiency = assessment.job?.required_proficiency_pct || 75
+  const status = getReadinessStatus(readiness, requiredProficiency)
   const StatusIcon = status.icon
   const filledBlocks = Math.round(readiness / 10)
 
@@ -232,10 +234,21 @@ export default function AssessmentResultsPage() {
 
               {/* Match Percentage Text - 18px font */}
               <p className="text-lg text-white/90 leading-relaxed mb-2">
-                Based on your assessment, you have a <span className="font-semibold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s{' '}
-                <Link href={`/jobs/${assessment.job?.id}`} className="font-semibold text-[#00E1FF] hover:text-[#AFECEF] underline underline-offset-2 transition-colors">
-                  {assessment.job?.title}
-                </Link> role.
+                {readiness >= requiredProficiency ? (
+                  <>
+                    Based on your assessment, you have a <span className="font-semibold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s{' '}
+                    <Link href={`/jobs/${assessment.job?.id}`} className="font-semibold text-[#00E1FF] hover:text-[#AFECEF] underline underline-offset-2 transition-colors">
+                      {assessment.job?.title}
+                    </Link> role.
+                  </>
+                ) : (
+                  <>
+                    Based on your assessment, you're <span className="font-semibold">{requiredProficiency - readiness}% away</span> from meeting the requirements for {assessment.job?.company?.name}'s{' '}
+                    <Link href={`/jobs/${assessment.job?.id}`} className="font-semibold text-[#00E1FF] hover:text-[#AFECEF] underline underline-offset-2 transition-colors">
+                      {assessment.job?.title}
+                    </Link> role.
+                  </>
+                )}
               </p>
 
               {/* Personalized Feedback - Dynamic based on actual results */}
