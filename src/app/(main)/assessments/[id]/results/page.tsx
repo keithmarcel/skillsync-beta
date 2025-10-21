@@ -413,10 +413,10 @@ export default function AssessmentResultsPage() {
                         className={`h-7 ${barColor} rounded-full absolute left-0 top-0 transition-all duration-500`}
                         style={{ width: `${score}%` }}
                       />
-                      {/* Score label inside filled area */}
+                      {/* Score label inside filled area - adjust position to avoid overlap with 100% */}
                       <div
                         className="absolute flex items-center justify-center h-7"
-                        style={{ left: `${Math.max(score - 5, 0)}%` }}
+                        style={{ left: `${score > 90 ? Math.max(score - 12, 0) : Math.max(score - 5, 0)}%` }}
                       >
                         <span className="text-sm font-bold text-[#1F2A37] px-3">{score}%</span>
                       </div>
