@@ -8,10 +8,23 @@ CREATE TABLE IF NOT EXISTS public.cip_soc_crosswalk (
   cip_title TEXT,
   soc_code TEXT NOT NULL,
   soc_title TEXT,
-  match_strength TEXT DEFAULT 'primary' CHECK (match_strength IN ('primary', 'secondary', 'tertiary')),
+  match_strength TEXT DEFAULT 'primary',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add constraint separately (in case table already exists)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'cip_soc_crosswalk_match_strength_check'
+  ) THEN
+    ALTER TABLE public.cip_soc_crosswalk 
+    ADD CONSTRAINT cip_soc_crosswalk_match_strength_check 
+    CHECK (match_strength IN ('primary', 'secondary', 'tertiary'));
+  END IF;
+END $$;
 
 -- Add indexes for fast lookups
 CREATE INDEX IF NOT EXISTS idx_cip_soc_cip_code ON public.cip_soc_crosswalk(cip_code);

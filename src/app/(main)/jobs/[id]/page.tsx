@@ -497,13 +497,13 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                     <Card className="h-full hover:shadow-lg transition-shadow">
                       <CardContent className="p-6">
                         {role.company?.logo_url && (
-                          <div className="mb-4 h-12 flex items-center">
+                          <div className="mb-3 h-8 flex items-center">
                             <Image 
                               src={role.company.logo_url} 
                               alt={role.company.name}
-                              width={120}
-                              height={48}
-                              className="max-h-12 w-auto object-contain"
+                              width={80}
+                              height={32}
+                              className="max-h-8 w-auto object-contain"
                             />
                           </div>
                         )}
@@ -594,7 +594,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         )}
 
         {/* Related Occupations - Featured Roles Only */}
-        {job.job_kind === 'featured_role' && relatedOccupations.length > 0 && (
+        {/* HIDDEN: No use case to send job seekers from hiring role back to occupation */}
+        {false && job.job_kind === 'featured_role' && relatedOccupations.length > 0 && (
           <>
             <div id="related-occupations" className="my-12">
               <div className="flex items-center gap-3 mb-6">
