@@ -318,13 +318,13 @@ export function ProfileTab({ profile }: ProfileTabProps) {
               <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
                 Enabling employer invites lets qualified employers view your SkillSync assessment results and invite you to apply for roles that match your proficiency. Your name and LinkedIn profile ensure accurate identification and reduce recruiter spam.{' '}
                 <a
-                  href="https://biskamplified.com/privacy-policy"
+                  href="/legal/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#0694A2] hover:underline"
                 >
-                  Privacy Policy
-                </a>
+                  I agree to the Privacy Policy
+                </a>.
               </p>
             </div>
           </div>

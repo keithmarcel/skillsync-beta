@@ -1,8 +1,48 @@
 # SkillSync Sprint Roadmap
 
-**Updated:** January 20, 2025 - 12:30 PM  
-**Current Sprint:** Multi-Portal Authentication Complete ✅  
+**Updated:** October 20, 2025 - 5:47 PM  
+**Current Sprint:** Legal Pages System Complete ✅  
 **Status:** 🚀 Phase 4 - Crosswalk UI & Discovery Features (Ready to Start)
+
+---
+
+## ✅ Completed: Legal Pages System (Phase 3I)
+
+**Completed:** October 20, 2025 5:47 PM  
+**Duration:** 4 hours  
+**Branch:** `feature/legal-pages`
+
+### Deliverables
+- ✅ **Complete Legal Content**: Extracted all 24 sections from official RTF documents
+- ✅ **Three Legal Pages**: Terms of Use, Privacy Policy, User Terms of Acceptance
+- ✅ **Reusable Component**: LegalPageContent for consistent styling across all pages
+- ✅ **Clean Layout**: Centered logo, 980px container, no navbar interference
+- ✅ **Signup Integration**: Updated both steps to link to internal legal pages
+- ✅ **Footer Integration**: Added all three legal page links site-wide
+- ✅ **Profile Settings**: Updated employer opt-in text to match signup language
+- ✅ **Layout Exclusion**: Legal pages excluded from main app wrapper for proper scrolling
+- ✅ **Documentation**: Complete implementation guide with source tracking
+
+### Files Created (5 new)
+- `src/components/legal/legal-page-content.tsx` - Reusable legal page component
+- `src/app/(main)/legal/layout.tsx` - Legal pages layout
+- `src/app/(main)/legal/terms/page.tsx` - Terms of Use (24 sections)
+- `src/app/(main)/legal/privacy/page.tsx` - Privacy Policy (10 sections)
+- `src/app/(main)/legal/user-agreement/page.tsx` - User Agreement (24 sections)
+
+### Files Modified (4 updated)
+- `src/app/(main)/auth/signup/page.tsx` - Added legal page links
+- `src/components/auth/auth-layout-wrapper.tsx` - Excluded legal routes
+- `src/components/settings/profile-tab.tsx` - Updated opt-in language
+- `src/components/ui/footer.tsx` - Added legal links
+
+### Content Source
+- Official RTF documents in `/docs/legal/`
+- Complete legal text preserved exactly as provided
+- All 24 sections for Terms and User Agreement
+- Comprehensive Privacy Policy ready for customization
+
+**See detailed documentation:** [LEGAL_PAGES_IMPLEMENTATION.md](./features/LEGAL_PAGES_IMPLEMENTATION.md)
 
 ---
 
@@ -84,40 +124,53 @@
 
 ---
 
-## 🎯 Next Sprint: Phase 4A - Crosswalk UI
+## 🎯 Current Sprint: Phase 4A - Crosswalk Data Implementation
 
-**Branch:** `feature/employer-dashboard-updates`  
+**Branch:** `feature/crosswalk-implementation` (to be created)  
 **Duration:** 2-3 days  
-**Goal:** Complete HDO/Featured Role crosswalk UI and discovery features
+**Goal:** Implement crosswalk count queries and skill overlap logic  
+**Updated:** October 20, 2025 6:08 PM
+
+### Sprint Status
+
+**UI Structure:** ✅ Complete
+- HDO table columns exist (Open Roles, Programs)
+- HDO detail page sections exist (empty states)
+- Featured Role detail has Programs section working
+- Badge styling and click handlers implemented
+
+**Current Blocker:** Need crosswalk data queries
 
 ### Sprint Objectives
 
-**1. HDO Table Crosswalk Columns** (Day 1)
-- [ ] Add "Open Roles" column with crosswalk counts
-- [ ] Add "Programs" column with crosswalk counts
-- [ ] Implement crosswalk count queries
-- [ ] Style badges (teal pills, gray when 0)
-- [ ] Add click handlers (navigate to detail page with anchor)
-- [ ] Test with various data scenarios
+**1. Crosswalk Count Queries** (Day 1)
+- [ ] Review database schema for skills relationships
+- [ ] Implement `related_jobs_count` query (Featured Roles by SOC code)
+- [ ] Implement `related_programs_count` query (Programs by skill overlap)
+- [ ] Add count fields to `getHighDemandOccupations()` query
+- [ ] Test with sample data pool (select 3-5 occupations with known overlaps)
 
-**2. Featured Role Details Page** (Day 2-3)
-- [ ] Design "Related Occupations" section (reverse crosswalk)
-- [ ] Design "Relevant Programs" section
-- [ ] Design "Similar Roles at Other Companies" section
-- [ ] Implement 3-column card grid
-- [ ] Add Load More functionality
-- [ ] Add smooth scroll anchors (#related-occupations, #programs, #similar-roles)
-- [ ] Match HDO page styling
-- [ ] Test empty states
+**2. HDO Detail Page Data Hookup** (Day 1-2)
+- [ ] Implement "Local Employers Hiring Now" query (Featured Roles by SOC)
+- [ ] Implement "Relevant Programs" query (Programs by skill overlap)
+- [ ] Remove empty state placeholders
+- [ ] Test with sample data pool
 
-**3. Performance & Testing** (Day 3)
-- [ ] Test crosswalk query performance
-- [ ] Verify accuracy of counts
-- [ ] Test smooth scroll behavior
-- [ ] Test responsive design
-- [ ] Optimize if needed
+**3. Featured Role Detail Page Sections** (Day 2-3)
+- [ ] Add "Related Occupations" section (HDOs with same SOC)
+- [ ] Add "Similar Roles at Other Companies" section (Featured Roles with same SOC)
+- [ ] Implement 3-column card grid matching HDO page
+- [ ] Add smooth scroll anchors
+- [ ] Test with sample data pool
 
-**Deliverable:** Complete crosswalk UI connecting occupations, roles, and programs
+**4. Sample Data Pool & Testing** (Day 3)
+- [ ] Select 3-5 occupations with known skill overlaps
+- [ ] Ensure Featured Roles exist with matching SOC codes
+- [ ] Ensure Programs exist with overlapping skills
+- [ ] Test crosswalk accuracy and counts
+- [ ] Verify UI displays correctly with real data
+
+**Deliverable:** Working crosswalk system with accurate counts and data display
 
 ---
 

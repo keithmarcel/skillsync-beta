@@ -11,12 +11,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { getJobById } from '@/lib/database/queries'
+import { getJobById, getRelatedFeaturedRoles, getRelatedPrograms, getRelatedOccupations, getSimilarRoles } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useRoleView } from '@/hooks/useRoleView'
 import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
 import { supabase } from '@/lib/supabase/client'
-import { FeaturedProgramCard } from '@/components/ui/featured-program-card'
+import { SimpleProgramCard } from '@/components/ui/simple-program-card'
+import { SimpleJobCard } from '@/components/ui/simple-job-card'
 
 // No mock data - using real database data only
 
@@ -124,6 +125,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null)
   const [showAllPrograms, setShowAllPrograms] = useState(false)
   const [recommendedPrograms, setRecommendedPrograms] = useState<any[]>([])
+  const [relatedFeaturedRoles, setRelatedFeaturedRoles] = useState<any[]>([])
+  const [relatedPrograms, setRelatedPrograms] = useState<any[]>([])
+  const [relatedOccupations, setRelatedOccupations] = useState<any[]>([])
+  const [similarRoles, setSimilarRoles] = useState<any[]>([])
   const [quizId, setQuizId] = useState<string | null>(null)
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
   
@@ -141,30 +146,59 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           console.log('Company logo_url:', jobData.company?.logo_url)
           setJob(jobData)
           
-          // Load recommended programs from crosswalk
-          const { data: crosswalk } = await supabase
-            .from('role_program_crosswalk')
-            .select(`
-              confidence_score,
-              match_reasoning,
-              program:programs(
-                id,
-                name,
-                discipline,
-                program_type,
-                short_desc,
-                duration_text,
-                format,
-                school:schools(name, logo_url)
-              )
-            `)
-            .eq('job_id', params.id)
-            .order('confidence_score', { ascending: false })
-            .limit(6)
-          
-          if (crosswalk) {
-            setRecommendedPrograms(crosswalk)
-            console.log('Recommended programs loaded:', crosswalk.length)
+          // Load crosswalk data based on job type
+          if (jobData.job_kind === 'occupation' && jobData.soc_code) {
+            // For HDOs: Load Featured Roles with matching SOC
+            const featuredRoles = await getRelatedFeaturedRoles(jobData.soc_code, 12)
+            setRelatedFeaturedRoles(featuredRoles)
+            console.log('Related Featured Roles loaded:', featuredRoles.length)
+            
+            // Load Programs via program_jobs junction
+            const programs = await getRelatedPrograms(params.id, 30)
+            setRelatedPrograms(programs)
+            console.log('Related Programs loaded:', programs.length)
+          } else if (jobData.job_kind === 'featured_role' && jobData.soc_code) {
+            // For Featured Roles: Load crosswalk data
+            const [occupations, similar, programs] = await Promise.all([
+              getRelatedOccupations(jobData.soc_code),
+              getSimilarRoles(jobData.soc_code, params.id, 6),
+              getRelatedPrograms(params.id, 30)
+            ])
+            
+            setRelatedOccupations(occupations)
+            setSimilarRoles(similar)
+            setRelatedPrograms(programs)
+            
+            console.log('Featured Role crosswalk loaded:')
+            console.log('  Related Occupations:', occupations.length)
+            console.log('  Similar Roles:', similar.length)
+            console.log('  Related Programs:', programs.length)
+            
+            // Also try old crosswalk table for backwards compatibility
+            const { data: crosswalk } = await supabase
+              .from('role_program_crosswalk')
+              .select(`
+                confidence_score,
+                match_reasoning,
+                program:programs(
+                  id,
+                  name,
+                  discipline,
+                  program_type,
+                  short_desc,
+                  duration_text,
+                  format,
+                  school:schools(name, logo_url)
+                )
+              `)
+              .eq('job_id', params.id)
+              .order('confidence_score', { ascending: false })
+              .limit(6)
+            
+            if (crosswalk) {
+              setRecommendedPrograms(crosswalk)
+              console.log('  Recommended programs (old crosswalk):', crosswalk.length)
+            }
           }
           
           // Load quiz for this job (if exists)
@@ -449,12 +483,33 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <h3 className="text-xl font-semibold text-gray-900">
                   Local Employers Hiring Now
                 </h3>
-                {/* TODO: Replace with real crosswalk data - show subhead when data exists */}
                 <p className="text-gray-500 text-sm mt-2">
-                  No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area.
+                  {relatedFeaturedRoles.length > 0 
+                    ? `${relatedFeaturedRoles.length} open role${relatedFeaturedRoles.length !== 1 ? 's' : ''} from trusted employers match this occupation.`
+                    : "No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area."}
                 </p>
               </div>
             </div>
+
+            {relatedFeaturedRoles.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {relatedFeaturedRoles.slice(0, 6).map((role: any) => (
+                  <Link key={role.id} href={`/jobs/${role.id}`} className="block">
+                    <SimpleJobCard
+                      id={role.id}
+                      title={role.title}
+                      company={{
+                        name: role.company?.name || 'Unknown Company',
+                        logo: role.company?.logo_url || undefined
+                      }}
+                      description={role.short_desc}
+                      medianWage={role.median_wage_usd}
+                      requiredProficiency={role.required_proficiency_pct}
+                    />
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -476,14 +531,102 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <h3 className="text-xl font-semibold text-gray-900">
                   Relevant Education & Training Programs
                 </h3>
-                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
                 <p className="text-gray-500 text-sm mt-2">
-                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+                  {relatedPrograms.length > 0 
+                    ? `${Math.min(relatedPrograms.length, 30)} program${relatedPrograms.length !== 1 ? 's' : ''} that align with this occupation's requirements.`
+                    : "No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities."}
                 </p>
               </div>
             </div>
+
+            {(() => {
+              // Filter out programs with poor quality data
+              const filteredPrograms = relatedPrograms.filter(program => {
+                const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
+                const hasDescription = program.short_desc || program.short_description
+                return hasValidName && hasDescription
+              })
+
+              return filteredPrograms.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                  {filteredPrograms.slice(0, showAllPrograms ? 30 : 6).map((program: any) => (
+                    <Link key={program.id} href={`/programs/${program.id}`} className="block">
+                      <SimpleProgramCard
+                        id={program.id}
+                        name={program.name}
+                        school={{
+                          name: program.school?.name || 'Unknown School',
+                          logo: program.school?.logo_url || undefined
+                        }}
+                        programType={program.program_type || 'Program'}
+                        format={program.format || 'On-campus'}
+                        duration={program.duration_text || 'Duration varies'}
+                        description={program.short_desc || ''}
+                        relevanceScore={program.relevance_score}
+                      />
+                    </Link>
+                  ))}
+                </div>
+              )
+            })()}
+
+            {relatedPrograms.length > 6 && !showAllPrograms && (
+              <div className="flex justify-center mt-6">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAllPrograms(true)}
+                  className="px-8"
+                >
+                  Load More Programs
+                </Button>
+              </div>
+            )}
           </div>
         )}
+
+        {/* Related Occupations - Featured Roles Only */}
+        {/* HIDDEN: No use case to send job seekers from hiring role back to occupation */}
+        {false && job.job_kind === 'featured_role' && relatedOccupations.length > 0 && (
+          <>
+            <div id="related-occupations" className="my-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Related Occupations
+                  </h3>
+                  <p className="text-gray-500 text-sm mt-2">
+                    {relatedOccupations.length} high-demand occupation{relatedOccupations.length !== 1 ? 's' : ''} share the same SOC classification as this role.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {relatedOccupations.map((occupation: any) => (
+                  <Link key={occupation.id} href={`/jobs/${occupation.id}`} className="block">
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2">{occupation.title}</h4>
+                        <p className="text-sm text-gray-600 mb-3">SOC: {occupation.soc_code}</p>
+                        {occupation.median_wage_usd && (
+                          <p className="text-sm font-medium text-[#0694A2]">
+                            ${occupation.median_wage_usd.toLocaleString()}/year
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Similar Roles section removed for featured roles - programs are shown below instead */}
 
         {/* Skills Assessment Card - Featured Roles Only */}
         {job.job_kind === 'featured_role' && (
@@ -684,24 +827,21 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             {recommendedPrograms.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recommendedPrograms.map((rec: any, index: number) => (
-                  <FeaturedProgramCard
-                    key={index}
-                    id={rec.program.id}
-                    name={rec.program.name}
-                    school={{
-                      name: rec.program.school?.name || 'School',
-                      logo: rec.program.school?.logo_url || null
-                    }}
-                    programType={rec.program.program_type || 'Certificate'}
-                    format={rec.program.format || 'Online'}
-                    duration={rec.program.duration_text || 'Self-paced'}
-                    description={rec.program.short_desc || rec.match_reasoning || 'Recommended program for this role'}
-                    skillsCallout={undefined}
-                    href={`/programs/${rec.program.id}`}
-                    isFavorited={false}
-                    onAddFavorite={() => {}}
-                    onRemoveFavorite={() => {}}
-                  />
+                  <Link key={index} href={`/programs/${rec.program.id}`} className="block">
+                    <SimpleProgramCard
+                      id={rec.program.id}
+                      name={rec.program.name}
+                      school={{
+                        name: rec.program.school?.name || 'Unknown School',
+                        logo: rec.program.school?.logo_url || undefined
+                      }}
+                      programType={rec.program.program_type || 'Certificate'}
+                      format={rec.program.format || 'Online'}
+                      duration={rec.program.duration_text || 'Self-paced'}
+                      description={rec.program.short_desc || rec.match_reasoning || 'Recommended program for this role'}
+                      relevanceScore={rec.relevance_score}
+                    />
+                  </Link>
                 ))}
               </div>
             )}

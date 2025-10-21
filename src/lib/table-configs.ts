@@ -236,6 +236,7 @@ export const occupationsTableColumns = [
     filterOptions: ['Business', 'Health & Education', 'Tech & Services', 'Finance & Legal', 'Skilled Trades', 'Logistics', 'Hospitality', 'Public Services'],
     render: (value: string) => renderCategoryBadge(value),
     width: 'small' as const,
+    align: 'center' as const,
   },
   {
     key: 'related_jobs',
@@ -252,11 +253,12 @@ export const occupationsTableColumns = [
         }`
       }
       if (count > 0) {
-        props.href = `/occupations/${item.soc_code}#open-roles`
+        props.href = `/jobs/${item.id}#open-roles`
       }
       return React.createElement(elementType, props, `${count} Open Role${count !== 1 ? 's' : ''}`)
     },
     width: 'medium' as const,
+    align: 'center' as const,
   },
   {
     key: 'related_programs',
@@ -273,11 +275,12 @@ export const occupationsTableColumns = [
         }`
       }
       if (count > 0) {
-        props.href = `/occupations/${item.soc_code}#programs`
+        props.href = `/jobs/${item.id}#programs`
       }
       return React.createElement(elementType, props, `${count} Match${count !== 1 ? 'es' : ''}`)
     },
     width: 'medium' as const,
+    align: 'center' as const,
   },
   {
     key: 'actions',

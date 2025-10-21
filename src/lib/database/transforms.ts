@@ -106,6 +106,10 @@ export function transformJobToHighDemand(job: Job) {
     readiness: 'assess skills', // Will be overridden by actual assessment data in component
     skillsRequired: job.skills_count || 0,
     
+    // Crosswalk counts (computed in getHighDemandOccupations)
+    related_jobs_count: (job as any).related_jobs_count || 0,
+    related_programs_count: (job as any).related_programs_count || 0,
+    
     // Skills data
     skills: job.skills?.map(js => ({
       name: js.skill?.name || '',
