@@ -24,6 +24,7 @@ export interface Job {
   job_openings_annual: number | null;
   growth_rate_percent: number | null;
   required_proficiency_pct: number | null;
+  application_url: string | null;
   // AI-generated content fields
   core_responsibilities: string[] | null;
   related_job_titles: string[] | null;

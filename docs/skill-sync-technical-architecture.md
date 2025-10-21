@@ -1442,6 +1442,68 @@ if (assessment.readiness_pct >= 80) { // ❌ NEVER DO THIS
 }
 ```
 
+### My Assessments Page Features
+
+**Completed:** October 21, 2025 (Phase 3K)
+
+#### Employer Communication Badges
+- **Shared with Employer** (blue): Invitation created, meets visibility threshold
+- **Applied** (teal): User clicked "Apply" button
+- **Hired** (green): Employer marked as hired
+- **Position Filled** (gray): Role filled by someone else
+- **Declined** (gray): User declined invitation
+
+**Logic:** Badges only show when `employer_invitations` record exists for assessment.
+
+#### Retake Cooldown System
+- **24-hour cooldown** after assessment completion
+- Button shows "Retake in Xh" with countdown timer
+- Tooltip explains cooldown purpose
+- Role Ready assessments show "View Invites" instead of retake
+- Prevents assessment spam and ensures thoughtful attempts
+
+**Implementation:**
+```typescript
+const hoursSinceAnalysis = (now.getTime() - analyzedAt.getTime()) / (1000 * 60 * 60)
+const hoursRemaining = Math.max(0, 24 - hoursSinceAnalysis)
+const isOnCooldown = hoursRemaining > 0
+```
+
+#### Program Matching
+- `program_matches_count` stored in assessments table
+- Calculated during analysis using skill gap matching
+- 60% threshold for program relevance
+- Displays with 🎓 icon: "5 Programs"
+- Shows "0 Programs" until program_skills table populated
+
+**Calculation:** See `/api/assessments/analyze` route, step 8
+
+#### Search & Filters
+**Search:** Job title or company name (not SOC code)
+
+**Status Filter:**
+- Role Ready (`role_ready`)
+- Almost There (`close_gaps`)
+- Developing (`developing`)
+
+**Invitation Filter:**
+- Shared with Employer (has invitation)
+- Not Shared (no invitation)
+- Applied, Hired (specific statuses)
+
+**Sort:** Readiness (score) or Date (most recent)
+
+#### Card Information Architecture
+**Hierarchy (top to bottom):**
+1. Company name (text-sm, semibold)
+2. Job title (text-xl, bold, clickable)
+3. Badges (readiness + invitation inline)
+4. Metadata line (date, skills, programs with icons)
+5. Action buttons (Assessment Results, Retake/View Invites)
+
+**Relative Time Display:**
+- "just now", "5m ago", "3h ago", "2d ago", "1w ago", "3mo ago"
+
 ### Enum Standards
 
 **Skill Proficiency (`skill_band`):**

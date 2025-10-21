@@ -1,9 +1,11 @@
 # High-Demand Occupations Pivot - Implementation Plan V2
 
-**Status:** Phase 3 Complete ✅ | Skills Snapshot & Data Integrity Complete ✅ | Phase 4 Planning  
+**Status:** Phase 3 Complete ✅ | Crosswalk Implementation = MVP Tasks OCC-402 & OCC-403  
 **Branch:** `main`  
-**Updated:** October 21, 2025 1:30 AM  
+**Updated:** October 21, 2025 12:00 PM  
 **Owner:** Keith + Claude
+
+**Note:** Crosswalk implementation is now tracked in Sprint Roadmap as Priority 3 MVP tasks
 
 ---
 
@@ -51,70 +53,89 @@ Transforming High-Demand Occupations from an assessment entry point into a disco
 
 ---
 
-## 🎯 Phase 4: Intelligence & Discovery (IN PROGRESS)
+## 🎯 Phase 4: Crosswalk Implementation (MVP Priority 3)
 
-### Remaining Work
+**Status:** ⏳ Not Started - Tracked as MVP Tasks  
+**Updated:** October 21, 2025 12:00 PM  
+**Sprint Roadmap Reference:** Priority 3 - Programs & Discovery
 
-#### 4A: Crosswalk UI - Related Roles and Programs Display
-**Status:** 🔄 In Progress  
-**Updated:** October 20, 2025 6:08 PM
+### Crosswalk Tasks (From MVP User Stories)
 
-**HDO Table Updates:**
-- [x] "Open Roles" column structure exists (`/src/lib/table-configs.ts` lines 241-260)
-- [x] "Programs" column structure exists (`/src/lib/table-configs.ts` lines 262-281)
-- [x] Click handlers implemented (navigate to detail page with anchors)
-- [x] Badge styling complete (teal pills when >0, gray when 0)
-- [ ] **BLOCKED:** Connect to real crosswalk count queries (currently shows 0)
-- [ ] **BLOCKED:** Add `related_jobs_count` and `related_programs_count` to query results
+#### **OCC-402:** Show "Hiring Now" Roles Sharing SOC Code
+**Status:** Not Started  
+**Priority:** P1  
+**Description:** Pull all active Hiring Now roles whose SOC code matches the occupation's. Display as a "Hiring Now for this Occupation" block with company name, role title, and View Details link.
 
-**HDO Details Page:**
-- [x] "Local Employers Hiring Now" section structure exists (empty state)
-- [x] "Relevant Education & Training Programs" section structure exists (empty state)
-- [x] Data Source footer (BLS, CareerOneStop, O*NET)
-- [x] Smooth scroll anchors (#open-roles, #programs)
-- [ ] **BLOCKED:** Connect sections to real crosswalk data queries
-- [ ] **TODO:** Test with sample data pool
+**Implementation Checklist:**
+- [ ] Create query to fetch Featured Roles by SOC code
+- [ ] Add `related_jobs_count` to HDO table query
+- [ ] Connect "Open Roles" badge in HDO table to query results
+- [ ] Build "Local Employers Hiring Now" section on HDO detail page
+- [ ] Implement smooth scroll anchor (#open-roles)
+- [ ] Test with sample data (select 3-5 occupations with matching SOC codes)
 
-**Featured Role Details Page:**
-- [x] "Relevant Programs" section exists and working with data
+**UI Structure (Already Complete):**
+- ✅ "Open Roles" column exists in HDO table
+- ✅ Click handlers navigate to detail page with anchors
+- ✅ Badge styling (teal pills when >0, gray when 0)
+- ✅ "Local Employers Hiring Now" section structure exists (empty state)
+- ✅ Smooth scroll anchors implemented
+
+#### **OCC-403:** Surface Relevant Programs via Skill Overlap
+**Status:** Not Started  
+**Priority:** P1  
+**Description:** Use the skill-mapping engine to surface programs that share 40%+ of the occupation's skill list. Show program name, provider, and primary skills overlap count.
+
+**Implementation Checklist:**
+- [ ] Create skill overlap query (40%+ threshold)
+- [ ] Add `related_programs_count` to HDO table query
+- [ ] Connect "Programs" badge in HDO table to query results
+- [ ] Build "Relevant Education & Training Programs" section on HDO detail page
+- [ ] Implement smooth scroll anchor (#programs)
+- [ ] Test with sample data (ensure programs have overlapping skills)
+
+**UI Structure (Already Complete):**
+- ✅ "Programs" column exists in HDO table
+- ✅ Click handlers navigate to detail page with anchors
+- ✅ Badge styling (teal pills when >0, gray when 0)
+- ✅ "Relevant Education & Training Programs" section structure exists (empty state)
+- ✅ Smooth scroll anchors implemented
+- ✅ Data Source footer (BLS, CareerOneStop, O*NET)
+
+### Additional Crosswalk Features (Future)
+
+**Featured Role Details Page Enhancements:**
 - [ ] Add "Related Occupations" section (reverse crosswalk to HDOs)
 - [ ] Add "Similar Roles at Other Companies" section (Featured Roles with same SOC)
 - [ ] Update data source footer
-- [ ] Implement smooth scroll anchors
 - [ ] Match HDO page styling and layout
 
-**Current Blocker:** Need to implement crosswalk count queries and skill overlap logic
+**Current Status:** UI structure 100% complete. Need backend queries for OCC-402 and OCC-403.
 
-#### 4B: Advanced Caching
-**Status:** ⏳ Future
+### Related MVP Tasks (From Sprint Roadmap)
 
-- [ ] Evaluate need for materialized views
-- [ ] Performance test crosswalk queries at scale
-- [ ] Implement caching if needed
+**SYSTEM-INFRA-901:** CIP→Skills→Program Mapping Pipeline  
+**SYSTEM-INFRA-902:** CIP Data Backfill from Melissa Stec Sheets  
+**RESULTS-503:** Program Matches via Skill Overlap (on assessment results)
 
-#### 4C: Advanced Features
-**Status:** ⏳ Future
+These tasks support the crosswalk implementation and are tracked in Sprint Roadmap Priority 4.
 
-- [ ] Video iframe modal (CareerOneStop)
-- [ ] Skill gap analysis visualization
-- [ ] Enhanced analytics
+### Future Enhancements (Post-MVP)
 
-#### 4D: Program Skills Taxonomy Refactor
-**Status:** ⏳ Future
+**Advanced Caching:**
+- Evaluate need for materialized views
+- Performance test crosswalk queries at scale
+- Implement caching if needed
 
-**Goal:** Ensure programs use SOC taxonomy for proper crosswalk consistency
+**Advanced Features:**
+- Video iframe modal (CareerOneStop)
+- Skill gap analysis visualization
+- Enhanced analytics
 
-**Proposed Architecture:**
-1. **CIP→SOC Pipeline** - Continue using existing CIP-to-SOC crosswalk
-2. **SOC Skills Lookup** - Check which SOC skills exist for mapped SOC code(s)
-3. **Apply Taxonomy Skills** - Assign relevant SOC skills to programs
-4. **AI Gap Filling** - Use AI when crosswalk data is insufficient
-5. **Validation** - Ensure program skills align with occupation skills
-
-**Benefits:**
+**Program Skills Taxonomy Refactor:**
+- CIP→SOC→Skills pipeline for programs
 - Consistent skills taxonomy across jobs and programs
-- Proper crosswalk between programs and occupations
-- Better program-to-job matching accuracy
+- AI gap filling when crosswalk data is insufficient
 
 ---
 

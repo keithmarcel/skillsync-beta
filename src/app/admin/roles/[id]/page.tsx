@@ -158,6 +158,7 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
     growth_rate_percent: null,
     required_proficiency_pct: 90,
     visibility_threshold_pct: 85,
+    application_url: null,
     is_published: false,
     // O*NET enrichment fields
     core_responsibilities: null,
@@ -393,6 +394,15 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
               Candidates at or above this score appear in your candidate pool (default: 85%)
             </span>
           )
+        },
+        {
+          key: 'application_url',
+          label: 'Application URL',
+          type: EntityFieldType.TEXT,
+          required: true,
+          placeholder: 'e.g., https://company.com/careers/apply/job-id',
+          description: 'URL where candidates apply when they click "View Application" button',
+          helpText: 'This URL is sent to qualified candidates in their invitations'
         },
         {
           key: 'featured_image_url',

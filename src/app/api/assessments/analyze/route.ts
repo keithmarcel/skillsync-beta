@@ -4,6 +4,7 @@ import {
   calculateWeightedScore, 
   calculateRoleReadiness 
 } from '@/lib/services/assessment-engine';
+import { calculateSkillGaps, findProgramsForGaps } from '@/lib/services/program-gap-matching';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -176,7 +177,20 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Successfully saved', insertedData?.length, 'skill results');
 
-    // 8. Update assessment with final results
+    // 8. Calculate program matches count
+    console.log('🎓 Calculating program matches...');
+    let programMatchesCount = 0;
+    try {
+      const gaps = await calculateSkillGaps(assessmentId);
+      const programs = await findProgramsForGaps(gaps, { minMatchThreshold: 60 });
+      programMatchesCount = programs.length;
+      console.log(`✅ Found ${programMatchesCount} program matches`);
+    } catch (error) {
+      console.error('⚠️ Error calculating program matches:', error);
+      // Don't fail the whole analysis if program matching fails
+    }
+
+    // 9. Update assessment with final results
     const readinessPct = Math.round(roleReadiness.overallProficiency); // Whole number
     const statusTag = getStatusTag(readinessPct);
 
@@ -185,6 +199,7 @@ export async function POST(request: NextRequest) {
       .update({
         readiness_pct: readinessPct,
         status_tag: statusTag,
+        program_matches_count: programMatchesCount,
         analyzed_at: new Date().toISOString()
       })
       .eq('id', assessmentId);
@@ -197,7 +212,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 9. Check if proficiency meets threshold for auto-invite
+    // 10. Check if proficiency meets threshold for auto-invite
     const visibilityThreshold = assessment.job?.visibility_threshold_pct || 85;
     
     if (readinessPct >= visibilityThreshold) {
