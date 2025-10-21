@@ -253,7 +253,7 @@ export const occupationsTableColumns = [
         }`
       }
       if (count > 0) {
-        props.href = `/occupations/${item.soc_code}#open-roles`
+        props.href = `/jobs/${item.id}#open-roles`
       }
       return React.createElement(elementType, props, `${count} Open Role${count !== 1 ? 's' : ''}`)
     },
@@ -275,7 +275,7 @@ export const occupationsTableColumns = [
         }`
       }
       if (count > 0) {
-        props.href = `/occupations/${item.soc_code}#programs`
+        props.href = `/jobs/${item.id}#programs`
       }
       return React.createElement(elementType, props, `${count} Match${count !== 1 ? 'es' : ''}`)
     },
