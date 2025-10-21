@@ -1284,3 +1284,55 @@ export async function getRelatedPrograms(jobId: string, limit: number = 30): Pro
 
   return programs as Program[]
 }
+
+/**
+ * Get High-Demand Occupations that match a given SOC code
+ * Used for "Related Occupations" section on Featured Role detail pages
+ */
+export async function getRelatedOccupations(socCode: string): Promise<Job[]> {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select('*')
+    .eq('job_kind', 'occupation')
+    .eq('soc_code', socCode)
+    .order('title', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching related occupations:', error)
+    return []
+  }
+
+  return data as Job[]
+}
+
+/**
+ * Get other Featured Roles with the same SOC code
+ * Used for "Similar Roles" section on Featured Role detail pages
+ */
+export async function getSimilarRoles(socCode: string, excludeId: string, limit: number = 6): Promise<Job[]> {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select(`
+      *,
+      company:companies(*)
+    `)
+    .eq('job_kind', 'featured_role')
+    .eq('soc_code', socCode)
+    .neq('id', excludeId)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error fetching similar roles:', error)
+    return []
+  }
+
+  // Filter by published company
+  const filteredData = data?.filter(job => {
+    const company = (job as any).company as any
+    return company?.is_published !== false
+  }) || []
+
+  return filteredData as Job[]
+}

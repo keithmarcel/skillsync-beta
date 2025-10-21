@@ -11,7 +11,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { getJobById, getRelatedFeaturedRoles, getRelatedPrograms } from '@/lib/database/queries'
+import { getJobById, getRelatedFeaturedRoles, getRelatedPrograms, getRelatedOccupations, getSimilarRoles } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useRoleView } from '@/hooks/useRoleView'
 import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
@@ -126,6 +126,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [recommendedPrograms, setRecommendedPrograms] = useState<any[]>([])
   const [relatedFeaturedRoles, setRelatedFeaturedRoles] = useState<any[]>([])
   const [relatedPrograms, setRelatedPrograms] = useState<any[]>([])
+  const [relatedOccupations, setRelatedOccupations] = useState<any[]>([])
+  const [similarRoles, setSimilarRoles] = useState<any[]>([])
   const [quizId, setQuizId] = useState<string | null>(null)
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
   
@@ -154,11 +156,22 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             const programs = await getRelatedPrograms(params.id, 30)
             setRelatedPrograms(programs)
             console.log('Related Programs loaded:', programs.length)
-          } else if (jobData.job_kind === 'featured_role') {
-            // For Featured Roles: Load Programs via program_jobs junction
-            const programs = await getRelatedPrograms(params.id, 30)
+          } else if (jobData.job_kind === 'featured_role' && jobData.soc_code) {
+            // For Featured Roles: Load crosswalk data
+            const [occupations, similar, programs] = await Promise.all([
+              getRelatedOccupations(jobData.soc_code),
+              getSimilarRoles(jobData.soc_code, params.id, 6),
+              getRelatedPrograms(params.id, 30)
+            ])
+            
+            setRelatedOccupations(occupations)
+            setSimilarRoles(similar)
             setRelatedPrograms(programs)
-            console.log('Related Programs loaded:', programs.length)
+            
+            console.log('Featured Role crosswalk loaded:')
+            console.log('  Related Occupations:', occupations.length)
+            console.log('  Similar Roles:', similar.length)
+            console.log('  Related Programs:', programs.length)
             
             // Also try old crosswalk table for backwards compatibility
             const { data: crosswalk } = await supabase
@@ -183,7 +196,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             
             if (crosswalk) {
               setRecommendedPrograms(crosswalk)
-              console.log('Recommended programs (old crosswalk) loaded:', crosswalk.length)
+              console.log('  Recommended programs (old crosswalk):', crosswalk.length)
             }
           }
           
@@ -573,6 +586,103 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               </div>
             )}
           </div>
+        )}
+
+        {/* Related Occupations - Featured Roles Only */}
+        {job.job_kind === 'featured_role' && relatedOccupations.length > 0 && (
+          <>
+            <div id="related-occupations" className="my-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Related Occupations
+                  </h3>
+                  <p className="text-gray-500 text-sm mt-2">
+                    {relatedOccupations.length} high-demand occupation{relatedOccupations.length !== 1 ? 's' : ''} share the same SOC classification as this role.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {relatedOccupations.map((occupation: any) => (
+                  <Link key={occupation.id} href={`/jobs/${occupation.id}`} className="block">
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        <h4 className="font-semibold text-gray-900 mb-2">{occupation.title}</h4>
+                        <p className="text-sm text-gray-600 mb-3">SOC: {occupation.soc_code}</p>
+                        {occupation.median_wage_usd && (
+                          <p className="text-sm font-medium text-[#0694A2]">
+                            ${occupation.median_wage_usd.toLocaleString()}/year
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <hr className="my-12 border-gray-200" />
+          </>
+        )}
+
+        {/* Similar Roles - Featured Roles Only */}
+        {job.job_kind === 'featured_role' && similarRoles.length > 0 && (
+          <>
+            <div id="similar-roles" className="my-12">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    Similar Roles from Other Employers
+                  </h3>
+                  <p className="text-gray-500 text-sm mt-2">
+                    {similarRoles.length} other role{similarRoles.length !== 1 ? 's' : ''} with similar requirements and responsibilities.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {similarRoles.map((role: any) => (
+                  <Link key={role.id} href={`/jobs/${role.id}`} className="block">
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        {role.company?.logo_url && (
+                          <div className="mb-4 h-12 flex items-center">
+                            <Image 
+                              src={role.company.logo_url} 
+                              alt={role.company.name}
+                              width={120}
+                              height={48}
+                              className="max-h-12 w-auto object-contain"
+                            />
+                          </div>
+                        )}
+                        <h4 className="font-semibold text-gray-900 mb-2">{role.title}</h4>
+                        <p className="text-sm text-gray-600 mb-3">{role.company?.name}</p>
+                        {role.median_wage_usd && (
+                          <p className="text-sm font-medium text-[#0694A2]">
+                            ${role.median_wage_usd.toLocaleString()}/year
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <hr className="my-12 border-gray-200" />
+          </>
         )}
 
         {/* Skills Assessment Card - Featured Roles Only */}
