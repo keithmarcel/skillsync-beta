@@ -74,34 +74,45 @@ export function useSnapshotData(): UseSnapshotDataReturn {
           const overallRoleReadiness = assessments.reduce((acc, a) => acc + (a.readiness_pct || 0), 0) / assessments.length;
           
           const allSkills = new Set<string>();
-          let proficient = 0, developing = 0, needsDevelopment = 0;
-          const proficientSkillNames: string[] = [];
-          const buildingSkillNames: string[] = [];
-          const developingSkillNames: string[] = [];
+          // Track highest proficiency for each skill (skill_id -> {name, band, score})
+          const skillProficiency = new Map<string, {name: string, band: string, score: number}>();
 
           assessments.forEach(a => {
             a.skill_results?.forEach((sr: AssessmentSkillResult) => {
               allSkills.add(sr.skill_id);
               const skillName = (sr as any).skill?.name || (sr as any).skills?.name || 'Unknown Skill';
+              const score = sr.score_pct || 0;
               
-              if (sr.band === 'proficient') {
-                proficient++;
-                if (!proficientSkillNames.includes(skillName)) {
-                  proficientSkillNames.push(skillName);
-                }
-              } else if (sr.band === 'building_proficiency') {
-                developing++;
-                if (!buildingSkillNames.includes(skillName)) {
-                  buildingSkillNames.push(skillName);
-                }
-              } else if (sr.band === 'needs_development') {
-                needsDevelopment++;
-                if (!developingSkillNames.includes(skillName)) {
-                  developingSkillNames.push(skillName);
-                }
+              // Only keep highest proficiency for each skill
+              const existing = skillProficiency.get(sr.skill_id);
+              if (!existing || score > existing.score) {
+                skillProficiency.set(sr.skill_id, {
+                  name: skillName,
+                  band: sr.band || 'needs_development',
+                  score: score
+                });
               }
             });
           });
+
+          // Count skills by their highest proficiency band
+          const proficientSkillNames: string[] = [];
+          const buildingSkillNames: string[] = [];
+          const developingSkillNames: string[] = [];
+
+          skillProficiency.forEach((skill) => {
+            if (skill.band === 'proficient') {
+              proficientSkillNames.push(skill.name);
+            } else if (skill.band === 'building_proficiency') {
+              buildingSkillNames.push(skill.name);
+            } else if (skill.band === 'needs_development') {
+              developingSkillNames.push(skill.name);
+            }
+          });
+
+          const proficient = proficientSkillNames.length;
+          const developing = buildingSkillNames.length;
+          const needsDevelopment = developingSkillNames.length;
 
           setMetrics({
             rolesReadyFor,
