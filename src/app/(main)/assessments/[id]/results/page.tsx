@@ -19,6 +19,7 @@ export default function AssessmentResultsPage() {
   const [skillResults, setSkillResults] = useState<any[]>([])
   const [programs, setPrograms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [displayedReadiness, setDisplayedReadiness] = useState(0)
 
   const scrollToPrograms = () => {
     const programsSection = document.getElementById('upskilling-programs')
@@ -30,6 +31,29 @@ export default function AssessmentResultsPage() {
   useEffect(() => {
     loadAssessmentResults()
   }, [assessmentId])
+
+  // Animate the readiness percentage counter
+  useEffect(() => {
+    if (!loading && assessment?.overall_readiness_pct) {
+      const targetValue = assessment.overall_readiness_pct
+      const duration = 1500 // 1.5 seconds
+      const steps = 60
+      const increment = targetValue / steps
+      let currentStep = 0
+
+      const timer = setInterval(() => {
+        currentStep++
+        if (currentStep >= steps) {
+          setDisplayedReadiness(targetValue)
+          clearInterval(timer)
+        } else {
+          setDisplayedReadiness(Math.floor(increment * currentStep))
+        }
+      }, duration / steps)
+
+      return () => clearInterval(timer)
+    }
+  }, [loading, assessment?.overall_readiness_pct])
 
   const loadAssessmentResults = async () => {
     try {
@@ -191,6 +215,53 @@ export default function AssessmentResultsPage() {
 
   const displayPrograms = programs.length > 0 ? programs : placeholderPrograms
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Header Skeleton */}
+        <div className="max-w-[1232px] mx-auto px-6 pt-8 pb-6">
+          <div className="h-10 w-40 bg-gray-200 rounded animate-pulse" />
+        </div>
+
+        <div className="max-w-[1232px] mx-auto px-6 pb-8">
+          {/* Hero Card Skeleton */}
+          <div className="bg-[#002F3F] rounded-xl shadow-lg mb-12 p-12">
+            <div className="flex items-center gap-12">
+              <div className="flex-1 space-y-4">
+                <div className="h-10 bg-white/10 rounded animate-pulse w-3/4" />
+                <div className="h-6 bg-white/10 rounded animate-pulse w-full" />
+                <div className="h-6 bg-white/10 rounded animate-pulse w-5/6" />
+              </div>
+              <div className="border-2 border-[#114B5F] rounded-xl p-8 min-w-[240px]">
+                <div className="h-32 bg-white/5 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Skills Gap Skeleton */}
+          <div className="bg-white rounded-xl p-8 mb-12 shadow-md">
+            <div className="h-8 bg-gray-200 rounded animate-pulse w-64 mb-6" />
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-16 bg-gray-100 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+
+          {/* Programs Skeleton */}
+          <div className="bg-white rounded-xl p-8 shadow-md">
+            <div className="h-8 bg-gray-200 rounded animate-pulse w-96 mb-6" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-64 bg-gray-100 rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header - No background, just spacing like other pages */}
@@ -246,8 +317,8 @@ export default function AssessmentResultsPage() {
                     </div>
                   </div>
                   
-                  {/* Percentage */}
-                  <div className="text-[64px] font-bold leading-none text-white mb-2">{readiness}%</div>
+                  {/* Percentage - Animated counter */}
+                  <div className="text-[64px] font-bold leading-none text-white mb-2">{displayedReadiness}%</div>
                   <div className="text-base text-white/70 mb-4">Role Readiness</div>
                   
                   {/* Horizontal progress bar comparing to required proficiency */}
