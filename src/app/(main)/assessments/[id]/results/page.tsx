@@ -4,15 +4,18 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { getGapFillingPrograms, getRelatedPrograms } from '@/lib/database/queries'
+import { processAssessmentCompletion } from '@/lib/services/auto-invite'
 import { CheckCircle, AlertCircle, XCircle, ArrowLeft, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SimpleProgramCard } from '@/components/ui/simple-program-card'
+import { useToast } from '@/hooks/use-toast'
 import Link from 'next/link'
 
 export default function AssessmentResultsPage() {
   const params = useParams()
   const router = useRouter()
   const assessmentId = params.id as string
+  const { toast } = useToast()
 
   const [assessment, setAssessment] = useState<any>(null)
   const [skillResults, setSkillResults] = useState<any[]>([])
@@ -97,6 +100,27 @@ export default function AssessmentResultsPage() {
         setPrograms([])
         console.log('No job data available - showing empty state')
       }
+
+      // Process auto-invite and show toast if qualified
+      const inviteResult = await processAssessmentCompletion(assessmentId)
+      
+      if (inviteResult.shared && inviteResult.companyName) {
+        // Show toast notification
+        toast({
+          title: "Assessment Results Shared",
+          description: `Your assessment results have been shared with ${inviteResult.companyName}.`,
+        })
+
+        // Log invitation status
+        if (inviteResult.invited) {
+          console.log(`✅ Added to ${inviteResult.companyName}'s invite queue (${inviteResult.readinessPct}% readiness)`)
+        } else if (inviteResult.qualified) {
+          console.log(`ℹ️ Qualified but already invited to ${inviteResult.companyName}`)
+        } else {
+          console.log(`ℹ️ Results shared with ${inviteResult.companyName} (${inviteResult.readinessPct}% < ${inviteResult.requiredPct}% threshold)`)
+        }
+      }
+
     } catch (error) {
       console.error('Error loading results:', error)
     } finally {
