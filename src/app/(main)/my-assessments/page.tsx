@@ -91,12 +91,14 @@ export default function MyAssessmentsPage() {
   })
 
   const getStatusBadge = (readiness: number, status: string) => {
-    if (status === 'role_ready' || readiness >= 80) {
+    // Use status_tag ONLY - it's already calculated based on job's required_proficiency_pct
+    if (status === 'role_ready') {
       return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">{readiness}% → Role Ready</Badge>
-    } else if (status === 'close_gaps' || readiness >= 60) {
-      return <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">{readiness}% → Close Gaps</Badge>
+    } else if (status === 'close_gaps') {
+      return <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100">{readiness}% → Close</Badge>
+    } else {
+      return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">{readiness}% → Developing</Badge>
     }
-    return <Badge className="bg-red-100 text-red-800 hover:bg-red-100">Needs Development</Badge>
   }
 
   const hasAssessments = assessments.length > 0
@@ -156,7 +158,8 @@ export default function MyAssessmentsPage() {
         ) : (
           <div className="mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedAssessments.map((assessment) => {
-                const skillsGaps = assessment.skill_results?.filter(sr => sr.band === 'needs_dev' || sr.band === 'building').length || 0
+                // Use NEW standardized enum values: proficient, building, developing
+                const skillsGaps = assessment.skill_results?.filter(sr => sr.band === 'developing' || sr.band === 'building').length || 0
                 const totalSkills = assessment.skill_results?.length || 0
                 
                 return (
