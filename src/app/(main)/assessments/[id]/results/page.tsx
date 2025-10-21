@@ -409,76 +409,60 @@ export default function AssessmentResultsPage() {
 
         {/* Education Program Matches - Always show - White bg with shadow */}
         <div id="upskilling-programs" className="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow duration-200">
-          <div className="mb-6">
-            {(() => {
-              const requiredProficiency = assessment?.job?.required_proficiency_pct || 75
-              const gapCount = skillResults.filter(s => s.score_pct < requiredProficiency).length
-              
-              // Determine readiness: if no gaps, user is ready
-              const isRoleReady = gapCount === 0
-              
-              return (
-                <>
+          {(() => {
+            const requiredProficiency = assessment?.job?.required_proficiency_pct || 75
+            const gapCount = skillResults.filter(s => s.score_pct < requiredProficiency).length
+            const isRoleReady = gapCount === 0
+            
+            const filteredPrograms = displayPrograms.filter(program => {
+              const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
+              const hasDescription = program.short_desc || program.short_description
+              return hasValidName && hasDescription
+            })
+            
+            const hasPrograms = filteredPrograms.length > 0
+            
+            return (
+              <>
+                <div className="mb-6">
                   <h2 className="text-2xl font-bold mb-2 font-source-sans-pro">
                     {isRoleReady 
                       ? 'Continue Growing in Your Field' 
                       : 'Close Your Skill Gaps'}
                   </h2>
                   <p className="text-gray-600">
-                    {isRoleReady
-                      ? 'You\'re role-ready! These programs can help you continue developing your expertise and advance your career.'
-                      : `These programs address ${gapCount} skill gap${gapCount !== 1 ? 's' : ''} identified in your assessment and can help you become role-ready.`}
-                  </p>
-                </>
-              )
-            })()}
-          </div>
-
-          {(() => {
-            const filteredPrograms = displayPrograms.filter(program => {
-              // Filter out programs with poor quality data
-              const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
-              const hasDescription = program.short_desc || program.short_description
-              return hasValidName && hasDescription
-            })
-
-            if (filteredPrograms.length === 0) {
-              // Empty state - no programs available
-              return (
-                <div className="text-center py-12">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Programs Available Yet</h3>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    We're continuously adding new education programs. Check back soon for training opportunities relevant to your career path.
+                    {hasPrograms ? (
+                      isRoleReady
+                        ? 'You\'re role-ready! These programs can help you continue developing your expertise and advance your career.'
+                        : `These programs address ${gapCount} skill gap${gapCount !== 1 ? 's' : ''} identified in your assessment and can help you become role-ready.`
+                    ) : (
+                      'No programs available yet. Check back soon for training opportunities relevant to your career path.'
+                    )}
                   </p>
                 </div>
-              )
-            }
 
-            return (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPrograms.map((program) => (
-                  <Link key={program.id} href={`/programs/${program.id}`} className="block">
-                    <SimpleProgramCard
-                      id={program.id}
-                      name={program.name}
-                      school={{
-                        name: program.school?.name || 'Unknown School',
-                        logo: program.school?.logo_url || undefined
-                      }}
-                      programType={program.program_type || 'Program'}
-                      format={program.format || program.delivery_format || 'On-campus'}
-                      duration={program.duration_text || 'Duration varies'}
-                      description={program.short_desc || program.short_description || ''}
-                      relevanceScore={program.gap_coverage_pct}
-                    />
-                  </Link>
-                ))}
-              </div>
+                {hasPrograms && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredPrograms.map((program) => (
+                      <Link key={program.id} href={`/programs/${program.id}`} className="block">
+                        <SimpleProgramCard
+                          id={program.id}
+                          name={program.name}
+                          school={{
+                            name: program.school?.name || 'Unknown School',
+                            logo: program.school?.logo_url || undefined
+                          }}
+                          programType={program.program_type || 'Program'}
+                          format={program.format || program.delivery_format || 'On-campus'}
+                          duration={program.duration_text || 'Duration varies'}
+                          description={program.short_desc || program.short_description || ''}
+                          relevanceScore={program.gap_coverage_pct}
+                        />
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </>
             )
           })()}
         </div>
