@@ -58,28 +58,31 @@ export function SimpleProgramCard({
         )}
 
         {/* Program Title */}
-        <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2 mb-2 hover:text-teal-700 transition-colors duration-300 ease-in-out">
+        <h3 className="text-[20px] font-bold text-gray-900 leading-tight font-source-sans-pro line-clamp-2 mb-3 hover:text-teal-700 transition-colors duration-300 ease-in-out">
           {name}
         </h3>
-
-        {/* Match Percentage Badge */}
-        {relevanceScore && (
-          <div className="mb-3">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-800">
-              {relevanceScore}% Match
-            </span>
-          </div>
-        )}
 
         {/* Hidden school name for fallback/accessibility */}
         <span className="sr-only">{school.name}</span>
 
-        {/* Pills Row */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {[programType, format, duration].filter(Boolean).map((pill, idx) => (
+        {/* Pills Row with Match Percentage */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          {/* Match Percentage Badge */}
+          {relevanceScore && (
+            <span className="inline-flex h-[22px] items-center rounded-full px-3 text-xs font-medium bg-teal-100 text-teal-800">
+              {relevanceScore}% Match
+            </span>
+          )}
+          
+          {/* Program Type, Format, Duration Pills */}
+          {[
+            programType?.replace(/\s*Degree$/i, '').replace(/\s*Program$/i, ''),
+            format,
+            duration
+          ].filter(Boolean).map((pill, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+              className="inline-flex h-[22px] items-center rounded-full bg-gray-100 px-3 text-xs font-medium text-gray-700"
             >
               {pill}
             </span>
