@@ -34,8 +34,8 @@ export default function AssessmentResultsPage() {
 
   // Animate the readiness percentage counter
   useEffect(() => {
-    if (!loading && assessment?.overall_readiness_pct) {
-      const targetValue = assessment.overall_readiness_pct
+    if (!loading && assessment) {
+      const targetValue = Math.round(assessment.overall_readiness_pct || assessment.readiness_pct || 0)
       const duration = 1500 // 1.5 seconds
       const steps = 60
       const increment = targetValue / steps
@@ -53,7 +53,7 @@ export default function AssessmentResultsPage() {
 
       return () => clearInterval(timer)
     }
-  }, [loading, assessment?.overall_readiness_pct])
+  }, [loading, assessment])
 
   const loadAssessmentResults = async () => {
     try {
@@ -304,20 +304,34 @@ export default function AssessmentResultsPage() {
                 {(() => {
                   const requiredProf = assessment?.job?.required_proficiency_pct || 75
                   const gapSkillsCount = skillResults.filter(s => s.score_pct < requiredProf).length
-                  const strongSkills = skillResults.filter(s => s.score_pct >= 90).slice(0, 2)
-                  const gapSkills = skillResults.filter(s => s.score_pct < requiredProf).slice(0, 2)
+                  const strongSkills = skillResults.filter(s => s.score_pct >= 85).slice(0, 3)
+                  const gapSkills = skillResults.filter(s => s.score_pct < requiredProf).slice(0, 3)
+                  const topSkills = skillResults.slice(0, 3)
                   
                   if (readiness >= requiredProf) {
-                    // Role-ready: Highlight strengths and suggest growth
-                    const strengthsList = strongSkills.map(s => s.skill?.name).filter(Boolean).join(' and ')
-                    return `You excel in ${strengthsList || 'key competencies'}, demonstrating strong proficiency for this role. ${programs.length > 0 ? `The programs below offer opportunities to further develop your expertise and advance your career in ${assessment.job?.title?.toLowerCase() || 'this field'}.` : 'Continue building on your strengths to advance your career.'}`
+                    // Role-ready: Highlight top skills and programs
+                    const skillsList = strongSkills.length > 0 
+                      ? strongSkills.map(s => s.skill?.name).filter(Boolean).join(', ')
+                      : topSkills.map(s => s.skill?.name).filter(Boolean).join(', ')
+                    
+                    if (programs.length > 0) {
+                      return `Your strong performance in ${skillsList || 'essential competencies'} demonstrates you're well-prepared for this role. Explore the ${programs.length} program${programs.length !== 1 ? 's' : ''} below to continue advancing your expertise and unlock new career opportunities in ${assessment.job?.title?.toLowerCase() || 'this field'}.`
+                    }
+                    return `Your strong performance in ${skillsList || 'essential competencies'} demonstrates you're well-prepared for this role. Continue building on these strengths to advance your career.`
                   } else if (gapSkillsCount > 0 && gapSkillsCount <= 3) {
-                    // Few gaps: Specific guidance
-                    const gapsList = gapSkills.map(s => s.skill?.name).filter(Boolean).join(' and ')
-                    return `You're close to role-ready! Focus on strengthening ${gapsList || 'a few key areas'} to meet the ${requiredProf}% proficiency requirement. ${programs.length > 0 ? `The programs below specifically address these gaps and can help you become fully qualified for this ${assessment.job?.title?.toLowerCase() || 'role'}.` : 'Targeted practice in these areas will help you reach full readiness.'}`
+                    // Few gaps: Specific, actionable guidance
+                    const gapsList = gapSkills.map(s => s.skill?.name).filter(Boolean).join(', ')
+                    if (programs.length > 0) {
+                      return `You're ${requiredProf - readiness}% away from role-ready! Strengthening ${gapsList || 'a few key areas'} will get you there. The ${programs.length} program${programs.length !== 1 ? 's' : ''} below specifically target these skills and can help you become fully qualified for this ${assessment.job?.title?.toLowerCase() || 'role'}.`
+                    }
+                    return `You're ${requiredProf - readiness}% away from role-ready! Focus on strengthening ${gapsList || 'a few key areas'} to meet the ${requiredProf}% proficiency requirement.`
                   } else {
                     // Multiple gaps: Encouraging with clear path
-                    return `You're building a strong foundation with ${skillResults.filter(s => s.score_pct >= 70).length} skills above 70%. ${programs.length > 0 ? `The ${programs.length} programs below are tailored to address your development areas and accelerate your path to becoming role-ready for this ${assessment.job?.title?.toLowerCase() || 'position'}.` : 'Focus on the development areas identified below to accelerate your growth and become role-ready.'}`
+                    const strongCount = skillResults.filter(s => s.score_pct >= 70).length
+                    if (programs.length > 0) {
+                      return `You've built a solid foundation with ${strongCount} skill${strongCount !== 1 ? 's' : ''} at 70% or higher. The ${programs.length} program${programs.length !== 1 ? 's' : ''} below are specifically designed to address your development areas and accelerate your journey to becoming role-ready for this ${assessment.job?.title?.toLowerCase() || 'position'}.`
+                    }
+                    return `You've built a solid foundation with ${strongCount} skill${strongCount !== 1 ? 's' : ''} at 70% or higher. Focus on the development areas identified below to accelerate your growth and become role-ready.`
                   }
                 })()}
               </p>
@@ -342,21 +356,21 @@ export default function AssessmentResultsPage() {
                   
                   {/* Horizontal progress bar comparing to required proficiency */}
                   <div className="space-y-2">
-                    <div className="relative h-2 bg-[#324650] rounded-full overflow-hidden">
+                    <div className="relative h-3 bg-[#324650] rounded-full w-full">
                       {/* Your score fill */}
                       <div 
-                        className="absolute top-0 left-0 h-full bg-[#00E1FF] transition-all duration-500 rounded-full"
-                        style={{ width: `${readiness}%` }}
+                        className="absolute top-0 left-0 h-full bg-[#00E1FF] transition-all duration-1000 rounded-full"
+                        style={{ width: `${Math.min(readiness, 100)}%` }}
                       />
-                      {/* Required proficiency marker */}
+                      {/* Required proficiency marker - bright yellow for contrast */}
                       <div 
-                        className="absolute top-0 h-full w-0.5 bg-[#AFECEF]"
-                        style={{ left: `${assessment?.job?.required_proficiency_pct || 75}%` }}
+                        className="absolute top-0 h-full w-1 bg-yellow-400 shadow-lg"
+                        style={{ left: `${Math.min(assessment?.job?.required_proficiency_pct || 75, 100)}%`, transform: 'translateX(-50%)' }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-white/50">
+                    <div className="flex justify-between text-xs text-white/60">
                       <span>0%</span>
-                      <span className="text-[#AFECEF]">Required: {assessment?.job?.required_proficiency_pct || 75}%</span>
+                      <span className="text-yellow-400 font-medium">Required: {assessment?.job?.required_proficiency_pct || 75}%</span>
                       <span>100%</span>
                     </div>
                   </div>
