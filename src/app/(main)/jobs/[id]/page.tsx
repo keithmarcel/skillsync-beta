@@ -11,7 +11,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Heart, MapPin, DollarSign, Users, Clock, Upload, FileText } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { getJobById } from '@/lib/database/queries'
+import { getJobById, getRelatedFeaturedRoles, getRelatedPrograms } from '@/lib/database/queries'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useRoleView } from '@/hooks/useRoleView'
 import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
@@ -124,6 +124,8 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null)
   const [showAllPrograms, setShowAllPrograms] = useState(false)
   const [recommendedPrograms, setRecommendedPrograms] = useState<any[]>([])
+  const [relatedFeaturedRoles, setRelatedFeaturedRoles] = useState<any[]>([])
+  const [relatedPrograms, setRelatedPrograms] = useState<any[]>([])
   const [quizId, setQuizId] = useState<string | null>(null)
   const { addFavorite, removeFavorite, isFavorite } = useFavorites()
   
@@ -141,30 +143,48 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           console.log('Company logo_url:', jobData.company?.logo_url)
           setJob(jobData)
           
-          // Load recommended programs from crosswalk
-          const { data: crosswalk } = await supabase
-            .from('role_program_crosswalk')
-            .select(`
-              confidence_score,
-              match_reasoning,
-              program:programs(
-                id,
-                name,
-                discipline,
-                program_type,
-                short_desc,
-                duration_text,
-                format,
-                school:schools(name, logo_url)
-              )
-            `)
-            .eq('job_id', params.id)
-            .order('confidence_score', { ascending: false })
-            .limit(6)
-          
-          if (crosswalk) {
-            setRecommendedPrograms(crosswalk)
-            console.log('Recommended programs loaded:', crosswalk.length)
+          // Load crosswalk data based on job type
+          if (jobData.job_kind === 'occupation' && jobData.soc_code) {
+            // For HDOs: Load Featured Roles with matching SOC
+            const featuredRoles = await getRelatedFeaturedRoles(jobData.soc_code, 12)
+            setRelatedFeaturedRoles(featuredRoles)
+            console.log('Related Featured Roles loaded:', featuredRoles.length)
+            
+            // Load Programs via program_jobs junction
+            const programs = await getRelatedPrograms(params.id, 30)
+            setRelatedPrograms(programs)
+            console.log('Related Programs loaded:', programs.length)
+          } else if (jobData.job_kind === 'featured_role') {
+            // For Featured Roles: Load Programs via program_jobs junction
+            const programs = await getRelatedPrograms(params.id, 30)
+            setRelatedPrograms(programs)
+            console.log('Related Programs loaded:', programs.length)
+            
+            // Also try old crosswalk table for backwards compatibility
+            const { data: crosswalk } = await supabase
+              .from('role_program_crosswalk')
+              .select(`
+                confidence_score,
+                match_reasoning,
+                program:programs(
+                  id,
+                  name,
+                  discipline,
+                  program_type,
+                  short_desc,
+                  duration_text,
+                  format,
+                  school:schools(name, logo_url)
+                )
+              `)
+              .eq('job_id', params.id)
+              .order('confidence_score', { ascending: false })
+              .limit(6)
+            
+            if (crosswalk) {
+              setRecommendedPrograms(crosswalk)
+              console.log('Recommended programs (old crosswalk) loaded:', crosswalk.length)
+            }
           }
           
           // Load quiz for this job (if exists)
@@ -449,12 +469,44 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <h3 className="text-xl font-semibold text-gray-900">
                   Local Employers Hiring Now
                 </h3>
-                {/* TODO: Replace with real crosswalk data - show subhead when data exists */}
                 <p className="text-gray-500 text-sm mt-2">
-                  No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area.
+                  {relatedFeaturedRoles.length > 0 
+                    ? `${relatedFeaturedRoles.length} open role${relatedFeaturedRoles.length !== 1 ? 's' : ''} from trusted employers match this occupation.`
+                    : "No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area."}
                 </p>
               </div>
             </div>
+
+            {relatedFeaturedRoles.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {relatedFeaturedRoles.slice(0, 6).map((role: any) => (
+                  <Link key={role.id} href={`/jobs/${role.id}`} className="block">
+                    <Card className="h-full hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        {role.company?.logo_url && (
+                          <div className="mb-4 h-12 flex items-center">
+                            <Image 
+                              src={role.company.logo_url} 
+                              alt={role.company.name}
+                              width={120}
+                              height={48}
+                              className="max-h-12 w-auto object-contain"
+                            />
+                          </div>
+                        )}
+                        <h4 className="font-semibold text-gray-900 mb-2">{role.title}</h4>
+                        <p className="text-sm text-gray-600 mb-3">{role.company?.name}</p>
+                        {role.median_wage_usd && (
+                          <p className="text-sm font-medium text-[#0694A2]">
+                            ${role.median_wage_usd.toLocaleString()}/year
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -476,12 +528,48 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 <h3 className="text-xl font-semibold text-gray-900">
                   Relevant Education & Training Programs
                 </h3>
-                {/* TODO: Replace with real skill overlap data - show subhead when data exists */}
                 <p className="text-gray-500 text-sm mt-2">
-                  No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities.
+                  {relatedPrograms.length > 0 
+                    ? `${Math.min(relatedPrograms.length, 30)} program${relatedPrograms.length !== 1 ? 's' : ''} that align with this occupation's requirements.`
+                    : "No matching programs are currently available in your region. We're continuously adding new education partners and training opportunities."}
                 </p>
               </div>
             </div>
+
+            {relatedPrograms.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {relatedPrograms.slice(0, showAllPrograms ? 30 : 6).map((program: any) => (
+                  <FeaturedProgramCard
+                    key={program.id}
+                    id={program.id}
+                    title={program.name}
+                    school={program.school?.name || 'Unknown School'}
+                    schoolLogo={program.school?.logo_url || ''}
+                    programType={program.program_type || 'Program'}
+                    format={program.format || 'On-campus'}
+                    duration={program.duration_text || 'Duration varies'}
+                    description={program.short_desc || ''}
+                    skillsCallout={undefined}
+                    href={`/programs/${program.id}`}
+                    isFavorited={false}
+                    onAddFavorite={() => {}}
+                    onRemoveFavorite={() => {}}
+                  />
+                ))}
+              </div>
+            )}
+
+            {relatedPrograms.length > 6 && !showAllPrograms && (
+              <div className="flex justify-center mt-6">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAllPrograms(true)}
+                  className="px-8"
+                >
+                  Load More Programs
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
