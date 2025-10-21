@@ -19,8 +19,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-// Mock user ID (replace with actual user if needed)
-const MOCK_USER_ID = '00000000-0000-0000-0000-000000000000'
+// Real user ID from database
+const USER_ID = '3bcfef07-e2b9-4e49-95f6-0fb93316482f'
 
 async function reseedAssessments() {
   console.log('🔄 Reseeding Assessments with Current Data...\n')
@@ -98,10 +98,10 @@ async function reseedAssessments() {
         const { data: assessment, error: assessmentError } = await supabase
           .from('assessments')
           .insert({
-            user_id: MOCK_USER_ID,
+            user_id: USER_ID,
             job_id: job.id,
             readiness_pct: avgScore,
-            method: 'manual'
+            method: 'quiz'
           })
           .select('id')
           .single()
