@@ -366,7 +366,7 @@ export default function AssessmentResultsPage() {
           <div className="mb-4">
             <h2 className="text-2xl font-bold text-[#1F2937] mb-4 font-source-sans-pro">Skills Gap Analysis</h2>
             <p className="text-base text-[#1F2A37]">
-              Here's how <span className="font-semibold">your skills</span> compare to what employers expect for this role.
+              Here's how <span className="font-semibold">your skills</span> compare to what {assessment.job?.company?.name || 'employers'} expect{assessment.job?.company?.name ? 's' : ''} for this role.
             </p>
           </div>
 
