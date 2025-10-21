@@ -9,7 +9,7 @@
 -- New standard:
 --   Database: proficient, building, developing
 --   Code: proficient, building, developing
---   UI: "Proficient", "Almost There", "Developing"
+--   UI: "Ready", "Almost There", "Developing"
 
 -- Step 1: Create new enum type with standardized values
 CREATE TYPE skill_band_new AS ENUM (
@@ -42,7 +42,7 @@ DROP TYPE skill_band;
 ALTER TYPE skill_band_new RENAME TO skill_band;
 
 -- Add helpful comment
-COMMENT ON TYPE skill_band IS 'Standardized skill proficiency levels: proficient (80%+), building (60-79%), developing (<60%)';
+COMMENT ON TYPE skill_band IS 'Standardized skill proficiency levels: proficient/Ready (80%+), building/Almost There (60-79%), developing/Developing (<60%)';
 
 -- Verify migration
 DO $$

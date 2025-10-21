@@ -30,7 +30,7 @@ We have inconsistent enum naming across the database, code, and UI, causing bugs
 
 **User-Facing Labels:**
 ```typescript
-"Proficient"    // ✅ Clear
+"Ready"         // ✅ Clear (matches "Roles You're Ready For")
 "Almost There"  // ✅ Clear
 "Developing"    // ✅ Clear
 ```
@@ -58,7 +58,7 @@ export type SkillBand = 'proficient' | 'building' | 'developing';
 **User-Facing Labels:**
 ```typescript
 const SKILL_BAND_LABELS: Record<SkillBand, string> = {
-  proficient: 'Proficient',
+  proficient: 'Ready',        // Matches "Roles You're Ready For"
   building: 'Almost There',
   developing: 'Developing'
 };
@@ -67,9 +67,9 @@ const SKILL_BAND_LABELS: Record<SkillBand, string> = {
 **Score Thresholds:**
 ```typescript
 const SKILL_BAND_THRESHOLDS = {
-  proficient: 80,   // 80%+ = Proficient
-  building: 60,     // 60-79% = Building/Almost There
-  developing: 0     // 0-59% = Developing/Needs Development
+  proficient: 80,   // 80%+ = Ready
+  building: 60,     // 60-79% = Almost There
+  developing: 0     // 0-59% = Developing
 };
 ```
 
@@ -128,10 +128,10 @@ export type SkillBand = 'proficient' | 'building' | 'developing';
 
 export const SKILL_BAND_CONFIG = {
   proficient: {
-    label: 'Proficient',
+    label: 'Ready',
     color: 'green',
     threshold: 80,
-    description: 'Strong mastery of this skill'
+    description: 'Ready to use this skill in a professional setting'
   },
   building: {
     label: 'Almost There',
