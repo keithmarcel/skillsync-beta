@@ -624,64 +624,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 ))}
               </div>
             </div>
-
-            <hr className="my-12 border-gray-200" />
           </>
         )}
 
-        {/* Similar Roles - Featured Roles Only */}
-        {job.job_kind === 'featured_role' && similarRoles.length > 0 && (
-          <>
-            <div id="similar-roles" className="my-12">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-full bg-[#0694A2] flex items-center justify-center flex-shrink-0">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    Similar Roles from Other Employers
-                  </h3>
-                  <p className="text-gray-500 text-sm mt-2">
-                    {similarRoles.length} other role{similarRoles.length !== 1 ? 's' : ''} with similar requirements and responsibilities.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                {similarRoles.map((role: any) => (
-                  <Link key={role.id} href={`/jobs/${role.id}`} className="block">
-                    <Card className="h-full hover:shadow-lg transition-shadow">
-                      <CardContent className="p-6">
-                        {role.company?.logo_url && (
-                          <div className="mb-4 h-12 flex items-center">
-                            <Image 
-                              src={role.company.logo_url} 
-                              alt={role.company.name}
-                              width={120}
-                              height={48}
-                              className="max-h-12 w-auto object-contain"
-                            />
-                          </div>
-                        )}
-                        <h4 className="font-semibold text-gray-900 mb-2">{role.title}</h4>
-                        <p className="text-sm text-gray-600 mb-3">{role.company?.name}</p>
-                        {role.median_wage_usd && (
-                          <p className="text-sm font-medium text-[#0694A2]">
-                            ${role.median_wage_usd.toLocaleString()}/year
-                          </p>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <hr className="my-12 border-gray-200" />
-          </>
-        )}
+        {/* Similar Roles section removed for featured roles - programs are shown below instead */}
 
         {/* Skills Assessment Card - Featured Roles Only */}
         {job.job_kind === 'featured_role' && (
