@@ -1221,3 +1221,66 @@ function getReadinessStatus(overallScore: number): 'role_ready' | 'close_gaps' |
   if (overallScore >= 50) return 'close_gaps'
   return 'needs_development'
 }
+
+// Crosswalk Queries for Detail Pages
+
+/**
+ * Get Featured Roles that match a given SOC code
+ * Used for "Local Employers Hiring Now" section on HDO detail pages
+ */
+export async function getRelatedFeaturedRoles(socCode: string, limit: number = 12): Promise<Job[]> {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select(`
+      *,
+      company:companies(*)
+    `)
+    .eq('job_kind', 'featured_role')
+    .eq('soc_code', socCode)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error fetching related featured roles:', error)
+    return []
+  }
+
+  // Filter by published company
+  const filteredData = data?.filter(job => {
+    const company = (job as any).company as any
+    return company?.is_published !== false
+  }) || []
+
+  return filteredData as Job[]
+}
+
+/**
+ * Get Programs related to a job via program_jobs junction
+ * Used for "Relevant Education & Training Programs" section
+ * Limits to top 30 most relevant programs
+ */
+export async function getRelatedPrograms(jobId: string, limit: number = 30): Promise<Program[]> {
+  const { data, error } = await supabase
+    .from('program_jobs')
+    .select(`
+      programs!inner(
+        *,
+        school:schools!inner(*)
+      )
+    `)
+    .eq('job_id', jobId)
+    .limit(limit)
+
+  if (error) {
+    console.error('Error fetching related programs:', error)
+    return []
+  }
+
+  // Extract programs and filter by published status
+  const programs = data?.map(pj => (pj as any).programs).filter((program: any) => {
+    return program?.school?.is_published !== false
+  }) || []
+
+  return programs as Program[]
+}
