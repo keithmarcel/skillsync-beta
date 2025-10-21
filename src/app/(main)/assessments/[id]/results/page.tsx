@@ -320,22 +320,32 @@ export default function AssessmentResultsPage() {
           </div>
 
           {/* Bottom card - consistent padding */}
-          {readiness >= 80 && (
-            <div className="px-8 pb-8">
-              <div className="bg-[#114B5F] rounded-lg px-6 py-4 flex items-center justify-between">
-                <p className="text-lg text-[#F5F5F5]">
-                  You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with {assessment.job?.company?.name || 'the employer'}.
-                </p>
-                <Button 
-                  variant="outline" 
-                  onClick={scrollToPrograms}
-                  className="bg-transparent border-[#AFECEF] text-[#AFECEF] hover:bg-white/10 text-sm whitespace-nowrap ml-4"
-                >
-                  View Upskilling Programs →
-                </Button>
+          {readiness >= 80 && (() => {
+            const hasPrograms = displayPrograms.filter(program => {
+              const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
+              const hasDescription = program.short_desc || program.short_description
+              return hasValidName && hasDescription
+            }).length > 0
+
+            return (
+              <div className="px-8 pb-8">
+                <div className={`bg-[#114B5F] rounded-lg px-6 py-4 flex items-center ${hasPrograms ? 'justify-between' : 'justify-center'}`}>
+                  <p className="text-lg text-[#F5F5F5]">
+                    You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with {assessment.job?.company?.name || 'the employer'}.
+                  </p>
+                  {hasPrograms && (
+                    <Button 
+                      variant="outline" 
+                      onClick={scrollToPrograms}
+                      className="bg-transparent border-[#AFECEF] text-[#AFECEF] hover:bg-white/10 text-sm whitespace-nowrap ml-4"
+                    >
+                      View Upskilling Programs →
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })()}
         </div>
 
         {/* Skills Gap Analysis - White bg with shadow */}
