@@ -211,7 +211,7 @@ export default function AssessmentResultsPage() {
       <div className="max-w-[1232px] mx-auto px-6 pt-8 pb-6">
         <Link 
           href="/my-assessments"
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center text-gray-600 hover:text-[#0694A2] transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Assessments
