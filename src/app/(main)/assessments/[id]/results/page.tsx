@@ -339,8 +339,10 @@ export default function AssessmentResultsPage() {
           <div className="mb-6">
             {(() => {
               const requiredProficiency = assessment?.job?.required_proficiency_pct || 75
-              const isRoleReady = (assessment?.overall_readiness_pct || 0) >= requiredProficiency
               const gapCount = skillResults.filter(s => s.score_pct < requiredProficiency).length
+              
+              // Determine readiness: if no gaps, user is ready
+              const isRoleReady = gapCount === 0
               
               return (
                 <>
@@ -360,7 +362,14 @@ export default function AssessmentResultsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayPrograms.map((program) => (
+            {displayPrograms
+              .filter(program => {
+                // Filter out programs with poor quality data
+                const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
+                const hasDescription = program.short_desc || program.short_description
+                return hasValidName && hasDescription
+              })
+              .map((program) => (
               <Link key={program.id} href={`/programs/${program.id}`} className="block">
                 <SimpleProgramCard
                   id={program.id}
