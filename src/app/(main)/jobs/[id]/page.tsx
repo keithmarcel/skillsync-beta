@@ -18,6 +18,7 @@ import { JobDetailsSkeleton } from '@/components/ui/job-details-skeleton'
 import { supabase } from '@/lib/supabase/client'
 import { FeaturedProgramCard } from '@/components/ui/featured-program-card'
 import { SimpleProgramCard } from '@/components/ui/simple-program-card'
+import { SimpleJobCard } from '@/components/ui/simple-job-card'
 
 // No mock data - using real database data only
 
@@ -495,28 +496,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
                 {relatedFeaturedRoles.slice(0, 6).map((role: any) => (
                   <Link key={role.id} href={`/jobs/${role.id}`} className="block">
-                    <Card className="h-full hover:shadow-lg transition-shadow">
-                      <CardContent className="p-6">
-                        {role.company?.logo_url && (
-                          <div className="mb-3 h-8 flex items-center">
-                            <Image 
-                              src={role.company.logo_url} 
-                              alt={role.company.name}
-                              width={80}
-                              height={32}
-                              className="max-h-8 w-auto object-contain"
-                            />
-                          </div>
-                        )}
-                        <h4 className="font-semibold text-gray-900 mb-2">{role.title}</h4>
-                        <p className="text-sm text-gray-600 mb-3">{role.company?.name}</p>
-                        {role.median_wage_usd && (
-                          <p className="text-sm font-medium text-[#0694A2]">
-                            ${role.median_wage_usd.toLocaleString()}/year
-                          </p>
-                        )}
-                      </CardContent>
-                    </Card>
+                    <SimpleJobCard
+                      id={role.id}
+                      title={role.title}
+                      company={{
+                        name: role.company?.name || 'Unknown Company',
+                        logo: role.company?.logo_url || undefined
+                      }}
+                      category={role.category}
+                      medianWage={role.median_wage_usd}
+                      location={role.location}
+                    />
                   </Link>
                 ))}
               </div>

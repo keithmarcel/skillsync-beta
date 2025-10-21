@@ -65,8 +65,18 @@ export function SimpleProgramCard({
         {/* Hidden school name for fallback/accessibility */}
         <span className="sr-only">{school.name}</span>
 
+        {/* Description */}
+        {description && (
+          <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 mb-4">
+            {description}
+          </p>
+        )}
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 mb-4" />
+
         {/* Pills Row with Match Percentage */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Match Percentage Badge */}
           {relevanceScore && (
             <span className="inline-flex h-[22px] items-center rounded-full px-3 text-xs font-medium bg-teal-100 text-teal-800">
@@ -88,16 +98,6 @@ export function SimpleProgramCard({
             </span>
           ))}
         </div>
-
-        {/* Divider */}
-        <div className="border-t border-gray-200 mb-4" />
-
-        {/* Description */}
-        {description && (
-          <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
-            {description}
-          </p>
-        )}
       </div>
     </article>
   )
