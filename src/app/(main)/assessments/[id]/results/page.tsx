@@ -280,7 +280,7 @@ export default function AssessmentResultsPage() {
         {/* Hero Section - Role Readiness Card */}
         <div className="bg-[#002F3F] rounded-xl shadow-lg mb-12">
           {/* Main content area - extra padding for breathing room */}
-          <div className="flex items-center px-12 pt-12 pb-8 gap-12">
+          <div className="flex items-center px-16 pt-12 pb-8 gap-12">
             {/* Left side - 2/3 width */}
             <div className="flex-1">
               {/* Status Icon + Headline */}
@@ -293,7 +293,10 @@ export default function AssessmentResultsPage() {
 
               {/* Match Percentage Text - 18px font */}
               <p className="text-lg text-white/90 leading-relaxed mb-2">
-                Based on your assessment, you have a <span className="font-semibold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s <span className="font-semibold">{assessment.job?.title}</span> role.
+                Based on your assessment, you have a <span className="font-semibold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s{' '}
+                <Link href={`/jobs/${assessment.job?.id}`} className="font-semibold text-[#00E1FF] hover:text-[#AFECEF] underline underline-offset-2 transition-colors">
+                  {assessment.job?.title}
+                </Link> role.
               </p>
 
               {/* Personalized Feedback - 16px font, pt-2 */}
@@ -308,11 +311,11 @@ export default function AssessmentResultsPage() {
             <div className="flex-shrink-0">
               <div className="border-2 border-[#114B5F] rounded-xl p-8 bg-transparent min-w-[240px]">
                 <div className="text-center">
-                  {/* Icon */}
+                  {/* Icon - Target/Gauge for role readiness */}
                   <div className="mb-4 flex justify-center">
                     <div className="p-2 bg-[#00A6AE] rounded-full">
                       <svg className="w-6 h-6 text-[#AFECEF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                       </svg>
                     </div>
                   </div>
