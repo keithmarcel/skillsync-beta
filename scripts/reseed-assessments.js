@@ -87,24 +87,23 @@ async function reseedAssessments() {
       // Pick a random scenario for this role to create variety
       const scenario = scenarios[Math.floor(Math.random() * scenarios.length)]
       
-      // Generate skill scores with MORE variation (not all same level)
+      // Generate skill scores with variation to create realistic distribution
       const skillScores = jobSkills.map(js => {
-        // 40% chance of being in target range, 30% higher, 30% lower
         const rand = Math.random()
         let min, max
         
-        if (rand < 0.4) {
-          // Target range for this scenario
+        if (rand < 0.5) {
+          // 50% in target range for this scenario
           min = scenario.min
           max = scenario.max
-        } else if (rand < 0.7) {
-          // Some skills higher (proficient)
-          min = 80
+        } else if (rand < 0.8) {
+          // 30% higher (proficient) - helps create role-ready assessments
+          min = Math.max(scenario.max - 10, 85)
           max = 100
         } else {
-          // Some skills lower (developing)
-          min = 40
-          max = 70
+          // 20% lower (developing)
+          min = 50
+          max = Math.min(scenario.min + 10, 70)
         }
         
         return {
