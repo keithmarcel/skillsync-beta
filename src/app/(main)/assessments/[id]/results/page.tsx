@@ -234,21 +234,10 @@ export default function AssessmentResultsPage() {
 
               {/* Match Percentage Text - 18px font */}
               <p className="text-lg text-white/90 leading-relaxed mb-2">
-                {readiness >= requiredProficiency ? (
-                  <>
-                    Based on your assessment, you have a <span className="font-semibold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s{' '}
-                    <Link href={`/jobs/${assessment.job?.id}`} className="font-semibold text-[#00E1FF] hover:text-[#AFECEF] underline underline-offset-2 transition-colors">
-                      {assessment.job?.title}
-                    </Link> role.
-                  </>
-                ) : (
-                  <>
-                    Based on your assessment, you're <span className="font-semibold">{requiredProficiency - readiness}% away</span> from meeting the requirements for {assessment.job?.company?.name}'s{' '}
-                    <Link href={`/jobs/${assessment.job?.id}`} className="font-semibold text-[#00E1FF] hover:text-[#AFECEF] underline underline-offset-2 transition-colors">
-                      {assessment.job?.title}
-                    </Link> role.
-                  </>
-                )}
+                Based on your assessment, you have a <span className="font-semibold">{readiness}% match</span> with the skills required for {assessment.job?.company?.name}'s{' '}
+                <Link href={`/jobs/${assessment.job?.id}`} className="font-semibold text-[#00E1FF] hover:text-[#AFECEF] underline underline-offset-2 transition-colors">
+                  {assessment.job?.title}
+                </Link> role.
               </p>
 
               {/* Personalized Feedback - Dynamic based on actual results */}
