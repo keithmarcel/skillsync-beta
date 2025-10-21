@@ -360,6 +360,11 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 - [x] **MYASSESS-605**: Retake Cooldown (24-hour limit) ✅
 - [x] **MYASSESS-606**: Refine assessment cards ✅
 - [x] **MYASSESS-607**: Search & Filters ✅
+- [ ] **MYASSESS-608**: 🔴 **Fix Program Matches Count** (BLOCKED by SYSTEM-INFRA-906)
+  - **Issue**: Shows incorrect program counts (0 or all occupation programs)
+  - **Expected**: Show count of programs matching user's specific skill gaps
+  - **Blocker**: Same as RESULTS-505 - requires unified skills taxonomy
+  - **Impact**: Misleading counts on assessment cards
 - [ ] **MYASSESS-601**: Remove Skills Gap Progress Bar (P2)
 - [ ] **MYASSESS-602**: Display Retake Timer on Cooldown Assessments
 
@@ -373,8 +378,15 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 **Jobs → Hiring Now → Assessment Results**
 - [x] **RESULTS-501**: Readiness Badge and Next Step CTA ✅
 - [x] **RESULTS-502**: Auto-Share Confirmation Message ✅
-- [x] **RESULTS-503**: Program Matches via Skill Overlap ✅
+- [x] **RESULTS-503**: Program Matches via Skill Overlap ✅ (Partially - using CIP-SOC workaround)
 - [ ] **RESULTS-504**: Retire Occupation-Level Assessments
+- [ ] **RESULTS-505**: 🔴 **Fix Program Matching for Gap-Filling** (BLOCKED by SYSTEM-INFRA-906)
+  - **Issue**: Gap-filling returns 0 programs due to skill ID mismatch
+  - **Current**: Using CIP-SOC crosswalk workaround (shows all occupation programs)
+  - **Expected**: Show only programs that teach user's specific skill gaps
+  - **Blocker**: Requires unified skills taxonomy from SYSTEM-INFRA-906
+  - **Impact**: 9/10 assessments show wrong program counts
+  - **Doc**: [SKILLS_TAXONOMY_AUDIT_PROJECT.md](./investigations/SKILLS_TAXONOMY_AUDIT_PROJECT.md#finding-1)
 
 ### 🏢 **PRIORITY 2: Employer Portal Features**
 
