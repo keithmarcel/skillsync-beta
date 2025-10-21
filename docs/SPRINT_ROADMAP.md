@@ -415,6 +415,11 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 - [ ] **SYSTEM-INFRA-902**: CIP Data Backfill from Melissa Stec Sheets
 - [ ] **SYSTEM-INFRA-903**: Source Metadata Registry (BLS/O*NET/CareerOneStop) (P2)
 - [x] **SYSTEM-INFRA-905**: Auto-Share Service (Consent + Threshold Trigger) ✅
+- [ ] **SYSTEM-INFRA-906**: 🔥 **Skills Taxonomy System Audit & Optimization** (P1, 3 weeks)
+  - **Epic Investigation**: Comprehensive audit of entire skills system
+  - **Scope**: Data sources, pipelines, crosswalks, confidence matching, code redundancy
+  - **Goal**: Unified matching service, automated pipeline, 100% documentation
+  - **Doc**: [SKILLS_TAXONOMY_AUDIT_PROJECT.md](./investigations/SKILLS_TAXONOMY_AUDIT_PROJECT.md)
 
 **System → Infrastructure / Deployment**
 - [ ] **SYSTEM-INFRA-904**: Multi-Tenant Subdomain Template ({company}.skillsync.com)
