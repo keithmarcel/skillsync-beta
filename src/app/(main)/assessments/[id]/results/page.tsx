@@ -299,11 +299,27 @@ export default function AssessmentResultsPage() {
                 </Link> role.
               </p>
 
-              {/* Personalized Feedback - 16px font, pt-2 */}
+              {/* Personalized Feedback - Dynamic based on actual results */}
               <p className="text-base text-white/80 leading-relaxed pt-2">
-                {readiness >= 80 && "You excel in strategic planning and leadership, critical skills for driving business success in the dynamic project management market. To further grow, focus on enhancing your project management, data analysis, and process improvement abilities. Engaging in business analytics and operations programs will support your role readiness."}
-                {readiness >= 60 && readiness < 80 && "You demonstrate strong foundational skills but have opportunities to strengthen key competencies. Focus on developing your weaker areas through targeted training and practice. With dedication, you'll be fully role-ready soon."}
-                {readiness < 60 && "You're building your skills in this area. Focus on the development areas identified below, and consider enrolling in recommended training programs to accelerate your growth and become role-ready."}
+                {(() => {
+                  const requiredProf = assessment?.job?.required_proficiency_pct || 75
+                  const gapSkillsCount = skillResults.filter(s => s.score_pct < requiredProf).length
+                  const strongSkills = skillResults.filter(s => s.score_pct >= 90).slice(0, 2)
+                  const gapSkills = skillResults.filter(s => s.score_pct < requiredProf).slice(0, 2)
+                  
+                  if (readiness >= requiredProf) {
+                    // Role-ready: Highlight strengths and suggest growth
+                    const strengthsList = strongSkills.map(s => s.skill?.name).filter(Boolean).join(' and ')
+                    return `You excel in ${strengthsList || 'key competencies'}, demonstrating strong proficiency for this role. ${programs.length > 0 ? `The programs below offer opportunities to further develop your expertise and advance your career in ${assessment.job?.title?.toLowerCase() || 'this field'}.` : 'Continue building on your strengths to advance your career.'}`
+                  } else if (gapSkillsCount > 0 && gapSkillsCount <= 3) {
+                    // Few gaps: Specific guidance
+                    const gapsList = gapSkills.map(s => s.skill?.name).filter(Boolean).join(' and ')
+                    return `You're close to role-ready! Focus on strengthening ${gapsList || 'a few key areas'} to meet the ${requiredProf}% proficiency requirement. ${programs.length > 0 ? `The programs below specifically address these gaps and can help you become fully qualified for this ${assessment.job?.title?.toLowerCase() || 'role'}.` : 'Targeted practice in these areas will help you reach full readiness.'}`
+                  } else {
+                    // Multiple gaps: Encouraging with clear path
+                    return `You're building a strong foundation with ${skillResults.filter(s => s.score_pct >= 70).length} skills above 70%. ${programs.length > 0 ? `The ${programs.length} programs below are tailored to address your development areas and accelerate your path to becoming role-ready for this ${assessment.job?.title?.toLowerCase() || 'position'}.` : 'Focus on the development areas identified below to accelerate your growth and become role-ready.'}`
+                  }
+                })()}
               </p>
             </div>
 
