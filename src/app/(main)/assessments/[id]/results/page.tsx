@@ -155,65 +155,8 @@ export default function AssessmentResultsPage() {
   const StatusIcon = status.icon
   const filledBlocks = Math.round(readiness / 10)
 
-  // Placeholder programs - always show at least these
-  const placeholderPrograms = [
-    {
-      id: 'placeholder-1',
-      name: 'Project Management Certificate',
-      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
-      program_type: 'Certificate',
-      delivery_format: 'Online',
-      duration_text: '12 Weeks',
-      short_description: 'Develop essential project management skills using Agile methodologies and effective team leadership.'
-    },
-    {
-      id: 'placeholder-2',
-      name: 'Construction Management A.S.',
-      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
-      program_type: "Associate's",
-      delivery_format: 'Hybrid',
-      duration_text: '2 Years',
-      short_description: 'Prepare for leadership roles in construction management, design, and construction estimating for roles in the construction industry by teaching core skills.'
-    },
-    {
-      id: 'placeholder-3',
-      name: 'Business Administration A.S.',
-      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
-      program_type: "Associate's",
-      delivery_format: 'Online',
-      duration_text: '2 Years',
-      short_description: 'Build broad business skills in communication, decision making, and other core areas.'
-    },
-    {
-      id: 'placeholder-4',
-      name: 'Business Essentials',
-      school: { name: 'Nexford University', logo_url: '/schools/Nexford-logo-horizontal-color.svg' },
-      program_type: 'Certificate',
-      delivery_format: 'Online',
-      duration_text: '1-2 years',
-      short_description: 'Gain practical skills in marketing, process automation, global operations, and impactful communication for business success.'
-    },
-    {
-      id: 'placeholder-5',
-      name: 'Building Construction Technologies Certificate',
-      school: { name: 'Pinellas Technical College', logo_url: '/schools/ptec.png' },
-      program_type: 'Certificate',
-      delivery_format: 'Online',
-      duration_text: '12 Weeks',
-      short_description: 'Prepare learners for entry- and mid-level roles in the construction industry by teaching core skills.'
-    },
-    {
-      id: 'placeholder-6',
-      name: 'Skills: Process Improvement: Data Analysis',
-      school: { name: 'St. Petersburg College', logo_url: '/schools/spc.svg' },
-      program_type: 'Certificate',
-      delivery_format: 'Online',
-      duration_text: '12 Weeks',
-      short_description: 'Build: Process Improvement: Data Analysis'
-    }
-  ]
-
-  const displayPrograms = programs.length > 0 ? programs : placeholderPrograms
+  // No placeholder programs - only show real crosswalk data
+  const displayPrograms = programs
 
   if (loading) {
     return (
@@ -283,11 +226,8 @@ export default function AssessmentResultsPage() {
           <div className="flex items-center px-16 pt-12 pb-8 gap-12">
             {/* Left side - 2/3 width */}
             <div className="flex-1">
-              {/* Status Icon + Headline */}
-              <div className="flex items-center gap-3 mb-5">
-                <div className="p-1.5 bg-[#00A6AE] rounded-full">
-                  <StatusIcon className={`h-4 w-4 text-[#AFECEF]`} />
-                </div>
+              {/* Headline - Icon removed since we have one above the percentage */}
+              <div className="mb-5">
                 <h1 className="text-4xl font-bold text-white font-source-sans-pro">{status.text}</h1>
               </div>
 
