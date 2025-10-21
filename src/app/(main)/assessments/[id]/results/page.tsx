@@ -60,15 +60,19 @@ export default function AssessmentResultsPage() {
       const gapSkills = skillsData?.filter(s => s.score_pct < requiredProficiency).map(s => s.skill_id) || []
       
       if (gapSkills.length > 0) {
-        // User has gaps - show gap-filling programs
+        // User has gaps - show gap-filling programs (real data only)
         const programsData = await getGapFillingPrograms(gapSkills, 10)
         setPrograms(programsData)
         console.log(`Found ${programsData.length} programs addressing ${gapSkills.length} skill gaps (threshold: ${requiredProficiency}%)`)
       } else if (assessmentData.job?.id) {
-        // User is role-ready - show programs for continued growth via CIP-SOC crosswalk
+        // User is role-ready - show programs for continued growth via CIP-SOC crosswalk (real data only)
         const programsData = await getRelatedPrograms(assessmentData.job.id, 10)
         setPrograms(programsData)
         console.log(`User is role-ready - showing ${programsData.length} growth programs via CIP-SOC crosswalk`)
+      } else {
+        // No job data - show empty state
+        setPrograms([])
+        console.log('No job data available - showing empty state')
       }
     } catch (error) {
       console.error('Error loading results:', error)
@@ -366,32 +370,53 @@ export default function AssessmentResultsPage() {
             })()}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayPrograms
-              .filter(program => {
-                // Filter out programs with poor quality data
-                const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
-                const hasDescription = program.short_desc || program.short_description
-                return hasValidName && hasDescription
-              })
-              .map((program) => (
-              <Link key={program.id} href={`/programs/${program.id}`} className="block">
-                <SimpleProgramCard
-                  id={program.id}
-                  name={program.name}
-                  school={{
-                    name: program.school?.name || 'Unknown School',
-                    logo: program.school?.logo_url || undefined
-                  }}
-                  programType={program.program_type || 'Program'}
-                  format={program.format || program.delivery_format || 'On-campus'}
-                  duration={program.duration_text || 'Duration varies'}
-                  description={program.short_desc || program.short_description || ''}
-                  relevanceScore={program.gap_coverage_pct}
-                />
-              </Link>
-            ))}
-          </div>
+          {(() => {
+            const filteredPrograms = displayPrograms.filter(program => {
+              // Filter out programs with poor quality data
+              const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
+              const hasDescription = program.short_desc || program.short_description
+              return hasValidName && hasDescription
+            })
+
+            if (filteredPrograms.length === 0) {
+              // Empty state - no programs available
+              return (
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Programs Available Yet</h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    We're continuously adding new education programs. Check back soon for training opportunities relevant to your career path.
+                  </p>
+                </div>
+              )
+            }
+
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredPrograms.map((program) => (
+                  <Link key={program.id} href={`/programs/${program.id}`} className="block">
+                    <SimpleProgramCard
+                      id={program.id}
+                      name={program.name}
+                      school={{
+                        name: program.school?.name || 'Unknown School',
+                        logo: program.school?.logo_url || undefined
+                      }}
+                      programType={program.program_type || 'Program'}
+                      format={program.format || program.delivery_format || 'On-campus'}
+                      duration={program.duration_text || 'Duration varies'}
+                      description={program.short_desc || program.short_description || ''}
+                      relevanceScore={program.gap_coverage_pct}
+                    />
+                  </Link>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>
