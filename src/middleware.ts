@@ -110,7 +110,8 @@ export const config = {
      * - favicon.ico (favicon file)
      * - app/ (public assets)
      * - assets/ (public assets)
+     * - companies/ (company logos)
      */
-    '/((?!_next/static|_next/image|favicon.ico|app/|assets/).*)',
+    '/((?!_next/static|_next/image|favicon.ico|app/|assets/|companies/).*)',
   ],
 };
