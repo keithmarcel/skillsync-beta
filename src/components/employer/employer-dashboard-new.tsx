@@ -57,11 +57,18 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
 
   useEffect(() => {
     loadDashboardData()
+    
+    // Poll for updates every 30 seconds (without showing loader)
+    const interval = setInterval(() => {
+      loadDashboardData(false)
+    }, 30000)
+    
+    return () => clearInterval(interval)
   }, [company.id])
 
-  async function loadDashboardData() {
+  async function loadDashboardData(showLoader = true) {
     try {
-      setLoading(true)
+      if (showLoader) setLoading(true)
       const [metricsData, activityData] = await Promise.all([
         getDashboardMetrics(company.id),
         getRecentActivity(company.id, 5)
@@ -71,7 +78,7 @@ export function EmployerDashboard({ company }: EmployerDashboardProps) {
     } catch (error) {
       console.error('Error loading dashboard:', error)
     } finally {
-      setLoading(false)
+      if (showLoader) setLoading(false)
     }
   }
 
