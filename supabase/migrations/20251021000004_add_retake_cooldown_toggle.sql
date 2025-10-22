@@ -3,7 +3,12 @@
 
 -- Add boolean field for retake cooldown
 ALTER TABLE jobs 
-ADD COLUMN retake_cooldown_enabled BOOLEAN DEFAULT true;
+ADD COLUMN IF NOT EXISTS retake_cooldown_enabled BOOLEAN DEFAULT true;
+
+-- Update existing rows to have the default value
+UPDATE jobs 
+SET retake_cooldown_enabled = true 
+WHERE retake_cooldown_enabled IS NULL;
 
 -- Add column comment
 COMMENT ON COLUMN jobs.retake_cooldown_enabled IS 
