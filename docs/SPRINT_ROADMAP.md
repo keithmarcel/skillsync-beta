@@ -369,11 +369,14 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 - [ ] **MYASSESS-602**: Display Retake Timer on Cooldown Assessments
 
 **Jobs → Hiring Now → Quiz**
-- [ ] **ASSESS-301**: "What to Expect" and Timeline Block (pre-assessment info)
-- [ ] **ASSESS-301**: Eliminate Resume Upload (use LinkedIn URL only)
-- [ ] **ASSESS-310**: Retake Cooldown (24-hour limit) - backend implementation
-- [ ] **ASSESS-320**: Consent-Aware Prompt on Assessment Completion
-- [ ] **ASSESS-321**: Auto-Share After Consent Enabled
+- [x] **ASSESS-301**: "What to Expect" and Timeline Block ✅ (exists on intro and quiz pages)
+- [x] **ASSESS-301**: Eliminate Resume Upload ✅ (completely purged from codebase - Oct 21)
+- [x] **ASSESS-310**: Retake Cooldown (24-hour limit) ✅ (frontend + backend complete)
+- [x] **ASSESS-320**: Consent-Aware Prompt on Assessment Completion ✅ (dynamic prompt added Oct 21)
+  - Shows different message based on visible_to_employers status
+  - WITH consent: "Results shared with [Company]"
+  - WITHOUT consent: "Share results to receive invitations" + Enable Sharing button
+- [x] **ASSESS-321**: Auto-Share After Consent Enabled ✅ (auto-invite system working)
 
 **Jobs → Hiring Now → Assessment Results**
 - [x] **RESULTS-501**: Readiness Badge and Next Step CTA ✅
@@ -392,8 +395,11 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 
 **Employer Admin → Listed Roles Tab**
 - [ ] **EMPLOYER-601**: Publish/Unpublish Job Toggle
-- [ ] **EMPLOYER-602**: Set Required Proficiency (Role Ready Threshold) - VERIFY COMPLETE
-- [ ] **EMPLOYER-603**: Set Invite Threshold (Auto-Invite Score) - VERIFY COMPLETE
+- [ ] **EMPLOYER-602**: Set Required Proficiency (Role Ready Threshold) - Backend Complete, UI Pending
+- [ ] **EMPLOYER-603**: Set Invite Threshold (Auto-Invite Score) - Backend Complete, UI Pending
+  - Field exists in database and is used by auto-invite system
+  - Role editor page has placeholder UI only
+  - Need to build actual form with input fields
 - [ ] **EMPLOYER-613**: Retake Policy Override per Role (P2)
 
 **Employer Admin → Preferred Programs Tab**
@@ -405,8 +411,13 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 ### 🎓 **PRIORITY 3: Programs & Discovery**
 
 **Jobs → High-Demand Occupations → Occupation Details**
-- [ ] **OCC-402**: Show "Hiring Now" Roles Sharing SOC Code (crosswalk)
-- [ ] **OCC-403**: Surface Relevant Programs via Skill Overlap (crosswalk)
+- [x] **OCC-402**: Show "Hiring Now" Roles Sharing SOC Code ✅ (confirmed Oct 21 via screenshot)
+  - "Local Employers Hiring Now" section exists on HDO pages
+  - Shows featured roles with matching SOC code
+- [x] **OCC-403**: Surface Relevant Programs via CIP-SOC Crosswalk ✅ (confirmed Oct 21 via screenshot)
+  - "Relevant Education & Training Programs" section exists
+  - Uses CIP-SOC crosswalk (not skill overlap due to taxonomy issues)
+  - Shows program cards with match percentage, format, duration
 
 **Programs → Featured Programs**
 - [ ] **PROGRAMS-801**: "Preferred by Company" Badges
