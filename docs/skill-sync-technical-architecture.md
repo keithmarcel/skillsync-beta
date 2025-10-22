@@ -1485,17 +1485,33 @@ if (assessment.readiness_pct >= 80) { // ❌ NEVER DO THIS
 **Logic:** Badges only show when `employer_invitations` record exists for assessment.
 
 #### Retake Cooldown System
-- **24-hour cooldown** after assessment completion
-- Button shows "Retake in Xh" with countdown timer
+- **Per-role cooldown toggle** (EMPLOYER-613 - Oct 21, 2025)
+- Stored in `jobs.retake_cooldown_enabled` (boolean, default: true)
+- When enabled: 24-hour cooldown after assessment completion
+- When disabled: Unlimited retakes allowed
+- Button shows "Retake in Xh" with countdown timer when on cooldown
 - Tooltip explains cooldown purpose
 - Role Ready assessments show "View Invites" instead of retake
 - Prevents assessment spam and ensures thoughtful attempts
 
 **Implementation:**
 ```typescript
+// Fetch cooldown setting from role
+const cooldownEnabled = assessment.job?.retake_cooldown_enabled ?? true
+
+// Calculate cooldown
 const hoursSinceAnalysis = (now.getTime() - analyzedAt.getTime()) / (1000 * 60 * 60)
 const hoursRemaining = Math.max(0, 24 - hoursSinceAnalysis)
-const isOnCooldown = hoursRemaining > 0
+
+// Only enforce if enabled for this role
+const isOnCooldown = cooldownEnabled && hoursRemaining > 0
+```
+
+**Database:**
+```sql
+-- Migration: 20251021000004_add_retake_cooldown_toggle.sql
+ALTER TABLE jobs 
+ADD COLUMN retake_cooldown_enabled BOOLEAN DEFAULT true;
 ```
 
 #### Program Matching
@@ -3308,6 +3324,24 @@ Complete employer dashboard with real-time metrics, pipeline visualization, and 
 - Actions: Edit, View Live, Publish/Unpublish, Delete
 - Search/Sort/Filter functionality
 - Role limit enforcement (10 max)
+
+**Role Editor** (`/employer/roles/[id]/edit`):
+- Wraps admin role editor with employer context
+- **Basic Information Tab** (EMPLOYER-601, 602, 603, 613 - Oct 21, 2025):
+  - Required Proficiency Score (%) - `jobs.required_proficiency_pct` (0-100, default: 90)
+    - Determines "Role Ready" status threshold
+    - Used in assessment status_tag calculation
+  - Employer Visibility Threshold (%) - `jobs.visibility_threshold_pct` (0-100, default: 85)
+    - Determines when candidates appear in employer dashboard
+    - Used by auto-invite system
+    - UI validation: must be ≤ required_proficiency_pct
+  - Retake Cooldown - `jobs.retake_cooldown_enabled` (boolean, default: true)
+    - Controls 24-hour assessment retake cooldown
+    - When disabled: unlimited retakes allowed
+  - Publish/Unpublish Toggle - `jobs.is_published` (boolean)
+    - Confirmation dialog on state change
+    - Unpublishing removes from user favorites
+- All fields validated and tested (see test-role-proficiency-fields.ts)
 
 **Invites Table** (`/src/components/employer/employer-invites-table-v2.tsx`):
 - Active/Archived sub-tabs

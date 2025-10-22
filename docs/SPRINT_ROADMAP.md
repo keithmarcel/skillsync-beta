@@ -394,13 +394,27 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 ### 🏢 **PRIORITY 2: Employer Portal Features**
 
 **Employer Admin → Listed Roles Tab**
-- [ ] **EMPLOYER-601**: Publish/Unpublish Job Toggle
-- [ ] **EMPLOYER-602**: Set Required Proficiency (Role Ready Threshold) - Backend Complete, UI Pending
-- [ ] **EMPLOYER-603**: Set Invite Threshold (Auto-Invite Score) - Backend Complete, UI Pending
-  - Field exists in database and is used by auto-invite system
-  - Role editor page has placeholder UI only
-  - Need to build actual form with input fields
-- [ ] **EMPLOYER-613**: Retake Policy Override per Role (P2)
+- [x] **EMPLOYER-601**: Publish/Unpublish Job Toggle ✅ (Oct 21, 2025)
+  - Toggle in employer roles table with confirmation dialog
+  - Updates `is_published` field
+  - Verified via comprehensive tests
+- [x] **EMPLOYER-602**: Set Required Proficiency (Role Ready Threshold) ✅ (Oct 21, 2025)
+  - Field in Role Editor → Basic Information tab
+  - Stored in `jobs.required_proficiency_pct`
+  - Used for "Role Ready" status calculation
+  - Validated: 0-100 range, decimals supported
+- [x] **EMPLOYER-603**: Set Invite Threshold (Auto-Invite Score) ✅ (Oct 21, 2025)
+  - Field in Role Editor → Basic Information tab
+  - Stored in `jobs.visibility_threshold_pct`
+  - Used by auto-invite system for candidate pool
+  - UI validation: threshold ≤ required proficiency
+  - Validated: 0-100 range, decimals supported
+- [x] **EMPLOYER-613**: Retake Cooldown Toggle ✅ (Oct 21, 2025)
+  - Boolean toggle in Role Editor → Basic Information tab
+  - Stored in `jobs.retake_cooldown_enabled` (default: true)
+  - Controls 24-hour retake cooldown per role
+  - Integrated with My Assessments page
+  - Migration: 20251021000004_add_retake_cooldown_toggle.sql
 
 **Employer Admin → Preferred Programs Tab**
 - [ ] **EMPLOYER-631**: "Preferred Programs" Tab Table
