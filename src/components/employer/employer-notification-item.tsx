@@ -101,7 +101,7 @@ export function EmployerNotificationItem({ notification, onClick }: EmployerNoti
 
   return (
     <div 
-      className="bg-white border border-[#E5E7EB] rounded-lg p-4 w-full hover:bg-gray-50 transition-colors cursor-pointer"
+      className="bg-white border border-[#E5E7EB] rounded-lg p-4 w-full"
       onClick={onClick}
       data-testid="employer-notification-item"
     >

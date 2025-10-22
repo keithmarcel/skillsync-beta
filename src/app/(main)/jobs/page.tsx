@@ -485,9 +485,6 @@ export default function JobsPage() {
                           case 'details':
                             window.location.href = `/jobs/${row.id}`
                             break
-                          case 'resume':
-                            window.location.href = `/assessments/resume/${row.id}`
-                            break
                           case 'assessment':
                             window.location.href = `/assessments/${row.id}/intro`
                             break
@@ -578,9 +575,6 @@ export default function JobsPage() {
                   switch (action) {
                     case 'details':
                       window.location.href = `/jobs/${row.id}`
-                      break
-                    case 'resume':
-                      console.log('Upload resume for:', row.id)
                       break
                     case 'assessment':
                       console.log('Take assessment for:', row.id)

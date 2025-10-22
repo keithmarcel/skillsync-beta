@@ -456,9 +456,6 @@ export default function DataTable({
                               {tableType === 'jobs' && (
                                 <>
                                   <DropdownMenuSeparator />
-                                  <DropdownMenuItem onClick={() => onRowAction?.('resume', row)}>
-                                    Upload Your Resume
-                                  </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => onRowAction?.('assessment', row)}>
                                     Take a Skills Assessment
                                   </DropdownMenuItem>
