@@ -453,7 +453,7 @@ export default function DataTable({
                                   {getTertiaryActionLabel(tableType)}
                                 </DropdownMenuItem>
                               )}
-                              {tableType === 'jobs' && (
+                              {tableType === 'jobs' && row.job_kind === 'featured_role' && (
                                 <>
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem onClick={() => onRowAction?.('assessment', row)}>
