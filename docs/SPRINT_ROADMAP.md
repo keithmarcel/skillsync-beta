@@ -480,6 +480,11 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 
 **System → Cleanup / Demo Prep**
 - [x] **DEMO-101**: Remove Legacy Occupation Assessment Entrypoints ✅ (Oct 21)
+- [x] **UNLOGGED**: Remove badge hover states on employer notifications ✅ (Oct 21)
+- [x] **UNLOGGED**: Portal isolation - prevent employer/provider access to job seeker routes ✅ (Oct 21)
+- [x] **UNLOGGED**: Diamond loader consistency across all employer tabs ✅ (Oct 21)
+- [x] **UNLOGGED**: Company logos middleware exclusion fix ✅ (Oct 21)
+- [x] **UNLOGGED**: Middleware performance optimization (single DB call) ✅ (Oct 21)
 - [ ] **DEMO-102**: Microcopy Alignment Across UI
 - [ ] **DEMO-102**: Clean up page loading, login loading, speed
 - [ ] **DEMO-103**: Global stylesheet to manage plus documentation
