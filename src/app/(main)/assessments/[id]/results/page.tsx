@@ -368,7 +368,7 @@ export default function AssessmentResultsPage() {
                         </>
                       ) : (
                         <>
-                          You've shown <span className="font-semibold">high proficiency</span>. Share your results to receive employer invitations.
+                          You've shown <span className="font-semibold">high proficiency</span>. Enable Invites to share your results and receive invitations to apply from employers.
                         </>
                       )
                     ) : (
@@ -475,7 +475,7 @@ export default function AssessmentResultsPage() {
           {(() => {
             const requiredProficiency = assessment?.job?.required_proficiency_pct || 75
             const gapCount = skillResults.filter(s => s.score_pct < requiredProficiency).length
-            const isRoleReady = gapCount === 0
+            const isRoleReady = readiness >= requiredProficiency
             
             const filteredPrograms = displayPrograms.filter(program => {
               const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')
