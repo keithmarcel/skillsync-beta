@@ -62,30 +62,29 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 6. Protect admin routes - verify admin role
-  if (user && adminRoutes.some(r => pathname.startsWith(r))) {
-    const { data: profile } = await supabase
+  // 6. Check user role once for both admin and portal routing
+  let profile = null;
+  if (user && (adminRoutes.some(r => pathname.startsWith(r)) || (!pathname.startsWith('/employer') && !pathname.startsWith('/provider') && !pathname.startsWith('/admin') && !authRoutes.includes(pathname)))) {
+    const { data } = await supabase
       .from('profiles')
-      .select('admin_role')
+      .select('role, admin_role')
       .eq('id', user.id)
       .single();
+    profile = data;
+  }
 
+  // 7. Protect admin routes - verify admin role
+  if (user && adminRoutes.some(r => pathname.startsWith(r))) {
     if (!profile?.admin_role) {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
 
-  // 7. Prevent employers/providers from accessing main app (job seeker routes)
-  if (user && !pathname.startsWith('/employer') && !pathname.startsWith('/provider') && !pathname.startsWith('/admin') && !authRoutes.includes(pathname)) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, admin_role')
-      .eq('id', user.id)
-      .single();
-
-    const isEmployerAdmin = profile?.role === 'employer_admin' || profile?.admin_role === 'company_admin';
-    const isProviderAdmin = profile?.role === 'provider_admin' || profile?.admin_role === 'provider_admin';
-    const isSuperAdmin = profile?.admin_role === 'super_admin';
+  // 8. Prevent employers/providers from accessing main app (job seeker routes)
+  if (user && profile && !pathname.startsWith('/employer') && !pathname.startsWith('/provider') && !pathname.startsWith('/admin') && !authRoutes.includes(pathname)) {
+    const isEmployerAdmin = profile.role === 'employer_admin' || profile.admin_role === 'company_admin';
+    const isProviderAdmin = profile.role === 'provider_admin' || profile.admin_role === 'provider_admin';
+    const isSuperAdmin = profile.admin_role === 'super_admin';
 
     // Redirect employers to employer dashboard (except super admins)
     if (isEmployerAdmin && !isSuperAdmin) {
