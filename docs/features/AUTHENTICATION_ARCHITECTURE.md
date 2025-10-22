@@ -111,6 +111,8 @@ Dark-themed alert (#101929) shown when user tries to sign in at wrong portal:
 4. Redirect authenticated users from main auth routes to home
 5. Redirect authenticated users from portal auth routes to their dashboard
 6. Protect admin routes with role verification
+7. **Portal Isolation:** Prevent employers/providers from accessing job seeker routes
+8. **URL Manipulation Protection:** Redirect to correct portal even if user removes /employer or /provider from URL
 
 **Portal-Specific Redirects:**
 ```typescript
@@ -122,6 +124,18 @@ Dark-themed alert (#101929) shown when user tries to sign in at wrong portal:
 // Authenticated on portal auth page
 /employer/auth/signin → /employer (if authenticated)
 /provider/auth/signin → /provider (if authenticated)
+
+// Portal Isolation (Oct 21, 2025)
+// Employer tries to access job seeker routes
+/ → /employer (if employer_admin)
+/jobs → /employer (if employer_admin)
+/programs → /employer (if employer_admin)
+
+// Provider tries to access job seeker routes  
+/ → /provider (if provider_admin)
+/jobs → /provider (if provider_admin)
+
+// Super admins can access all portals
 ```
 
 ### 5. Auth Layout Wrapper
