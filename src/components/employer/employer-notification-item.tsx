@@ -32,7 +32,7 @@ export function EmployerNotificationItem({ notification, onClick }: EmployerNoti
   const getStatusBadge = () => {
     if (isViewedNotification) {
       return (
-        <Badge className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 border border-blue-200 flex-shrink-0 shadow-none h-[31px] px-4 text-[11px] font-medium leading-[150%]">
+        <Badge className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 border border-blue-200 flex-shrink-0 shadow-none h-[31px] px-4 text-[11px] font-medium leading-[150%] hover:bg-blue-100 transition-none">
           <Check className="w-3.5 h-3.5" />
           Viewed
         </Badge>
@@ -42,21 +42,21 @@ export function EmployerNotificationItem({ notification, onClick }: EmployerNoti
     switch (notification.status) {
       case 'applied':
         return (
-          <Badge className="inline-flex items-center gap-1.5 bg-teal-100 text-teal-800 border border-teal-200 flex-shrink-0 shadow-none h-[31px] px-4 text-[11px] font-medium leading-[150%]">
+          <Badge className="inline-flex items-center gap-1.5 bg-teal-100 text-teal-800 border border-teal-200 flex-shrink-0 shadow-none h-[31px] px-4 text-[11px] font-medium leading-[150%] hover:bg-teal-100 transition-none">
             <Check className="w-3.5 h-3.5" />
             Applied
           </Badge>
         )
       case 'hired':
         return (
-          <Badge className="inline-flex items-center gap-1.5 bg-green-100 text-green-800 border border-green-200 flex-shrink-0 shadow-none h-[31px] px-4 text-[11px] font-medium leading-[150%]">
+          <Badge className="inline-flex items-center gap-1.5 bg-green-100 text-green-800 border border-green-200 flex-shrink-0 shadow-none h-[31px] px-4 text-[11px] font-medium leading-[150%] hover:bg-green-100 transition-none">
             <Check className="w-3.5 h-3.5" />
             Hired
           </Badge>
         )
       case 'declined':
         return (
-          <Badge className="inline-flex items-center gap-1.5 bg-red-100 text-red-800 border border-red-200 flex-shrink-0 shadow-none h-[31px] px-4 text-[11px] font-medium leading-[150%]">
+          <Badge className="inline-flex items-center gap-1.5 bg-red-100 text-red-800 border border-red-200 flex-shrink-0 shadow-none h-[31px] px-4 text-[11px] font-medium leading-[150%] hover:bg-red-100 transition-none">
             <X className="w-3.5 h-3.5" />
             Declined
           </Badge>
