@@ -1138,6 +1138,21 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
     console.log('📦 Form data:', updatedData);
     console.log('🎨 Local changes:', localChanges);
     
+    // Validate visibility_threshold_pct <= required_proficiency_pct
+    const requiredProf = updatedData.required_proficiency_pct ?? role?.required_proficiency_pct;
+    const visibilityThreshold = updatedData.visibility_threshold_pct ?? role?.visibility_threshold_pct;
+    
+    if (requiredProf !== null && requiredProf !== undefined && 
+        visibilityThreshold !== null && visibilityThreshold !== undefined &&
+        visibilityThreshold > requiredProf) {
+      toast({
+        title: 'Validation Error',
+        description: 'Employer Visibility Threshold cannot be higher than Required Proficiency Score. Users must be "Role Ready" before appearing in employer dashboards.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     // Merge local changes (from card editors) with form data
     const dataToSave = {
       ...updatedData,
