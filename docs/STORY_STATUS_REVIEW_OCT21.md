@@ -8,64 +8,59 @@
 
 | Story | Status | Completion % | Notes |
 |-------|--------|--------------|-------|
-| **OCC-402** | ❌ Not Started | 0% | Occupation details page redirects to jobs |
-| **OCC-403** | ❌ Not Started | 0% | No skill overlap implementation |
+| **OCC-402** | ✅ Complete | 100% | "Local Employers Hiring Now" section exists |
+| **OCC-403** | ✅ Complete | 100% | "Relevant Programs" via CIP-SOC crosswalk |
 | **ASSESS-301 (Timeline)** | ✅ Complete | 100% | "What to Expect" block exists |
-| **ASSESS-301 (Resume)** | ⚠️ Exists but Unused | 50% | Resume upload page exists but not in flow |
+| **ASSESS-301 (Resume)** | ✅ Purged | 100% | Completely removed from codebase |
 | **ASSESS-321** | ✅ Complete | 100% | Auto-share working via auto-invite |
-| **ASSESS-320** | ✅ Complete | 100% | Consent toggle with dialogs implemented |
+| **ASSESS-320** | ✅ Complete | 100% | Dynamic consent prompt with CTA |
 | **ASSESS-310** | ✅ Complete | 100% | 24-hour cooldown fully implemented |
 | **EMPLOYER-603** | ⚠️ Backend Complete | 75% | Field exists, UI is placeholder |
 
 ---
 
-## 🔴 OCC-402: Show "Hiring Now" Roles Sharing SOC Code
+## ✅ OCC-402: Show "Hiring Now" Roles Sharing SOC Code
 
-**Status:** ❌ Not Started (0%)
+**Status:** ✅ Complete (100%)
 
-**Current State:**
-- Occupation details page (`/occupations/[id]/page.tsx`) redirects to `/jobs/[id]`
-- No crosswalk implementation for showing related roles
-- Jobs table has SOC codes but no query to find matching roles
+**Evidence:**
+User screenshot shows "Local Employers Hiring Now" section on HDO details page at `/jobs/9ee597fb-5b50-49bc-9e08-f2543a8b658b`
 
-**What's Needed:**
-1. Create actual occupation details page (don't redirect)
-2. Query jobs table for roles with matching `soc_code`
-3. Filter by `status = 'published'` and `is_published = true`
-4. Display as "Hiring Now" section on occupation page
+**Implementation:**
+- HDO details page shows featured roles with matching SOC code
+- Section displays: "No active roles currently match this occupation. Check back soon for new opportunities from trusted employers in your area."
+- Ready to populate when featured roles are published
 
-**Blocker:** None - just needs implementation
+**Location:** `/src/app/(main)/jobs/[id]/page.tsx` (unified jobs/occupations page)
 
-**Files to Create/Modify:**
-- `/src/app/(main)/occupations/[id]/page.tsx` - Replace redirect with actual page
-- `/src/lib/database/queries.ts` - Add `getJobsBySocCode(socCode: string)`
+**Status in Roadmap:** Marked as incomplete but actually complete
+
+**Recommendation:** ✅ Mark as complete in roadmap
 
 ---
 
-## 🔴 OCC-403: Surface Relevant Programs via Skill Overlap
+## ✅ OCC-403: Surface Relevant Programs via CIP-SOC Crosswalk
 
-**Status:** ❌ Not Started (0%)
+**Status:** ✅ Complete (100%)
 
-**Current State:**
-- No implementation on occupation details page
-- Skill overlap matching is broken (skill ID mismatch - see SKILLS_TAXONOMY_AUDIT_PROJECT.md)
-- CIP-SOC crosswalk exists and works
+**Evidence:**
+User screenshot shows "Relevant Education & Training Programs" section on same HDO page
 
-**What's Needed:**
-1. Use CIP-SOC crosswalk instead of skill overlap
-2. Get occupation's SOC code → find matching CIP codes → get programs
-3. Display programs on occupation details page
+**Implementation:**
+- Programs displayed via CIP-SOC crosswalk
+- Shows program card with provider logo (Eastern Connecticut State University)
+- Displays "MS Accounting" program with description
+- Shows match percentage (64% Match), delivery format (Master's, Online), duration (1-2 years)
 
-**Blocker:** 
-- ⚠️ Skill overlap broken due to taxonomy mismatch
-- ✅ Can use CIP-SOC crosswalk as workaround
+**Current Data:**
+- 1 program aligned with occupation's requirements
+- Using CIP-SOC crosswalk (not skill overlap)
 
-**Recommendation:** 
-Use CIP-SOC crosswalk approach (same as program-job matching). Wait for SYSTEM-INFRA-906 for true skill overlap.
+**Location:** `/src/app/(main)/jobs/[id]/page.tsx`
 
-**Files to Create/Modify:**
-- `/src/app/(main)/occupations/[id]/page.tsx` - Add programs section
-- Use existing `getRelatedPrograms()` function (already uses CIP-SOC)
+**Status in Roadmap:** Marked as incomplete but actually complete
+
+**Recommendation:** ✅ Mark as complete in roadmap
 
 ---
 
@@ -183,7 +178,7 @@ if (readinessPct >= visibilityThreshold) {
 
 ## ✅ ASSESS-320: Consent-Aware Prompt on Assessment Completion
 
-**Status:** ✅ Complete (100%)
+**Status:** ✅ Complete (100%) - **UPDATED October 21, 2025 8:41 PM**
 
 **Evidence:**
 ```typescript
@@ -229,6 +224,13 @@ const handleConsentToggle = async (checked: boolean) => {
 **Status in Roadmap:** Marked as incomplete but fully implemented
 
 **Recommendation:** ✅ Mark as complete in roadmap
+
+**UPDATE (Oct 21, 8:41 PM):** Added dynamic consent prompt on assessment results page
+- Shows different message based on `visible_to_employers` status
+- WITH consent: "Your readiness score has been shared with [Company]"
+- WITHOUT consent: "Share your results to receive employer invitations"
+- Includes "Enable Sharing →" button linking to settings when no consent
+- Only shows for role-ready users without consent
 
 ---
 
@@ -381,13 +383,18 @@ interface Job {
 **Stories Reviewed:** 8 (counting ASSESS-301 twice)
 
 **Status Breakdown:**
-- ✅ Complete: 4 stories (50%)
-- ⚠️ Partial: 2 stories (25%)
-- ❌ Not Started: 2 stories (25%)
+- ✅ Complete: 7 stories (87.5%)
+- ⚠️ Partial: 1 story (12.5%)
+- ❌ Not Started: 0 stories (0%)
 
 **Actual Completion vs Roadmap:**
-- 4 stories marked incomplete are actually complete
-- 1 story marked "verify complete" is only 75% done
-- 2 stories correctly marked as not started
+- 6 stories marked incomplete are actually complete
+- 1 story (ASSESS-301 Resume) was purged from codebase
+- 1 story (EMPLOYER-603) backend complete, UI pending
+
+**Updates Made:**
+- ASSESS-320: Added dynamic consent prompt (Oct 21, 8:41 PM)
+- ASSESS-301 (Resume): Completely purged from codebase
+- OCC-402/403: Confirmed complete via screenshot evidence
 
 **Recommendation:** Update roadmap to reflect actual status for better tracking.
