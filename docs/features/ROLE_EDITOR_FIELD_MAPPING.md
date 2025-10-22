@@ -42,7 +42,10 @@
 | `growth_rate_percent` | numeric | BLS | ❌ | ❌ | ❌ | Growth rate % |
 | **SKILLS & ASSESSMENTS** |
 | `skills_count` | integer | Computed | ❌ | ✅ | ✅ | Number of skills |
-| `required_proficiency_pct` | numeric | Manual | ❌ | ✅ | ✅ | Required assessment score |
+| `required_proficiency_pct` | numeric | Manual | ✅ | ✅ | ✅ | Required assessment score (EMPLOYER-602) |
+| `visibility_threshold_pct` | numeric | Manual | ✅ | ❌ | ❌ | Auto-invite threshold (EMPLOYER-603) |
+| `retake_cooldown_enabled` | boolean | Manual | ✅ | ❌ | ❌ | 24h cooldown toggle (EMPLOYER-613) |
+| `is_published` | boolean | Manual | ✅ | ✅ | ❌ | Publish/unpublish (EMPLOYER-601) |
 | **O*NET ENRICHMENT** |
 | `onet_code` | text | O*NET | ❌ | ❌ | ❌ | O*NET code |
 | `bright_outlook` | text | O*NET | ❌ | ❌ | ❌ | Bright outlook flag |
