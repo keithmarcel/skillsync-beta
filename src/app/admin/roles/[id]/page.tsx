@@ -402,7 +402,8 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
           type: EntityFieldType.SWITCH,
           required: false,
           defaultValue: true,
-          description: 'When enabled, candidates must wait 24 hours before retaking this assessment'
+          description: 'Enforce 24-hour waiting period between assessment retakes',
+          helpText: 'When enabled, candidates must wait 24 hours before retaking this assessment'
         },
         {
           key: 'application_url',
