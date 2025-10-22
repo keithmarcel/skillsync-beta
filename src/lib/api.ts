@@ -120,28 +120,6 @@ export async function getUserAssessments() {
   return data
 }
 
-// Skills extraction via Edge Function
-export async function extractResumeSkills(assessmentId: string, text: string, jobId?: string) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/llm_extract_skills`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`
-    },
-    body: JSON.stringify({
-      assessment_id: assessmentId,
-      resume_text: text,
-      job_id: jobId
-    })
-  })
-
-  if (!response.ok) {
-    throw new Error('Failed to extract skills from resume')
-  }
-
-  return response.json()
-}
-
 // Readiness summary via Edge Function
 export async function summarizeReadiness(assessmentId: string) {
   const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/llm_readiness_summary`, {

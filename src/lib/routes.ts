@@ -5,7 +5,6 @@ export const routes = {
   programs: '/programs',
   program: (id: string) => `/programs/${id}`,
   assessment: (id: string) => `/assessments/${id}`,
-  resumeAssessment: (jobId: string) => `/assessments/resume/${jobId}`,
   quizAssessment: (jobId: string) => `/assessments/quiz/${jobId}`,
   programMatches: (assessmentId: string) => `/program-matches/${assessmentId}`,
   myAssessments: '/my-assessments',

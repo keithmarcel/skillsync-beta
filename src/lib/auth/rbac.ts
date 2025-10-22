@@ -55,7 +55,6 @@ export const PERMISSIONS = {
     'manage_own_profile',
     'manage_own_favorites',
     'manage_own_assessments',
-    'upload_resume',
     'take_skills_assessment',
   ],
 } as const

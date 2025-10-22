@@ -11,7 +11,7 @@ const mockAssessment = {
   job: { title: 'Senior Software Developer', job_kind: 'featured_role' },
   readiness_pct: 85,
   status_tag: 'role_ready',
-  method: 'resume',
+  method: 'quiz',
   analyzed_at: '2024-01-15T10:30:00Z',
   assessment_skill_results: [
     { skills: { name: 'JavaScript', category: 'Programming' }, score_pct: 92, band: 'proficient' },
@@ -179,7 +179,7 @@ export default function AssessmentReportPage({ params }: { params: { id: string 
               <div className="flex justify-between">
                 <span className="text-gray-600">Method:</span>
                 <Badge variant="outline">
-                  {assessment.method === 'resume' ? '📄 Resume Analysis' : '📝 Quiz'}
+                  📝 Quiz
                 </Badge>
               </div>
               <div className="flex justify-between">
