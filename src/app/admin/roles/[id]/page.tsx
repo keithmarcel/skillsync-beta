@@ -158,6 +158,7 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
     growth_rate_percent: null,
     required_proficiency_pct: 90,
     visibility_threshold_pct: 85,
+    retake_cooldown_enabled: true as any, // Added by migration 20251021000004
     application_url: null,
     is_published: false,
     // O*NET enrichment fields
@@ -392,6 +393,21 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Candidates at or above this score appear in your candidate pool (default: 85%)
+            </span>
+          )
+        },
+        {
+          key: 'retake_cooldown_enabled',
+          label: 'Retake Cooldown',
+          type: EntityFieldType.SWITCH,
+          required: false,
+          description: 'Enforce 24-hour waiting period between assessment retakes',
+          helpText: (
+            <span className="flex items-center gap-1.5 text-xs text-gray-600">
+              <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              When enabled, candidates must wait 24 hours before retaking this assessment (default: enabled)
             </span>
           )
         },

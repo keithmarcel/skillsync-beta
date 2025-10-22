@@ -72,7 +72,7 @@ export default function MyAssessmentsPage() {
         .from('assessments')
         .select(`
           *,
-          job:jobs!inner(id, title, soc_code, job_kind, required_proficiency_pct, company:companies(name)),
+          job:jobs!inner(id, title, soc_code, job_kind, required_proficiency_pct, retake_cooldown_enabled, company:companies(name)),
           skill_results:assessment_skill_results(band),
           invitation:employer_invitations(status)
         `)
@@ -247,12 +247,13 @@ export default function MyAssessmentsPage() {
                 const skillsGaps = assessment.skill_results?.filter(sr => sr.band === 'developing' || sr.band === 'building').length || 0
                 const totalSkills = assessment.skill_results?.length || 0
                 
-                // Cooldown logic
+                // Cooldown logic - check if role has cooldown enabled
+                const cooldownEnabled = (assessment.job as any)?.retake_cooldown_enabled ?? true // Default to enabled
                 const analyzedAt = new Date(assessment.analyzed_at || assessment.created_at)
                 const now = new Date()
                 const hoursSinceAnalysis = (now.getTime() - analyzedAt.getTime()) / (1000 * 60 * 60)
                 const hoursRemaining = Math.max(0, 24 - hoursSinceAnalysis)
-                const isOnCooldown = hoursRemaining > 0
+                const isOnCooldown = cooldownEnabled && hoursRemaining > 0 // Only apply cooldown if enabled
                 const isRoleReady = assessment.status_tag === 'role_ready'
                 
                 return (
