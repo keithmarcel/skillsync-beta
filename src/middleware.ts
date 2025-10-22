@@ -75,6 +75,29 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // 7. Prevent employers/providers from accessing main app (job seeker routes)
+  if (user && !pathname.startsWith('/employer') && !pathname.startsWith('/provider') && !pathname.startsWith('/admin') && !authRoutes.includes(pathname)) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, admin_role')
+      .eq('id', user.id)
+      .single();
+
+    const isEmployerAdmin = profile?.role === 'employer_admin' || profile?.admin_role === 'company_admin';
+    const isProviderAdmin = profile?.role === 'provider_admin' || profile?.admin_role === 'provider_admin';
+    const isSuperAdmin = profile?.admin_role === 'super_admin';
+
+    // Redirect employers to employer dashboard (except super admins)
+    if (isEmployerAdmin && !isSuperAdmin) {
+      return NextResponse.redirect(new URL('/employer', request.url));
+    }
+
+    // Redirect providers to provider dashboard (except super admins)
+    if (isProviderAdmin && !isSuperAdmin) {
+      return NextResponse.redirect(new URL('/provider', request.url));
+    }
+  }
+
   // Allow request to proceed
   return response;
 }
