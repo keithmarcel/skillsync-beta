@@ -368,7 +368,7 @@ export default function AssessmentResultsPage() {
                         </>
                       ) : (
                         <>
-                          You've shown <span className="font-semibold">high proficiency</span>. Enable Invites to share your results and receive invitations to apply from employers.
+                          <span className="font-semibold">Enable Sharing</span> to send your assessment results to employers and receive invitations to apply.
                         </>
                       )
                     ) : (
@@ -386,7 +386,7 @@ export default function AssessmentResultsPage() {
                       {isRoleReady ? 'View Upskilling Programs →' : 'View Your Program Matches →'}
                     </Button>
                   ) : isRoleReady && !userConsent ? (
-                    <Link href="/settings?tab=profile">
+                    <Link href="/account-settings?tab=profile">
                       <Button 
                         variant="outline" 
                         className="bg-transparent border-[#AFECEF] text-[#AFECEF] hover:bg-white/10 text-sm whitespace-nowrap ml-4"
