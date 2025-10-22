@@ -158,6 +158,8 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
     growth_rate_percent: null,
     required_proficiency_pct: 90,
     visibility_threshold_pct: 85,
+    retake_cooldown_enabled: true as any, // Added by migration 20251021000004
+    application_url: null,
     is_published: false,
     // O*NET enrichment fields
     core_responsibilities: null,
@@ -393,6 +395,31 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
               Candidates at or above this score appear in your candidate pool (default: 85%)
             </span>
           )
+        },
+        {
+          key: 'retake_cooldown_enabled',
+          label: 'Retake Cooldown',
+          type: EntityFieldType.SWITCH,
+          required: false,
+          defaultValue: true,
+          description: 'Enforce 24-hour waiting period between assessment retakes',
+          helpText: (
+            <span className="flex items-center gap-1.5 text-xs text-gray-600">
+              <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              When enabled, candidates must wait 24 hours before retaking this assessment
+            </span>
+          )
+        },
+        {
+          key: 'application_url',
+          label: 'Application URL',
+          type: EntityFieldType.TEXT,
+          required: true,
+          placeholder: 'e.g., https://company.com/careers/apply/job-id',
+          description: 'URL where candidates apply when they click "View Application" button',
+          helpText: 'This URL is sent to qualified candidates in their invitations'
         },
         {
           key: 'featured_image_url',
@@ -1127,6 +1154,21 @@ export default function RoleDetailPage({ params, context = 'admin', companyId }:
     console.log('💾 Save triggered');
     console.log('📦 Form data:', updatedData);
     console.log('🎨 Local changes:', localChanges);
+    
+    // Validate visibility_threshold_pct <= required_proficiency_pct
+    const requiredProf = updatedData.required_proficiency_pct ?? role?.required_proficiency_pct;
+    const visibilityThreshold = updatedData.visibility_threshold_pct ?? role?.visibility_threshold_pct;
+    
+    if (requiredProf !== null && requiredProf !== undefined && 
+        visibilityThreshold !== null && visibilityThreshold !== undefined &&
+        visibilityThreshold > requiredProf) {
+      toast({
+        title: 'Validation Error',
+        description: 'Employer Visibility Threshold cannot be higher than Required Proficiency Score. Users must be "Role Ready" before appearing in employer dashboards.',
+        variant: 'destructive'
+      });
+      return;
+    }
     
     // Merge local changes (from card editors) with form data
     const dataToSave = {

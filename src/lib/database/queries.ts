@@ -24,6 +24,7 @@ export interface Job {
   job_openings_annual: number | null;
   growth_rate_percent: number | null;
   required_proficiency_pct: number | null;
+  application_url: string | null;
   // AI-generated content fields
   core_responsibilities: string[] | null;
   related_job_titles: string[] | null;
@@ -507,7 +508,11 @@ export async function getFeaturedPrograms(): Promise<Program[]> {
     .from('programs')
     .select(`
       *,
-      school:schools!inner(*)
+      school:schools!inner(*),
+      skills:program_skills(
+        weight,
+        skill:skills!program_skills_skill_id_fkey(*)
+      )
     `)
     .eq('is_featured', true)
     .eq('status', 'published')
@@ -524,11 +529,15 @@ export async function getFeaturedPrograms(): Promise<Program[]> {
 }
 
 export async function getAllPrograms(): Promise<Program[]> {
-  const { data, error } = await supabase
+  const { data, error} = await supabase
     .from('programs')
     .select(`
       *,
-      school:schools!inner(*)
+      school:schools!inner(*),
+      skills:program_skills(
+        weight,
+        skill:skills!program_skills_skill_id_fkey(*)
+      )
     `)
     .eq('status', 'published')
     .eq('school.is_published', true)
@@ -836,99 +845,99 @@ export async function getProgramSkills(programId: string): Promise<ProgramSkill[
   return data || []
 }
 
-// Get count of jobs that share skills with a program
+// Get count of jobs that match a program via CIP-SOC crosswalk
 export async function getRelatedJobsCountForProgram(programId: string): Promise<number> {
   try {
-    // First, get the program's skills
-    const { data: programSkills, error: skillsError } = await supabase
-      .from('program_skills')
-      .select('skill_id')
-      .eq('program_id', programId)
+    // 1. Get program details to get CIP code
+    const { data: program, error: programError } = await supabase
+      .from('programs')
+      .select('cip_code')
+      .eq('id', programId)
+      .single()
 
-    if (skillsError || !programSkills || programSkills.length === 0) {
+    if (programError || !program?.cip_code) {
       return 0
     }
 
-    const skillIds = programSkills.map(ps => ps.skill_id)
+    // 2. Get SOC codes that match this CIP code via crosswalk
+    const { data: socMatches, error: socError } = await supabase
+      .from('cip_soc_crosswalk')
+      .select('soc_code')
+      .eq('cip_code', program.cip_code)
 
-    // Then, find unique jobs that have those skills
-    const { data: jobSkills, error: jobSkillsError } = await supabase
-      .from('job_skills')
-      .select('job_id')
-      .in('skill_id', skillIds)
-
-    if (jobSkillsError || !jobSkills) {
+    if (socError || !socMatches || socMatches.length === 0) {
       return 0
     }
 
-    // Count unique jobs
-    const uniqueJobIds = new Set(jobSkills.map(js => js.job_id))
-    return uniqueJobIds.size
+    const socCodes = socMatches.map(m => m.soc_code)
+
+    // 3. Count jobs with matching SOC codes
+    const { count, error: jobsError } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .in('soc_code', socCodes)
+      .eq('status', 'published')
+
+    if (jobsError) {
+      return 0
+    }
+
+    return count || 0
   } catch (error) {
     console.error('Error counting related jobs:', error)
     return 0
   }
 }
 
-// Get jobs that share skills with a program
+// Get jobs that match a program via CIP-SOC crosswalk
 export async function getRelatedJobsForProgram(programId: string): Promise<Job[]> {
   try {
-    // First, get the program's skills
-    const { data: programSkills, error: skillsError } = await supabase
-      .from('program_skills')
-      .select('skill_id')
-      .eq('program_id', programId)
+    // 1. Get program details to get CIP code
+    const { data: program, error: programError } = await supabase
+      .from('programs')
+      .select('cip_code')
+      .eq('id', programId)
+      .single()
 
-    if (skillsError || !programSkills || programSkills.length === 0) {
+    if (programError || !program?.cip_code) {
       return []
     }
 
-    const skillIds = programSkills.map(ps => ps.skill_id)
+    // 2. Get SOC codes that match this CIP code via crosswalk
+    const { data: socMatches, error: socError } = await supabase
+      .from('cip_soc_crosswalk')
+      .select('soc_code, match_strength')
+      .eq('cip_code', program.cip_code)
 
-    // Then, find jobs that have those skills
-    const { data: jobSkills, error: jobSkillsError } = await supabase
-      .from('job_skills')
+    if (socError || !socMatches || socMatches.length === 0) {
+      return []
+    }
+
+    const socCodes = socMatches.map(m => m.soc_code)
+
+    // 3. Get jobs with matching SOC codes
+    const { data: jobs, error: jobsError } = await supabase
+      .from('jobs')
       .select(`
-        job_id,
-        jobs!inner(
-          id,
-          title,
-          job_kind,
-          soc_code,
-          company_id,
-          category,
-          median_wage_usd,
-          is_featured,
-          company:companies(id, name, logo_url)
-        )
+        id,
+        title,
+        job_kind,
+        soc_code,
+        company_id,
+        category,
+        median_wage_usd,
+        is_featured,
+        status,
+        company:companies(id, name, logo_url)
       `)
-      .in('skill_id', skillIds)
-      .eq('jobs.status', 'published')
+      .in('soc_code', socCodes)
+      .eq('status', 'published')
 
-    if (jobSkillsError || !jobSkills) {
+    if (jobsError || !jobs) {
       return []
     }
 
-    // Deduplicate jobs and count skill overlaps
-    const jobMap = new Map<string, { job: any; skillCount: number }>()
-    
-    jobSkills.forEach(js => {
-      const job = js.jobs
-      if (job && job.id) {
-        if (jobMap.has(job.id)) {
-          jobMap.get(job.id)!.skillCount++
-        } else {
-          jobMap.set(job.id, { job, skillCount: 1 })
-        }
-      }
-    })
-
-    // Sort by skill overlap count (most relevant first) and return all jobs
-    const sortedJobs = Array.from(jobMap.values())
-      .sort((a, b) => b.skillCount - a.skillCount)
-      .map(item => item.job)
-
-    return sortedJobs
+    return jobs as Job[]
   } catch (error) {
     console.error('Error fetching related jobs:', error)
     return []

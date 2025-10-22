@@ -384,9 +384,11 @@ WITH CHECK (auth.uid() = user_id);
 
 ### Overview
 
-The Employer Invitations System is a comprehensive two-way invitation platform enabling employers to invite qualified candidates to apply for featured roles, and candidates to manage their invitations. This system includes automatic candidate discovery, role-based access control, and comprehensive status tracking.
+The Employer Invitations System is a comprehensive two-way invitation platform enabling employers to invite qualified candidates to apply for featured roles, and candidates to manage their invitations. This system includes automatic candidate discovery, consent management, role-based access control, and comprehensive status tracking.
 
-**Status:** ✅ Candidate UI Complete | ⏸️ Employer UI On Hold
+**Status:** ✅ Candidate UI Complete | ✅ Consent Management Complete (SYSTEM-INFRA-905) | ⏸️ Employer UI On Hold
+
+**Updated:** October 21, 2025 - Added consent toggle with invitation withdrawal/backfill
 
 ### Architecture Components
 
@@ -464,6 +466,7 @@ $$ LANGUAGE plpgsql;
 - `sent` → "View Application" button (pending action)
 - `applied` → "Applied" badge (marked as applied)
 - `declined` → "Declined" badge (declined invitation)
+- `withdrawn` → **NEW** - User revoked consent (hidden from view)
 - `archived` → Moved to Archived tab
 
 **Employer View (Ready for Implementation):**
@@ -473,7 +476,33 @@ $$ LANGUAGE plpgsql;
 - `declined` → "Declined" badge
 - `hired` → "Hired" badge
 - `unqualified` → "Unqualified" badge
+- `withdrawn` → **NEW** - Candidate revoked consent (removed from queue)
 - `archived` → Moved to Archived tab
+
+#### 3a. Consent Management (SYSTEM-INFRA-905)
+
+**Added:** October 21, 2025
+
+**Consent Toggle OFF (Withdrawal):**
+1. User unchecks consent in Profile Settings
+2. Confirmation dialog shows impact
+3. All active invitations (`pending`, `sent`) → `withdrawn` status
+4. Invitations archived with `archived_by: 'candidate'`
+5. Removed from employer queues
+6. Toast: "X invitations withdrawn"
+
+**Consent Toggle ON (Backfill):**
+1. User checks consent in Profile Settings
+2. Confirmation dialog explains backfill
+3. System finds completed assessments meeting `visibility_threshold_pct`
+4. Creates invitations for qualifying assessments (skips duplicates)
+5. Added to employer queues
+6. Toast: "X invitations created"
+
+**Implementation:**
+- Service: `src/lib/services/consent-management.ts`
+- Dialog: `src/components/settings/consent-toggle-dialog.tsx`
+- Migration: `supabase/migrations/20251021000002_add_withdrawn_status.sql`
 
 #### 4. RLS Policies
 
@@ -1441,6 +1470,84 @@ if (assessment.readiness_pct >= 80) { // ❌ NEVER DO THIS
   return "You're role ready!";
 }
 ```
+
+### My Assessments Page Features
+
+**Completed:** October 21, 2025 (Phase 3K)
+
+#### Employer Communication Badges
+- **Shared with Employer** (blue): Invitation created, meets visibility threshold
+- **Applied** (teal): User clicked "Apply" button
+- **Hired** (green): Employer marked as hired
+- **Position Filled** (gray): Role filled by someone else
+- **Declined** (gray): User declined invitation
+
+**Logic:** Badges only show when `employer_invitations` record exists for assessment.
+
+#### Retake Cooldown System
+- **Per-role cooldown toggle** (EMPLOYER-613 - Oct 21, 2025)
+- Stored in `jobs.retake_cooldown_enabled` (boolean, default: true)
+- When enabled: 24-hour cooldown after assessment completion
+- When disabled: Unlimited retakes allowed
+- Button shows "Retake in Xh" with countdown timer when on cooldown
+- Tooltip explains cooldown purpose
+- Role Ready assessments show "View Invites" instead of retake
+- Prevents assessment spam and ensures thoughtful attempts
+
+**Implementation:**
+```typescript
+// Fetch cooldown setting from role
+const cooldownEnabled = assessment.job?.retake_cooldown_enabled ?? true
+
+// Calculate cooldown
+const hoursSinceAnalysis = (now.getTime() - analyzedAt.getTime()) / (1000 * 60 * 60)
+const hoursRemaining = Math.max(0, 24 - hoursSinceAnalysis)
+
+// Only enforce if enabled for this role
+const isOnCooldown = cooldownEnabled && hoursRemaining > 0
+```
+
+**Database:**
+```sql
+-- Migration: 20251021000004_add_retake_cooldown_toggle.sql
+ALTER TABLE jobs 
+ADD COLUMN retake_cooldown_enabled BOOLEAN DEFAULT true;
+```
+
+#### Program Matching
+- `program_matches_count` stored in assessments table
+- Calculated during analysis using skill gap matching
+- 60% threshold for program relevance
+- Displays with 🎓 icon: "5 Programs"
+- Shows "0 Programs" until program_skills table populated
+
+**Calculation:** See `/api/assessments/analyze` route, step 8
+
+#### Search & Filters
+**Search:** Job title or company name (not SOC code)
+
+**Status Filter:**
+- Role Ready (`role_ready`)
+- Almost There (`close_gaps`)
+- Developing (`developing`)
+
+**Invitation Filter:**
+- Shared with Employer (has invitation)
+- Not Shared (no invitation)
+- Applied, Hired (specific statuses)
+
+**Sort:** Readiness (score) or Date (most recent)
+
+#### Card Information Architecture
+**Hierarchy (top to bottom):**
+1. Company name (text-sm, semibold)
+2. Job title (text-xl, bold, clickable)
+3. Badges (readiness + invitation inline)
+4. Metadata line (date, skills, programs with icons)
+5. Action buttons (Assessment Results, Retake/View Invites)
+
+**Relative Time Display:**
+- "just now", "5m ago", "3h ago", "2d ago", "1w ago", "3mo ago"
 
 ### Enum Standards
 
@@ -3217,6 +3324,24 @@ Complete employer dashboard with real-time metrics, pipeline visualization, and 
 - Actions: Edit, View Live, Publish/Unpublish, Delete
 - Search/Sort/Filter functionality
 - Role limit enforcement (10 max)
+
+**Role Editor** (`/employer/roles/[id]/edit`):
+- Wraps admin role editor with employer context
+- **Basic Information Tab** (EMPLOYER-601, 602, 603, 613 - Oct 21, 2025):
+  - Required Proficiency Score (%) - `jobs.required_proficiency_pct` (0-100, default: 90)
+    - Determines "Role Ready" status threshold
+    - Used in assessment status_tag calculation
+  - Employer Visibility Threshold (%) - `jobs.visibility_threshold_pct` (0-100, default: 85)
+    - Determines when candidates appear in employer dashboard
+    - Used by auto-invite system
+    - UI validation: must be ≤ required_proficiency_pct
+  - Retake Cooldown - `jobs.retake_cooldown_enabled` (boolean, default: true)
+    - Controls 24-hour assessment retake cooldown
+    - When disabled: unlimited retakes allowed
+  - Publish/Unpublish Toggle - `jobs.is_published` (boolean)
+    - Confirmation dialog on state change
+    - Unpublishing removes from user favorites
+- All fields validated and tested (see test-role-proficiency-fields.ts)
 
 **Invites Table** (`/src/components/employer/employer-invites-table-v2.tsx`):
 - Active/Archived sub-tabs

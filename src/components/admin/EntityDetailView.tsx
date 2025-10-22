@@ -478,20 +478,21 @@ export function EntityDetailView<T extends { id: string; status?: string; is_fea
         
       case 'switch':
         return (
-          <div className="flex items-center space-x-2">
-            <Switch
-              id={fieldId}
-              checked={Boolean(value)}
-              onCheckedChange={(checked) => handleChange(field.key, checked, field)}
-              disabled={field.disabled}
-              className={error ? 'border-destructive' : ''}
-            />
-            <Label htmlFor={fieldId} className={error ? 'text-destructive' : ''}>
-              {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
-            </Label>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id={fieldId}
+                checked={Boolean(value)}
+                onCheckedChange={(checked) => handleChange(field.key, checked, field)}
+                disabled={field.disabled}
+                className={error ? 'border-destructive' : ''}
+              />
+              <Label htmlFor={fieldId} className={error ? 'text-destructive' : ''}>
+                {field.label}
+                {field.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+            </div>
             {field.helpText && <p className="text-sm text-muted-foreground">{field.helpText}</p>}
-
             {error && <p className="text-sm text-destructive">{error}</p>}
           </div>
         )

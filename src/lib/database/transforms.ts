@@ -149,7 +149,7 @@ export function transformAssessmentToCard(assessment: Assessment) {
     id: assessment.id,
     jobTitle: job?.title || 'Unknown Job',
     jobType: job?.job_type || 'Full-time',
-    assessmentMethod: assessment.method === 'quiz' ? 'Skills Quiz' : 'Resume Analysis',
+    assessmentMethod: 'Skills Quiz',
     analyzedDate: assessment.analyzed_at || new Date().toISOString(),
     readinessScore: assessment.readiness_pct || 0,
     statusTag: assessment.status_tag || 'needs_development',

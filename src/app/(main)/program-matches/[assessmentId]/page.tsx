@@ -5,57 +5,38 @@ import PageHeader from '@/components/ui/page-header'
 import Breadcrumb from '@/components/ui/breadcrumb'
 import AssessmentStepper from '@/components/ui/assessment-stepper'
 import { FeaturedProgramCard } from '@/components/ui/featured-program-card'
+import { EmptyState } from '@/components/ui/empty-state'
 import Link from 'next/link'
 import { routes } from '@/lib/routes'
+import { calculateSkillGaps, findProgramsForGaps } from '@/lib/services/program-gap-matching'
+import { supabase } from '@/lib/supabase/client'
 
-// Mock data - will be replaced with real API calls
-const mockProgramMatches = [
-  {
-    id: '1',
-    name: 'Full Stack Web Development Bootcamp',
-    school: { name: 'TechEd Institute', logo_url: null, city: 'Tampa', state: 'FL' },
-    program_type: 'Bootcamp',
-    format: 'Online',
-    duration_text: '24 weeks',
-    short_desc: 'Comprehensive program covering modern web development technologies including React, Node.js, and databases.',
-    coverage_score: 0.85,
-    covered_skills: ['Node.js', 'SQL', 'Git', 'Docker'],
-    program_url: 'https://example.com/program1'
-  },
-  {
-    id: '2',
-    name: 'Backend Development Certificate',
-    school: { name: 'Code Academy', logo_url: null, city: 'St. Petersburg', state: 'FL' },
-    program_type: 'Certificate',
-    format: 'Hybrid',
-    duration_text: '16 weeks',
-    short_desc: 'Focus on server-side development, databases, and API design.',
-    coverage_score: 0.75,
-    covered_skills: ['Node.js', 'SQL', 'Docker'],
-    program_url: 'https://example.com/program2'
-  },
-  {
-    id: '3',
-    name: 'DevOps Fundamentals',
-    school: { name: 'Tech Institute', logo_url: null, city: 'Clearwater', state: 'FL' },
-    program_type: 'Certificate',
-    format: 'Online',
-    duration_text: '12 weeks',
-    short_desc: 'Learn containerization, CI/CD, and infrastructure management.',
-    coverage_score: 0.50,
-    covered_skills: ['Git', 'Docker'],
-    program_url: 'https://example.com/program3'
+async function getProgramMatches(assessmentId: string) {
+  try {
+    // Get assessment details
+    const { data: assessment, error: assessmentError } = await supabase
+      .from('assessments')
+      .select('*, job:jobs(id, title, soc_code)')
+      .eq('id', assessmentId)
+      .single()
+
+    if (assessmentError || !assessment) {
+      throw new Error('Assessment not found')
+    }
+
+    // Calculate skill gaps and find matching programs
+    const gaps = await calculateSkillGaps(assessmentId)
+    const programs = await findProgramsForGaps(gaps, { minMatchThreshold: 60 })
+
+    return {
+      assessment,
+      programs,
+      gapSkills: gaps.map(g => g.skill_name)
+    }
+  } catch (error) {
+    console.error('Error loading program matches:', error)
+    return null
   }
-]
-
-const mockAssessment = {
-  id: '1',
-  job: { 
-    id: '1',
-    title: 'Project Management Specialists',
-    soc_code: '13-1082'
-  },
-  gap_skills: ['Node.js', 'SQL', 'Git', 'Docker']
 }
 
 function ProgramMatchCard({ program, gapSkills }: { program: any, gapSkills: string[] }) {
@@ -133,9 +114,23 @@ function ProgramMatchCard({ program, gapSkills }: { program: any, gapSkills: str
   )
 }
 
-export default function ProgramMatchesPage({ params }: { params: { assessmentId: string } }) {
-  const assessment = mockAssessment // In real app: await getAssessment(params.assessmentId)
-  const programMatches = mockProgramMatches // In real app: await getProgramMatches(params.assessmentId)
+export default async function ProgramMatchesPage({ params }: { params: { assessmentId: string } }) {
+  const data = await getProgramMatches(params.assessmentId)
+  
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <EmptyState
+          title="Assessment Not Found"
+          description="We couldn't find the assessment you're looking for."
+          primaryButtonText="Back to My Assessments"
+          primaryButtonHref="/my-assessments"
+        />
+      </div>
+    )
+  }
+  
+  const { assessment, programs, gapSkills } = data
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -197,7 +192,7 @@ export default function ProgramMatchesPage({ params }: { params: { assessmentId:
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 flex-wrap">
-              {assessment.gap_skills.map((skill) => (
+              {gapSkills.map((skill: string) => (
                 <Badge key={skill} variant="outline" className="bg-red-50 text-red-700 border-red-200">
                   {skill}
                 </Badge>
@@ -210,7 +205,7 @@ export default function ProgramMatchesPage({ params }: { params: { assessmentId:
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">
-              Recommended Programs ({programMatches.length})
+              Recommended Programs ({programs.length})
             </h2>
             <Button asChild variant="outline">
               <Link href={routes.programs}>Browse All Programs</Link>
@@ -218,7 +213,7 @@ export default function ProgramMatchesPage({ params }: { params: { assessmentId:
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {programMatches.map((program) => (
+            {programs.map((program: any) => (
               <div key={program.id} className="relative">
                 <div className="absolute top-4 right-4 z-10">
                   <Badge className="bg-green-100 text-green-800">
@@ -249,7 +244,7 @@ export default function ProgramMatchesPage({ params }: { params: { assessmentId:
             ))}
           </div>
 
-          {programMatches.length === 0 && (
+          {programs.length === 0 && (
             <Card>
               <CardContent className="text-center py-12">
                 <div className="mb-4">

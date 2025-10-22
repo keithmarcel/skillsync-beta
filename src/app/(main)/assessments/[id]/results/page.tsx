@@ -23,6 +23,7 @@ export default function AssessmentResultsPage() {
   const [loading, setLoading] = useState(true)
   const [displayedReadiness, setDisplayedReadiness] = useState(0)
   const [hasShownToast, setHasShownToast] = useState(false)
+  const [userConsent, setUserConsent] = useState<boolean>(false)
 
   const scrollToPrograms = () => {
     const programsSection = document.getElementById('upskilling-programs')
@@ -71,6 +72,18 @@ export default function AssessmentResultsPage() {
 
       if (assessmentError) throw assessmentError
       setAssessment(assessmentData)
+
+      // Fetch user's consent status
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('visible_to_employers')
+          .eq('id', user.id)
+          .single()
+        
+        setUserConsent(profile?.visible_to_employers || false)
+      }
 
       const { data: skillsData, error: skillsError } = await supabase
         .from('assessment_skill_results')
@@ -346,19 +359,25 @@ export default function AssessmentResultsPage() {
 
             return (
               <div className="px-8 pb-8">
-                <div className={`bg-[#114B5F] rounded-lg px-6 py-4 flex items-center ${programCount > 0 ? 'justify-between' : 'justify-center'}`}>
+                <div className={`bg-[#114B5F] rounded-lg px-6 py-4 flex items-center ${programCount > 0 || (isRoleReady && !userConsent) ? 'justify-between' : 'justify-center'}`}>
                   <p className="text-lg text-[#F5F5F5]">
                     {isRoleReady ? (
-                      <>
-                        You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with {assessment.job?.company?.name || 'the employer'}.
-                      </>
+                      userConsent ? (
+                        <>
+                          You've shown <span className="font-semibold">high proficiency</span>. Your readiness score has been shared with {assessment.job?.company?.name || 'the employer'}.
+                        </>
+                      ) : (
+                        <>
+                          <span className="font-semibold">Enable Sharing</span> to send your assessment results to employers and receive invitations to apply.
+                        </>
+                      )
                     ) : (
                       <>
                         You matched with <span className="font-semibold">{programCount} education program{programCount !== 1 ? 's' : ''}</span> that have the skills you need.
                       </>
                     )}
                   </p>
-                  {programCount > 0 && (
+                  {programCount > 0 ? (
                     <Button 
                       variant="outline" 
                       onClick={scrollToPrograms}
@@ -366,7 +385,16 @@ export default function AssessmentResultsPage() {
                     >
                       {isRoleReady ? 'View Upskilling Programs →' : 'View Your Program Matches →'}
                     </Button>
-                  )}
+                  ) : isRoleReady && !userConsent ? (
+                    <Link href="/account-settings?tab=profile">
+                      <Button 
+                        variant="outline" 
+                        className="bg-transparent border-[#AFECEF] text-[#AFECEF] hover:bg-white/10 text-sm whitespace-nowrap ml-4"
+                      >
+                        Enable Sharing →
+                      </Button>
+                    </Link>
+                  ) : null}
                 </div>
               </div>
             )
@@ -447,7 +475,7 @@ export default function AssessmentResultsPage() {
           {(() => {
             const requiredProficiency = assessment?.job?.required_proficiency_pct || 75
             const gapCount = skillResults.filter(s => s.score_pct < requiredProficiency).length
-            const isRoleReady = gapCount === 0
+            const isRoleReady = readiness >= requiredProficiency
             
             const filteredPrograms = displayPrograms.filter(program => {
               const hasValidName = program.name && !program.name.startsWith('Skills:') && !program.name.startsWith('Build:')

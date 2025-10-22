@@ -6,7 +6,7 @@ export type Database = {
           id: string
           user_id: string | null
           job_id: string | null
-          method: 'resume' | 'quiz'
+          method: 'quiz'
           analyzed_at: string | null
           readiness_pct: number | null
           status_tag: 'role_ready' | 'close_gaps' | 'needs_development' | null
@@ -15,7 +15,7 @@ export type Database = {
           id?: string
           user_id?: string | null
           job_id?: string | null
-          method: 'resume' | 'quiz'
+          method: 'quiz'
           analyzed_at?: string | null
           readiness_pct?: number | null
           status_tag?: 'role_ready' | 'close_gaps' | 'needs_development' | null
@@ -24,7 +24,7 @@ export type Database = {
           id?: string
           user_id?: string | null
           job_id?: string | null
-          method?: 'resume' | 'quiz'
+          method?: 'quiz'
           analyzed_at?: string | null
           readiness_pct?: number | null
           status_tag?: 'role_ready' | 'close_gaps' | 'needs_development' | null
@@ -268,7 +268,7 @@ export type Database = {
 
 export type Band = 'proficient' | 'building' | 'needs_dev'
 export type JobKind = 'featured_role' | 'occupation'
-export type AssessmentMethod = 'resume' | 'quiz'
+export type AssessmentMethod = 'quiz'
 export type StatusTag = 'role_ready' | 'close_gaps' | 'needs_development'
 
 export interface SkillResult {

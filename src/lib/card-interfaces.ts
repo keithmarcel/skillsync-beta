@@ -140,7 +140,7 @@ export interface AssessmentCardProps extends BaseCardProps {
   jobTitle: string
   jobType: 'Featured Role' | 'High Demand Occupation'
   status: CardStatus
-  assessmentMethod: 'Skills Assessment' | 'Resume Upload'
+  assessmentMethod: 'Skills Assessment'
   analyzedDate: string
   progress: CardProgress
   specificGaps?: string[]
