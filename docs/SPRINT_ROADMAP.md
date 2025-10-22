@@ -463,12 +463,12 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 
 **System → Infrastructure / Notifications**
 - [ ] **SYSTEM-INFRA-911**: Notification Service Scaffold (Supabase/SendGrid/Brevo) (P2)
-- [ ] **SYSTEM-INFRA-912**: View Application button contrast update
-- [ ] **SYSTEM-INFRA-913**: Notification status icons (applied=green check, declined icon)
-- [ ] **SYSTEM-UI-921**: In-App Notifications Bell and Dropdown
+- [x] **SYSTEM-INFRA-912**: View Application button contrast update ✅ (Oct 21)
+- [x] **SYSTEM-INFRA-913**: Notification status icons (applied=green check, declined icon) ✅ (Oct 21)
+- [x] **SYSTEM-UI-921**: In-App Notifications Bell and Dropdown ✅ (Oct 21)
 
 **System → UI**
-- [ ] **SYSTEM-UI-931**: Global Source Footer (Data Source Labels) (P2)
+- [x] **SYSTEM-UI-931**: Global Source Footer (Data Source Labels) ✅ (Oct 21)
 - [ ] **SYSTEM-UI-941**: Responsiveness across experience
 
 ### 🧹 **PRIORITY 5: Cleanup / Demo Prep**
@@ -476,10 +476,10 @@ Fixed critical data integrity issues in Skills Snapshot where metrics didn't mat
 **Account Onboarding Flow**
 - [ ] **ONBOARD-822**: Add in FINAL Privacy Policy copy to page
 - [ ] **ONBOARD-823**: Send Rob legal pages for final review
-- [ ] **ONBOARD-824**: Reroute users to /employers, /providers, /bisk based on email
+- [x] **ONBOARD-824**: Role-based portal routing (auto-redirect to correct portal) ✅ (Oct 21)
 
 **System → Cleanup / Demo Prep**
-- [ ] **DEMO-101**: Remove Legacy Occupation Assessment Entrypoints
+- [x] **DEMO-101**: Remove Legacy Occupation Assessment Entrypoints ✅ (Oct 21)
 - [ ] **DEMO-102**: Microcopy Alignment Across UI
 - [ ] **DEMO-102**: Clean up page loading, login loading, speed
 - [ ] **DEMO-103**: Global stylesheet to manage plus documentation

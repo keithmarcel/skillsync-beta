@@ -453,12 +453,9 @@ export default function DataTable({
                                   {getTertiaryActionLabel(tableType)}
                                 </DropdownMenuItem>
                               )}
-                              {tableType === 'jobs' && (
+                              {tableType === 'jobs' && row.job_kind === 'featured_role' && (
                                 <>
                                   <DropdownMenuSeparator />
-                                  <DropdownMenuItem onClick={() => onRowAction?.('resume', row)}>
-                                    Upload Your Resume
-                                  </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => onRowAction?.('assessment', row)}>
                                     Take a Skills Assessment
                                   </DropdownMenuItem>

@@ -1804,7 +1804,7 @@ const genericSkillNames = [
 
 ### Overview
 
-The SOC-Based Quiz System represents a fundamental architectural shift from job-specific to occupation-based assessments, enabling massive reusability and scalability. One quiz serves hundreds of jobs with the same SOC code, dramatically reducing content creation overhead while maintaining assessment quality.
+**DEPRECATED (Oct 21, 2025):** The SOC-Based Quiz System was originally designed for occupation-based assessments but has been deprecated. Assessments are now **only available for Featured Roles** (employer-created positions), not for High-Demand Occupations (HDOs). This shift focuses assessment resources on employer-specific needs while HDOs serve as discovery and exploration tools.
 
 ## Assessment Proficiency Engine Architecture
 
